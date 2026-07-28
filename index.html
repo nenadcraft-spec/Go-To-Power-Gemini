@@ -31,16 +31,16 @@
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
 
         /* Hero Banner */
         .hero {
             background: linear-gradient(135deg, #0d131f 0%, #030508 100%);
             border: 1px solid var(--border-color);
-            border-left: 6px solid var(--accent-green);
+            border-left: 5px solid var(--accent-green);
             border-radius: 8px;
-            padding: 25px 15px;
+            padding: 20px 15px;
             text-align: center;
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,255,102,0.05);
@@ -48,16 +48,16 @@
 
         .hero h1 {
             margin: 0;
-            font-size: 22px;
+            font-size: 20px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             color: #fff;
         }
 
         .hero-subtitle {
             color: var(--accent-green);
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             letter-spacing: 1px;
             margin-top: 5px;
         }
@@ -86,35 +86,33 @@
             padding-top: 8px;
         }
 
-        /* Navigation Tabs */
+        /* Fixed Mobile Grid Navigation */
         .nav-tabs {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 8px;
             margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            -webkit-overflow-scrolling: touch;
         }
 
         .tab-btn {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-muted);
-            padding: 10px 16px;
+            padding: 12px 10px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
             font-size: 12px;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
+            text-align: center;
+            transition: all 0.2s ease;
+            width: 100%;
         }
 
         .tab-btn:hover, .tab-btn.active {
             background: var(--accent-green);
             color: #000;
             border-color: var(--accent-green);
-            box-shadow: 0 0 12px rgba(0,255,102,0.3);
+            box-shadow: 0 0 10px rgba(0,255,102,0.3);
         }
 
         /* Content Sections */
@@ -123,7 +121,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 20px;
+            padding: 18px;
         }
 
         .tab-content.active {
@@ -132,7 +130,7 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
+            from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -206,7 +204,7 @@
         }
 
         .calc-result {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             color: var(--accent-green);
             text-align: center;
@@ -218,7 +216,7 @@
         /* WHR NOVOSTI CARDS */
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
             margin-top: 15px;
         }
@@ -234,7 +232,7 @@
 
         .news-card img {
             width: 100%;
-            height: 160px;
+            height: 150px;
             object-fit: cover;
         }
 
@@ -261,15 +259,15 @@
 
         .news-title {
             color: #fff;
-            font-size: 16px;
+            font-size: 15px;
             margin: 5px 0;
             font-weight: bold;
         }
 
         .news-desc {
             color: var(--text-muted);
-            font-size: 13px;
-            margin-bottom: 15px;
+            font-size: 12px;
+            margin-bottom: 12px;
             flex-grow: 1;
         }
 
@@ -349,18 +347,18 @@
             <div class="tagline">"Ne kupuj opremu da bi imao studio. Gradi studio koji će stvarati originalne ideje."</div>
         </div>
 
-        <!-- Navigation Tabs -->
+        <!-- Navigation Tabs (Grid Layout) -->
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest & Vizija</button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation Core</button>
+            <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-invest')">📑 Investicije & ROI</button>
-            <button class="tab-btn" style="border-color: var(--accent-green); color: var(--accent-green);" onclick="openTab(event, 'tab-news')">📰 WHR Novosti</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-invest')">📑 Investicije</button>
+            <button class="tab-btn" style="border-color: var(--accent-green);" onclick="openTab(event, 'tab-news')">📰 Novosti</button>
         </div>
 
         <!-- TAB 1: MANIFEST -->
         <div id="tab-manifest" class="tab-content active">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">POGLAVLJE 00: CREATIVE COMMAND CENTER</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">POGLAVLJE 00: CREATIVE COMMAND CENTER</h2>
             <p><strong>Lokacija:</strong> Kikinda, Vojvodina, Serbia | <strong>Filozofija:</strong> AI-Driven Cinematic Production</p>
             <hr style="border-color: var(--border-color);">
             <h3>White Hat Rabbit Manifesto</h3>
@@ -375,9 +373,9 @@
             </ul>
         </div>
 
-        <!-- TAB 2: WORKSTATION -->
+        <!-- TAB 2: WORKSTATION CORE -->
         <div id="tab-workstation" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">DIGITALNO SRCE STUDIJA</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">DIGITALNO SRCE STUDIJA</h2>
             
             <div class="hud-card">
                 <div class="hud-header">
@@ -396,11 +394,20 @@
                 <p><strong>Uloga:</strong> Brzo prevođenje AI skripti, pozadinsko renderovanje u Blenderu i fizika u UE5.</p>
                 <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~650 € | <strong>ROI:</strong> 5 Meseci</p>
             </div>
+
+            <div class="hud-card" style="border-top-color: var(--accent-blue);">
+                <div class="hud-header">
+                    <span>[RAM] 128GB DDR5 6000MHz</span>
+                    <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); border-color: var(--accent-blue);">ESSENTIAL</span>
+                </div>
+                <p><strong>Uloga:</strong> Rad sa masivnim 3D scenama, simulacijama i velikim AI dataset-ovima u memoriji istovremeno.</p>
+                <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~450 €</p>
+            </div>
         </div>
 
         <!-- TAB 3: PIPELINE -->
         <div id="tab-pipeline" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">INTEGRISANI WHR PRODUCTION PIPELINE</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">INTEGRISANI WHR PRODUCTION PIPELINE</h2>
             <p>Kliknite na korak za detalje:</p>
 
             <div class="pipeline">
@@ -425,12 +432,12 @@
 
         <!-- TAB 4: INVESTICIJE & ROI -->
         <div id="tab-invest" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">INVESTICIONI PLAN & ROI</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">INVESTICIONI PLAN & ROI</h2>
             <p>Ukupna procenjena početna investicija: <strong style="color: var(--accent-green);">~23,800 €</strong></p>
 
             <div class="calc-box">
-                <h3 style="margin-top:0; color: var(--accent-blue); font-size: 15px;">🧮 Kalkulator Povrata Investicije</h3>
-                <label style="font-size:13px;">Mesečni prihodi od projekata (€):</label>
+                <h3 style="margin-top:0; color: var(--accent-blue); font-size: 14px;">🧮 Kalkulator Povrata Investicije</h3>
+                <label style="font-size:12px;">Mesečni prihodi od projekata (€):</label>
                 <input type="range" id="incomeSlider" class="calc-slider" min="1000" max="10000" step="500" value="4000" oninput="updateROI()">
                 
                 <div id="roiResult" class="calc-result">Prihod: 4000 €/mesec ➔ Povrat za: 6 Meseci</div>
@@ -439,8 +446,8 @@
 
         <!-- TAB 5: WHR NOVOSTI (REDAKCIJA) -->
         <div id="tab-news" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">WHR STUDIO TRANSMISSION</h2>
-            <p style="color: var(--text-muted); font-size:13px;">Najnovije vesti, oprema i projekti iz komandnog centra Kikinda.</p>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">WHR STUDIO TRANSMISSION</h2>
+            <p style="color: var(--text-muted); font-size:12px;">Najnovije vesti, oprema i projekti iz komandnog centra Kikinda.</p>
             
             <div id="newsGridContainer" class="news-grid">
                 <!-- Kartice vesti se učitavaju automatski -->
@@ -452,9 +459,9 @@
             <div class="modal-content">
                 <span class="modal-close" onclick="closeModalDirect()">&times;</span>
                 <div id="modalNewsDate" class="news-date"></div>
-                <h2 id="modalNewsTitle" style="color:#fff; margin:10px 0;"></h2>
+                <h2 id="modalNewsTitle" style="color:#fff; margin:10px 0; font-size:18px;"></h2>
                 <img id="modalNewsImg" src="" style="width:100%; border-radius:6px; margin:10px 0; display:block;">
-                <p id="modalNewsText" style="color: #cbd5e1; white-space: pre-line; font-size:14px; line-height:1.6;"></p>
+                <p id="modalNewsText" style="color: #cbd5e1; white-space: pre-line; font-size:13px; line-height:1.6;"></p>
             </div>
         </div>
 
@@ -466,20 +473,30 @@
     </div>
 
     <script>
-        // Tab prebacivanje
+        // Prebacivanje tabova
         function openTab(evt, tabId) {
-            var tabs = document.querySelectorAll('.tab-content');
-            var btns = document.querySelectorAll('.tab-btn');
+            var i, tabcontent, tablinks;
             
-            for(var i=0; i<tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
-            for(var j=0; j<btns.length; j++) {
-                btns[j].classList.remove('active');
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
             }
             
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            
+            var targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.style.display = "block";
+                targetTab.classList.add("active");
+            }
+            
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add("active");
+            }
         }
 
         // ROI kalkulator
@@ -512,23 +529,4 @@
                 date: "30. Jul 2026.",
                 title: "Definisano digitalno srce studija",
                 summary: "RTX 5090 32GB i Ryzen 9 9950X čine neuralni mozak našeg studija.",
-                text: "Radna stanica predstavlja centralni neuralni čvor White Hat Rabbit Studios sistema.\n\nKonfiguracija je posebno optimizovana za ComfyUI, DaVinci Resolve, Blender i Unreal Engine 5.\n\nSistem je direktno povezan na brzu 10GbE mrežnu arhivu.",
-                image: "./studio.png"
-            }
-        ];
-
-        // Prikazivanje kartica vesti
-        function loadNews() {
-            var container = document.getElementById('newsGridContainer');
-            if(!container) return;
-            
-            var html = '';
-            for(var i=0; i<whrNewsData.length; i++) {
-                var item = whrNewsData[i];
-                html += '<div class="news-card">';
-                html += '<img src="' + item.image + '" alt="WHR News">';
-                html += '<div class="news-body">';
-                html += '<div class="news-tag">' + item.tag + '</div>';
-                html += '<div class="news-date">' + item.date + '</div>';
-                html += '<div class="news-title">' + item.title + '</div>';
-                html += '<div c
+                text: "Radna stanica predstavlja centralni neuralni čvor White Hat Rabbit Studios sistema.\n\nKonfiguracija je posebno optimizovana 
