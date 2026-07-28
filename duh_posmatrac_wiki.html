@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duh Posmatrač // Hologramska Pozornica - WHR Wiki</title>
+    <style>
+        :root {
+            --bg-main: #05080e;
+            --bg-card: #0d131f;
+            --accent-green: #00ff66;
+            --accent-blue: #38bdf8;
+            --accent-purple: #c084fc;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Top Bar Navigation */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+        }
+
+        .pdf-btn {
+            background: rgba(0, 255, 102, 0.1);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .pdf-btn:hover {
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        /* Header Hero */
+        .header-box {
+            background: linear-gradient(135deg, #0d131f 0%, #030508 100%);
+            border: 1px solid var(--border-color);
+            border-left: 6px solid var(--accent-purple);
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(192, 132, 252, 0.05);
+        }
+
+        .kicker {
+            color: var(--accent-purple);
+            font-family: monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .header-box h1 {
+            margin: 10px 0 5px;
+            font-size: 28px;
+            letter-spacing: 1.5px;
+            color: #fff;
+        }
+
+        .header-subtitle {
+            color: var(--accent-blue);
+            font-size: 14px;
+        }
+
+        /* Content Sections */
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section-card h2 {
+            color: var(--accent-green);
+            font-size: 18px;
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .feature-list li::before {
+            content: "•";
+            color: var(--accent-purple);
+            font-size: 20px;
+            position: absolute;
+            left: 0;
+            top: -2px;
+        }
+
+        /* Comparison Table */
+        .table-wrap {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background: #05080e;
+            color: var(--accent-blue);
+        }
+
+        td {
+            background: #0d131f;
+        }
+
+        tr:hover td {
+            background: rgba(0,255,102,0.02);
+        }
+
+        /* Script Scenario Formatting */
+        .script-box {
+            background: #05080e;
+            border-left: 3px solid var(--accent-blue);
+            padding: 20px;
+            border-radius: 0 6px 6px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .scene-heading {
+            color: var(--accent-purple);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .character-name {
+            color: var(--accent-green);
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
+            text-transform: uppercase;
+        }
+
+        .parenthetical {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .dialogue {
+            max-width: 500px;
+            margin: 0 auto 15px auto;
+            text-align: center;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Navigation Header -->
+        <div class="top-nav">
+            <a href="index.html" class="nav-btn">← Nazad na WHR Control Center</a>
+            <a href="pdf/hologramski_bioskop_pilot.pdf" target="_blank" class="nav-btn pdf-btn">📥 Otvori originalni PDF</a>
+        </div>
+
+        <!-- Document Header -->
+        <div class="header-box">
+            <div class="kicker">PILOT KONCEPT & IMAGINARNI SCENARIO</div>
+            <h1>DUH POSMATRAČ</h1>
+            <div class="header-subtitle">Hologramska pozornica pod otvorenim nebom // Vizija za budućnost</div>
+        </div>
+
+        <!-- Poglavlje 1 -->
+        <div class="section-card">
+            <h2>1. UVOD I ISKRA VIZIJE</h2>
+            <p>Zamislite večer u kojoj se briše poslednja granica između gledaoca i filmskog platna. Ovde nema bioskopskih sedišta, nema plastičnih pregrada i hladnih dvorana. Pod otvorenim zvezdanim nebom, na mekoj travi, ljudi prostiru svoja ćebad, otvaraju korpice sa hranom, sipaju vino i smeju se. A onda, iz trave i noćnog vazduha, izranja priča.</p>
+            <p>Ovo nije klasična projekcija — ovo je <strong>hologramska pozornica bez zidova</strong>. Cela dvorana ili otvorena poljana postaje jedinstvena živopisna scena. Posmatrač više nije pasivni gledalac zakovan za stolicu; on postaje <strong>Duh Posmatrač (Ghost Observer)</strong> - nevidljiva, prozirna prisutnost koja slobodno hoda, sedi ili leži unutar same radnje filma.</p>
+
+            <h3 style="color: var(--accent-blue); font-size: 15px; margin-top: 20px;">Ključni Elementi Koncepta:</h3>
+            <ul class="feature-list">
+                <li><strong>Duh Posmatrač (6DoF):</strong> Sloboda kretanja kroz tri dimenzije. Možete prići tik uz glumca, posmatrati emociju na njegovom licu ili ležati na ćebetu dok se scene odvijaju oko i iznad vas.</li>
+                <li><strong>Pozornica na Zemlji i na Nebu:</strong> Hologramski glumci kreću se po travi između publike, dok se na noćnom nebu slikaju epski horizonti, oluje, ili svemirski brodovi.</li>
+                <li><strong>Toplina i Druženje:</strong> Tehnologija se ne zatvara u sterilne sobe, već se spaja sa prirodom, piknikom, vinom i ljudskom bliskošću.</li>
+            </ul>
+        </div>
+
+        <!-- Poglavlje 2 -->
+        <div class="section-card">
+            <h2>2. KAKO SE MENJA DOŽIVLJAJ (POREĐENJE)</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Klasičan Bioskop / Pozorište</th>
+                            <th>Hologramski Piknik Bioskop</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pasivno sedenje u mračnom rednom sedištu</td>
+                            <td>Sloboda na ćebetu, vino, hrana i šetnja kroz radnju</td>
+                        </tr>
+                        <tr>
+                            <td>Fiksni ugao gledanja (kadar koji bira režiser)</td>
+                            <td>Neograničene perspektive - gledaš odakle god želiš</td>
+                        </tr>
+                        <tr>
+                            <td>Ravno ili 3D platno ispred gledaoca</td>
+                            <td>Volumetrijski prostorni prikaz usred publike i na nebu</td>
+                        </tr>
+                        <tr>
+                            <td>Distanca između glumca i publike</td>
+                            <td>Glumci prolaze tik pored vas bez dodira i prekida</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Poglavlje 3 -->
+        <div class="section-card">
+            <h2>3. PILOT SCENA: "ZVEZDANA LETNJA NOĆ"</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Sledeći scenario je kreiran kao prezentacioni primer i umetnički prikaz kako izgleda jedna letnja noć na ovoj hologramskoj pozornici pod otvorenim nebom.</p>
+
+            <div class="script-box">
+                <div class="scene-heading">SCENA 1. OTVORENA POLJANA / ZVEZDANO NEBO - NOĆ</div>
+                <p>Topla letnja noć. Na travi je prostirka, a na njoj korpica sa sirom, voćem i dve čaše crvenog vina. Letnji povetarac blago pomera listove drveća. U pozadini se čuju cvrčci.</p>
+                <p>Odjednom, vazduh iznad trave počinje blago da svetluca u rozi i ljubičastim tonovima. Iz same trave, tik uz ivicu ćebeta, počinju da izranjaju meki, svetlosni hologramski obrisi starog pariskog kafea.</p>
+
+                <div class="character-name">MARKO</div>
+                <div class="parenthetical">(uzima čašu vina, smeši se)</div>
+                <div class="dialogue">Pogledaj gore... Ne samo u nebo, nego u ono što dolazi kroz njega.</div>
+
+                <p>Iznad njihovih glava, zvezdano nebo se pretvara u zvezdanu mapu 1920-ih godina. Zvezde počinju da spajaju svetlosne linije, stvarajući iluziju zlatnog krova od svetlosti.</p>
+
+                <div class="character-name">ELENA</div>
+                <div class="parenthetical">(ležeći na ćebetu, gleda ka gore)</div>
+                <div class="dialogue">Osećam se kao da sam nevidljiva... Kao da smo prozirni duhovi u nečijem najlepšem snu.</div>
+
+                <p>Hologramski glumac — mladi pesnik sa starinskim šeširom — prolazi tiho pored njihovog ćebeta. Njegove stope ostavljaju svetleći trag u travi koji polako nestaje. On seda za svetlosni sto stvoren od laserskog snopa samo dva koraka dalje.</p>
+
+                <div class="character-name">PESNIK (HOLOGRAM)</div>
+                <div class="parenthetical">(priča sam sa sobom, pisaći pero u ruci)</div>
+                <div class="dialogue">Ako te noć ne pronađe tamo gde si ostavio srce, naći će te među zvezdama koje posmatraju ćutke...</div>
+
+                <p>Pesnik podiže pogled ka nebu. Istovremeno, sa neba ka travi spušta se hologramska kiša svetlosnih iskri. Nijedna kap ne kvasi ćebad, ali svetlost obasjava lica prisutnih. Marko i Elena se smeju, prolazeći prstima kroz svetlosne kapi.</p>
+
+                <div class="character-name">MARKO</div>
+                <div class="dialogue">Niko nas ne prekida. Nema ekrana. Priča živi oko nas, a mi smo njen najlepši deo.</div>
+            </div>
+        </div>
+
+        <!-- Poglavlje 4 -->
+        <div class="section-card">
+            <h2>4. PORUKA ZA OSNIVAČE I ISTRAŽIVAČE (OI)</h2>
+            <p>Ova ideja je trenutno u svojoj najlepšoj, ali i najranjivijoj fazi — fazi čiste vizije. Njena svrha nije samo tehnološki napredak, već povratak pravoj ljudskoj emociji, mašti i zajedništvu. Predviđeni horizont za razvoj i sazrevanje ove ideje je naredne tri godine.</p>
+            <p style="font-size: 12px; color: var(--accent-purple); font-family: monospace; margin-top: 15px;">Dokument pripremljen za razmatranje i kreativnu diskusiju // "Duh Posmatrač" Project Concept</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <strong>WHITE HAT RABBIT STUDIOS</strong> // Kikinda, Serbia<br>
+            <span style="color: var(--accent-green);">The Future Begins Here. 🐇⚔️</span>
+        </div>
+    </div>
+
+</body>
+</html>
