@@ -40,32 +40,31 @@
             border: 1px solid var(--border-color);
             border-left: 6px solid var(--accent-green);
             border-radius: 8px;
-            padding: 30px 20px;
+            padding: 25px 15px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,255,102,0.05);
         }
 
         .hero h1 {
             margin: 0;
-            font-size: 26px;
+            font-size: 22px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             color: #fff;
         }
 
         .hero-subtitle {
             color: var(--accent-green);
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 1px;
             margin-top: 5px;
         }
 
-        /* Studio Hero Image Container */
         .studio-hero-img-box {
             width: 100%;
-            margin: 20px 0;
+            margin: 15px 0;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--accent-green);
@@ -76,45 +75,46 @@
             width: 100%;
             height: auto;
             display: block;
-            object-fit: cover;
         }
 
         .tagline {
             font-style: italic;
             color: var(--text-muted);
-            margin-top: 15px;
-            font-size: 13px;
+            margin-top: 10px;
+            font-size: 12px;
             border-top: 1px dashed var(--border-color);
-            padding-top: 10px;
+            padding-top: 8px;
         }
 
         /* Navigation Tabs */
         .nav-tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 8px;
+            margin-bottom: 20px;
             overflow-x: auto;
-            padding-bottom: 5px;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .tab-btn {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-muted);
-            padding: 12px 20px;
+            padding: 10px 16px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
             white-space: nowrap;
             transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
         .tab-btn:hover, .tab-btn.active {
             background: var(--accent-green);
             color: #000;
             border-color: var(--accent-green);
-            box-shadow: 0 0 15px rgba(0,255,102,0.3);
+            box-shadow: 0 0 12px rgba(0,255,102,0.3);
         }
 
         /* Content Sections */
@@ -123,16 +123,16 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 25px;
+            padding: 20px;
         }
 
         .tab-content.active {
             display: block;
-            animation: fadeIn 0.4s ease;
+            animation: fadeIn 0.3s ease;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -143,19 +143,19 @@
             border-top: 3px solid var(--accent-blue);
             border-radius: 6px;
             padding: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .hud-header {
             color: var(--accent-green);
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .badge {
@@ -163,7 +163,7 @@
             color: #ef4444;
             border: 1px solid #ef4444;
             font-size: 10px;
-            padding: 2px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             text-transform: uppercase;
         }
@@ -171,24 +171,18 @@
         /* Interactive Pipeline */
         .pipeline {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 15px 0;
         }
 
         .pipe-step {
             background: #05080e;
             border: 1px solid var(--border-color);
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .pipe-step:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent-green);
         }
 
         .pipe-step h4 {
@@ -196,263 +190,147 @@
             color: var(--accent-blue);
         }
 
-        /* Interactive ROI Calculator */
+        /* ROI Calculator */
         .calc-box {
             background: #05080e;
-            padding: 20px;
+            padding: 15px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .calc-slider {
             width: 100%;
-            margin: 15px 0;
+            margin: 12px 0;
             accent-color: var(--accent-green);
         }
 
         .calc-result {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: var(--accent-green);
             text-align: center;
-            margin-top: 15px;
-            padding: 10px;
+            padding: 8px;
             background: rgba(0, 255, 102, 0.05);
             border-radius: 4px;
         }
 
-        /* ==================================================
-           WHR NOVOSTI
-        ================================================== */
-        .news-section {
-            padding: 60px 20px;
-            margin-top: 40px;
-            background:
-                radial-gradient(circle at top right, rgba(0, 255, 102, 0.08), transparent 35%),
-                #070a0e;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-        }
-
-        .news-container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .news-heading {
-            margin-bottom: 35px;
-        }
-
-        .news-kicker {
-            color: #00ff66;
-            font-family: monospace;
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .news-heading h2 {
-            margin: 8px 0 10px;
-            font-size: clamp(26px, 4vw, 42px);
-            color: #f8fafc;
-        }
-
-        .news-heading p {
-            max-width: 720px;
-            color: #94a3b8;
-            line-height: 1.7;
-        }
-
+        /* WHR NOVOSTI CARDS */
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 22px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
         .news-card {
+            background: #05080e;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             overflow: hidden;
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 14px;
-            transition:
-                transform 0.25s ease,
-                border-color 0.25s ease,
-                box-shadow 0.25s ease;
+            display: flex;
+            flex-direction: column;
         }
 
-        .news-card:hover {
-            transform: translateY(-7px);
-            border-color: #00ff66;
-            box-shadow: 0 18px 45px rgba(0, 255, 102, 0.12);
-        }
-
-        .news-image-wrap {
-            position: relative;
-            height: 200px;
-            overflow: hidden;
-            background: #020617;
-        }
-
-        .news-image {
+        .news-card img {
             width: 100%;
-            height: 100%;
+            height: 160px;
             object-fit: cover;
-            display: block;
-            transition: transform 0.4s ease;
         }
 
-        .news-card:hover .news-image {
-            transform: scale(1.05);
+        .news-body {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
 
-        .news-badge {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            padding: 6px 10px;
-            border: 1px solid rgba(0, 255, 102, 0.5);
-            border-radius: 999px;
-            background: rgba(7, 10, 14, 0.88);
-            color: #00ff66;
+        .news-tag {
+            color: var(--accent-green);
             font-size: 10px;
             font-weight: bold;
-            letter-spacing: 1px;
             text-transform: uppercase;
-        }
-
-        .news-content {
-            padding: 22px;
+            letter-spacing: 1px;
         }
 
         .news-date {
-            color: #38bdf8;
-            font-family: monospace;
-            font-size: 12px;
+            color: var(--accent-blue);
+            font-size: 11px;
+            margin-bottom: 5px;
         }
 
         .news-title {
-            margin: 10px 0;
-            color: #f8fafc;
-            font-size: 20px;
-            line-height: 1.3;
-        }
-
-        .news-summary {
-            margin: 0 0 18px;
-            color: #94a3b8;
-            font-size: 14px;
-            line-height: 1.65;
-        }
-
-        .news-button {
-            padding: 0;
-            border: none;
-            background: none;
-            color: #00ff66;
+            color: #fff;
+            font-size: 16px;
+            margin: 5px 0;
             font-weight: bold;
+        }
+
+        .news-desc {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .news-btn {
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
             cursor: pointer;
+            text-align: center;
         }
 
-        .news-button:hover {
-            text-decoration: underline;
-        }
-
-        /* Modal — cela vest */
-        .news-modal {
+        /* Modal Pop-up */
+        .modal-overlay {
             position: fixed;
-            inset: 0;
-            z-index: 9999;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
             display: none;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            align-items: center;
+            padding: 15px;
+            z-index: 9999;
         }
 
-        .news-modal.active {
+        .modal-overlay.active {
             display: flex;
         }
 
-        .news-modal-box {
-            position: relative;
-            width: min(820px, 100%);
-            max-height: 90vh;
-            overflow-y: auto;
-            background: #0f172a;
-            border: 1px solid #00ff66;
-            border-radius: 16px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.65);
-        }
-
-        .news-modal-image {
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            max-width: 600px;
             width: 100%;
-            max-height: 420px;
-            object-fit: cover;
-            display: block;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
         }
 
-        .news-modal-content {
-            padding: 30px;
-        }
-
-        .news-modal-content h3 {
-            margin: 10px 0 18px;
-            color: #f8fafc;
-            font-size: clamp(24px, 4vw, 36px);
-        }
-
-        .news-modal-content p {
-            color: #cbd5e1;
-            line-height: 1.8;
-            white-space: pre-line;
-        }
-
-        .news-close {
+        .modal-close {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 2;
-            width: 42px;
-            height: 42px;
-            border: 1px solid #334155;
-            border-radius: 50%;
-            background: rgba(7, 10, 14, 0.9);
-            color: white;
-            font-size: 22px;
+            top: 10px;
+            right: 15px;
+            color: var(--accent-green);
+            font-size: 24px;
             cursor: pointer;
-        }
-
-        .news-close:hover {
-            border-color: #00ff66;
-            color: #00ff66;
-        }
-
-        @media (max-width: 620px) {
-            .news-section {
-                padding: 40px 16px;
-            }
-
-            .news-image-wrap {
-                height: 180px;
-            }
-
-            .news-modal-content {
-                padding: 20px;
-            }
+            font-weight: bold;
         }
 
         /* Footer */
         .footer {
             text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
+            margin-top: 30px;
+            padding-top: 15px;
             border-top: 1px solid var(--border-color);
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -464,7 +342,6 @@
             <h1>WHITE HAT RABBIT STUDIOS</h1>
             <div class="hero-subtitle">CINEMATIC PRODUCTION BIBLE // v7 WEB EDITION 🐇⚔️</div>
             
-            <!-- SLIKA DIREKTNO IZ REPOZITORIJUMA -->
             <div class="studio-hero-img-box">
                 <img src="./studio.png" alt="White Hat Rabbit Studios Master Concept">
             </div>
@@ -478,37 +355,37 @@
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation Core</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-invest')">📑 Investicije & ROI</button>
-            <button class="tab-btn" style="border-color: var(--accent-green); color: var(--accent-green);" onclick="document.getElementById('novosti').scrollIntoView({behavior:'smooth'})">📰 WHR Novosti</button>
+            <button class="tab-btn" style="border-color: var(--accent-green); color: var(--accent-green);" onclick="openTab(event, 'tab-news')">📰 WHR Novosti</button>
         </div>
 
         <!-- TAB 1: MANIFEST -->
         <div id="tab-manifest" class="tab-content active">
-            <h2 style="color: var(--accent-green); margin-top:0;">POGLAVLJE 00: CREATIVE COMMAND CENTER</h2>
-            <p><strong>Lokacija:</strong> Kikinda, Vojvodina, Serbia | <strong>Filozofija:</strong> AI-Driven Cinematic Production & Hybrid Workflows</p>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">POGLAVLJE 00: CREATIVE COMMAND CENTER</h2>
+            <p><strong>Lokacija:</strong> Kikinda, Vojvodina, Serbia | <strong>Filozofija:</strong> AI-Driven Cinematic Production</p>
             <hr style="border-color: var(--border-color);">
             <h3>White Hat Rabbit Manifesto</h3>
             <p>Svetu ne treba još jedna produkcijska kuća koja iznajmljuje skupu opremu da bi snimala prosek. Svetu trebaju priče koje menjaju perspektivu. WHR Studios spaja vrhunsku kinematografiju, veštačku inteligenciju, real-time 3D renderovanje i lokalni autorski pečat u beskompromisan produkcijski ekosistem.</p>
             
             <h3>Strategijski Roadmap (2026–2030)</h3>
             <ul>
-                <li><strong>Faza 1 (2026):</strong> Workstation & Core Neural Hub + 10GbE NAS arhitektura.</li>
+                <li><strong>Faza 1 (2026):</strong> Workstation & Core Neural Hub + 10GbE NAS.</li>
                 <li><strong>Faza 2 (2027):</strong> On-Set Cinema & Modulabilna DMX LED rasveta.</li>
-                <li><strong>Faza 3 (2027-2028):</strong> Virtual Production & Motion Capture integracija.</li>
-                <li><strong>Faza 4 (2028+):</strong> Full Scale IP Produkcija prve zvanične WHR dugometražne franšize.</li>
+                <li><strong>Faza 3 (2027-2028):</strong> Virtual Production & Motion Capture.</li>
+                <li><strong>Faza 4 (2028+):</strong> Full Scale IP Produkcija prve WHR franšize.</li>
             </ul>
         </div>
 
         <!-- TAB 2: WORKSTATION -->
         <div id="tab-workstation" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0;">DIGITALNO SRCE STUDIJA</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">DIGITALNO SRCE STUDIJA</h2>
             
             <div class="hud-card">
                 <div class="hud-header">
                     <span>[GPU] NVIDIA RTX 5090 32GB GDDR7</span>
                     <span class="badge">CRITICAL (10/10)</span>
                 </div>
-                <p><strong>Uloga:</strong> Glavni mozak za lokalno pokretanje masivnih AI modela (ComfyUI, Flux.1, SDXL, LLM) i real-time 8K renderovanje u Unreal Engine 5 bez prelaženja na sporiju sistemsku memoriju.</p>
-                <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~2,500 € | <strong>ROI Horizon:</strong> 3 Meseca</p>
+                <p><strong>Uloga:</strong> Glavni mozak za lokalno pokretanje masivnih AI modela (ComfyUI, Flux.1, SDXL) i real-time 8K renderovanje u UE5.</p>
+                <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~2,500 € | <strong>ROI:</strong> 3 Meseca</p>
             </div>
 
             <div class="hud-card" style="border-top-color: var(--accent-green);">
@@ -516,83 +393,142 @@
                     <span>[CPU] AMD RYZEN 9 9950X (16C/32T)</span>
                     <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-color: #f59e0b;">HIGH (9.7/10)</span>
                 </div>
-                <p><strong>Uloga:</strong> Brzo prevođenje AI skripti, pozadinsko renderovanje u Blenderu i fizika u UE5 dok GPU renderuje u pozadini.</p>
-                <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~650 € | <strong>ROI Horizon:</strong> 5 Meseci</p>
+                <p><strong>Uloga:</strong> Brzo prevođenje AI skripti, pozadinsko renderovanje u Blenderu i fizika u UE5.</p>
+                <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~650 € | <strong>ROI:</strong> 5 Meseci</p>
             </div>
         </div>
 
         <!-- TAB 3: PIPELINE -->
         <div id="tab-pipeline" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0;">INTEGRISANI WHR PRODUCTION PIPELINE</h2>
-            <p>Kliknite na korak za prikaz uloge u sistemu:</p>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">INTEGRISANI WHR PRODUCTION PIPELINE</h2>
+            <p>Kliknite na korak za detalje:</p>
 
             <div class="pipeline">
-                <div class="pipe-step" onclick="alert('KORAK 1: Snimanje u RED/Blackmagic RAW formatu sa sinhronizovanom DMX rasvetom za čist signal.')">
+                <div class="pipe-step" onclick="alert('KORAK 1: Snimanje u RAW formatu sa DMX rasvetom.')">
                     <small style="color: var(--accent-green);">01. INPUT</small>
                     <h4>ON-SET FILM</h4>
-                    <small>RAW Camera Signal</small>
                 </div>
-                <div class="pipe-step" onclick="alert('KORAK 2: RTX 5090 lokalno obrađuje ComfyUI čvorove, Topaz AI upscaling i spajanje sa AI modelima.')">
+                <div class="pipe-step" onclick="alert('KORAK 2: RTX 5090 obrađuje ComfyUI i AI modele.')">
                     <small style="color: var(--accent-green);">02. NEURAL</small>
                     <h4>AI CORE HUB</h4>
-                    <small>32GB VRAM Processing</small>
                 </div>
-                <div class="pipe-step" onclick="alert('KORAK 3: Sintetički 3D svetovi renderuju se u realnom vremenu unutar Unreal Engine 5 uz praćenje kamere.')">
+                <div class="pipe-step" onclick="alert('KORAK 3: 3D svetovi u Unreal Engine 5.')">
                     <small style="color: var(--accent-green);">03. STAGE</small>
                     <h4>UE5 VIRTUAL</h4>
-                    <small>Real-Time 3D & MoCap</small>
                 </div>
-                <div class="pipe-step" onclick="alert('KORAK 4: Finalni color grading u DaVinci Resolve-u i automatski sync na 10GbE NAS sa 3-2-1 rezervnom kopijom.')">
+                <div class="pipe-step" onclick="alert('KORAK 4: Color grading i 3-2-1 arhiviranje na NAS.')">
                     <small style="color: var(--accent-green);">04. MASTER</small>
                     <h4>3-2-1 VAULT</h4>
-                    <small>10GbE NAS Archiving</small>
                 </div>
             </div>
         </div>
 
         <!-- TAB 4: INVESTICIJE & ROI -->
         <div id="tab-invest" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0;">INVESTICIONI PLAN & KALKULATOR</h2>
-            <p>Ukupna procenjena početna investicija u studio: <strong style="color: var(--accent-green);">~23,800 €</strong></p>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">INVESTICIONI PLAN & ROI</h2>
+            <p>Ukupna procenjena početna investicija: <strong style="color: var(--accent-green);">~23,800 €</strong></p>
 
             <div class="calc-box">
-                <h3 style="margin-top:0; color: var(--accent-blue);">🧮 Interaktivni Kalkulator Povrata Investicije (ROI)</h3>
-                <label>Mesečni prihodi od AI VFX i video projekata (€):</label>
+                <h3 style="margin-top:0; color: var(--accent-blue); font-size: 15px;">🧮 Kalkulator Povrata Investicije</h3>
+                <label style="font-size:13px;">Mesečni prihodi od projekata (€):</label>
                 <input type="range" id="incomeSlider" class="calc-slider" min="1000" max="10000" step="500" value="4000" oninput="updateROI()">
                 
-                <div id="roiResult" class="calc-result">Prihod: 4000 €/mesec ➔ Investicija otplaćena za: 6 Meseci!</div>
+                <div id="roiResult" class="calc-result">Prihod: 4000 €/mesec ➔ Povrat za: 6 Meseci</div>
             </div>
         </div>
 
-        <!-- SEKCIJA: WHR NOVOSTI -->
-        <section id="novosti" class="news-section">
-            <div class="news-container">
-                <div class="news-heading">
-                    <div class="news-kicker">WHR Studio Transmission</div>
-                    <h2>Najnovije iz komandnog centra</h2>
-                    <p>
-                        Razvoj studija, nova oprema, originalne produkcije,
-                        eksperimenti i ideje iz White Hat Rabbit univerzuma.
-                    </p>
-                </div>
-
-                <div id="newsGrid" class="news-grid"></div>
+        <!-- TAB 5: WHR NOVOSTI (REDAKCIJA) -->
+        <div id="tab-news" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 18px;">WHR STUDIO TRANSMISSION</h2>
+            <p style="color: var(--text-muted); font-size:13px;">Najnovije vesti, oprema i projekti iz komandnog centra Kikinda.</p>
+            
+            <div id="newsGridContainer" class="news-grid">
+                <!-- Kartice vesti se učitavaju automatski -->
             </div>
-        </section>
+        </div>
 
-        <!-- Modal za prikaz cele vesti -->
-        <div id="newsModal" class="news-modal" onclick="closeNewsModal(event)">
-            <div class="news-modal-box">
-                <button class="news-close" onclick="closeNewsModal()" aria-label="Zatvori vest">×</button>
-                <img id="modalNewsImage" class="news-modal-image" src="" alt="">
-                <div class="news-modal-content">
-                    <div id="modalNewsDate" class="news-date"></div>
-                    <h3 id="modalNewsTitle"></h3>
-                    <p id="modalNewsText"></p>
-                </div>
+        <!-- Modalni prozor za celu vest -->
+        <div id="newsModal" class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModalDirect()">&times;</span>
+                <div id="modalNewsDate" class="news-date"></div>
+                <h2 id="modalNewsTitle" style="color:#fff; margin:10px 0;"></h2>
+                <img id="modalNewsImg" src="" style="width:100%; border-radius:6px; margin:10px 0; display:block;">
+                <p id="modalNewsText" style="color: #cbd5e1; white-space: pre-line; font-size:14px; line-height:1.6;"></p>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <strong>
+            <strong>WHITE HAT RABBIT STUDIOS</strong> // Kikinda, Serbia<br>
+            <span style="color: var(--accent-green);">The Future Begins Here. 🐇⚔️</span>
+        </div>
+    </div>
+
+    <script>
+        // Tab prebacivanje
+        function openTab(evt, tabId) {
+            var tabs = document.querySelectorAll('.tab-content');
+            var btns = document.querySelectorAll('.tab-btn');
+            
+            for(var i=0; i<tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            for(var j=0; j<btns.length; j++) {
+                btns[j].classList.remove('active');
+            }
+            
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // ROI kalkulator
+        function updateROI() {
+            var income = document.getElementById('incomeSlider').value;
+            var months = Math.ceil(23800 / income);
+            document.getElementById('roiResult').innerHTML = 'Prihod: ' + income + ' €/mesec ➔ Povrat za: <span style="color:#00ff66">' + months + ' Meseci</span>';
+        }
+
+        // Baza vesti
+        var whrNewsData = [
+            {
+                tag: "STUDIO UPDATE",
+                date: "28. Jul 2026.",
+                title: "WHR Production Bible v7 je online",
+                summary: "Prva interaktivna web verzija Master Equipment Book sistema lansirana je javno.",
+                text: "White Hat Rabbit Studios lansirao je prvu web verziju dokumenta Cinematic Production Bible v7.\n\nStranica povezuje viziju studija, workstation sistem, AI produkcijski pipeline i investicioni plan u jednu digitalnu celinu.\n\nOvo je zvanični početak razvoja centralnog WHR komandnog centra.",
+                image: "./studio.png"
+            },
+            {
+                tag: "AI WORKFLOW",
+                date: "29. Jul 2026.",
+                title: "Pokrenut AI Production Pipeline",
+                summary: "Filmska produkcija, AI obrada i Unreal Engine 5 spajaju se u jedan brz proces.",
+                text: "Novi WHR Production Pipeline organizovan je kroz četiri osnovne faze:\n\n1. On-set filmsko snimanje sa RAW kamerama\n2. Lokalna AI obrada preko RTX 5090 procesora\n3. Unreal Engine 5 virtualna scena u realnom vremenu\n4. Završni mastering i 3-2-1 arhiviranje\n\nCilj je da se put od ideje do završnog filma skrati sa meseci na dane.",
+                image: "./studio.png"
+            },
+            {
+                tag: "EQUIPMENT",
+                date: "30. Jul 2026.",
+                title: "Definisano digitalno srce studija",
+                summary: "RTX 5090 32GB i Ryzen 9 9950X čine neuralni mozak našeg studija.",
+                text: "Radna stanica predstavlja centralni neuralni čvor White Hat Rabbit Studios sistema.\n\nKonfiguracija je posebno optimizovana za ComfyUI, DaVinci Resolve, Blender i Unreal Engine 5.\n\nSistem je direktno povezan na brzu 10GbE mrežnu arhivu.",
+                image: "./studio.png"
+            }
+        ];
+
+        // Prikazivanje kartica vesti
+        function loadNews() {
+            var container = document.getElementById('newsGridContainer');
+            if(!container) return;
+            
+            var html = '';
+            for(var i=0; i<whrNewsData.length; i++) {
+                var item = whrNewsData[i];
+                html += '<div class="news-card">';
+                html += '<img src="' + item.image + '" alt="WHR News">';
+                html += '<div class="news-body">';
+                html += '<div class="news-tag">' + item.tag + '</div>';
+                html += '<div class="news-date">' + item.date + '</div>';
+                html += '<div class="news-title">' + item.title + '</div>';
+                html += '<div c
