@@ -222,6 +222,229 @@
             border-radius: 4px;
         }
 
+        /* ==================================================
+           WHR NOVOSTI
+        ================================================== */
+        .news-section {
+            padding: 60px 20px;
+            margin-top: 40px;
+            background:
+                radial-gradient(circle at top right, rgba(0, 255, 102, 0.08), transparent 35%),
+                #070a0e;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .news-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .news-heading {
+            margin-bottom: 35px;
+        }
+
+        .news-kicker {
+            color: #00ff66;
+            font-family: monospace;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .news-heading h2 {
+            margin: 8px 0 10px;
+            font-size: clamp(26px, 4vw, 42px);
+            color: #f8fafc;
+        }
+
+        .news-heading p {
+            max-width: 720px;
+            color: #94a3b8;
+            line-height: 1.7;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+        }
+
+        .news-card {
+            overflow: hidden;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-7px);
+            border-color: #00ff66;
+            box-shadow: 0 18px 45px rgba(0, 255, 102, 0.12);
+        }
+
+        .news-image-wrap {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            background: #020617;
+        }
+
+        .news-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .news-card:hover .news-image {
+            transform: scale(1.05);
+        }
+
+        .news-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            padding: 6px 10px;
+            border: 1px solid rgba(0, 255, 102, 0.5);
+            border-radius: 999px;
+            background: rgba(7, 10, 14, 0.88);
+            color: #00ff66;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .news-content {
+            padding: 22px;
+        }
+
+        .news-date {
+            color: #38bdf8;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .news-title {
+            margin: 10px 0;
+            color: #f8fafc;
+            font-size: 20px;
+            line-height: 1.3;
+        }
+
+        .news-summary {
+            margin: 0 0 18px;
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .news-button {
+            padding: 0;
+            border: none;
+            background: none;
+            color: #00ff66;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .news-button:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal — cela vest */
+        .news-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .news-modal.active {
+            display: flex;
+        }
+
+        .news-modal-box {
+            position: relative;
+            width: min(820px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #0f172a;
+            border: 1px solid #00ff66;
+            border-radius: 16px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.65);
+        }
+
+        .news-modal-image {
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .news-modal-content {
+            padding: 30px;
+        }
+
+        .news-modal-content h3 {
+            margin: 10px 0 18px;
+            color: #f8fafc;
+            font-size: clamp(24px, 4vw, 36px);
+        }
+
+        .news-modal-content p {
+            color: #cbd5e1;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        .news-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+            width: 42px;
+            height: 42px;
+            border: 1px solid #334155;
+            border-radius: 50%;
+            background: rgba(7, 10, 14, 0.9);
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .news-close:hover {
+            border-color: #00ff66;
+            color: #00ff66;
+        }
+
+        @media (max-width: 620px) {
+            .news-section {
+                padding: 40px 16px;
+            }
+
+            .news-image-wrap {
+                height: 180px;
+            }
+
+            .news-modal-content {
+                padding: 20px;
+            }
+        }
+
         /* Footer */
         .footer {
             text-align: center;
@@ -255,6 +478,7 @@
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation Core</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-invest')">📑 Investicije & ROI</button>
+            <button class="tab-btn" style="border-color: var(--accent-green); color: var(--accent-green);" onclick="document.getElementById('novosti').scrollIntoView({behavior:'smooth'})">📰 WHR Novosti</button>
         </div>
 
         <!-- TAB 1: MANIFEST -->
@@ -340,28 +564,35 @@
             </div>
         </div>
 
+        <!-- SEKCIJA: WHR NOVOSTI -->
+        <section id="novosti" class="news-section">
+            <div class="news-container">
+                <div class="news-heading">
+                    <div class="news-kicker">WHR Studio Transmission</div>
+                    <h2>Najnovije iz komandnog centra</h2>
+                    <p>
+                        Razvoj studija, nova oprema, originalne produkcije,
+                        eksperimenti i ideje iz White Hat Rabbit univerzuma.
+                    </p>
+                </div>
+
+                <div id="newsGrid" class="news-grid"></div>
+            </div>
+        </section>
+
+        <!-- Modal za prikaz cele vesti -->
+        <div id="newsModal" class="news-modal" onclick="closeNewsModal(event)">
+            <div class="news-modal-box">
+                <button class="news-close" onclick="closeNewsModal()" aria-label="Zatvori vest">×</button>
+                <img id="modalNewsImage" class="news-modal-image" src="" alt="">
+                <div class="news-modal-content">
+                    <div id="modalNewsDate" class="news-date"></div>
+                    <h3 id="modalNewsTitle"></h3>
+                    <p id="modalNewsText"></p>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <div class="footer">
-            <strong>WHITE HAT RABBIT STUDIOS</strong> // Kikinda, Serbia<br>
-            <span style="color: var(--accent-green);">The Future Begins Here. 🐇⚔️</span>
-        </div>
-    </div>
-
-    <script>
-        function openTab(evt, tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
-        }
-
-        function updateROI() {
-            const income = document.getElementById('incomeSlider').value;
-            const totalInvestment = 23800;
-            const months = Math.ceil(totalInvestment / income);
-            document.getElementById('roiResult').innerHTML = `Prihod: ${income} €/mesec ➔ Investicija otplaćena za: <span style="color:#00ff66">${months} Meseci</span>!`;
-        }
-    </script>
-</body>
-</html>
+            <strong>
