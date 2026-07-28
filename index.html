@@ -69,7 +69,7 @@
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--accent-green);
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.15);
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
         }
 
         .studio-hero-img-box img {
@@ -241,9 +241,9 @@
             <h1>WHITE HAT RABBIT STUDIOS</h1>
             <div class="hero-subtitle">CINEMATIC PRODUCTION BIBLE // v7 WEB EDITION 🐇⚔️</div>
             
-            <!-- MASTER STUDIO RENDER IMAGE -->
+            <!-- SLIKA DIREKTNO IZ REPOZITORIJUMA -->
             <div class="studio-hero-img-box">
-                <img src="https://i.postimg.cc/mDtw2Bcx/WHR-Studio-Master-Layout.png" alt="White Hat Rabbit Studios Master Concept">
+                <img src="./studio.png" alt="White Hat Rabbit Studios Master Concept">
             </div>
 
             <div class="tagline">"Ne kupuj opremu da bi imao studio. Gradi studio koji će stvarati originalne ideje."</div>
@@ -291,6 +291,81 @@
                 <div class="hud-header">
                     <span>[CPU] AMD RYZEN 9 9950X (16C/32T)</span>
                     <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border-color: #f59e0b;">HIGH (9.7/10)</span>
+                </div>
+                <p><strong>Uloga:</strong> Brzo prevođenje AI skripti, pozadinsko renderovanje u Blenderu i fizika u UE5 dok GPU renderuje u pozadini.</p>
+                <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~650 € | <strong>ROI Horizon:</strong> 5 Meseci</p>
+            </div>
+        </div>
+
+        <!-- TAB 3: PIPELINE -->
+        <div id="tab-pipeline" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0;">INTEGRISANI WHR PRODUCTION PIPELINE</h2>
+            <p>Kliknite na korak za prikaz uloge u sistemu:</p>
+
+            <div class="pipeline">
+                <div class="pipe-step" onclick="alert('KORAK 1: Snimanje u RED/Blackmagic RAW formatu sa sinhronizovanom DMX rasvetom za čist signal.')">
+                    <small style="color: var(--accent-green);">01. INPUT</small>
+                    <h4>ON-SET FILM</h4>
+                    <small>RAW Camera Signal</small>
+                </div>
+                <div class="pipe-step" onclick="alert('KORAK 2: RTX 5090 lokalno obrađuje ComfyUI čvorove, Topaz AI upscaling i spajanje sa AI modelima.')">
+                    <small style="color: var(--accent-green);">02. NEURAL</small>
+                    <h4>AI CORE HUB</h4>
+                    <small>32GB VRAM Processing</small>
+                </div>
+                <div class="pipe-step" onclick="alert('KORAK 3: Sintetički 3D svetovi renderuju se u realnom vremenu unutar Unreal Engine 5 uz praćenje kamere.')">
+                    <small style="color: var(--accent-green);">03. STAGE</small>
+                    <h4>UE5 VIRTUAL</h4>
+                    <small>Real-Time 3D & MoCap</small>
+                </div>
+                <div class="pipe-step" onclick="alert('KORAK 4: Finalni color grading u DaVinci Resolve-u i automatski sync na 10GbE NAS sa 3-2-1 rezervnom kopijom.')">
+                    <small style="color: var(--accent-green);">04. MASTER</small>
+                    <h4>3-2-1 VAULT</h4>
+                    <small>10GbE NAS Archiving</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: INVESTICIJE & ROI -->
+        <div id="tab-invest" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0;">INVESTICIONI PLAN & KALKULATOR</h2>
+            <p>Ukupna procenjena početna investicija u studio: <strong style="color: var(--accent-green);">~23,800 €</strong></p>
+
+            <div class="calc-box">
+                <h3 style="margin-top:0; color: var(--accent-blue);">🧮 Interaktivni Kalkulator Povrata Investicije (ROI)</h3>
+                <label>Mesečni prihodi od AI VFX i video projekata (€):</label>
+                <input type="range" id="incomeSlider" class="calc-slider" min="1000" max="10000" step="500" value="4000" oninput="updateROI()">
+                
+                <div id="roiResult" class="calc-result">Prihod: 4000 €/mesec ➔ Investicija otplaćena za: 6 Meseci!</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <strong>WHITE HAT RABBIT STUDIOS</strong> // Kikinda, Serbia<br>
+            <span style="color: var(--accent-green);">The Future Begins Here. 🐇⚔️</span>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        function updateROI() {
+            const income = document.getElementById('incomeSlider').value;
+            const totalInvestment = 23800;
+            const months = Math.ceil(totalInvestment / income);
+            document.getElementById('roiResult').innerHTML = `Prihod: ${income} €/mesec ➔ Investicija otplaćena za: <span style="color:#00ff66">${months} Meseci</span>!`;
+        }
+    </script>
+</body>
+</html>
+b;">HIGH (9.7/10)</span>
                 </div>
                 <p><strong>Uloga:</strong> Brzo prevođenje AI skripti, pozadinsko renderovanje u Blenderu i fizika u UE5 dok GPU renderuje u pozadini.</p>
                 <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~650 € | <strong>ROI Horizon:</strong> 5 Meseci</p>
