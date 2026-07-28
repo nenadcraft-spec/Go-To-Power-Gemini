@@ -465,15 +465,20 @@
             <h1>WHITE HAT RABBIT STUDIOS</h1>
             <div class="hero-subtitle">CONTROL CENTER // v9 WEB EDITION 🐇⚔️</div>
             
-            <!-- WHR HERO SLIDESHOW -->
-            <div class="studio-hero-img-box" style="position: relative; min-height: 250px;">
-                <img id="heroSlideImg" src="./power_on.png" alt="WHR Studios Showcase" style="transition: opacity 0.5s ease-in-out; width:100%; display:block;">
+            <!-- WHR HERO SLIDESHOW // STUDIO FEED EDITION -->
+            <div class="studio-hero-img-box" id="heroSlideshowContainer" style="position: relative; cursor: pointer;" onclick="onHeroSlideClick()" onmouseenter="pauseHeroSlideshow()" onmouseleave="resumeHeroSlideshow()">
+                <img id="heroSlideImg" src="./power_on.png" alt="WHR Studios Showcase" style="transition: opacity 0.8s ease-in-out; width:100%; display:block;">
                 
                 <!-- Strelice za ručno prebacivanje -->
-                <button onclick="changeHeroSlide(-1)" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.6); color:var(--accent-green); border:1px solid var(--accent-green); padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">❮</button>
-                <button onclick="changeHeroSlide(1)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.6); color:var(--accent-green); border:1px solid var(--accent-green); padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">❯</button>
+                <button onclick="event.stopPropagation(); changeHeroSlide(-1)" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.7); color:var(--accent-green); border:1px solid var(--accent-green); padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold; z-index:2;">❮</button>
+                <button onclick="event.stopPropagation(); changeHeroSlide(1)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.7); color:var(--accent-green); border:1px solid var(--accent-green); padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold; z-index:2;">❯</button>
+                
+                <!-- Indicators / Tačkice (● ○) -->
+                <div style="position:absolute; bottom:12px; width:100%; text-align:center; z-index:2;" onclick="event.stopPropagation();">
+                    <span class="hero-dot active" onclick="goToHeroSlide(0)" style="cursor:pointer; font-size:16px; margin:0 5px; color:var(--accent-green); transition:0.3s;">●</span>
+                    <span class="hero-dot" onclick="goToHeroSlide(1)" style="cursor:pointer; font-size:16px; margin:0 5px; color:var(--text-muted); transition:0.3s;">○</span>
+                </div>
             </div>
-
         <!-- LIVE STATUS CONTROL PANEL -->
         <div class="status-panel">
             <div class="status-header">
@@ -859,33 +864,68 @@
                 closeModalDirect();
             }
         });
-// WHR HERO SLIDESHOW LOGIKA
-        var heroImages = ["./power_on.png", "./studio.png"];
+// WHR HERO SLIDESHOW // ADVANCED STUDIO FEED LOGIKA
+        var heroSlides = [
+            { image: "./power_on.png", newsIndex: 0 },
+            { image: "./studio.png", newsIndex: 1 }
+        ];
         var currentSlideIndex = 0;
+        var slideshowTimer = null;
+        var isSlideshowPaused = false;
+
+        function updateHeroDots() {
+            var dots = document.getElementsByClassName('hero-dot');
+            for (var i = 0; i < dots.length; i++) {
+                if (i === currentSlideIndex) {
+                    dots[i].innerText = '●';
+                    dots[i].style.color = 'var(--accent-green)';
+                } else {
+                    dots[i].innerText = '○';
+                    dots[i].style.color = 'var(--text-muted)';
+                }
+            }
+        }
 
         function changeHeroSlide(direction) {
             var imgElem = document.getElementById('heroSlideImg');
             if(!imgElem) return;
 
             currentSlideIndex += direction;
-            if (currentSlideIndex >= heroImages.length) { currentSlideIndex = 0; }
-            if (currentSlideIndex < 0) { currentSlideIndex = heroImages.length - 1; }
+            if (currentSlideIndex >= heroSlides.length) { currentSlideIndex = 0; }
+            if (currentSlideIndex < 0) { currentSlideIndex = heroSlides.length - 1; }
 
             imgElem.style.opacity = 0;
             setTimeout(function() {
-                imgElem.src = heroImages[currentSlideIndex];
+                imgElem.src = heroSlides[currentSlideIndex].image;
                 imgElem.style.opacity = 1;
-            }, 300);
+                updateHeroDots();
+            }, 400);
         }
 
-        // Automatsko prebacivanje na svakih 5 sekundi
-        setInterval(function() {
+        function goToHeroSlide(index) {
+            currentSlideIndex = index - 1;
             changeHeroSlide(1);
+        }
+
+        function onHeroSlideClick() {
+            var targetNewsIndex = heroSlides[currentSlideIndex].newsIndex;
+            openNewsModal(targetNewsIndex);
+        }
+
+        function pauseHeroSlideshow() {
+            isSlideshowPaused = true;
+        }
+
+        function resumeHeroSlideshow() {
+            isSlideshowPaused = false;
+        }
+
+        // Automatsko prebacivanje na svakih 5 sekundi (sa procerom za pauzu)
+        setInterval(function() {
+            if (!isSlideshowPaused) {
+                changeHeroSlide(1);
+            }
         }, 5000);
-        window.onload = function() {
-            loadNews();
-            loadWikiChapter('ch1');
-        };
     </script>
 </body>
 </html>
