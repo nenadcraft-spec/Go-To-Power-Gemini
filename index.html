@@ -86,10 +86,10 @@
             padding-top: 8px;
         }
 
-        /* Fixed Mobile Grid Navigation */
+        /* Grid Navigation */
         .nav-tabs {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 8px;
             margin-bottom: 20px;
         }
@@ -288,6 +288,7 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
             display: none;
             justify-content: center;
             align-items: center;
@@ -341,13 +342,13 @@
             <div class="hero-subtitle">CINEMATIC PRODUCTION BIBLE // v7 WEB EDITION 🐇⚔️</div>
             
             <div class="studio-hero-img-box">
-                <img src="./studio.png" alt="White Hat Rabbit Studios Master Concept">
+                <img src="./studio.png" alt="White Hat Rabbit Studios Master Concept" onerror="this.src='https://via.placeholder.com/800x450/0d131f/00ff66?text=WHR+Studios'">
             </div>
 
             <div class="tagline">"Ne kupuj opremu da bi imao studio. Gradi studio koji će stvarati originalne ideje."</div>
         </div>
 
-        <!-- Navigation Tabs (Grid Layout) -->
+        <!-- Navigation Tabs -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation</button>
@@ -397,11 +398,11 @@
 
             <div class="hud-card" style="border-top-color: var(--accent-blue);">
                 <div class="hud-header">
-                    <span>[RAM] 128GB DDR5 6000MHz</span>
-                    <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); border-color: var(--accent-blue);">ESSENTIAL</span>
+                    <span>[RAM] 96GB DDR5 6000MHz CL30 (2x48GB)</span>
+                    <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); border-color: var(--accent-blue);">STABLE OPTIMAL</span>
                 </div>
-                <p><strong>Uloga:</strong> Rad sa masivnim 3D scenama, simulacijama i velikim AI dataset-ovima u memoriji istovremeno.</p>
-                <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~450 €</p>
+                <p><strong>Uloga:</strong> Maksimalna stabilnost Dual-Rank arhitekture za masivne 3D scene i paralelni rad ComfyUI i Unreal Engine-a.</p>
+                <p style="color: var(--accent-blue);"><strong>Cena:</strong> ~380 €</p>
             </div>
         </div>
 
@@ -460,7 +461,7 @@
                 <span class="modal-close" onclick="closeModalDirect()">&times;</span>
                 <div id="modalNewsDate" class="news-date"></div>
                 <h2 id="modalNewsTitle" style="color:#fff; margin:10px 0; font-size:18px;"></h2>
-                <img id="modalNewsImg" src="" style="width:100%; border-radius:6px; margin:10px 0; display:block;">
+                <img id="modalNewsImg" src="" style="width:100%; border-radius:6px; margin:10px 0; display:block;" onerror="this.src='./studio.png'">
                 <p id="modalNewsText" style="color: #cbd5e1; white-space: pre-line; font-size:13px; line-height:1.6;"></p>
             </div>
         </div>
@@ -506,7 +507,9 @@
             document.getElementById('roiResult').innerHTML = 'Prihod: ' + income + ' €/mesec ➔ Povrat za: <span style="color:#00ff66">' + months + ' Meseci</span>';
         }
 
-        // Baza vesti
+        /* ==================================================
+           WHR BAZA NOVOSTI
+        ================================================== */
         var whrNewsData = [
             {
                 tag: "STUDIO UPDATE",
@@ -529,4 +532,66 @@
                 date: "30. Jul 2026.",
                 title: "Definisano digitalno srce studija",
                 summary: "RTX 5090 32GB i Ryzen 9 9950X čine neuralni mozak našeg studija.",
-                text: "Radna stanica predstavlja centralni neuralni čvor White Hat Rabbit Studios sistema.\n\nKonfiguracija je posebno optimizovana 
+                text: "Radna stanica predstavlja centralni neuralni čvor White Hat Rabbit Studios sistema.\n\nKonfiguracija je posebno optimizovana za ComfyUI, DaVinci Resolve, Blender i Unreal Engine 5.\n\nSistem je direktno povezan na brzu 10GbE mrežnu arhivu.",
+                image: "./studio.png"
+            }
+        ];
+
+        // Prikazivanje kartica vesti
+        function loadNews() {
+            var container = document.getElementById('newsGridContainer');
+            if(!container) return;
+            
+            var html = '';
+            for(var i=0; i<whrNewsData.length; i++) {
+                var item = whrNewsData[i];
+                html += '<div class="news-card">';
+                html += '<img src="' + item.image + '" alt="WHR News" onerror="this.src=\'./studio.png\'">';
+                html += '<div class="news-body">';
+                html += '<div class="news-tag">' + item.tag + '</div>';
+                html += '<div class="news-date">' + item.date + '</div>';
+                html += '<div class="news-title">' + item.title + '</div>';
+                html += '<div class="news-desc">' + item.summary + '</div>';
+                html += '<button class="news-btn" onclick="openNewsModal(' + i + ')">Otvori celu vest →</button>';
+                html += '</div></div>';
+            }
+            container.innerHTML = html;
+        }
+
+        // Modal funkcije
+        function openNewsModal(index) {
+            var item = whrNewsData[index];
+            document.getElementById('modalNewsDate').innerText = item.tag + ' // ' + item.date;
+            document.getElementById('modalNewsTitle').innerText = item.title;
+            document.getElementById('modalNewsImg').src = item.image;
+            document.getElementById('modalNewsText').innerText = item.text;
+            document.getElementById('newsModal').classList.add('active');
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeModal(e) {
+            if(e.target === document.getElementById('newsModal')) {
+                document.getElementById('newsModal').classList.remove('active');
+                document.body.style.overflow = "";
+            }
+        }
+
+        function closeModalDirect() {
+            document.getElementById('newsModal').classList.remove('active');
+            document.body.style.overflow = "";
+        }
+
+        // Zatvaranje na ESC
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape") {
+                closeModalDirect();
+            }
+        });
+
+        // Inicijalizacija pri učitavanju
+        window.onload = function() {
+            loadNews();
+        };
+    </script>
+</body>
+</html>
