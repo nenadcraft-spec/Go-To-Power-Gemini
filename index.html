@@ -64,17 +64,26 @@
 
         .studio-hero-img-box {
             width: 100%;
+            height: 520px; /* Smanji na 420px ili 450px ako želiš niži baner na ekranu */
             margin: 15px 0;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--accent-green);
             box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+            background: #020408; /* Tamna pozadina oko vertikalne slike */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .studio-hero-img-box img {
-            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
             height: auto;
+            object-fit: contain; /* Čuva originalne proporcije slike bez ikakvog razvlačenja! */
             display: block;
+            margin: 0 auto;
         }
 
         /* STATUS CONTROL PANEL */
