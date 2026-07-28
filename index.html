@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>White Hat Rabbit Studios // Control Center v8</title>
+    <title>White Hat Rabbit Studios // Control Center v9</title>
     <style>
         :root {
             --bg-main: #05080e;
@@ -29,7 +29,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 15px;
         }
@@ -48,7 +48,7 @@
 
         .hero h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 22px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #fff;
@@ -138,7 +138,7 @@
         /* Navigation Grid */
         .nav-tabs {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 8px;
             margin-bottom: 20px;
         }
@@ -170,7 +170,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 18px;
+            padding: 20px;
         }
 
         .tab-content.active {
@@ -181,6 +181,75 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* WIKI / DIGITAL BOOK SYSTEM */
+        .wiki-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 20px;
+        }
+
+        .wiki-sidebar {
+            background: #05080e;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .wiki-menu-title {
+            color: var(--accent-green);
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+
+        .wiki-link {
+            display: block;
+            color: var(--text-muted);
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-decoration: none;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .wiki-link:hover, .wiki-link.active {
+            background: rgba(0,255,102,0.1);
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        .wiki-body {
+            background: #05080e;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-decoration: none;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+
+        .download-btn:hover {
+            background: var(--accent-green);
+            color: #000;
         }
 
         /* HUD Cards */
@@ -371,6 +440,12 @@
             font-weight: bold;
         }
 
+        @media (max-width: 768px) {
+            .wiki-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Footer */
         .footer {
             text-align: center;
@@ -388,7 +463,7 @@
         <!-- Hero Header -->
         <div class="hero">
             <h1>WHITE HAT RABBIT STUDIOS</h1>
-            <div class="hero-subtitle">CONTROL CENTER // v8 WEB EDITION 🐇⚔️</div>
+            <div class="hero-subtitle">CONTROL CENTER // v9 WEB EDITION 🐇⚔️</div>
             
             <div class="studio-hero-img-box">
                 <img src="./studio.png" alt="White Hat Rabbit Studios Master Concept" onerror="this.src='https://via.placeholder.com/800x450/0d131f/00ff66?text=WHR+Studios'">
@@ -412,6 +487,7 @@
         <!-- Navigation Tabs Grid -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-bible')">📖 Bible (Wiki)</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-projects')">🎬 Projekti</button>
@@ -437,7 +513,27 @@
             </ul>
         </div>
 
-        <!-- TAB 2: WORKSTATION CORE -->
+        <!-- TAB 2: DIGITAL BIBLE WIKI -->
+        <div id="tab-bible" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">MASTER PRODUCTION BIBLE // WIKI SYSTEM</h2>
+            <a href="#" class="download-btn" onclick="alert('Ovde postavite link do vašeg PDF fajla u repozitorijumu!')">📥 Preuzmi zvanični Production Bible (PDF)</a>
+
+            <div class="wiki-layout">
+                <div class="wiki-sidebar">
+                    <div class="wiki-menu-title">📚 POGLAVLJA KNJIGE</div>
+                    <div class="wiki-link active" onclick="loadWikiChapter('ch1', this)">01. Kinematografija & RAW</div>
+                    <div class="wiki-link" onclick="loadWikiChapter('ch2', this)">02. DMX LED Rasveta</div>
+                    <div class="wiki-link" onclick="loadWikiChapter('ch3', this)">03. Neural Workstation</div>
+                    <div class="wiki-link" onclick="loadWikiChapter('ch4', this)">04. 10GbE NAS & Vault</div>
+                </div>
+
+                <div id="wikiContentArea" class="wiki-body">
+                    <!-- Dinamički sadržaj Wiki poglavlja -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: WORKSTATION CORE -->
         <div id="tab-workstation" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">DIGITALNO SRCE STUDIJA</h2>
             
@@ -469,7 +565,7 @@
             </div>
         </div>
 
-        <!-- TAB 3: PIPELINE -->
+        <!-- TAB 4: PIPELINE -->
         <div id="tab-pipeline" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">INTEGRISANI WHR PRODUCTION PIPELINE</h2>
             <p>Kliknite na korak za detalje:</p>
@@ -494,7 +590,7 @@
             </div>
         </div>
 
-        <!-- TAB 4: PROJEKTI -->
+        <!-- TAB 5: PROJEKTI -->
         <div id="tab-projects" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AKTIVNE PRODUKCIJE & BRAND IP</h2>
             
@@ -523,7 +619,7 @@
             </div>
         </div>
 
-        <!-- TAB 5: AI ALATI -->
+        <!-- TAB 6: AI ALATI -->
         <div id="tab-aitools" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AI TOOLSET & WORKFLOW HUB</h2>
             
@@ -544,7 +640,7 @@
             </div>
         </div>
 
-        <!-- TAB 6: INVESTICIJE & ROI -->
+        <!-- TAB 7: INVESTICIJE & ROI -->
         <div id="tab-invest" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">INVESTICIONI PLAN & ROI</h2>
             <p>Ukupna procenjena početna investicija: <strong style="color: var(--accent-green);">~23,800 €</strong></p>
@@ -558,7 +654,7 @@
             </div>
         </div>
 
-        <!-- TAB 7: WHR NOVOSTI (REDAKCIJA) -->
+        <!-- TAB 8: WHR NOVOSTI (REDAKCIJA) -->
         <div id="tab-news" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">WHR STUDIO TRANSMISSION</h2>
             <p style="color: var(--text-muted); font-size:12px;">Najnovije vesti, oprema i projekti iz komandnog centra Kikinda.</p>
@@ -587,7 +683,7 @@
     </div>
 
     <script>
-        // Prebacivanje tabova
+        // Prebacivanje glavnih tabova
         function openTab(evt, tabId) {
             var i, tabcontent, tablinks;
             
@@ -613,6 +709,39 @@
             }
         }
 
+        // BAZA DIGITAL KNJIGE (WIKI)
+        var wikiChapters = {
+            ch1: {
+                title: "Poglavlje 01: Kinematografija & RAW Signal",
+                content: "U filmskoj produkciji WHR studija primenjuje se princip čistog nepokvarenog signala. Snimanje u RED ili Blackmagic RAW formatima pruža do 16 blendi dinamičkog opsega, dajući makismalni kvalitet za kasniji compositing sa Unreal Engine 3D pozadinama."
+            },
+            ch2: {
+                title: "Poglavlje 02: DMX LED Rasveta & Sinhronizacija",
+                content: "Rasveta je ključna komponenta u spoju stvornih glumaca i virtualnih svetova. Putem DMX protokola, svetla u studiju trenutno menjaju boju i jačinu kako bi se sinhronizovala sa svetlosnim uslovima unutar Unreal Engine renderovane scene."
+            },
+            ch3: {
+                title: "Poglavlje 03: Neural Workstation (RTX 5090 & Ryzen 9)",
+                content: "Srce sistema čine RTX 5090 sa 32GB GDDR7 memorije i Ryzen 9 9950X sa 96GB DDR5 CL30 RAM-a. Ova konfiguracija obezbeđuje nesmetano pokretanje lokalnih ComfyUI i Flux.1 AI modela bez zavisnosti od eksternih klaud servisa."
+            },
+            ch4: {
+                title: "Poglavlje 04: 10GbE NAS Vault & 3-2-1 Backup Strategy",
+                content: "Pouzdanost arhiviranja je apsolutni prioritet. Svi sirovi snimci se sa radne stanice automatski sinhronizuju na lokalni 10GbE NAS po 3-2-1 pravilu (3 kopije, 2 različita medija, 1 off-site lokalni backup)."
+            }
+        };
+
+        function loadWikiChapter(chId, element) {
+            var links = document.getElementsByClassName("wiki-link");
+            for(var i=0; i<links.length; i++) {
+                links[i].classList.remove("active");
+            }
+            if(element) element.classList.add("active");
+
+            var chapter = wikiChapters[chId];
+            if(chapter) {
+                document.getElementById('wikiContentArea').innerHTML = '<h3 style="color:var(--accent-green); margin-top:0;">' + chapter.title + '</h3><p style="color:#cbd5e1; line-height:1.7;">' + chapter.content + '</p>';
+            }
+        }
+
         // ROI kalkulator
         function updateROI() {
             var income = document.getElementById('incomeSlider').value;
@@ -627,9 +756,9 @@
             {
                 tag: "STUDIO UPDATE",
                 date: "28. Jul 2026.",
-                title: "WHR Production Bible v8 je online",
-                summary: "Lansiran zvanični Control Center sa statusnim panelom u realnom vremenu.",
-                text: "White Hat Rabbit Studios lansirao je v8 verziju portala Control Center.\n\nDodat je interaktivni statusni panel koji u realnom vremenu prikazuje stanje radne stanice, 10GbE NAS arhiva i AI procesora u Kikindi.\n\nSistem je u potpunosti opremljen za upravljanje hibridnim produkcijama.",
+                title: "WHR Production Bible v9 je online",
+                summary: "Lansirana je zvanična Digital Book / Wiki sekcija unutar portala.",
+                text: "White Hat Rabbit Studios kompletirao je v9 verziju portala.\n\nSada svi posetioci i saradnici mogu čitati poglavlja Master Equipment Book sistema direktno preko wikitab-a ili preuzeti zvanični PDF dokument za offline čitanje.",
                 image: "./studio.png"
             },
             {
@@ -702,6 +831,7 @@
 
         window.onload = function() {
             loadNews();
+            loadWikiChapter('ch1');
         };
     </script>
 </body>
