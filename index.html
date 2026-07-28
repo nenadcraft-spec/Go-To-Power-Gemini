@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>White Hat Rabbit Studios // Production Bible v7</title>
+    <title>White Hat Rabbit Studios // Control Center v8</title>
     <style>
         :root {
             --bg-main: #05080e;
@@ -42,7 +42,7 @@
             border-radius: 8px;
             padding: 20px 15px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-shadow: 0 10px 30px rgba(0,255,102,0.05);
         }
 
@@ -77,19 +77,68 @@
             display: block;
         }
 
-        .tagline {
-            font-style: italic;
-            color: var(--text-muted);
-            margin-top: 10px;
-            font-size: 12px;
-            border-top: 1px dashed var(--border-color);
-            padding-top: 8px;
+        /* STATUS CONTROL PANEL */
+        .status-panel {
+            background: #020408;
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            box-shadow: 0 0 15px rgba(0,255,102,0.1);
         }
 
-        /* Grid Navigation */
-        .nav-tabs {
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pulse-dot {
+            height: 8px;
+            width: 8px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        .status-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .status-item {
+            background: rgba(13, 19, 31, 0.6);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #101929;
+        }
+
+        .status-val {
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Navigation Grid */
+        .nav-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
             gap: 8px;
             margin-bottom: 20px;
         }
@@ -98,11 +147,11 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-muted);
-            padding: 12px 10px;
+            padding: 10px 8px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
             transition: all 0.2s ease;
             width: 100%;
@@ -134,7 +183,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* HUD Component Card */
+        /* HUD Cards */
         .hud-card {
             background: #05080e;
             border: 1px solid var(--border-color);
@@ -339,27 +388,41 @@
         <!-- Hero Header -->
         <div class="hero">
             <h1>WHITE HAT RABBIT STUDIOS</h1>
-            <div class="hero-subtitle">CINEMATIC PRODUCTION BIBLE // v7 WEB EDITION 🐇⚔️</div>
+            <div class="hero-subtitle">CONTROL CENTER // v8 WEB EDITION 🐇⚔️</div>
             
             <div class="studio-hero-img-box">
                 <img src="./studio.png" alt="White Hat Rabbit Studios Master Concept" onerror="this.src='https://via.placeholder.com/800x450/0d131f/00ff66?text=WHR+Studios'">
             </div>
-
-            <div class="tagline">"Ne kupuj opremu da bi imao studio. Gradi studio koji će stvarati originalne ideje."</div>
         </div>
 
-        <!-- Navigation Tabs -->
+        <!-- LIVE STATUS CONTROL PANEL -->
+        <div class="status-panel">
+            <div class="status-header">
+                <span><span class="pulse-dot"></span> STUDIO STATUS</span>
+                <span style="color: var(--accent-green);">ONLINE // KIKINDA</span>
+            </div>
+            <div class="status-grid">
+                <div class="status-item">Aktivni projekti: <span class="status-val">3</span></div>
+                <div class="status-item">Kamera: <span class="status-val">READY</span></div>
+                <div class="status-item">10GbE NAS: <span class="status-val">ONLINE</span></div>
+                <div class="status-item">AI Core: <span class="status-val">ACTIVE (5090)</span></div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs Grid -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-projects')">🎬 Projekti</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-aitools')">🤖 AI Alati</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-invest')">📑 Investicije</button>
             <button class="tab-btn" style="border-color: var(--accent-green);" onclick="openTab(event, 'tab-news')">📰 Novosti</button>
         </div>
 
         <!-- TAB 1: MANIFEST -->
         <div id="tab-manifest" class="tab-content active">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">POGLAVLJE 00: CREATIVE COMMAND CENTER</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">CREATIVE COMMAND CENTER</h2>
             <p><strong>Lokacija:</strong> Kikinda, Vojvodina, Serbia | <strong>Filozofija:</strong> AI-Driven Cinematic Production</p>
             <hr style="border-color: var(--border-color);">
             <h3>White Hat Rabbit Manifesto</h3>
@@ -431,7 +494,57 @@
             </div>
         </div>
 
-        <!-- TAB 4: INVESTICIJE & ROI -->
+        <!-- TAB 4: PROJEKTI -->
+        <div id="tab-projects" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AKTIVNE PRODUKCIJE & BRAND IP</h2>
+            
+            <div class="hud-card">
+                <div class="hud-header">
+                    <span>🎬 KEKC // Kulturni Centar Kikinda</span>
+                    <span class="badge" style="background:rgba(0,255,102,0.2); color:#00ff66; border-color:#00ff66;">IN PRODUCTION</span>
+                </div>
+                <p>Lokalni kulturni projekti, dokumentarni zapisi i hibridna vizuelna produkcija.</p>
+            </div>
+
+            <div class="hud-card" style="border-top-color: var(--accent-green);">
+                <div class="hud-header">
+                    <span>🎪 POP-UP FEC // Experiential Events</span>
+                    <span class="badge" style="background:rgba(56,189,248,0.2); color:var(--accent-blue); border-color:var(--accent-blue);">CONCEPT</span>
+                </div>
+                <p>Interaktivni Pop-up Family Entertainment Centar koncepti i virtual reality produkcija.</p>
+            </div>
+
+            <div class="hud-card" style="border-top-color: var(--accent-blue);">
+                <div class="hud-header">
+                    <span>🐇 WHITE HAT RABBIT STUDIOS ORIGINAL IP</span>
+                    <span class="badge" style="background:rgba(245,158,11,0.2); color:#f59e0b; border-color:#f59e0b;">DEVELOPMENT</span>
+                </div>
+                <p>Razvoj originalnih animiranih i igranih naučno-fantastičnih franšiza korišćenjem AI generativnih modela.</p>
+            </div>
+        </div>
+
+        <!-- TAB 5: AI ALATI -->
+        <div id="tab-aitools" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AI TOOLSET & WORKFLOW HUB</h2>
+            
+            <div class="hud-card">
+                <div class="hud-header">
+                    <span>🧠 Generativni Tekstualni Modeli</span>
+                    <span class="badge">ACTIVE</span>
+                </div>
+                <p><strong>ChatGPT / Gemini / Claude 3.5:</strong> Pisanje scenarija, ComfyUI Python skripte, brending i organizacija produkcije.</p>
+            </div>
+
+            <div class="hud-card" style="border-top-color: var(--accent-green);">
+                <div class="hud-header">
+                    <span>🎨 Vizuelni & Generativni Rendereri</span>
+                    <span class="badge" style="background:rgba(0,255,102,0.2); color:#00ff66; border-color:#00ff66;">LOCAL RTX 5090</span>
+                </div>
+                <p><strong>ComfyUI + Flux.1 / SDXL:</strong> Lokalno generisanje kadriranja, koncept arta i konzistentnih sporednih likova.</p>
+            </div>
+        </div>
+
+        <!-- TAB 6: INVESTICIJE & ROI -->
         <div id="tab-invest" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">INVESTICIONI PLAN & ROI</h2>
             <p>Ukupna procenjena početna investicija: <strong style="color: var(--accent-green);">~23,800 €</strong></p>
@@ -445,7 +558,7 @@
             </div>
         </div>
 
-        <!-- TAB 5: WHR NOVOSTI (REDAKCIJA) -->
+        <!-- TAB 7: WHR NOVOSTI (REDAKCIJA) -->
         <div id="tab-news" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">WHR STUDIO TRANSMISSION</h2>
             <p style="color: var(--text-muted); font-size:12px;">Najnovije vesti, oprema i projekti iz komandnog centra Kikinda.</p>
@@ -514,9 +627,9 @@
             {
                 tag: "STUDIO UPDATE",
                 date: "28. Jul 2026.",
-                title: "WHR Production Bible v7 je online",
-                summary: "Prva interaktivna web verzija Master Equipment Book sistema lansirana je javno.",
-                text: "White Hat Rabbit Studios lansirao je prvu web verziju dokumenta Cinematic Production Bible v7.\n\nStranica povezuje viziju studija, workstation sistem, AI produkcijski pipeline i investicioni plan u jednu digitalnu celinu.\n\nOvo je zvanični početak razvoja centralnog WHR komandnog centra.",
+                title: "WHR Production Bible v8 je online",
+                summary: "Lansiran zvanični Control Center sa statusnim panelom u realnom vremenu.",
+                text: "White Hat Rabbit Studios lansirao je v8 verziju portala Control Center.\n\nDodat je interaktivni statusni panel koji u realnom vremenu prikazuje stanje radne stanice, 10GbE NAS arhiva i AI procesora u Kikindi.\n\nSistem je u potpunosti opremljen za upravljanje hibridnim produkcijama.",
                 image: "./studio.png"
             },
             {
@@ -531,7 +644,7 @@
                 tag: "EQUIPMENT",
                 date: "30. Jul 2026.",
                 title: "Definisano digitalno srce studija",
-                summary: "RTX 5090 32GB i Ryzen 9 9950X čine neuralni mozak našeg studija.",
+                summary: "RTX 5090 32GB i Ryzen 9 9950X sa 96GB RAM-a čine neuralni mozak našeg studija.",
                 text: "Radna stanica predstavlja centralni neuralni čvor White Hat Rabbit Studios sistema.\n\nKonfiguracija je posebno optimizovana za ComfyUI, DaVinci Resolve, Blender i Unreal Engine 5.\n\nSistem je direktno povezan na brzu 10GbE mrežnu arhivu.",
                 image: "./studio.png"
             }
@@ -581,14 +694,12 @@
             document.body.style.overflow = "";
         }
 
-        // Zatvaranje na ESC
         document.addEventListener("keydown", function(event) {
             if (event.key === "Escape") {
                 closeModalDirect();
             }
         });
 
-        // Inicijalizacija pri učitavanju
         window.onload = function() {
             loadNews();
         };
