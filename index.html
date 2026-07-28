@@ -465,10 +465,14 @@
             <h1>WHITE HAT RABBIT STUDIOS</h1>
             <div class="hero-subtitle">CONTROL CENTER // v9 WEB EDITION 🐇⚔️</div>
             
-            <div class="studio-hero-img-box">
-                <img src="./power_on.png" alt="White Hat Rabbit Studios Master Concept" onerror="this.src='https://via.placeholder.com/800x450/0d131f/00ff66?text=WHR+Studios'">
+            <!-- WHR HERO SLIDESHOW -->
+            <div class="studio-hero-img-box" style="position: relative; min-height: 250px;">
+                <img id="heroSlideImg" src="./power_on.png" alt="WHR Studios Showcase" style="transition: opacity 0.5s ease-in-out; width:100%; display:block;">
+                
+                <!-- Strelice za ručno prebacivanje -->
+                <button onclick="changeHeroSlide(-1)" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.6); color:var(--accent-green); border:1px solid var(--accent-green); padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">❮</button>
+                <button onclick="changeHeroSlide(1)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.6); color:var(--accent-green); border:1px solid var(--accent-green); padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">❯</button>
             </div>
-        </div>
 
         <!-- LIVE STATUS CONTROL PANEL -->
         <div class="status-panel">
