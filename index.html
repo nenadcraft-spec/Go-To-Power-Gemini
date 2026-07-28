@@ -859,7 +859,29 @@
                 closeModalDirect();
             }
         });
+// WHR HERO SLIDESHOW LOGIKA
+        var heroImages = ["./power_on.png", "./studio.png"];
+        var currentSlideIndex = 0;
 
+        function changeHeroSlide(direction) {
+            var imgElem = document.getElementById('heroSlideImg');
+            if(!imgElem) return;
+
+            currentSlideIndex += direction;
+            if (currentSlideIndex >= heroImages.length) { currentSlideIndex = 0; }
+            if (currentSlideIndex < 0) { currentSlideIndex = heroImages.length - 1; }
+
+            imgElem.style.opacity = 0;
+            setTimeout(function() {
+                imgElem.src = heroImages[currentSlideIndex];
+                imgElem.style.opacity = 1;
+            }, 300);
+        }
+
+        // Automatsko prebacivanje na svakih 5 sekundi
+        setInterval(function() {
+            changeHeroSlide(1);
+        }, 5000);
         window.onload = function() {
             loadNews();
             loadWikiChapter('ch1');
