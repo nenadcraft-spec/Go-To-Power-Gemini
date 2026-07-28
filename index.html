@@ -863,8 +863,7 @@
                 closeModalDirect();
             }
         });
-// WHR HERO SLIDESHOW // ADVANCED STUDIO FEED LOGIKA
-        // WHR HERO SLIDESHOW // MASTER EQUIPMENT FEED LOGIKA
+// WHR HERO SLIDESHOW // MASTER EQUIPMENT FEED LOGIKA
         var heroSlides = [
             { image: "./power_on.png", newsIndex: 0 }, // Special Transmission
             { image: "./studio.png", newsIndex: 1 },   // Production Bible v9
@@ -905,8 +904,15 @@
         }
 
         function goToHeroSlide(index) {
-            currentSlideIndex = index - 1;
-            changeHeroSlide(1);
+            currentSlideIndex = index;
+            var imgElem = document.getElementById('heroSlideImg');
+            if(!imgElem) return;
+            imgElem.style.opacity = 0;
+            setTimeout(function() {
+                imgElem.src = heroSlides[currentSlideIndex].image;
+                imgElem.style.opacity = 1;
+                updateHeroDots();
+            }, 300);
         }
 
         function onHeroSlideClick() {
@@ -922,63 +928,13 @@
                 changeHeroSlide(1);
             }
         }, 5000);
-        var currentSlideIndex = 0;
-        var slideshowTimer = null;
-        var isSlideshowPaused = false;
 
-        function updateHeroDots() {
-            var dots = document.getElementsByClassName('hero-dot');
-            for (var i = 0; i < dots.length; i++) {
-                if (i === currentSlideIndex) {
-                    dots[i].innerText = '●';
-                    dots[i].style.color = 'var(--accent-green)';
-                } else {
-                    dots[i].innerText = '○';
-                    dots[i].style.color = 'var(--text-muted)';
-                }
-            }
-        }
-
-        function changeHeroSlide(direction) {
-            var imgElem = document.getElementById('heroSlideImg');
-            if(!imgElem) return;
-
-            currentSlideIndex += direction;
-            if (currentSlideIndex >= heroSlides.length) { currentSlideIndex = 0; }
-            if (currentSlideIndex < 0) { currentSlideIndex = heroSlides.length - 1; }
-
-            imgElem.style.opacity = 0;
-            setTimeout(function() {
-                imgElem.src = heroSlides[currentSlideIndex].image;
-                imgElem.style.opacity = 1;
-                updateHeroDots();
-            }, 400);
-        }
-
-        function goToHeroSlide(index) {
-            currentSlideIndex = index - 1;
-            changeHeroSlide(1);
-        }
-
-        function onHeroSlideClick() {
-            var targetNewsIndex = heroSlides[currentSlideIndex].newsIndex;
-            openNewsModal(targetNewsIndex);
-        }
-
-        function pauseHeroSlideshow() {
-            isSlideshowPaused = true;
-        }
-
-        function resumeHeroSlideshow() {
-            isSlideshowPaused = false;
-        }
-
-        // Automatsko prebacivanje na svakih 5 sekundi (sa procerom za pauzu)
-        setInterval(function() {
-            if (!isSlideshowPaused) {
-                changeHeroSlide(1);
-            }
-        }, 5000);
+        // INICIJALIZACIJA SAJTA NA STARTU
+        window.onload = function() {
+            loadNews();
+            loadWikiChapter('ch1');
+            updateHeroDots(); // 👈 Ovo aktivira tačkice čim se sajt otvori!
+        };
     </script>
 </body>
 </html>
