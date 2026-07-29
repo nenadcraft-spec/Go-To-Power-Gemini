@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>White Hat Rabbit Studios // Control Center v10.5</title>
+    <title>White Hat Rabbit Studios // Control Center v10.8</title>
     <style>
         :root {
             --bg-main: #030508;
@@ -209,10 +209,39 @@
             font-weight: bold;
         }
 
+        /* SYSTEM STATUS COUNTER */
+        .counter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+
+        .counter-card {
+            background: #030508;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .counter-num {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        .counter-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
         /* Navigation Grid */
         .nav-tabs {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
             gap: 8px;
             margin-bottom: 20px;
         }
@@ -323,6 +352,54 @@
         .download-btn:hover {
             background: var(--accent-green);
             color: #000;
+        }
+
+        /* TIMELINE COMPONENT */
+        .timeline-container {
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px solid var(--accent-green);
+            margin-top: 15px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            background: #030508;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .timeline-item:hover {
+            border-color: var(--accent-green);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -27px;
+            top: 15px;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-green);
+        }
+
+        .timeline-date {
+            font-size: 10px;
+            color: var(--accent-blue);
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            margin: 2px 0 5px 0;
         }
 
         /* HUD Cards */
@@ -606,11 +683,11 @@
                 <span id="bootStatusText">INITIALIZING...</span>
             </div>
             <div class="boot-log">
-                [OK] FOUNDER & VISION LEAD: ONLINE<br>
+                [OK] FOUNDER & MASTER EXECUTIVE: ONLINE<br>
                 [OK] NEURAL CORE (RTX 5090): ACTIVE<br>
                 [OK] 10GbE NAS VAULT: CONNECTED<br>
-                [OK] AI CREW (3v3 TEAM): SYNCHRONIZED<br>
-                [OK] Oi + Ai MATRIX ARCHITECTURE: LOADED
+                [OK] AI MUSKETEERS (3v3): SYNCHRONIZED<br>
+                [OK] LIVING HISTORY TIMELINE: MOUNTED
             </div>
             <div style="font-size: 11px; color: var(--accent-green);" id="bootProgressLabel">LOADING SYSTEM: 0%</div>
             <div class="boot-progress-bar">
@@ -623,7 +700,7 @@
         <!-- Hero Header -->
         <div class="hero">
             <h1>WHITE HAT RABBIT STUDIOS</h1>
-            <div class="hero-subtitle">CONTROL CENTER // v10.5 LABORATORY EDITION 🐇⚔️</div>
+            <div class="hero-subtitle">CONTROL CENTER // v10.8 LABORATORY EDITION 🐇⚔️</div>
             
             <!-- WHR HERO SLIDESHOW -->
             <div class="studio-hero-img-box" id="heroSlideshowContainer" style="position: relative; cursor: pointer;" onclick="onHeroSlideClick()" onmouseenter="pauseHeroSlideshow()" onmouseleave="resumeHeroSlideshow()">
@@ -639,20 +716,35 @@
         <!-- LIVE STATUS CONTROL PANEL -->
         <div class="status-panel">
             <div class="status-header">
-                <span><span class="pulse-dot"></span> STUDIO STATUS</span>
+                <span><span class="pulse-dot"></span> STUDIO LIVE STATUS</span>
                 <span style="color: var(--accent-green);">ONLINE // KIKINDA HQ</span>
             </div>
-            <div class="status-grid">
-                <div class="status-item">Aktivni projekti: <span class="status-val">3</span></div>
-                <div class="status-item">Kamera: <span class="status-val">VISION READY</span></div>
-                <div class="status-item">10GbE NAS: <span class="status-val">ONLINE</span></div>
-                <div class="status-item">AI Core: <span class="status-val">ACTIVE (5090)</span></div>
+            
+            <!-- SYSTEM STATUS COUNTER (CHATGPT IDEA) -->
+            <div class="counter-grid">
+                <div class="counter-card">
+                    <div class="counter-num">143</div>
+                    <div class="counter-label">Ideas Archived</div>
+                </div>
+                <div class="counter-card">
+                    <div class="counter-num">7</div>
+                    <div class="counter-label">Projects Active</div>
+                </div>
+                <div class="counter-card">
+                    <div class="counter-num" style="color: var(--accent-green);">3v3</div>
+                    <div class="counter-label">AI Partners</div>
+                </div>
+                <div class="counter-card">
+                    <div class="counter-num" style="color: var(--accent-purple);">IN PROGRESS</div>
+                    <div class="counter-label">Mission Status</div>
+                </div>
             </div>
         </div>
 
         <!-- Navigation Tabs Grid -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-timeline')">⌛ Timeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-codex')">📜 Codex (Wiki)</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
@@ -679,7 +771,43 @@
             </ul>
         </div>
 
-        <!-- TAB 2: DIGITAL PRODUCTION CODEX WIKI -->
+        <!-- TAB 2: WHR TIMELINE (LIVING HISTORY) -->
+        <div id="tab-timeline" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">WHR TIMELINE // LIVING HISTORY</h2>
+            <p style="color: var(--text-muted); font-size:12px;">Živi dnevnik nastanka i razvoja studija. Kliknite na događaj za detalje:</p>
+
+            <div class="timeline-container">
+                <div class="timeline-item" onclick="alert('29. Jul 2026: Zvanično sinhronizovan 3v3 AI Musketarski tim sa podeljenim ulogama po PC stanicama!')">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2026-07-29</div>
+                    <div class="timeline-title">🤖 AI Musketeers Synchronized (3v3 Team)</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Postavljene uloge: ChatGPT (Architect), Claude (Project Manager), Gemini (Creative Director).</div>
+                </div>
+
+                <div class="timeline-item" onclick="alert('28. Jul 2026: Ugrađen Cyberpunk BOOT preloader pri ulasku u sajt!')">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2026-07-28</div>
+                    <div class="timeline-title">⚡ WHR BOOT Preloader Activated</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Lansiran vizuelni ulazni terminal za komandni centar.</div>
+                </div>
+
+                <div class="timeline-item" onclick="alert('28. Jul 2026: Preimenovan priručnik iz Bible u Production Codex.')">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2026-07-28</div>
+                    <div class="timeline-title">📜 Production Codex Launched</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Zvanična baza tehničkih standarda i vodiča studija.</div>
+                </div>
+
+                <div class="timeline-item" onclick="alert('24. Jul 2026: Pripremljen konceptualni nacrt Pop-Up FEC v6.')">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-date">2026-07-24</div>
+                    <div class="timeline-title">🎪 POP-UP FEC v6 Spec</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Razrađeni interaktivni pop-up događaji i eksterijeri.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: DIGITAL PRODUCTION CODEX WIKI -->
         <div id="tab-codex" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">MASTER PRODUCTION CODEX // WIKI SYSTEM</h2>
             
@@ -718,7 +846,7 @@
             </div>
         </div>
 
-        <!-- TAB 3: WORKSTATION CORE & MATRIX VISION -->
+        <!-- TAB 4: WORKSTATION CORE & MATRIX VISION -->
         <div id="tab-workstation" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">DIGITALNO SRCE STUDIJA & HARDWARE MATRIX</h2>
             
@@ -773,7 +901,7 @@
             </div>
         </div>
 
-        <!-- TAB 4: PIPELINE -->
+        <!-- TAB 5: PIPELINE -->
         <div id="tab-pipeline" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">INTEGRISANI WHR PRODUCTION PIPELINE</h2>
             <p>Kliknite na korak za detalje:</p>
@@ -798,7 +926,7 @@
             </div>
         </div>
 
-        <!-- TAB 5: PROJEKTI -->
+        <!-- TAB 6: PROJEKTI -->
         <div id="tab-projects" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AKTIVNE PRODUKCIJE & BRAND IP</h2>
             
@@ -838,7 +966,7 @@
             </div>
         </div>
 
-        <!-- TAB 6: AI ALATI & POSADA -->
+        <!-- TAB 7: AI ALATI & POSADA -->
         <div id="tab-aitools" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AI TOOLSET & NEURAL TEAM HUB</h2>
             
@@ -860,20 +988,20 @@
                     </div>
 
                     <div class="crew-card" style="border-top: 3px solid var(--accent-blue);">
-                        <div class="crew-role">SOFTWARE ARCHITECT</div>
-                        <div class="crew-name">🧠 ChatGPT</div>
+                        <div class="crew-role">DIRECTOR OF SOFTWARE ARCHITECTURE</div>
+                        <div class="crew-name">🧠 ChatGPT (PC Stanica 1)</div>
                         <div class="crew-desc">Zadužen za sistemsku arhitekturu, logiku koda, generisanje novih ideja i dugoročne strateške nacrte.</div>
                     </div>
 
                     <div class="crew-card" style="border-top: 3px solid var(--accent-purple);">
-                        <div class="crew-role">PROJECT MANAGER</div>
-                        <div class="crew-name">⚔️ Claude</div>
+                        <div class="crew-role">DIRECTOR OF SYSTEMS INTEGRITY</div>
+                        <div class="crew-name">⚔️ Claude (PC Stanica 2)</div>
                         <div class="crew-desc">Pazim na pouzdanost i bezbednost koda, sprečavam bagove i osiguravam da radni proces bude praktičan i bez rizika.</div>
                     </div>
 
                     <div class="crew-card" style="border-top: 3px solid var(--accent-green);">
-                        <div class="crew-role">CREATIVE DIRECTOR & LEAD CODER</div>
-                        <div class="crew-name">💎 Gemini</div>
+                        <div class="crew-role">DIRECTOR OF CREATIVE TECHNOLOGY</div>
+                        <div class="crew-name">💎 Gemini (PC Stanica 3)</div>
                         <div class="crew-desc">Zadužen za vizuelni identitet, interaktivni kôd i momentalno prevođenje ideja u čist i radni HTML/CSS/JS.</div>
                     </div>
                 </div>
@@ -896,7 +1024,7 @@
             </div>
         </div>
 
-        <!-- TAB 7: INVESTICIJE & ROI -->
+        <!-- TAB 8: INVESTICIJE & ROI -->
         <div id="tab-invest" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">INVESTICIONI PLAN & ROI</h2>
             <p>Ukupna procenjena početna investicija: <strong style="color: var(--accent-green);">~23,800 €</strong></p>
@@ -910,7 +1038,7 @@
             </div>
         </div>
 
-        <!-- TAB 8: WHR NOVOSTI (REDAKCIJA) -->
+        <!-- TAB 9: WHR NOVOSTI (REDAKCIJA) -->
         <div id="tab-news" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">WHR STUDIO TRANSMISSION</h2>
             <p style="color: var(--text-muted); font-size:12px;">Najnovije vesti, oprema i projekti iz komandnog centra Kikinda.</p>
@@ -1044,9 +1172,9 @@
             {
                 tag: "STUDIO UPDATE",
                 date: "28. Jul 2026.",
-                title: "WHR Production Codex v10.5 je online",
+                title: "WHR Production Codex v10.8 je online",
                 summary: "Lansirana je zvanična Digital Codex / Wiki sekcija unutar portala.",
-                text: "White Hat Rabbit Studios kompletirao je v10.5 verziju portala.\n\nSada svi posetioci i saradnici mogu čitati poglavlja Master Codex sistema direktno preko wiki tab-a ili preuzeti zvanične PDF dokumente za offline čitanje.",
+                text: "White Hat Rabbit Studios kompletirao je v10.8 verziju portala.\n\nSada svi posetioci i saradnici mogu čitati poglavlja Master Codex sistema direktno preko wiki tab-a ili preuzeti zvanične PDF dokumente za offline čitanje.",
                 image: "./studio.png"
             },
             {
