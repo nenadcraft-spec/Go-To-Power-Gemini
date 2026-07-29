@@ -767,26 +767,44 @@
         </div>
 
         <!-- TAB 8: CLAUDE OFFICE -->
-        <div id="tab-claude-office" class="tab-content">
-            <h2 style="color:#f4a68a; margin-top:0; font-size:16px;">⚔️ CLAUDE OFFICE // SYSTEMS INTEGRITY DIVISION</h2>
-            <div id="claudeOfficeShell" class="claude-office-shell">
-                <div class="claude-door-stage">
-                    <h3 style="color:#f4a68a; font-family:monospace; margin-bottom:15px; letter-spacing:2px;">CLAUDE OFFICE</h3>
-                    <div class="claude-door-frame" id="claudeDoorFrame">
-    <!-- Leva Vrata -->
-    <div class="claude-door claude-door-left">
-        <div class="door-icon">⚡</div>
-        <div class="door-title">CONSTITUTIONAL AI</div>
-        <div class="door-subtitle">UNIT L-42 // WHR</div>
-    </div>
+<div id="tab-claude-office" class="tab-content">
+    <h2 style="color:#f4a68a; margin-top:0; font-size:16px;">⚔️ CLAUDE OFFICE // SYSTEMS INTEGRITY DIVISION</h2>
+    
+    <div id="claudeOfficeShell" class="claude-office-shell">
+        
+        <!-- STAGE SA VRATIMA -->
+        <div class="claude-door-stage" id="claudeStage">
+            <h3 style="color:#f4a68a; font-family:monospace; margin-bottom:15px; letter-spacing:2px;">CLAUDE OFFICE ACCESS</h3>
+            
+            <!-- OKVIR VRATA -->
+            <div class="claude-door-frame" id="claudeDoorFrame">
+                <!-- Leva Vrata -->
+                <div class="claude-door claude-door-left">
+                    <div class="door-icon">⚡</div>
+                    <div class="door-title">CONSTITUTIONAL AI</div>
+                    <div class="door-subtitle">UNIT L-42 // WHR</div>
+                </div>
 
-    <!-- Desna Vrata -->
-    <div class="claude-door claude-door-right">
-        <div class="door-icon">🐇</div>
-        <div class="door-title">AGENTIC CORE</div>
-        <div class="door-subtitle">UNIT R-42 // WHR</div>
-    </div>
-</div>
+                <!-- Desna Vrata -->
+                <div class="claude-door claude-door-right">
+                    <div class="door-icon">🐇</div>
+                    <div class="door-title">AGENTIC CORE</div>
+                    <div class="door-subtitle">UNIT R-42 // WHR</div>
+                </div>
+            </div>
+
+            <!-- DUGME ZA KLIZANJE VRATA -->
+            <button class="claude-enter-btn" onclick="openClaudeOffice()" style="margin-top:20px; padding:10px 20px; background:#0d1117; border:1px solid #d97757; color:#f4a68a; font-weight:bold; cursor:pointer; border-radius:4px; text-shadow:0 0 5px rgba(244,166,138,0.5);">
+                ACCESS OFFICE →
+            </button>
+        </div>
+
+        <!-- UNUTRAŠNJOST KANCELARIJE (PRIKAZUJE SE KAD SE VRATA OTVARE) -->
+        <div class="claude-office-interior" id="claudeInterior">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(244,166,138,0.3); padding-bottom:10px; margin-bottom:15px;">
+                <h3 style="color:#f4a68a; margin:0;">DIRECTOR OF SYSTEMS INTEGRITY</h3>
+                <span style="color:#00ff66; font-family:monospace; font-size:11px;">● LIVE CLAUDE NODE</span>
+            </div>
 
                 <div class="claude-office-interior">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(244,166,138,0.3); padding-bottom:10px; margin-bottom:15px;">
