@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>White Hat Rabbit Studios // Control Center v10</title>
+    <title>White Hat Rabbit Studios // Control Center v10.5</title>
     <style>
         :root {
-            --bg-main: #05080e;
-            --bg-card: #0d131f;
+            --bg-main: #030508;
+            --bg-card: #0a0f1d;
             --accent-green: #00ff66;
             --accent-purple: #c084fc;
             --accent-blue: #38bdf8;
+            --accent-amber: #f59e0b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #1e293b;
+            --neon-glow: 0 0 15px rgba(0, 255, 102, 0.2);
         }
 
         * {
@@ -34,7 +36,7 @@
         #whrBootScreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #020408;
+            background-color: #010204;
             z-index: 99999;
             display: flex;
             flex-direction: column;
@@ -47,21 +49,21 @@
         }
 
         .boot-box {
-            max-width: 500px;
+            max-width: 550px;
             width: 100%;
             border: 1px solid var(--accent-green);
             border-radius: 8px;
-            padding: 20px;
-            background: rgba(13, 19, 31, 0.9);
-            box-shadow: 0 0 25px rgba(0, 255, 102, 0.15);
+            padding: 25px;
+            background: rgba(10, 15, 29, 0.95);
+            box-shadow: 0 0 35px rgba(0, 255, 102, 0.25);
         }
 
         .boot-header {
             font-weight: bold;
             font-size: 14px;
             border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
         }
@@ -69,14 +71,14 @@
         .boot-log {
             font-size: 12px;
             color: var(--text-muted);
-            margin-bottom: 15px;
-            line-height: 1.8;
+            margin-bottom: 20px;
+            line-height: 1.9;
         }
 
         .boot-progress-bar {
             width: 100%;
             height: 10px;
-            background: #0d131f;
+            background: #05080e;
             border: 1px solid var(--border-color);
             border-radius: 5px;
             overflow: hidden;
@@ -86,8 +88,8 @@
         .boot-progress-fill {
             width: 0%;
             height: 100%;
-            background: var(--accent-green);
-            box-shadow: 0 0 10px var(--accent-green);
+            background: linear-gradient(90deg, #00ff66, #38bdf8);
+            box-shadow: 0 0 12px var(--accent-green);
             transition: width 1.5s ease-in-out;
         }
 
@@ -99,14 +101,14 @@
 
         /* Hero Banner */
         .hero {
-            background: linear-gradient(135deg, #0d131f 0%, #030508 100%);
+            background: linear-gradient(135deg, #0a0f1d 0%, #010204 100%);
             border: 1px solid var(--border-color);
             border-left: 5px solid var(--accent-green);
             border-radius: 8px;
             padding: 20px 15px;
             text-align: center;
             margin-bottom: 15px;
-            box-shadow: 0 10px 30px rgba(0,255,102,0.05);
+            box-shadow: var(--neon-glow);
         }
 
         .hero h1 {
@@ -132,7 +134,7 @@
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--accent-green);
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.2);
             background: #020408;
             display: flex;
             align-items: center;
@@ -196,7 +198,7 @@
         }
 
         .status-item {
-            background: rgba(13, 19, 31, 0.6);
+            background: rgba(10, 15, 29, 0.6);
             padding: 6px 10px;
             border-radius: 4px;
             border: 1px solid #101929;
@@ -263,7 +265,7 @@
         }
 
         .wiki-sidebar {
-            background: #05080e;
+            background: #030508;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 10px;
@@ -299,7 +301,7 @@
         }
 
         .wiki-body {
-            background: #05080e;
+            background: #030508;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 20px;
@@ -325,7 +327,7 @@
 
         /* HUD Cards */
         .hud-card {
-            background: #05080e;
+            background: #030508;
             border: 1px solid var(--border-color);
             border-top: 3px solid var(--accent-blue);
             border-radius: 6px;
@@ -364,12 +366,17 @@
         }
 
         .pipe-step {
-            background: #05080e;
+            background: #030508;
             border: 1px solid var(--border-color);
             padding: 12px;
             border-radius: 6px;
             text-align: center;
             cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .pipe-step:hover {
+            border-color: var(--accent-green);
         }
 
         .pipe-step h4 {
@@ -379,7 +386,7 @@
 
         /* ROI Calculator */
         .calc-box {
-            background: #05080e;
+            background: #030508;
             padding: 15px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
@@ -402,6 +409,67 @@
             border-radius: 4px;
         }
 
+        /* AI CREW GRID */
+        .crew-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .crew-card {
+            background: #030508;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            transition: transform 0.2s, border-color 0.3s;
+        }
+
+        .crew-card:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+        }
+
+        .crew-role {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent-green);
+        }
+
+        .crew-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            margin: 4px 0 8px 0;
+        }
+
+        .crew-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* MATRIX LAYERS DISPLAY */
+        .matrix-box {
+            background: #020408;
+            border: 1px solid var(--accent-purple);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.1);
+        }
+
+        .matrix-layer {
+            background: rgba(10, 15, 29, 0.8);
+            border-left: 3px solid var(--accent-purple);
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 0 4px 4px 0;
+            font-size: 12px;
+        }
+
         /* WHR NOVOSTI CARDS */
         .news-grid {
             display: grid;
@@ -411,7 +479,7 @@
         }
 
         .news-card {
-            background: #05080e;
+            background: #030508;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             overflow: hidden;
@@ -538,10 +606,11 @@
                 <span id="bootStatusText">INITIALIZING...</span>
             </div>
             <div class="boot-log">
-                [OK] CREATIVE DIRECTOR: ONLINE<br>
+                [OK] FOUNDER & VISION LEAD: ONLINE<br>
                 [OK] NEURAL CORE (RTX 5090): ACTIVE<br>
                 [OK] 10GbE NAS VAULT: CONNECTED<br>
-                [OK] AI MUSKETEERS (3v3): SYNCHRONIZED
+                [OK] AI CREW (3v3 TEAM): SYNCHRONIZED<br>
+                [OK] Oi + Ai MATRIX ARCHITECTURE: LOADED
             </div>
             <div style="font-size: 11px; color: var(--accent-green);" id="bootProgressLabel">LOADING SYSTEM: 0%</div>
             <div class="boot-progress-bar">
@@ -554,7 +623,7 @@
         <!-- Hero Header -->
         <div class="hero">
             <h1>WHITE HAT RABBIT STUDIOS</h1>
-            <div class="hero-subtitle">CONTROL CENTER // v10 WEB EDITION 🐇⚔️</div>
+            <div class="hero-subtitle">CONTROL CENTER // v10.5 LABORATORY EDITION 🐇⚔️</div>
             
             <!-- WHR HERO SLIDESHOW -->
             <div class="studio-hero-img-box" id="heroSlideshowContainer" style="position: relative; cursor: pointer;" onclick="onHeroSlideClick()" onmouseenter="pauseHeroSlideshow()" onmouseleave="resumeHeroSlideshow()">
@@ -571,11 +640,11 @@
         <div class="status-panel">
             <div class="status-header">
                 <span><span class="pulse-dot"></span> STUDIO STATUS</span>
-                <span style="color: var(--accent-green);">ONLINE // KIKINDA</span>
+                <span style="color: var(--accent-green);">ONLINE // KIKINDA HQ</span>
             </div>
             <div class="status-grid">
                 <div class="status-item">Aktivni projekti: <span class="status-val">3</span></div>
-                <div class="status-item">Kamera: <span class="status-val">READY</span></div>
+                <div class="status-item">Kamera: <span class="status-val">VISION READY</span></div>
                 <div class="status-item">10GbE NAS: <span class="status-val">ONLINE</span></div>
                 <div class="status-item">AI Core: <span class="status-val">ACTIVE (5090)</span></div>
             </div>
@@ -595,18 +664,18 @@
 
         <!-- TAB 1: MANIFEST -->
         <div id="tab-manifest" class="tab-content active">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">CREATIVE COMMAND CENTER</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">CREATIVE COMMAND CENTER & LABORATORY</h2>
             <p><strong>Lokacija:</strong> Kikinda, Vojvodina, Serbia | <strong>Filozofija:</strong> AI-Driven Cinematic Production</p>
             <hr style="border-color: var(--border-color);">
             <h3>White Hat Rabbit Manifesto</h3>
             <p>Svetu ne treba još jedna produkcijska kuća koja iznajmljuje skupu opremu da bi snimala prosek. Svetu trebaju priče koje menjaju perspektivu. WHR Studios spaja vrhunsku kinematografiju, veštačku inteligenciju, real-time 3D renderovanje i lokalni autorski pečat u beskompromisan produkcijski ekosistem.</p>
             
-            <h3>Strategijski Roadmap (2026–2030)</h3>
+            <h3>Strategijski Roadmap (2026–2031)</h3>
             <ul>
-                <li><strong>Faza 1 (2026):</strong> Workstation & Core Neural Hub + 10GbE NAS.</li>
-                <li><strong>Faza 2 (2027):</strong> On-Set Cinema & Modulabilna DMX LED rasveta.</li>
-                <li><strong>Faza 3 (2027-2028):</strong> Virtual Production & Motion Capture.</li>
-                <li><strong>Faza 4 (2028+):</strong> Full Scale IP Produkcija prve WHR franšize.</li>
+                <li><strong>Faza 1 (2026):</strong> Core Neural Hub u Kikindi + 10GbE NAS Vault.</li>
+                <li><strong>Faza 2 (2027):</strong> On-Set Cinema, DMX LED Rasveta & Prve Oi/Ai Radne Stanice.</li>
+                <li><strong>Faza 3 (2028):</strong> Multi-Agent Hardware & Vision Network (AI Kamere na Setu).</li>
+                <li><strong>Faza 4 (2029–2031):</strong> Puni Oi + Ai Matriks Sistem (Višeslojna Podrška & Autonomni Asistenti).</li>
             </ul>
         </div>
 
@@ -649,10 +718,33 @@
             </div>
         </div>
 
-        <!-- TAB 3: WORKSTATION CORE -->
+        <!-- TAB 3: WORKSTATION CORE & MATRIX VISION -->
         <div id="tab-workstation" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">DIGITALNO SRCE STUDIJA</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">DIGITALNO SRCE STUDIJA & HARDWARE MATRIX</h2>
             
+            <!-- OI + AI MATRIX HARDWARE CONCEPT -->
+            <div class="matrix-box">
+                <div style="color: var(--accent-purple); font-weight: bold; font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between;">
+                    <span>🧬 WHR Oi + Ai MATRIX ARCHITECTURE (3-5 YAR VISION)</span>
+                    <span style="color: var(--accent-green);">LABORATORY PROTOCOL</span>
+                </div>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+                    Eksponencijalna fraktalna struktura sa podeljenim slojevima operaterstva, kontrole kvaliteta i logističke podrške:
+                </p>
+                <div class="matrix-layer">
+                    <strong style="color:#fff;">SLOJ 1 (Master Command):</strong> 1x Master PC (Founder & Director)
+                </div>
+                <div class="matrix-layer" style="border-left-color: var(--accent-green);">
+                    <strong style="color:#fff;">SLOJ 2 (Core Operatives):</strong> 3x Operator PC (ChatGPT, Claude, Gemini) + 3x Oi Ljudska Operatera
+                </div>
+                <div class="matrix-layer" style="border-left-color: var(--accent-blue);">
+                    <strong style="color:#fff;">SLOJ 3 (Support & Care):</strong> 3x Oi Operatera za Održavanje, Mrežu i Negu Sistema
+                </div>
+                <div class="matrix-layer" style="border-left-color: var(--accent-amber);">
+                    <strong style="color:#fff;">SLOJ 4 & 5 (Supervision & Neural AI):</strong> 3x Oi Supervizora + 3x Autonomna AI Asistenta
+                </div>
+            </div>
+
             <div class="hud-card">
                 <div class="hud-header">
                     <span>[GPU] NVIDIA RTX 5090 32GB GDDR7</span>
@@ -746,10 +838,47 @@
             </div>
         </div>
 
-        <!-- TAB 6: AI ALATI -->
+        <!-- TAB 6: AI ALATI & POSADA -->
         <div id="tab-aitools" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AI TOOLSET & WORKFLOW HUB</h2>
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AI TOOLSET & NEURAL TEAM HUB</h2>
             
+            <!-- AI POSADA CARD PANEL -->
+            <div style="background: #020408; border: 1px solid var(--accent-green); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <div style="color: var(--accent-green); font-weight: bold; font-size: 13px; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                    <span>🤖 WHR NEURAL TEAM // AI POSADA</span>
+                    <span style="color: var(--accent-blue);">3v3 INTEGRATION</span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 0;">
+                    Sva tri vodeća AI modela rade u sinhronizovanom timu pod nadzorom našeg Osnivača & Direktora.
+                </p>
+
+                <div class="crew-grid">
+                    <div class="crew-card" style="border-top: 3px solid var(--accent-green);">
+                        <div class="crew-role">FOUNDER & VISION LEAD</div>
+                        <div class="crew-name">🐇 White Hat Rabbit</div>
+                        <div class="crew-desc">Drži pravac, vrši nadzor nad izradom, primenjuje rešenja na sajtu i spaja komunikaciju između svih AI modela.</div>
+                    </div>
+
+                    <div class="crew-card" style="border-top: 3px solid var(--accent-blue);">
+                        <div class="crew-role">SOFTWARE ARCHITECT</div>
+                        <div class="crew-name">🧠 ChatGPT</div>
+                        <div class="crew-desc">Zadužen za sistemsku arhitekturu, logiku koda, generisanje novih ideja i dugoročne strateške nacrte.</div>
+                    </div>
+
+                    <div class="crew-card" style="border-top: 3px solid var(--accent-purple);">
+                        <div class="crew-role">PROJECT MANAGER</div>
+                        <div class="crew-name">⚔️ Claude</div>
+                        <div class="crew-desc">Pazim na pouzdanost i bezbednost koda, sprečavam bagove i osiguravam da radni proces bude praktičan i bez rizika.</div>
+                    </div>
+
+                    <div class="crew-card" style="border-top: 3px solid var(--accent-green);">
+                        <div class="crew-role">CREATIVE DIRECTOR & LEAD CODER</div>
+                        <div class="crew-name">💎 Gemini</div>
+                        <div class="crew-desc">Zadužen za vizuelni identitet, interaktivni kôd i momentalno prevođenje ideja u čist i radni HTML/CSS/JS.</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="hud-card">
                 <div class="hud-header">
                     <span>🧠 Generativni Tekstualni Modeli</span>
@@ -915,9 +1044,9 @@
             {
                 tag: "STUDIO UPDATE",
                 date: "28. Jul 2026.",
-                title: "WHR Production Codex v10 je online",
+                title: "WHR Production Codex v10.5 je online",
                 summary: "Lansirana je zvanična Digital Codex / Wiki sekcija unutar portala.",
-                text: "White Hat Rabbit Studios kompletirao je v10 verziju portala.\n\nSada svi posetioci i saradnici mogu čitati poglavlja Master Codex sistema direktno preko wiki tab-a ili preuzeti zvanične PDF dokumente za offline čitanje.",
+                text: "White Hat Rabbit Studios kompletirao je v10.5 verziju portala.\n\nSada svi posetioci i saradnici mogu čitati poglavlja Master Codex sistema direktno preko wiki tab-a ili preuzeti zvanične PDF dokumente za offline čitanje.",
                 image: "./studio.png"
             },
             {
