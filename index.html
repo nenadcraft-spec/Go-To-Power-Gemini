@@ -2034,7 +2034,92 @@ var heroSlides = [
                 changeHeroSlide(1);
             }
         }, 5000);
+/* ==================================================
+   CLAUDE OFFICE CONTROLS
+================================================== */
 
+function enterClaudeOffice() {
+    var shell = document.getElementById('claudeOfficeShell');
+    var doors = document.getElementById('claudeDoorFrame');
+
+    if (!shell || !doors) return;
+
+    doors.classList.add('opening');
+
+    setTimeout(function() {
+        shell.classList.add('office-open');
+    }, 850);
+}
+
+function exitClaudeOffice() {
+    var shell = document.getElementById('claudeOfficeShell');
+    var doors = document.getElementById('claudeDoorFrame');
+    var message = document.getElementById('claudeOfficeMessage');
+
+    if (!shell || !doors) return;
+
+    shell.classList.remove('office-open');
+
+    if (message) {
+        message.style.display = 'none';
+        message.innerHTML = '';
+    }
+
+    setTimeout(function() {
+        doors.classList.remove('opening');
+    }, 700);
+}
+
+function showClaudeMessage(type) {
+    var box = document.getElementById('claudeOfficeMessage');
+
+    if (!box) return;
+
+    var messages = {
+        systems:
+            '<strong style="color:#f4a68a;">WHR ROLE:</strong><br>' +
+            'Claude proverava tehničku strukturu, dokumentaciju, logiku i stabilnost sistema pre nego što rešenje postane deo WHR Control Center-a.',
+
+        team:
+            '<strong style="color:#f4a68a;">AI MUSKETEERS:</strong><br>' +
+            'White Hat Rabbit određuje viziju. ChatGPT razvija arhitekturu. Claude proverava integritet. Gemini pretvara ideju u vizuelno i interaktivno iskustvo.',
+
+        principle:
+            '<strong style="color:#f4a68a;">CORE PRINCIPLE:</strong><br>' +
+            'AI ne preuzima autorstvo nad čovekovom idejom. Njegova svrha je da pomogne čoveku da ideju jasnije oblikuje, proveri i realizuje.'
+    };
+
+    box.innerHTML = messages[type] || '';
+    box.style.display = 'block';
+    box.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
+    });
+}
+
+function openClaudeImage(imageSource) {
+    var imageWindow = window.open('', '_blank');
+
+    if (!imageWindow) return;
+
+    imageWindow.document.write(
+        '<!DOCTYPE html>' +
+        '<html><head><title>Claude Office Gallery</title></head>' +
+        '<body style="' +
+            'margin:0;' +
+            'background:#030508;' +
+            'display:flex;' +
+            'align-items:center;' +
+            'justify-content:center;' +
+            'min-height:100vh;' +
+        '">' +
+            '<img src="' + imageSource + '" ' +
+            'style="max-width:95%;max-height:95vh;border:1px solid #d97757;border-radius:8px;">' +
+        '</body></html>'
+    );
+
+    imageWindow.document.close();
+}
         // STARTUP INICIJALIZACIJA
         window.onload = function() {
             runWhrBoot();
