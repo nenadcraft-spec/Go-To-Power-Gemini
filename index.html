@@ -1153,7 +1153,229 @@
         onclick="openTab(event, 'tab-claude-office')">
     ⚔️ Claude Office
 </button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-invest')">🧰 Equipment Vault</button>
+           <!-- ==================================================
+     CLAUDE OFFICE // SYSTEMS INTEGRITY DIVISION
+================================================== -->
+<div id="tab-claude-office" class="tab-content">
+
+    <h2 style="color:#f4a68a; margin-top:0; font-size:16px;">
+        ⚔️ CLAUDE OFFICE // SYSTEMS INTEGRITY DIVISION
+    </h2>
+
+    <p style="color:var(--text-muted); font-size:12px;">
+        Uđite u digitalnu kancelariju i upoznajte jednog člana
+        WHR AI Musketeers tima.
+    </p>
+
+    <div id="claudeOfficeShell" class="claude-office-shell">
+
+        <!-- ZATVORENA VRATA -->
+        <div class="claude-door-stage">
+
+            <div class="claude-door-title">
+                <h2>CLAUDE OFFICE</h2>
+                <p>SYSTEMS INTEGRITY DIVISION // WHR STUDIOS</p>
+            </div>
+
+            <div id="claudeDoorFrame" class="claude-door-frame">
+
+                <div class="claude-door claude-door-left">
+                    <div class="claude-door-glass">
+                        <div class="claude-door-symbol">✦</div>
+                    </div>
+                    <div class="claude-door-label">SYSTEM</div>
+                </div>
+
+                <div class="claude-door claude-door-right">
+                    <div class="claude-door-glass">
+                        <div class="claude-door-symbol">⚔️</div>
+                    </div>
+                    <div class="claude-door-label">INTEGRITY</div>
+                </div>
+
+                <div class="claude-door-line"></div>
+            </div>
+
+            <button class="claude-enter-btn" onclick="enterClaudeOffice()">
+                ACCESS OFFICE →
+            </button>
+
+        </div>
+
+        <!-- UNUTRAŠNJOST KANCELARIJE -->
+        <div class="claude-office-interior">
+
+            <div class="claude-office-topbar">
+                <span>⚔️ CLAUDE TERMINAL // WHR AI WING</span>
+                <span class="claude-online">● ONLINE</span>
+            </div>
+
+            <div class="claude-office-grid">
+
+                <!-- DIGITALNI PROZOR -->
+                <div class="claude-window-wall">
+                    <div class="claude-window-hud">
+                        <strong>DIGITAL GLASS // LIVE SYSTEM VIEW</strong><br>
+                        Repository monitoring: ACTIVE<br>
+                        Documentation channel: CONNECTED<br>
+                        WHR AI Musketeers network: SYNCHRONIZED
+                    </div>
+                </div>
+
+                <!-- KO JE CLAUDE -->
+                <div class="claude-profile-panel">
+                    <h3>WHO IS CLAUDE?</h3>
+
+                    <p>
+                        Claude je AI asistent kompanije Anthropic, napravljen
+                        za razgovor, analizu, pisanje, programiranje i rad
+                        sa složenim dokumentima.
+                    </p>
+
+                    <p>
+                        U White Hat Rabbit Studios sistemu Claude ima posebnu
+                        ulogu:
+                    </p>
+
+                    <ul>
+                        <li>pregled i kontrola koda</li>
+                        <li>pronalaženje grešaka i rizika</li>
+                        <li>organizacija velikih dokumenata</li>
+                        <li>tehnička i projektna dokumentacija</li>
+                        <li>kontrola kvaliteta sistema</li>
+                    </ul>
+
+                    <div style="
+                        margin-top:14px;
+                        padding:10px;
+                        border-left:3px solid #d97757;
+                        background:rgba(217,119,87,0.07);
+                        color:#f8fafc;
+                        font-size:11px;
+                    ">
+                        WHR ROLE:<br>
+                        <strong style="color:#f4a68a;">
+                            DIRECTOR OF SYSTEMS INTEGRITY
+                        </strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- EDUKATIVNE KARTICE -->
+            <div class="claude-info-grid">
+
+                <div class="claude-info-card">
+                    <h4>01 // ANALYSIS</h4>
+                    <p>
+                        Claude može da analizira velike količine teksta,
+                        dokumentaciju, planove i strukturu projekta.
+                    </p>
+                </div>
+
+                <div class="claude-info-card">
+                    <h4>02 // CODING</h4>
+                    <p>
+                        Pomaže u pisanju, proveri, objašnjavanju i popravljanju
+                        HTML, CSS, JavaScript i drugog programskog koda.
+                    </p>
+                </div>
+
+                <div class="claude-info-card">
+                    <h4>03 // DOCUMENTS</h4>
+                    <p>
+                        Posebno je koristan za strukturiranje poslovnih
+                        dokumenata, tehničkih specifikacija i projektnih knjiga.
+                    </p>
+                </div>
+
+                <div class="claude-info-card">
+                    <h4>04 // SAFETY</h4>
+                    <p>
+                        Njegova uloga u WHR timu jeste da proverava stabilnost,
+                        doslednost i moguće probleme pre objavljivanja.
+                    </p>
+                </div>
+
+                <div class="claude-info-card">
+                    <h4>05 // COLLABORATION</h4>
+                    <p>
+                        Sarađuje sa White Hat Rabbitom, ChatGPT-om i Geminijem
+                        kao deo WHR AI Musketeers sistema.
+                    </p>
+                </div>
+
+                <div class="claude-info-card">
+                    <h4>06 // PURPOSE</h4>
+                    <p>
+                        Claude nije vlasnik ideje niti zamena za autora.
+                        On je inteligentni alat i digitalni saradnik čoveka.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- GALERIJA -->
+            <div class="claude-gallery">
+                <img src="./claude_agents.jpg"
+                     alt="Claude AI agents workflow"
+                     onclick="openClaudeImage(this.src)"
+                     onerror="this.style.display='none'">
+
+                <img src="./claude_intro.jpg"
+                     alt="What is Claude AI"
+                     onclick="openClaudeImage(this.src)"
+                     onerror="this.style.display='none'">
+
+                <img src="./claude_ecosystem.jpg"
+                     alt="Claude product ecosystem"
+                     onclick="openClaudeImage(this.src)"
+                     onerror="this.style.display='none'">
+            </div>
+
+            <!-- KONTROLE -->
+            <div class="claude-office-controls">
+
+                <button class="claude-office-button"
+                        onclick="showClaudeMessage('systems')">
+                    ⚔️ WHR ROLE
+                </button>
+
+                <button class="claude-office-button"
+                        onclick="showClaudeMessage('team')">
+                    🤝 AI TEAM
+                </button>
+
+                <button class="claude-office-button"
+                        onclick="showClaudeMessage('principle')">
+                    🛡️ CORE PRINCIPLE
+                </button>
+
+                <button class="claude-office-button"
+                        onclick="exitClaudeOffice()">
+                    ← CLOSE OFFICE
+                </button>
+
+            </div>
+
+            <div id="claudeOfficeMessage"
+                 style="
+                    display:none;
+                    margin-top:15px;
+                    padding:13px;
+                    border:1px solid #d97757;
+                    border-radius:6px;
+                    background:rgba(217,119,87,0.06);
+                    color:#cbd5e1;
+                    font-family:monospace;
+                    font-size:11px;
+                    line-height:1.7;
+                 ">
+            </div>
+
+        </div>
+    </div>
+</div> <button class="tab-btn" onclick="openTab(event, 'tab-invest')">🧰 Equipment Vault</button>
             <button class="tab-btn" style="border-color: var(--accent-green);" onclick="openTab(event, 'tab-news')">📰 Novosti</button>
         </div>
 
