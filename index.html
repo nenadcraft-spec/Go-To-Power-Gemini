@@ -1059,6 +1059,79 @@
         align-items: flex-start;
         flex-direction: column;
     }
+}// ==================================================
+// WHR HEADQUARTERS // ROOM NAVIGATION
+// ==================================================
+
+function enterHqRoom(tabId, roomName) {
+
+    var message = document.getElementById('whrHqMessage');
+
+    if (message) {
+        message.style.display = 'block';
+        message.innerHTML =
+            'ACCESS GRANTED // OPENING ' +
+            '<strong style="color:#00ff66;">' +
+            roomName +
+            '</strong>...';
+    }
+
+    setTimeout(function() {
+
+        var tabcontent =
+            document.getElementsByClassName('tab-content');
+
+        var tablinks =
+            document.getElementsByClassName('tab-btn');
+
+        var i;
+
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = 'none';
+            tabcontent[i].classList.remove('active');
+        }
+
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove('active');
+        }
+
+        var targetTab = document.getElementById(tabId);
+
+        if (targetTab) {
+            targetTab.style.display = 'block';
+            targetTab.classList.add('active');
+        }
+
+        activateHqNavigationButton(tabId);
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        if (message) {
+            message.style.display = 'none';
+        }
+
+    }, 550);
+}
+
+
+function activateHqNavigationButton(tabId) {
+
+    var buttons =
+        document.getElementsByClassName('tab-btn');
+
+    for (var i = 0; i < buttons.length; i++) {
+
+        var action =
+            buttons[i].getAttribute('onclick') || '';
+
+        if (action.indexOf("'" + tabId + "'") !== -1) {
+            buttons[i].classList.add('active');
+            break;
+        }
+    }
 }
         /* Footer */
         .footer {
