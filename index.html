@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>White Hat Rabbit Studios // Control Center v9</title>
+    <title>White Hat Rabbit Studios // Control Center v10</title>
     <style>
         :root {
             --bg-main: #05080e;
@@ -27,6 +27,68 @@
             margin: 0;
             padding: 0;
             line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* WHR CYBERPUNK BOOT PRELOADER */
+        #whrBootScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #020408;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+            color: var(--accent-green);
+            padding: 20px;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .boot-box {
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 20px;
+            background: rgba(13, 19, 31, 0.9);
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.15);
+        }
+
+        .boot-header {
+            font-weight: bold;
+            font-size: 14px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .boot-log {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .boot-progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #0d131f;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .boot-progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+            transition: width 1.5s ease-in-out;
         }
 
         .container {
@@ -65,13 +127,13 @@
 
         .studio-hero-img-box {
             width: 100%;
-            height: 520px; /* Smanji na 420px ili 450px ako želiš niži baner na ekranu */
+            height: 520px;
             margin: 15px 0;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--accent-green);
             box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
-            background: #020408; /* Tamna pozadina oko vertikalne slike */
+            background: #020408;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -82,7 +144,7 @@
             max-height: 100%;
             width: auto;
             height: auto;
-            object-fit: contain; /* Čuva originalne proporcije slike bez ikakvog razvlačenja! */
+            object-fit: contain;
             display: block;
             margin: 0 auto;
         }
@@ -193,7 +255,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* WIKI / DIGITAL BOOK SYSTEM */
+        /* WIKI / DIGITAL CODEX SYSTEM */
         .wiki-layout {
             display: grid;
             grid-template-columns: 240px 1fr;
@@ -253,7 +315,6 @@
             font-size: 12px;
             font-weight: bold;
             text-decoration: none;
-            margin-bottom: 15px;
             transition: all 0.2s;
         }
 
@@ -469,26 +530,43 @@
 </head>
 <body>
 
+    <!-- WHR CYBERPUNK BOOT SCREEN -->
+    <div id="whrBootScreen">
+        <div class="boot-box">
+            <div class="boot-header">
+                <span>WHR HQ // SYSTEM BOOT</span>
+                <span id="bootStatusText">INITIALIZING...</span>
+            </div>
+            <div class="boot-log">
+                [OK] CREATIVE DIRECTOR: ONLINE<br>
+                [OK] NEURAL CORE (RTX 5090): ACTIVE<br>
+                [OK] 10GbE NAS VAULT: CONNECTED<br>
+                [OK] AI MUSKETEERS (3v3): SYNCHRONIZED
+            </div>
+            <div style="font-size: 11px; color: var(--accent-green);" id="bootProgressLabel">LOADING SYSTEM: 0%</div>
+            <div class="boot-progress-bar">
+                <div class="boot-progress-fill" id="bootProgressBar"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Hero Header -->
         <div class="hero">
             <h1>WHITE HAT RABBIT STUDIOS</h1>
-            <div class="hero-subtitle">CONTROL CENTER // v9 WEB EDITION 🐇⚔️</div>
+            <div class="hero-subtitle">CONTROL CENTER // v10 WEB EDITION 🐇⚔️</div>
             
-            <!-- WHR HERO SLIDESHOW // STUDIO FEED EDITION -->
+            <!-- WHR HERO SLIDESHOW -->
             <div class="studio-hero-img-box" id="heroSlideshowContainer" style="position: relative; cursor: pointer;" onclick="onHeroSlideClick()" onmouseenter="pauseHeroSlideshow()" onmouseleave="resumeHeroSlideshow()">
                 <img id="heroSlideImg" src="./power_on.png" alt="WHR Studios Showcase" style="transition: opacity 0.8s ease-in-out; width:100%; display:block;" onerror="this.onerror=null; this.src='./studio.png';">
                 
-                <!-- Strelice za ručno prebacivanje -->
                 <button onclick="event.stopPropagation(); changeHeroSlide(-1)" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.7); color:var(--accent-green); border:1px solid var(--accent-green); padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold; z-index:2;">❮</button>
                 <button onclick="event.stopPropagation(); changeHeroSlide(1)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.7); color:var(--accent-green); border:1px solid var(--accent-green); padding:8px 12px; border-radius:4px; cursor:pointer; font-weight:bold; z-index:2;">❯</button>
                 
-                <!-- Indicators / Tačkice (● ○) -->
-                <!-- Novo stanje: Prazan kontejner sa ID-om gde JavaScript sam ucrtava tačkice -->
-<div id="heroDotsContainer" style="position:absolute; bottom:12px; width:100%; text-align:center; z-index:2;" onclick="event.stopPropagation();">
-</div>
+                <div id="heroDotsContainer" style="position:absolute; bottom:12px; width:100%; text-align:center; z-index:2;" onclick="event.stopPropagation();"></div>
             </div>
         </div>
+
         <!-- LIVE STATUS CONTROL PANEL -->
         <div class="status-panel">
             <div class="status-header">
@@ -506,7 +584,7 @@
         <!-- Navigation Tabs Grid -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
-            <button class="tab-btn" onclick="openTab(event, 'tab-bible')">📖 Bible (Wiki)</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-codex')">📜 Codex (Wiki)</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-projects')">🎬 Projekti</button>
@@ -532,32 +610,33 @@
             </ul>
         </div>
 
-        <!-- TAB 2: DIGITAL BIBLE WIKI -->
-        <div id="tab-bible" class="tab-content">
-            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">MASTER PRODUCTION BIBLE // WIKI SYSTEM</h2>
+        <!-- TAB 2: DIGITAL PRODUCTION CODEX WIKI -->
+        <div id="tab-codex" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">MASTER PRODUCTION CODEX // WIKI SYSTEM</h2>
+            
             <div class="hud-card" style="border-top-color: #c084fc; margin-bottom: 20px;">
-    <div class="hud-header">
-        <span>🌌 DUH POSMATRAČ // Hologramski Bioskop</span>
-        <span class="badge" style="background:rgba(192,132,252,0.2); color:#c084fc; border-color:#c084fc;">PILOT CONCEPT</span>
-    </div>
-    <p>Hologramska pozornica pod otvorenim nebom i 6DoF sloboda kretanja publike unutar same radnje filma.</p>
-    <a href="duh_posmatrac_wiki.html" class="news-btn" style="display:inline-block; text-decoration:none; margin-top:10px;">
-        📖 Otvori "Duh Posmatrač" Interactive Wiki →
-    </a>
-</div>
-            <!-- WHR OFFICIAL PDF DOWNLOAD CENTER -->
-<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-    <a href="./White_Hat_Rabbit_Master_Equipment_Book_v7.pdf" target="_blank" class="download-btn">
-        📄 Preuzmi Master Equipment Book v7 (Ultimate Edition)
-    </a>
-    <a href="./WHR_Master_Equipment_Book_v0.1_Workstation.pdf" target="_blank" class="download-btn" style="border-color: var(--accent-blue); color: var(--accent-blue);">
-        💻 Preuzmi Workstation Spec v0.1 (Proof of Concept)
-    </a>
-</div>
+                <div class="hud-header">
+                    <span>🌌 DUH POSMATRAČ // Hologramski Bioskop</span>
+                    <span class="badge" style="background:rgba(192,132,252,0.2); color:#c084fc; border-color:#c084fc;">PILOT CONCEPT</span>
+                </div>
+                <p>Hologramska pozornica pod otvorenim nebom i 6DoF sloboda kretanja publike unutar same radnje filma.</p>
+                <a href="duh_posmatrac_wiki.html" class="news-btn" style="display:inline-block; text-decoration:none; margin-top:10px;">
+                    📖 Otvori "Duh Posmatrač" Interactive Wiki →
+                </a>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                <a href="./White_Hat_Rabbit_Master_Equipment_Book_v7.pdf" target="_blank" class="download-btn">
+                    📄 Preuzmi Master Equipment Book v7 (Ultimate Edition)
+                </a>
+                <a href="./WHR_Master_Equipment_Book_v0.1_Workstation.pdf" target="_blank" class="download-btn" style="border-color: var(--accent-blue); color: var(--accent-blue);">
+                    💻 Preuzmi Workstation Spec v0.1 (Proof of Concept)
+                </a>
+            </div>
 
             <div class="wiki-layout">
                 <div class="wiki-sidebar">
-                    <div class="wiki-menu-title">📚 POGLAVLJA KNJIGE</div>
+                    <div class="wiki-menu-title">📜 POGLAVLJA CODEX-A</div>
                     <div class="wiki-link active" onclick="loadWikiChapter('ch1', this)">01. Kinematografija & RAW</div>
                     <div class="wiki-link" onclick="loadWikiChapter('ch2', this)">02. DMX LED Rasveta</div>
                     <div class="wiki-link" onclick="loadWikiChapter('ch3', this)">03. Neural Workstation</div>
@@ -630,16 +709,18 @@
         <!-- TAB 5: PROJEKTI -->
         <div id="tab-projects" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AKTIVNE PRODUKCIJE & BRAND IP</h2>
+            
             <div class="hud-card" style="border-top-color: var(--accent-purple);">
-    <div class="hud-header">
-        <span>🌌 DUH POSMATRAČ // Hologramski Bioskop</span>
-        <span class="badge" style="background:rgba(192,132,252,0.2); color:#c084fc; border-color:#c084fc;">PILOT CONCEPT</span>
-    </div>
-    <p>Hologramska pozornica pod otvorenim nebom i 6DoF sloboda kretanja publike unutar same radnje filma.</p>
-    <a href="duh_posmatrac_wiki.html" class="news-btn" style="display:inline-block; text-decoration:none; margin-top:10px;">
-        📖 Otvori "Duh Posmatrač" Interactive Wiki →
-    </a>
-</div>
+                <div class="hud-header">
+                    <span>🌌 DUH POSMATRAČ // Hologramski Bioskop</span>
+                    <span class="badge" style="background:rgba(192,132,252,0.2); color:#c084fc; border-color:#c084fc;">PILOT CONCEPT</span>
+                </div>
+                <p>Hologramska pozornica pod otvorenim nebom i 6DoF sloboda kretanja publike unutar same radnje filma.</p>
+                <a href="duh_posmatrac_wiki.html" class="news-btn" style="display:inline-block; text-decoration:none; margin-top:10px;">
+                    📖 Otvori "Duh Posmatrač" Interactive Wiki →
+                </a>
+            </div>
+
             <div class="hud-card">
                 <div class="hud-header">
                     <span>🎬 KEKC // Kulturni Centar Kikinda</span>
@@ -729,6 +810,30 @@
     </div>
 
     <script>
+        // WHR CYBERPUNK BOOT SEQUENCE
+        function runWhrBoot() {
+            var progressBar = document.getElementById('bootProgressBar');
+            var progressLabel = document.getElementById('bootProgressLabel');
+            var statusText = document.getElementById('bootStatusText');
+            var bootScreen = document.getElementById('whrBootScreen');
+
+            if(!progressBar || !bootScreen) return;
+
+            setTimeout(function() {
+                progressBar.style.width = "100%";
+                progressLabel.innerText = "LOADING SYSTEM: 100%";
+                statusText.innerText = "ONLINE";
+                statusText.style.color = "#00ff66";
+            }, 100);
+
+            setTimeout(function() {
+                bootScreen.style.opacity = "0";
+                setTimeout(function() {
+                    bootScreen.style.visibility = "hidden";
+                }, 600);
+            }, 1600);
+        }
+
         // Prebacivanje glavnih tabova
         function openTab(evt, tabId) {
             var i, tabcontent, tablinks;
@@ -755,7 +860,7 @@
             }
         }
 
-        // BAZA DIGITAL KNJIGE (WIKI)
+        // BAZA DIGITAL CODEX-A (WIKI)
         var wikiChapters = {
             ch1: {
                 title: "Poglavlje 01: Kinematografija & RAW Signal",
@@ -810,9 +915,9 @@
             {
                 tag: "STUDIO UPDATE",
                 date: "28. Jul 2026.",
-                title: "WHR Production Bible v9 je online",
-                summary: "Lansirana je zvanična Digital Book / Wiki sekcija unutar portala.",
-                text: "White Hat Rabbit Studios kompletirao je v9 verziju portala.\n\nSada svi posetioci i saradnici mogu čitati poglavlja Master Equipment Book sistema direktno preko wikitab-a ili preuzeti zvanični PDF dokument za offline čitanje.",
+                title: "WHR Production Codex v10 je online",
+                summary: "Lansirana je zvanična Digital Codex / Wiki sekcija unutar portala.",
+                text: "White Hat Rabbit Studios kompletirao je v10 verziju portala.\n\nSada svi posetioci i saradnici mogu čitati poglavlja Master Codex sistema direktno preko wiki tab-a ili preuzeti zvanične PDF dokumente za offline čitanje.",
                 image: "./studio.png"
             },
             {
@@ -882,7 +987,8 @@
                 closeModalDirect();
             }
         });
-// WHR HERO SLIDESHOW // FULL 17-PAGE MASTER FEED
+
+        // HERO SLIDESHOW
         var heroSlides = [
             { image: "./power_on.png", newsIndex: 0 },
             { image: "./studio.png", newsIndex: 1 }
@@ -946,11 +1052,12 @@
             }
         }, 5000);
 
-        // INICIJALIZACIJA SAJTA NA STARTU
+        // STARTUP INICIJALIZACIJA
         window.onload = function() {
+            runWhrBoot();
             loadNews();
             loadWikiChapter('ch1');
-            updateHeroDots(); // 👈 Ovo aktivira tačkice čim se sajt otvori!
+            updateHeroDots();
         };
     </script>
 </body>
