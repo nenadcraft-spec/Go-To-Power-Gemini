@@ -905,6 +905,22 @@
     </div>
 
     <script>
+        function openClaudeOffice() {
+    const frame = document.getElementById('claudeDoorFrame');
+    const stage = document.getElementById('claudeStage');
+    
+    if (frame) {
+        // Dodaje klasu 'opening' koja aktivira CSS klizanje levo/desno
+        frame.classList.add('opening');
+        
+        // Opciono: Skriva ceo ram sa vratima i dugmetom nakon 1.2 sekunde da otkrije kancelariju
+        setTimeout(() => {
+            if (stage) {
+                stage.style.display = 'none';
+            }
+        }, 1200);
+    }
+}
         // WHR BOOT SEQUENCE
         function runWhrBoot() {
             var progressBar = document.getElementById('bootProgressBar');
