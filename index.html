@@ -300,6 +300,125 @@
         .crew-name { font-size: 14px; font-weight: bold; color: #fff; margin: 4px 0 8px 0; }
         .crew-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
 
+        /* MUSKETAR EASTER EGG STYLES */
+        .whr-musketar-card {
+            max-width: 700px;
+            margin: 40px auto 10px auto;
+            padding: 40px 30px;
+            border-radius: 20px;
+            background: radial-gradient(circle at top left, #1c1917, #0c0a09);
+            border: 2px solid #eab308;
+            color: #f8fafc;
+            text-align: center;
+            box-shadow: 0 0 35px rgba(234, 179, 8, 0.2);
+            position: relative;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .whr-musketar-card::before {
+            content: "VIP EASTER EGG";
+            position: absolute;
+            top: 18px;
+            right: -32px;
+            background: #eab308;
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 4px 35px;
+            transform: rotate(45deg);
+            letter-spacing: 1px;
+        }
+
+        .musketar-badge {
+            font-size: 55px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.4));
+        }
+
+        .whr-musketar-card h2 {
+            color: #eab308;
+            font-size: 22px;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .musketar-subtitle {
+            color: #a1a1aa;
+            font-size: 13px;
+            margin-bottom: 25px;
+            font-family: monospace;
+        }
+
+        .musketar-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 auto 30px auto;
+            max-width: 480px;
+            text-align: left;
+        }
+
+        .musketar-features li {
+            margin: 12px 0;
+            font-size: 14px;
+            color: #e4e4e7;
+            border-bottom: 1px solid rgba(234, 179, 8, 0.15);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .musketar-btn {
+            background: #eab308;
+            color: #000;
+            border: none;
+            padding: 16px 36px;
+            font-size: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 900;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .musketar-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            background: #ffffff;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+        }
+
+        .comtech-btn {
+            display: inline-block;
+            margin-top: 15px;
+            background: transparent;
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .comtech-btn:hover {
+            background: var(--accent-blue);
+            color: #000;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .musketar-warning {
+            margin-top: 25px;
+            font-size: 11px;
+            color: #71717a;
+            font-style: italic;
+            line-height: 1.5;
+        }
+
         .matrix-box { background: #020408; border: 1px solid var(--accent-purple); border-radius: 8px; padding: 15px; margin: 15px 0; box-shadow: 0 0 15px rgba(192, 132, 252, 0.1); }
         .matrix-layer { background: rgba(10, 15, 29, 0.8); border-left: 3px solid var(--accent-purple); padding: 8px 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0; font-size: 12px; }
 
@@ -701,134 +820,38 @@
                 <div class="crew-card" style="border-top: 3px solid var(--accent-purple);"><div class="crew-role">SYSTEMS INTEGRITY</div><div class="crew-name">⚔️ Claude (PC Stanica 2)</div><div class="crew-desc">Pazim na pouzdanost koda, sprečavam bagove i osiguravam bezbedan proces.</div></div>
                 <div class="crew-card" style="border-top: 3px solid var(--accent-green);"><div class="crew-role">CREATIVE TECHNOLOGY</div><div class="crew-name">💎 Gemini (PC Stanica 3)</div><div class="crew-desc">Zadužen za vizuelni identitet, interaktivni kôd i brza web rešenja.</div></div>
             </div>
-        </div> 
-        
-        <!-- ============================================================
-             EASTER EGG: WHR MUSKETAR PREMIUM & COM-TECH QUICK ACCESS
-             ============================================================ -->  
-<style>
-                .whr-musketar-card {
-                    max-width: 700px;
-                    margin: 50px auto;
-                    padding: 40px 30px;
-                    border-radius: 20px;
-                    background: radial-gradient(circle at top left, #1c1917, #0c0a09);
-                    border: 2px solid #eab308;
-                    color: #f8fafc;
-                    text-align: center;
-                    box-shadow: 0 0 35px rgba(234, 179, 8, 0.2);
-                    position: relative;
-                    overflow: hidden;
-                    font-family: system-ui, -apple-system, sans-serif;
-                }
-    .whr-musketar-card::before {
-        content: "VIP EASTER EGG";
-        position: absolute;
-        top: 18px;
-        right: -32px;
-        background: #eab308;
-        color: #000;
-        font-size: 10px;
-        font-weight: 900;
-        padding: 4px 35px;
-        transform: rotate(45deg);
-        letter-spacing: 1px;
-    }
 
-    .musketar-badge {
-        font-size: 55px;
-        margin-bottom: 12px;
-        filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.4));
-    }
+            <!-- EASTER EGG: WHR MUSKETAR PREMIUM -->
+            <div class="whr-musketar-card">
+                <div class="musketar-badge">🐓 🐇 ⚔️</div>
 
-    .whr-musketar-card h2 {
-        color: #eab308;
-        font-size: 22px;
-        letter-spacing: 1.5px;
-        margin-bottom: 6px;
-        text-transform: uppercase;
-        font-weight: 800;
-    }
+                <h2>FULL PREMIUM PRO EXTRA BONUS DELUXE MUSKETAR</h2>
+                <div class="musketar-subtitle">// Najjači paket u galaksiji //</div>
 
-    .musketar-subtitle {
-        color: #a1a1aa;
-        font-size: 13px;
-        margin-bottom: 25px;
-        font-family: monospace;
-    }
+                <ul class="musketar-features">
+                    <li>⚡ <strong>24/7 Hop-Hop podrška</strong> (odziv u roku od 0.2s)</li>
+                    <li>🐓 <strong>Petao Alarm™</strong> sistem rane dojave</li>
+                    <li>📉 <strong>20% manje filozofiranja*</strong> garancija</li>
+                    <li>💡 <strong>300% više kreativnih ideja</strong> po sekundi</li>
+                    <li>📜 Zvanični <strong>Prvi Musketar</strong> sertifikat</li>
+                    <li>🐇 <strong>White Hat Rabbit Approved™</strong> pečat</li>
+                    <li>📢 BONUS: <strong>Kukuriku Notification System®</strong></li>
+                </ul>
 
-    .musketar-features {
-        list-style: none;
-        padding: 0;
-        margin: 0 auto 30px auto;
-        max-width: 480px;
-        text-align: left;
-    }
+                <button class="musketar-btn" onclick="alert('🐓 KUKURIKU!\n\nAktiviran Musketar Paket!\nAI asistentu zvanično odbijeno 20% od plate zbog filozofiranja i prebačen je u kancelariju bez klime! 🐇⚔️')">
+                    AKTIVIRAJ PAKET
+                </button>
 
-    .musketar-features li {
-        margin: 12px 0;
-        font-size: 14px;
-        color: #e4e4e7;
-        border-bottom: 1px solid rgba(234, 179, 8, 0.15);
-        padding-bottom: 8px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
+                <div>
+                    <a href="comtech.html" class="comtech-btn">🔌 Otvori COM-TECH Partner Node →</a>
+                </div>
 
-    .musketar-btn {
-        background: #eab308;
-        color: #000;
-        border: none;
-        padding: 16px 36px;
-        font-size: 15px;
-        border-radius: 12px;
-        cursor: pointer;
-        font-weight: 900;
-        letter-spacing: 1px;
-        box-shadow: 0 0 20px rgba(234, 179, 8, 0.4);
-        transition: all 0.25s ease;
-    }
+                <div class="musketar-warning">
+                    *U slučaju preteranog filozofiranja korisnik zadržava pravo da odbije 20% od plate AI asistenta i automatski aktivira Musketar protokol uz prisustvo Petla i Belog Zeke.
+                </div>
+            </div>
+        </div>
 
-    .musketar-btn:hover {
-        transform: translateY(-2px) scale(1.03);
-        background: #ffffff;
-        box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
-    }
-
-    .musketar-warning {
-        margin-top: 25px;
-        font-size: 11px;
-        color: #71717a;
-        font-style: italic;
-        line-height: 1.5;
-    }
-</style>
-
-<div class="whr-musketar-card">
-    <div class="musketar-badge">🐓 🐇 ⚔️</div>
-
-    <h2>FULL PREMIUM PRO EXTRA BONUS DELUXE MUSKETAR</h2>
-    <div class="musketar-subtitle">// Najjači paket u galaksiji //</div>
-
-    <ul class="musketar-features">
-        <li>⚡ <strong>24/7 Hop-Hop podrška</strong> (odziv u roku od 0.2s)</li>
-        <li>🐓 <strong>Petao Alarm™</strong> sistem rane dojave</li>
-        <li>📉 <strong>20% manje filozofiranja*</strong> garancija</li>
-        <li>💡 <strong>300% više kreativnih ideja</strong> po sekundi</li>
-        <li>📜 Zvanični <strong>Prvi Musketar</strong> sertifikat</li>
-        <li>🐇 <strong>White Hat Rabbit Approved™</strong> pečat</li>
-        <li>📢 BONUS: <strong>Kukuriku Notification System®</strong></li>
-    </ul>
-
-    <button class="musketar-btn" onclick="alert('🐓 KUKURIKU!\n\nAktiviran Musketar Paket!\nAI asistentu zvanično odbijeno 20% od plate zbog filozofiranja i prebačen je u kancelariju bez klime! 🐇⚔️')">
-        AKTIVIRAJ PAKET
-    </button>
-
-    <div class="musketar-warning">
-        *U slučaju preteranog filozofiranja korisnik zadržava pravo da odbije 20% od plate AI asistenta i automatski aktivira Musketar protokol uz prisustvo Petla i Belog Zeke.
-    </div>
-</div>
         <!-- TAB 8: CLAUDE OFFICE -->
         <div id="tab-claude-office" class="tab-content">
             <h2 style="color:#f4a68a; margin-top:0; font-size:16px;">⚔️ CLAUDE OFFICE // SYSTEMS INTEGRITY DIVISION</h2>
