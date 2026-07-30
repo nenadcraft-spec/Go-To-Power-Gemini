@@ -1124,14 +1124,23 @@
                 </div>
             </div>
 
-            <!-- ROI KALKULATOR -->
-            <div class="calc-box">
-                <h3 style="margin-top:0; color: var(--accent-blue); font-size: 14px;">🧮 Kalkulator Povrata Investicije</h3>
-                <label style="font-size:12px;">Mesečni prihodi od projekata (€):</label>
-                <input type="range" id="incomeSlider" class="calc-slider" min="1000" max="10000" step="500" value="4000" oninput="updateROI()">
-                <div id="roiResult" class="calc-result">Prihod: 4000 €/mesec ➔ Povrat za: 8 Meseci</div>
-            </div>
-        </div>
+            // ROI kalkulator sa tačnom cifrom od 12,120 €
+function updateROI() {
+    var income = document.getElementById('incomeSlider').value;
+    var totalInvest = 12120; // Faza 1 Core Neural Hub zbir
+    var months = Math.ceil(totalInvest / income);
+    document.getElementById('roiResult').innerHTML = 'Prihod: ' + income + ' €/mesec ➔ Povrat za: <span style="color:#00ff66">' + months + ' Meseci</span>';
+}
+
+// Start - dodajemo updateROI() pri učitavanju
+window.onload = function() {
+    runWhrBoot();
+    loadNews();
+    loadWikiChapter('ch1');
+    updateHeroDots();
+    updateROI(); // Pokreće kalkulator čim se sajt učita!
+};
+
 
         <!-- TAB 10: WHR NOVOSTI -->
         <div id="tab-news" class="tab-content">
