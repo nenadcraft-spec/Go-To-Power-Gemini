@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHR Studios // Prezentacija Saradnje - COM-TECH</title>
+    <style>
+        :root {
+            --bg-main: #030508;
+            --bg-card: #0a0f1d;
+            --accent-green: #00ff66;
+            --accent-purple: #c084fc;
+            --accent-blue: #38bdf8;
+            --border-color: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px;
+            line-height: 1.6;
+        }
+
+        .no-print-bar {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .print-btn {
+            background: var(--accent-green);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0,255,102,0.4);
+            transition: all 0.2s;
+        }
+
+        .print-btn:hover {
+            transform: scale(1.05);
+            background: #fff;
+        }
+
+        .page-container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 2px solid var(--accent-green);
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0,255,102,0.15);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed var(--accent-green);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .logo-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: var(--accent-green);
+            font-size: 12px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .badge-budget {
+            background: rgba(0, 255, 102, 0.15);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 13px;
+            text-align: right;
+        }
+
+        h2 {
+            color: var(--accent-blue);
+            font-size: 16px;
+            border-left: 4px solid var(--accent-blue);
+            padding-left: 10px;
+            margin-top: 25px;
+        }
+
+        .grid-two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: #030508;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 18px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 14px;
+            color: var(--accent-green);
+            font-family: monospace;
+        }
+
+        .card p, .card ul {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 0;
+            padding-left: 15px;
+        }
+
+        .highlight-box {
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid var(--accent-blue);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            font-size: 13px;
+        }
+
+        .footer-note {
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* FORMATIRANJE ZA ŠTAMPU (PDF STILOVI) */
+        @media print {
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+                padding: 0 !important;
+            }
+            .no-print-bar {
+                display: none !important;
+            }
+            .page-container {
+                border: 2px solid #000 !important;
+                background: #fff !important;
+                color: #000 !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                padding: 25px !important;
+            }
+            .logo-title, h2, .card h3 {
+                color: #000 !important;
+            }
+            .badge-budget {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                background: #f0f0f0 !important;
+            }
+            .card, .highlight-box {
+                background: #f9f9f9 !important;
+                border: 1px solid #ccc !important;
+                color: #000 !important;
+            }
+            .subtitle, .card p, .card ul, .footer-note {
+                color: #333 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- DUGME ZA ŠTAMPU (NE VIDI SE NA ŠTAMPANOM PDF-u) -->
+    <div class="no-print-bar">
+        <button class="print-btn" onclick="window.print()">🖨️ SAČUVAJ KAO PDF / ODŠTAMPAJ</button>
+    </div>
+
+    <div class="page-container">
+        <!-- HEADER -->
+        <div class="header">
+            <div>
+                <div class="logo-title">WHITE HAT RABBIT STUDIOS</div>
+                <div class="subtitle">STRATEŠKI MEMORANDUM // KIKINDA HQ</div>
+            </div>
+            <div class="badge-budget">
+                ALOKIRAN BUDŽET:<br>
+                <span style="font-size:16px;">20.000 € READY</span>
+            </div>
+        </div>
+
+        <p style="font-size: 13px;">
+            <strong>Predmet:</strong> Predlog dugoročne hardverske saradnje i promocije brenda COM-TECH.<br>
+            <strong>Inicijator:</strong> WHR Studios (Creative AI & Virtual Production Lab Kikinda)<br>
+            <strong>Partner:</strong> Branislav & COM-TECH tim
+        </p>
+
+        <div class="highlight-box">
+            <strong>🐇 O WHR STUDIJU:</strong> Nismo studio u nastajanju koji čeka investiciju — imamo već obezbeđen operativni budžet od <strong>20.000 €</strong> za Fazu 1 opremanja radnih stanica. Kao istraživačko-razvojni lab, želimo da taj budžet pametno uložimo kod proverenih domaćih partnera, umesto nasumične kupovine.
+        </div>
+
+        <h2>1. MODEL STRATEŠKE SARADNjE (WIN-WIN)</h2>
+        <div class="grid-two">
+            <div class="card">
+                <h3>🛒 ZAGARANTOVAN PLASMAN</h3>
+                <p>Nabavka kompletne infrastrukturne opreme (RTX 5090 stanice, Ryzen 9 procesori, 128GB RAM sklopi, 10GbE NAS skladišta) realizuje se direktno preko partnera COM-TECH.</p>
+            </div>
+            <div class="card">
+                <h3>🚀 BESPLATNA REKLAMA & BRENDING</h3>
+                <p>Bez ikakvih finansijskih obaveza sa vaše strane, COM-TECH dobija zvaničan status <em>"OFFICIAL HARDWARE PROVIDER"</em> na WHR Control Center v10.9 digitalnom portalu sa direktnim linkom ka vašim uslugama.</p>
+            </div>
+        </div>
+
+        <h2>2. LJUDSKI FAKTOR: INTEGRACIJA U Oi + Ai MATRIKS</h2>
+        <p style="font-size:12px; color: var(--text-muted);">
+            WHR Studios funkcioniše po hibridnom modelu gde veštačka inteligencija sarađuje sa ljudskim stručnjacima (Organic Intelligence - Oi).
+        </p>
+        
+        <div class="card" style="border-top: 3px solid var(--accent-purple);">
+            <h3>🔧 OPERATIVNA ULOGA ZA SALETA: HARDWARE & SYSTEM MAINTENANCE OPERATOR</h3>
+            <ul>
+                <li><strong>Uloga:</strong> Nadzor fizičkog stanja radnih stanica, mrežne infrastrukture i kompjuterskih sklopova.</li>
+                <li><strong>Status:</strong> Zvanično uvršten u WHR AI CREW & OPERATIVES bazu kao ključni ljudski operater za tehničku stabilnost sistema.</li>
+            </ul>
+        </div>
+
+        <h2>3. BENEFITI ZA COM-TECH</h2>
+        <div class="grid-two">
+            <div class="card">
+                <h3>💎 PRESTIŽ I VIDLJIVOST</h3>
+                <p>Pozicioniranje brenda COM-TECH rame uz rame sa najsavremenijim AI i Virtual Production tehnologijama u Vojvodini.</p>
+            </div>
+            <div class="card">
+                <h3>📈 DUGOROČNA FAZA 2 I 3</h3>
+                <p>Predviđen dalji razvoj studija (cinema oprema, DMX LED rasveta, dodatni render čvorovi) osigurava kontinuitet nabavke.</p>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer-note">
+            WHITE HAT RABBIT STUDIOS // Kikinda, Serbia<br>
+            <span style="color:var(--accent-green);">The Future Begins Here. 🐇⚔️</span>
+        </div>
+    </div>
+
+</body>
+</html>
