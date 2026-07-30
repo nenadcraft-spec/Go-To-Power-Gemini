@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <title>Kikinda, Moguće Je // Redizajnirano Izdanje 2026</title>
+    <style>
+        /* ============================================================
+           PDF PRINT SETUP & WHR DARK MODE STYLING
+        ============================================================ */
+        @page {
+            size: A4 portrait;
+            margin: 20mm 15mm 20mm 15mm;
+            @bottom-right {
+                content: "Strana " counter(page);
+                font-family: monospace;
+                font-size: 10px;
+                color: #64748b;
+            }
+            @bottom-left {
+                content: "KIKINDA, MOGUĆE JE // WHR PUBLISHING";
+                font-family: monospace;
+                font-size: 10px;
+                color: #64748b;
+            }
+        }
+
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .page-break { page-break-before: always; }
+            .no-break { page-break-inside: avoid; }
+        }
+
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent-gold: #f59e0b;
+            --accent-blue: #38bdf8;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #1f2937;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+            /* Rešava problem nepravilnog prelamanja reči */
+            hyphens: none;
+            -webkit-hyphens: none;
+            text-align: justify;
+        }
+
+        /* NASLOVNA STRANA */
+        .cover-page {
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 2px solid var(--accent-gold);
+            padding: 40px;
+            box-sizing: border-box;
+            background: radial-gradient(circle at center, #1c1917 0%, #0b0f19 100%);
+            page-break-after: always;
+        }
+
+        .cover-header {
+            font-family: monospace;
+            color: var(--accent-gold);
+            letter-spacing: 2px;
+            font-size: 12px;
+        }
+
+        .cover-title-box h1 {
+            font-size: 42px;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .cover-title-box h2 {
+            font-size: 20px;
+            color: var(--accent-gold);
+            font-weight: 400;
+            margin-top: 10px;
+        }
+
+        .cover-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* DELOVI I POGLAVLJA */
+        .part-header {
+            page-break-before: always;
+            padding: 60px 0 30px 0;
+            border-bottom: 2px solid var(--accent-gold);
+            margin-bottom: 30px;
+        }
+
+        .part-header .part-number {
+            font-family: monospace;
+            color: var(--accent-gold);
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .part-header h2 {
+            font-size: 32px;
+            color: #ffffff;
+            margin: 10px 0 0 0;
+        }
+
+        .chapter-title {
+            color: var(--accent-blue);
+            font-size: 20px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--accent-blue);
+            padding-left: 12px;
+            page-break-after: avoid;
+        }
+
+        p {
+            margin-bottom: 18px;
+            color: #cbd5e1;
+        }
+
+        /* VIZUELNI OKVIRI ZA SLIKE */
+        .image-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 25px 0;
+            page-break-inside: avoid;
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+        }
+
+        .image-caption {
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--accent-gold);
+            margin-top: 10px;
+        }
+
+        /* CITATI I POSVETE */
+        .quote-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 30px 0;
+            font-style: italic;
+            color: #f1f5f9;
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NASLOVNA STRANA -->
+    <div class="cover-page">
+        <div class="cover-header">// WHITE HAT RABBIT STUDIOS PUBLISHING</div>
+        <div class="cover-title-box">
+            <h1>KIKINDA,<br>MOGUĆE JE</h1>
+            <h2>Priča o KEKC i Pop-up FEC — od prve ideje do vizije za grad</h2>
+        </div>
+        <div class="cover-footer">
+            <span>AUTOR: NENAD</span>
+            <span>KIKINDA, 2026.</span>
+        </div>
+    </div>
+
+    <!-- POSVETA -->
+    <div class="quote-box" style="margin-top: 100px;">
+        <p><strong>POSVETA</strong></p>
+        <p>"Ovu knjigu pišem pre svega za sebe — da jednog dana, kad sve ovo postane stvarnost, mogu da se vratim na početak i podsetim se odakle je sve krenulo. Ako je i ti čitaš, znaj da je svaka reč ovde napisana sa verovanjem da je sve moguće, i da se prava vrednost čoveka meri onim što je spreman da izgradi tamo gde drugi vide samo prazan trg."</p>
+        <p style="text-align: right; font-style: normal; color: var(--accent-gold);">— Kikinđi, mom gradu, koji ume da sanja glasno.</p>
+    </div>
+
+    <!-- DEO I -->
+    <div class="part-header">
+        <div class="part-number">DEO I</div>
+        <h2>KO SAM I ZAŠTO</h2>
+    </div>
+
+    <div class="chapter-title">1. Magičan čovek iz Kikinde</div>
+    <p>Ne pamtim trenutak kada sam prestao da gledam na svet kao na gotovu stvar. Neki ljudi prolaze pored praznog placa i vide prazan plac. Ja prolazim pored istog tog placa i vidim pet mogućih verzija onoga što bi tamo moglo da postoji — jednu za decu, jednu za zaljubljene, jednu za one koji vole brzinu, jednu za one koji samo žele da sednu i popiju kafu dok gledaju zvezde.</p>
+    <p>Zovem sebe magičan čovek ne iz taštine, nego zato što je to najpreciznija reč koju sam našao za način na koji funkcionišem. Magija, u mom rečniku, nije trik ni iluzija — magija je sposobnost da se nešto što ne postoji učini stvarnim, korak po korak, uz dovoljno upornosti i dovoljno vere da to ima smisla i pre nego što iko drugi to vidi.</p>
+
+    <!-- SLIKA ILUSTRACIJA -->
+    <div class="image-container">
+        <!-- Ovde ide tvoja slika prikolice ili bioskopa -->
+        <div style="background: #1e293b; height: 250px; display: flex; align-items: center; justify-content: center; color: var(--accent-blue); font-family: monospace;">
+            [ VISUAL: TRANSFORMERS CINEMA TRAILER ]
+        </div>
+        <div class="image-caption">Slika 1.1: Mobilni Transformers Cinema Trailer u noćnom režimu na trgu u Kikindi.</div>
+    </div>
+
+    <div class="chapter-title">2. Početak: Filozofija koja vodi sve</div>
+    <p>Pre nego što je ijedan PDF fajl o kartingu ili prikolici za bioskop uopšte postojao, postojao je Početak — moj dugogodišnji, ozbiljan pokušaj da odgovorim na pitanje koje me progoni otkad znam za sebe: koja je prava istina o čoveku?</p>
+
+    <!-- Nastavak teksta i ostala poglavlja... -->
+
+</body>
+</html>
