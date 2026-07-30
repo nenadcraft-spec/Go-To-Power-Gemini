@@ -798,108 +798,365 @@
             </div>
         </div>
 
-        <!-- TAB 6: PROJEKTI -->
         <!-- ============================================================
-     WHR PROJECT CARD // THE 1 MILLION $ VISION
-============================================================ -->
-<div class="whr-project-card-cash" style="
-    background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 100%);
-    border: 2px solid #f59e0b;
-    border-radius: 16px;
-    padding: 25px;
-    margin: 20px 0;
-    box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    position: relative;
-    overflow: hidden;
-">
-    <!-- Top Ribbon / Tag -->
-    <div style="
-        position: absolute;
-        top: 15px;
-        right: -30px;
-        background: #f59e0b;
-        color: #000;
-        font-family: monospace;
-        font-weight: bold;
-        font-size: 10px;
-        padding: 4px 35px;
-        transform: rotate(45deg);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    ">
-        FLAGSHIP
-    </div>
+             TAB 6: PROJEKTI (CINEMA HUB + FLAGSHIP VISION)
+        ============================================================ -->
+        <div id="tab-projects" class="tab-content">
+            <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AKTIVNE PRODUKCIJE, CINEMA HUB & BRAND IP</h2>
 
-    <!-- Header Projekta -->
-    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-        <span style="font-size: 36px;">💼💵</span>
-        <div>
-            <h3 style="color: #fbbf24; font-family: monospace; font-size: 22px; margin: 0; text-transform: uppercase;">
-                PROJEKAT: THE 1 MILLION $ VISION
-            </h3>
-            <span style="color: #38bdf8; font-family: monospace; font-size: 12px;">
-                // KIKINDA EXECUTIVE PRODUKCIJA
-            </span>
-        </div>
-    </div>
-
-    <!-- Opis Projekta -->
-    <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-        Ekskluzivni paket za vizionare koji ne pitaju za cenu nego traže TOP proizvod. Obuhvata brutalan DJ video edit na beat, AI pipeline i kompletnu infrastrukturu.
-    </p>
-
-    <!-- Cena i Keš Popust -->
-    <div style="
-        background: rgba(15, 23, 42, 0.8);
-        border: 1px dashed #f59e0b;
-        border-radius: 12px;
-        padding: 15px;
-        text-align: center;
-        margin-bottom: 20px;
-    ">
-        <div style="color: #fbbf24; font-family: monospace; font-size: 32px; font-weight: bold;">
-            $1,000,000 USD
-        </div>
-        <div style="
-            color: #22c55e;
-            font-family: monospace;
-            font-size: 13px;
-            font-weight: bold;
-            margin-top: 5px;
-            background: rgba(34, 197, 94, 0.1);
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 6px;
-        ">
-            ⚡ 10% POPUST ZA GOTOVINSKO PLAĆANJE ($900,000 CASH)
-        </div>
-    </div>
-
-    <!-- Specifikacija / Humor stavke -->
-    <ul style="list-style: none; padding: 0; margin: 0 0 20px 0; color: #94a3b8; font-size: 13px; font-family: monospace;">
-        <li style="margin-bottom: 8px;">✔️ <b>Brojanje keša:</b> Branislav i Sale spremni sa mašinom u ComTech-u.</li>
-        <li style="margin-bottom: 8px;">✔️ <b>Domaćinski doček:</b> Petao kuva kafu, Beli Zec udara suvi žig na ugovor. 🐓🐇⚔️</li>
-        <li style="margin-bottom: 8px;">✔️ <b>Brzina renders:</b> 10GbE mreža izbacuje video pre nego popiješ gutljaj vode.</li>
-    </ul>
-
-    <!-- Akcija Dugme -->
-    <button onclick="alert('Branislav je spreman sa mašinom za brojanje novca! Donesi kofer od $900,000 u ComTech! 💼💵')" 
-            style="
-                width: 100%;
-                background: linear-gradient(90deg, #f59e0b, #fbbf24);
-                color: #000;
-                border: none;
-                padding: 12px;
-                font-weight: bold;
-                font-family: monospace;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 14px;
-                transition: transform 0.2s ease;
+            <!-- FLAGSHIP PROJEKAT: 1 MILION DOLARA -->
+            <div class="whr-project-card-cash" style="
+                background: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 100%);
+                border: 2px solid #f59e0b;
+                border-radius: 16px;
+                padding: 25px;
+                margin: 10px 0 25px 0;
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                position: relative;
+                overflow: hidden;
             ">
-        PLATITE U KEŠU ($900K CASH) 🚀
-    </button>
-</div>
+                <!-- Tag Ribbon -->
+                <div style="
+                    position: absolute;
+                    top: 15px;
+                    right: -30px;
+                    background: #f59e0b;
+                    color: #000;
+                    font-family: monospace;
+                    font-weight: bold;
+                    font-size: 10px;
+                    padding: 4px 35px;
+                    transform: rotate(45deg);
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+                ">
+                    FLAGSHIP OFFER
+                </div>
+
+                <!-- Header Projekta -->
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <span style="font-size: 36px;">💼💵</span>
+                    <div>
+                        <h3 style="color: #fbbf24; font-family: monospace; font-size: 22px; margin: 0; text-transform: uppercase;">
+                            PROJEKAT: THE 1 MILLION $ VISION
+                        </h3>
+                        <span style="color: #38bdf8; font-family: monospace; font-size: 12px;">
+                            // KIKINDA EXECUTIVE PRODUKCIJA • CONCEPT SHOWCASE
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Opis Projekta -->
+                <p style="color: #cbd5e1; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+                    Ekskluzivni paket za vizionare koji ne pitaju za cenu nego traže TOP proizvod. Obuhvata brutalan DJ video edit na beat, AI pipeline i kompletnu infrastrukturu.
+                </p>
+
+                <!-- Cena i Keš Popust -->
+                <div style="
+                    background: rgba(15, 23, 42, 0.8);
+                    border: 1px dashed #f59e0b;
+                    border-radius: 12px;
+                    padding: 15px;
+                    text-align: center;
+                    margin-bottom: 20px;
+                ">
+                    <div style="color: #fbbf24; font-family: monospace; font-size: 32px; font-weight: bold;">
+                        $1,000,000 USD
+                    </div>
+                    <div style="
+                        color: #22c55e;
+                        font-family: monospace;
+                        font-size: 13px;
+                        font-weight: bold;
+                        margin-top: 5px;
+                        background: rgba(34, 197, 94, 0.1);
+                        display: inline-block;
+                        padding: 4px 12px;
+                        border-radius: 6px;
+                    ">
+                        ⚡ 10% POPUST ZA GOTOVINSKO PLAĆANJE ($900,000 CASH)
+                    </div>
+                </div>
+
+                <!-- Specifikacija / Humor stavke -->
+                <ul style="list-style: none; padding: 0; margin: 0 0 20px 0; color: #94a3b8; font-size: 13px; font-family: monospace;">
+                    <li style="margin-bottom: 8px;">✔️ <b>Brojanje keša:</b> Branislav i Sale spremni sa mašinom u ComTech-u.</li>
+                    <li style="margin-bottom: 8px;">✔️ <b>Domaćinski doček:</b> Petao kuva kafu, Beli Zec udara suvi žig na ugovor. 🐓🐇⚔️</li>
+                    <li style="margin-bottom: 8px;">✔️ <b>Render brzina:</b> 10GbE mreža izbacuje video pre nego popiješ gutljaj vode.</li>
+                </ul>
+
+                <!-- Akcija Dugme -->
+                <button onclick="alert('Branislav je spreman sa mašinom za brojanje novca! Donesi kofer od $900,000 u ComTech! 💼💵')" 
+                        style="
+                            width: 100%;
+                            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+                            color: #000;
+                            border: none;
+                            padding: 12px;
+                            font-weight: bold;
+                            font-family: monospace;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            transition: transform 0.2s ease;
+                        ">
+                    PLATITE U KEŠU ($900K CASH) 🚀
+                </button>
+            </div>
+
+            <!-- INTERAKTIVNI VIDEO CINEMA HUB -->
+            <style>
+                .whr-cinema-container {
+                    max-width: 1000px;
+                    margin: 25px 0;
+                    padding: 25px;
+                    background: #090d16;
+                    border: 1px solid #1e293b;
+                    border-radius: 16px;
+                    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+                    font-family: 'Segoe UI', system-ui, sans-serif;
+                }
+
+                .whr-cinema-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 2px solid #38bdf8;
+                    padding-bottom: 12px;
+                    margin-bottom: 20px;
+                }
+
+                .whr-cinema-title {
+                    color: #38bdf8;
+                    font-family: monospace;
+                    font-size: 18px;
+                    font-weight: bold;
+                    letter-spacing: 1px;
+                }
+
+                .whr-cinema-layout {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr;
+                    gap: 20px;
+                }
+
+                @media (max-width: 768px) {
+                    .whr-cinema-layout {
+                        grid-template-columns: 1fr;
+                    }
+                }
+
+                .main-player-box {
+                    background: #000;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    border: 1px solid #334155;
+                }
+
+                .main-video-element {
+                    width: 100%;
+                    display: block;
+                    max-height: 450px;
+                    background: #000;
+                }
+
+                .video-info-box {
+                    padding: 15px;
+                    background: #0f172a;
+                    border-top: 1px solid #1e293b;
+                }
+
+                .current-video-title {
+                    color: #f8fafc;
+                    font-size: 16px;
+                    font-weight: bold;
+                    margin: 0 0 5px 0;
+                }
+
+                .current-video-desc {
+                    color: #94a3b8;
+                    font-size: 13px;
+                    margin: 0;
+                    font-family: monospace;
+                }
+
+                .playlist-box {
+                    background: #0f172a;
+                    border-radius: 12px;
+                    border: 1px solid #1e293b;
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    max-height: 480px;
+                    overflow-y: auto;
+                }
+
+                .playlist-title {
+                    color: #e2e8f0;
+                    font-size: 14px;
+                    font-weight: bold;
+                    margin-bottom: 10px;
+                    font-family: monospace;
+                    text-transform: uppercase;
+                    border-bottom: 1px solid #334155;
+                    padding-bottom: 5px;
+                }
+
+                .playlist-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 10px;
+                    background: #1e293b;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    border: 1px solid transparent;
+                    transition: all 0.2s ease;
+                }
+
+                .playlist-item:hover {
+                    border-color: #38bdf8;
+                    background: #334155;
+                }
+
+                .playlist-item.active {
+                    border-color: #22c55e;
+                    background: rgba(34, 197, 94, 0.15);
+                }
+
+                .item-icon {
+                    font-size: 20px;
+                }
+
+                .item-details h4 {
+                    margin: 0;
+                    font-size: 13px;
+                    color: #f1f5f9;
+                }
+
+                .item-details p {
+                    margin: 2px 0 0 0;
+                    font-size: 11px;
+                    color: #94a3b8;
+                    font-family: monospace;
+                }
+            </style>
+
+            <div class="whr-cinema-container">
+                <div class="whr-cinema-header">
+                    <span class="whr-cinema-title">🎬 WHR PROJECTS // VIDEO SHOWCASE & PREVIEW</span>
+                    <span style="color: #22c55e; font-size: 12px; font-family: monospace;">● CINEMA NODE ONLINE</span>
+                </div>
+
+                <div class="whr-cinema-layout">
+                    <!-- LEVO: Glavni Plejer -->
+                    <div class="main-player-box">
+                        <video id="whrMainVideo" class="main-video-element" controls poster="studio.png">
+                            <source id="whrVideoSource" src="video1.mp4" type="video/mp4">
+                            Vaš pregledač ne podržava video plejer.
+                        </video>
+                        
+                        <div class="video-info-box">
+                            <h3 id="whrVideoTitle" class="current-video-title">01. WHR Studio Teaser // Faza 1</h3>
+                            <p id="whrVideoDesc" class="current-video-desc">Predstavljanje koncepta radne stanice i AI/3D virtualne produkcije.</p>
+                        </div>
+                    </div>
+
+                    <!-- DESNO: Lista Videa (Playlista) -->
+                    <div class="playlist-box">
+                        <div class="playlist-title">📂 Izaberi Video Premaz:</div>
+
+                        <!-- Video 1 -->
+                        <div class="playlist-item active" onclick="playWHRVideo('video1.mp4', '01. WHR Studio Teaser // Faza 1', 'Predstavljanje koncepta radne stanice i AI/3D virtualne produkcije.', this)">
+                            <span class="item-icon">🎬</span>
+                            <div class="item-details">
+                                <h4>01. Studio Teaser</h4>
+                                <p>Faza 1 Showcase</p>
+                            </div>
+                        </div>
+
+                        <!-- Video 2 -->
+                        <div class="playlist-item" onclick="playWHRVideo('video2.mp4', '02. Virtual Production Test', 'Testiranje Unreal Engine 5 okruženja i render kompozitinga.', this)">
+                            <span class="item-icon">🎥</span>
+                            <div class="item-details">
+                                <h4>02. Virtual Production</h4>
+                                <p>UE5 Real-time Render</p>
+                            </div>
+                        </div>
+
+                        <!-- Video 3 -->
+                        <div class="playlist-item" onclick="playWHRVideo('video3.mp4', '03. AI Pipeline Showcase', 'ComfyUI & Flux lokalno generisanje u realnom vremenu.', this)">
+                            <span class="item-icon">🤖</span>
+                            <div class="item-details">
+                                <h4>03. AI Pipeline</h4>
+                                <p>ComfyUI & Flux Demo</p>
+                            </div>
+                        </div>
+
+                        <!-- Video 4 -->
+                        <div class="playlist-item" onclick="playWHRVideo('video4.mp4', '04. Kikinda Story Concept', 'Kratki cinematic prikaz lokalne vizije i estetike.', this)">
+                            <span class="item-icon">🐇</span>
+                            <div class="item-details">
+                                <h4>04. Kikinda Story</h4>
+                                <p>Cinematic Concept</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JAVASCRIPT ZA PROMENU VIDEA KLIKOM -->
+            <script>
+                function playWHRVideo(videoUrl, title, desc, element) {
+                    var videoPlayer = document.getElementById('whrMainVideo');
+                    var videoSource = document.getElementById('whrVideoSource');
+                    var titleElem = document.getElementById('whrVideoTitle');
+                    var descElem = document.getElementById('whrVideoDesc');
+
+                    if(!videoPlayer || !videoSource) return;
+
+                    // Učitaj novi video
+                    videoSource.src = videoUrl;
+                    videoPlayer.load();
+                    
+                    var playPromise = videoPlayer.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(function(error) {
+                            console.warn("Video čeka interakciju korisnika za reprodukciju:", error);
+                        });
+                    }
+
+                    // Osveži tekstove
+                    if(titleElem) titleElem.innerText = title;
+                    if(descElem) descElem.innerText = desc;
+
+                    // Promeni aktivnu klasu u listi
+                    var items = document.querySelectorAll('.playlist-item');
+                    items.forEach(function(item) {
+                        item.classList.remove('active');
+                    });
+                    if(element) element.classList.add('active');
+                }
+            </script>
+
+            <!-- OSTALE AKTIVNE PRODUKCIJE -->
+            <div class="hud-card" style="border-top-color: var(--accent-purple); margin-top: 20px;">
+                <div class="hud-header">
+                    <span>🌌 DUH POSMATRAČ // Hologramski Bioskop</span>
+                    <span class="badge" style="background:rgba(192,132,252,0.2); color:#c084fc; border-color:#c084fc;">PILOT CONCEPT</span>
+                </div>
+                <p>Hologramska pozornica pod otvorenim nebom i 6DoF sloboda kretanja publike.</p>
+            </div>
+
+            <div class="hud-card">
+                <div class="hud-header">
+                    <span>🎬 KEKC // Kulturni Centar Kikinda</span>
+                    <span class="badge" style="background:rgba(0,255,102,0.2); color:#00ff66; border-color:#00ff66;">IN PRODUCTION</span>
+                </div>
+                <p>Lokalni kulturni projekti, dokumentarni zapisi i hibridna vizuelna produkcija.</p>
+            </div>
+        </div>
         <!-- ============================================================
      WHR PROJECTS // INTERAKTIVNI VIDEO CINEMA HUB
 ============================================================ -->
