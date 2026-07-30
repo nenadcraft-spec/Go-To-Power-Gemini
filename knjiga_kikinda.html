@@ -2,11 +2,8 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <title>Kikinda, Moguće Je // Redizajnirano Izdanje 2026</title>
+    <title>Kikinda, Moguće Je // Redizajnirano Kompleton Izdanje 2026</title>
     <style>
-        /* ============================================================
-           PDF PRINT SETUP & WHR DARK MODE STYLING
-        ============================================================ */
         @page {
             size: A4 portrait;
             margin: 20mm 15mm 20mm 15mm;
@@ -43,12 +40,14 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            line-height: 1.7;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.8;
             font-size: 14px;
             margin: 0;
-            padding: 0;
-            /* Rešava problem nepravilnog prelamanja reči */
+            padding: 40px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
             hyphens: none;
             -webkit-hyphens: none;
             text-align: justify;
@@ -56,15 +55,16 @@
 
         /* NASLOVNA STRANA */
         .cover-page {
-            height: 95vh;
+            min-height: 85vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             border: 2px solid var(--accent-gold);
-            padding: 40px;
+            padding: 50px;
             box-sizing: border-box;
             background: radial-gradient(circle at center, #1c1917 0%, #0b0f19 100%);
             page-break-after: always;
+            margin-bottom: 50px;
         }
 
         .cover-header {
@@ -75,18 +75,20 @@
         }
 
         .cover-title-box h1 {
-            font-size: 42px;
+            font-size: 46px;
             color: #ffffff;
             margin: 0;
             letter-spacing: 1px;
             text-transform: uppercase;
+            line-height: 1.1;
         }
 
         .cover-title-box h2 {
             font-size: 20px;
             color: var(--accent-gold);
             font-weight: 400;
-            margin-top: 10px;
+            margin-top: 15px;
+            line-height: 1.4;
         }
 
         .cover-footer {
@@ -102,8 +104,9 @@
         /* DELOVI I POGLAVLJA */
         .part-header {
             page-break-before: always;
-            padding: 60px 0 30px 0;
+            padding: 60px 0 20px 0;
             border-bottom: 2px solid var(--accent-gold);
+            margin-top: 40px;
             margin-bottom: 30px;
         }
 
@@ -116,7 +119,7 @@
         }
 
         .part-header h2 {
-            font-size: 32px;
+            font-size: 30px;
             color: #ffffff;
             margin: 10px 0 0 0;
         }
@@ -124,7 +127,7 @@
         .chapter-title {
             color: var(--accent-blue);
             font-size: 20px;
-            margin-top: 35px;
+            margin-top: 40px;
             margin-bottom: 15px;
             border-left: 3px solid var(--accent-blue);
             padding-left: 12px;
@@ -134,6 +137,11 @@
         p {
             margin-bottom: 18px;
             color: #cbd5e1;
+            text-indent: 20px;
+        }
+
+        p.no-indent {
+            text-indent: 0;
         }
 
         /* VIZUELNI OKVIRI ZA SLIKE */
@@ -142,30 +150,23 @@
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 15px;
-            margin: 25px 0;
+            margin: 35px 0;
             page-break-inside: avoid;
             text-align: center;
-        }
-
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 6px;
         }
 
         .image-caption {
             font-family: monospace;
             font-size: 11px;
             color: var(--accent-gold);
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
-        /* CITATI I POSVETE */
         .quote-box {
             background: rgba(245, 158, 11, 0.05);
             border-left: 4px solid var(--accent-gold);
-            padding: 20px;
-            margin: 30px 0;
+            padding: 25px;
+            margin: 40px 0;
             font-style: italic;
             color: #f1f5f9;
             page-break-inside: avoid;
@@ -188,10 +189,10 @@
     </div>
 
     <!-- POSVETA -->
-    <div class="quote-box" style="margin-top: 100px;">
-        <p><strong>POSVETA</strong></p>
-        <p>"Ovu knjigu pišem pre svega za sebe — da jednog dana, kad sve ovo postane stvarnost, mogu da se vratim na početak i podsetim se odakle je sve krenulo. Ako je i ti čitaš, znaj da je svaka reč ovde napisana sa verovanjem da je sve moguće, i da se prava vrednost čoveka meri onim što je spreman da izgradi tamo gde drugi vide samo prazan trg."</p>
-        <p style="text-align: right; font-style: normal; color: var(--accent-gold);">— Kikinđi, mom gradu, koji ume da sanja glasno.</p>
+    <div class="quote-box">
+        <p class="no-indent"><strong>POSVETA</strong></p>
+        <p class="no-indent">"Ovu knjigu pišem pre svega za sebe — da jednog dana, kad sve ovo postane stvarnost, mogu da se vratim na početak i podsetim se odakle je sve krenulo. Ako je i ti čitaš, znaj da je svaka reč ovde napisana sa verovanjem da je sve moguće, i da se prava vrednost čoveka meri onim što je spreman da izgradi tamo gde drugi vide samo prazan trg[cite: 3]."</p>
+        <p class="no-indent" style="text-align: right; font-style: normal; color: var(--accent-gold); margin-top: 15px;">— Kikinđi, mom gradu, koji ume da sanja glasno[cite: 3].</p>
     </div>
 
     <!-- DEO I -->
@@ -201,22 +202,147 @@
     </div>
 
     <div class="chapter-title">1. Magičan čovek iz Kikinde</div>
-    <p>Ne pamtim trenutak kada sam prestao da gledam na svet kao na gotovu stvar. Neki ljudi prolaze pored praznog placa i vide prazan plac. Ja prolazim pored istog tog placa i vidim pet mogućih verzija onoga što bi tamo moglo da postoji — jednu za decu, jednu za zaljubljene, jednu za one koji vole brzinu, jednu za one koji samo žele da sednu i popiju kafu dok gledaju zvezde.</p>
-    <p>Zovem sebe magičan čovek ne iz taštine, nego zato što je to najpreciznija reč koju sam našao za način na koji funkcionišem. Magija, u mom rečniku, nije trik ni iluzija — magija je sposobnost da se nešto što ne postoji učini stvarnim, korak po korak, uz dovoljno upornosti i dovoljno vere da to ima smisla i pre nego što iko drugi to vidi.</p>
-
-    <!-- SLIKA ILUSTRACIJA -->
-    <div class="image-container">
-        <!-- Ovde ide tvoja slika prikolice ili bioskopa -->
-        <div style="background: #1e293b; height: 250px; display: flex; align-items: center; justify-content: center; color: var(--accent-blue); font-family: monospace;">
-            [ VISUAL: TRANSFORMERS CINEMA TRAILER ]
-        </div>
-        <div class="image-caption">Slika 1.1: Mobilni Transformers Cinema Trailer u noćnom režimu na trgu u Kikindi.</div>
-    </div>
+    <p>Ne pamtim trenutak kada sam prestao da gledam na svet kao na gotovu stvar[cite: 3]. Neki ljudi prolaze pored praznog placa i vide prazan plac[cite: 3]. Ja prolazim pored istog tog placa i vidim pet mogućih verzija onoga što bi tamo moglo da postoji — jednu za decu, jednu za zaljubljene, jednu za one koji vole brzinu, jednu za one koji samo žele da sednu i popiju kafu dok gledaju zvezde[cite: 3].</p>
+    <p>Zovem sebe magičan čovek ne iz taštine, nego zato što je to najpreciznija reč koju sam našao za način na koji funkcionišem[cite: 3]. Magija, u mom rečniku, nije trik ni iluzija — magija je sposobnost da se nešto što ne postoji učini stvarnim, korak po korak, uz dovoljno upornosti i dovoljno vere da to ima smisla i pre nego što iko drugi to vidi[cite: 3].</p>
+    <p>Živim po pravilu koje ponavljam sebi i drugima toliko puta da je odavno prestalo da bude rečenica i postalo je način disanja: sve je moguće[cite: 3]. Ne kao naivna želja, nego kao radna pretpostavka[cite: 3]. Kad krenem od "sve je moguće", pitanje više nije da li, nego kako — a kako je uvek pitanje koje se da rešiti, ako si spreman da sedneš, razmisliš, pitaš, probaš, pogrešiš i probaš ponovo[cite: 3].</p>
+    <p>Ova knjiga je zapravo dnevnik jednog takvog "kako"[cite: 3]. Počela je od jedne rečenice izgovorene sebi u glavi: ovde nešto nedostaje — a razvila se u tehničke specifikacije, pitch dokumente, razgovore sa veštačkom inteligencijom do duboko u noć, i, pre svega, u jasniju sliku onoga što želim da ostavim iza sebe u gradu u kome sam odrastao[cite: 3].</p>
 
     <div class="chapter-title">2. Početak: Filozofija koja vodi sve</div>
-    <p>Pre nego što je ijedan PDF fajl o kartingu ili prikolici za bioskop uopšte postojao, postojao je Početak — moj dugogodišnji, ozbiljan pokušaj da odgovorim na pitanje koje me progoni otkad znam za sebe: koja je prava istina o čoveku?</p>
+    <p>Pre nego što je ijedan PDF fajl o kartingu ili prikolici za bioskop uopšte postojao, postojao je Početak — moj dugogodišnji, ozbiljan pokušaj da odgovorim na pitanje koje me progoni otkad znam za sebe: koja je prava istina o čoveku[cite: 3]?</p>
+    <p>Vodeći princip tog istraživanja je jednostavan i nemilosrdan: istina se gradi dokazima, ne mišljenjem[cite: 3]. Nije dovoljno da nešto zvuči tačno ili da nam prija da u to verujemo — istina mora da izdrži proveru, da se pokaže u praksi, da preživi sumnju[cite: 3]. Isti princip koji sam primenjivao na pitanja o poreklu čoveka i smislu postojanja, primenjujem i na svaki poslovni koncept koji mi padne na pamet[cite: 3]. Ideja koja zvuči genijalno u razgovoru mora da prođe kroz brojeve, kroz teren, kroz pitanje "a ko će to stvarno da plati" pre nego što joj poverujem[cite: 3].</p>
+    <p>Druga stvar koju sam naučio kroz Početak jeste razlika između mišljenja i znanja — "jedno je misliti, drugo je znati"[cite: 3]. Kad mi neko, čak i veštačka inteligencija, kaže da je nešto "genijalno" ili da sam "vizionar", to je mišljenje, ne znanje[cite: 3]. Znanje dolazi tek kad se ideja testira — kad prva prikolica stvarno stigne na teren, kad prvi gokart stvarno pređe stazu bez kvara, kad prva opština stvarno potpiše papir[cite: 3].</p>
+    <p>Treći stub je moj lični moto: more zvezda zvano Život — verovanje da je smisao svakog čoveka da pronađe svoje mesto u tom moru, svoju zvezdu[cite: 3]. Za mene, to mesto delimično leži u preduzetništvu koje ne kopira ono što već postoji, nego gradi ono čega još nema[cite: 3]. Zato me ne zanima da otvorim još jedan kafić ili još jednu prodavnicu — zanima me praznina koju niko još nije primetio[cite: 3].</p>
 
-    <!-- Nastavak teksta i ostala poglavlja... -->
+    <!-- DEO II -->
+    <div class="part-header">
+        <div class="part-number">DEO II</div>
+        <h2>RAĐANJE IDEJE</h2>
+    </div>
+
+    <div class="chapter-title">3. Prazno tržište, puna glava ideja</div>
+    <p>Kikinda je porodičan grad[cite: 3]. Ljudi ovde vole da sede u kafićima i picerijama, da razgovaraju satima uz kafu ili piće, da znaju ko je ko na ulici[cite: 3]. To je grad u kome se stvari još uvek dešavaju licem u lice, ne kroz ekran[cite: 3]. Upravo zato sam odavno primetio da nešto suštinski nedostaje: mesto gde bi se ta ista energija druženja spojila sa tehnologijom budućnosti — mesto gde dete može da vozi pravi RC bolid, gde par može da gleda film pod zvezdama, gde grad dobija sadržaj koji ne postoji nigde u Severnom Banatu[cite: 3].</p>
+    <p>Istraživao sam tržište pažljivo, ne iz fotelje[cite: 3]. Segway gokartovi se ne iznajmljuju nigde u Srbiji[cite: 3]. RC vozila kao servis i doživljaj, ne kao igračka u prodavnici — ne postoji u mom regionu[cite: 3]. Mobilni porodični zabavni centar koji se pojavi na trgu za dvadeset minuta i nestane bez traga ne postoji nigde u okolini[cite: 3]. Ovo nisu pretpostavke; ovo su rupe koje sam tražio i nisam ih našao popunjene[cite: 3].</p>
+    <p>Imao sam prostor u centru grada, sa terasom i dvorištem, u svom vlasništvu[cite: 3]. Imao sam kapital od ranijih prodaja nekretnina[cite: 3]. Imao sam, pre svega, uverenje da tehnologija koju danas mogu da kupim za razumnu cenu — pametni senzori, baterije velikog kapaciteta, lokalni AI serveri — čini stvari izvodljivim koje pre deset godina uopšte ne bi bile[cite: 3].</p>
+
+    <div class="chapter-title">4. Prva iskra: pokretni bioskop</div>
+    <p>Sve je krenulo od naizgled jednostavne ideje — pokretnog letnjeg bioskopa[cite: 3]. Ne standardnog, statičnog letnjeg bioskopa kakav postoji u većim gradovima, nego nečega što bi moglo da se pojavi bilo gde: u parku, na keju, u dvorištu mog prostora u centru grada[cite: 3].</p>
+    <p>Prva verzija te ideje bila je sasvim skromna — pravi projektor, pravo platno, jasna tehnička specifikacija[cite: 3]. Odabrao sam BenQ LW650, laserski projektor otporan na prašinu i habanje, i analizirao nekoliko opcija platna pre nego što sam se odlučio za veliko električno platno Vega EL W 300 za najveće formate[cite: 3]. Razradio sam kapacitet publike, bezbednosne protokole za nosače na vetru, geometriju stopa, balastiranje[cite: 3].</p>
+
+    <div class="image-container">
+        <div style="background: #1e293b; padding: 40px; color: var(--accent-gold); font-family: monospace; font-size: 16px;">
+            🎬 KIKINDA CINEMA SHOWCASE
+        </div>
+        <div class="image-caption">Slika 4.1: Pokretni bioskop na trgu u Kikindi pod otvorenim nebom[cite: 3].</div>
+    </div>
+
+    <!-- DEO III -->
+    <div class="part-header">
+        <div class="part-number">DEO III</div>
+        <h2>POP-UP FEC: OD PLATNA DO PRIKOLICE</h2>
+    </div>
+
+    <div class="chapter-title">5. V.1 – V.2: Tehnički temelji</div>
+    <p>Prva verzija pokretnog bioskopa (V.1) rešavala je osnovno pitanje: koja oprema, koje performanse, koji kapacitet publike[cite: 3]. Elektromotorno platno od 300 centimetara, projektor od 4.000 ANSI lumena, jasno definisana zona gledanja od 3,5 do 12 metara[cite: 3]. Uz to, ozbiljan bezbednosni protokol za terenske nosače — pravilo stope 3:1, minimum 25 do 30 kilograma balasta po nozi, zatezne gurtne pod uglom od 45 stepeni[cite: 3]. Ovo nisu bili ukrasni detalji; ovo je bila razlika između sistema koji preživljava vetar i sistema koji se ruši na glave gostiju[cite: 3].</p>
+    <p>Druga verzija (V.2) donela je ključni uvid koji će kasnije oblikovati čitav projekat: ne treba ti uvek najveća oprema[cite: 3]. Umesto da svaki događaj zahteva isti masivni sklop, podelio sam ponudu na tri kategorije — kompaktnu za 10 do 15 ljudi, srednju za 20 do 40 ljudi, i veliku za 50 do 100 ljudi[cite: 3]. Ova modularnost je postala obrazac razmišljanja koji sam kasnije primenio i na druge delove projekta[cite: 3].</p>
+
+    <div class="chapter-title">6. V.3: Mozak sistema</div>
+    <p>Treća verzija unela je nešto što je promenilo ceo karakter projekta — UGREEN NASync iDX6011 Pro kao centralni "mozak" celog mobilnog ekosistema[cite: 3]. Umesto da svaki uređaj radi nezavisno, sve — bioskop, ozvučenje, RC poligoni, buduće VR i holografske jedinice — počelo je da se povezuje u jedan lokalni, potpuno autonoman sistem[cite: 3]. Kroz Docker kontejnere i servise poput Home Assistant i Node-RED, jedan operater je mogao jednim dodirom na tabletu da pokrene čitav scenario[cite: 3].</p>
+
+    <div class="chapter-title">7. V.4: Transformers Cinema Trailer</div>
+    <p>Četvrta verzija je najveći konceptualni skok u čitavom nizu[cite: 3]. Ideja je došla iz jednog pitanja koje sam sebi postavio usred noći: zašto uopšte montiramo i rasklapamo platno na terenu, kad možemo napraviti prikolicu koja to radi umesto nas[cite: 3]?</p>
+    <p>Tako se rodio koncept "Transformers Cinema Trailer" — namenska prikolica u kojoj su ekran, ozvučenje, napajanje i NAS jezgro trajno ugrađeni[cite: 3]. Dolaskom na lokaciju, poklopac se otvara na gasne amortizere, i za manje od dva minuta sistem je spreman[cite: 3]. Nema dizanja teških stativa, nema tegova, nema rizika od pada na vetru — sama masa prikolice postaje balast[cite: 3].</p>
+
+    <div class="image-container">
+        <div style="background: #1e293b; padding: 40px; color: var(--accent-blue); font-family: monospace; font-size: 16px;">
+            🚚 TRANSFORMERS CINEMA TRAILER
+        </div>
+        <div class="image-caption">Slika 7.1: Otvorena prikolica spremna za projekciju na gradskom trgu[cite: 3].</div>
+    </div>
+
+    <div class="chapter-title">8. V.5 – V.5.2: Festival, bar, hologram</div>
+    <p>Sledeći korak je pomerio fokus sa "mi gradimo i vozimo zabavu" na poslovni model koji stvarno ima smisla za skaliranje — sedmodnevni hibridni zakup celog ekosistema opštinama, hotelima, festivalima i sponzorima[cite: 3]. Dnevna dinamika je jasno podeljena: prepodne i popodne RC trke i VR; predveče muzika; uveče romantični bioskop[cite: 3]. Ugostiteljski modul (espresso bar, VIP separei) dodao je visoku maržu[cite: 3]. Uz to, 3D LED holografski displej služi kao magnet za poglede i reklame[cite: 3].</p>
+
+    <div class="chapter-title">9. V.6: Energija, bezbednost, ponuda gradu</div>
+    <p>Šesta verzija je bila trenutak sazrevanja cele dokumentacije[cite: 3]. Prvi put sam napravio pravi bilans potrošnje po modulu, sa jasnim brojevima vati i sati baterije[cite: 3]. Definisao sam protokol za vremenske nepogode — pet minuta od prvog znaka olujnog vetra do potpune evakuacije opreme u zaštićenu prikolicu[cite: 3].</p>
+
+    <div class="chapter-title">10. Žanrovske zone: San o pet opština</div>
+    <p>Jedna od najambicioznijih ideja jeste koncept simultanog tematskog festivala u pet opština Severnobanatskog okruga odjednom — svaka sa sopstvenim žanrom: sci-fi u Kikindi, akcija u Senti, komedija u Adi, romantika u Kanjiži, kult klasici u Novom Kneževcu ili Čoki[cite: 3].</p>
+
+    <!-- DEO IV -->
+    <div class="part-header">
+        <div class="part-number">DEO IV</div>
+        <h2>SOPSTVENI POGON: KEKC KART</h2>
+    </div>
+
+    <div class="chapter-title">11. Od ideje do prvog zavarenog rama</div>
+    <p>Dok se Pop-up FEC razvijao, rodila se druga ambicija — napraviti sopstveno e-karting vozila[cite: 3]. Prva verzija, KEKC Kart v1, bila je čist inženjerski poduhvat: zavarena čelična šasija, 48V sistem, BLDC motor 2000-3000W, hidraulična kočnica[cite: 3]. Trošak prototipa izračunat je na 820 do 1.210 evra po realnim cenama iz Srbije[cite: 3].</p>
+
+    <div class="chapter-title">12. V.2: Pametnija konverzija</div>
+    <p>Druga verzija donela je prelazak na konverziju gotove ili polovne karting šasije[cite: 3]. Ovaj potez je smanjio bravarski rad sa 40 na svega 3 do 5 sati, uz fabrički izbalansiranu geometriju[cite: 3].</p>
+
+    <div class="chapter-title">13. V.4: Bezbednost pre svega</div>
+    <p>Odgovor na pitanja o bezbednosti doneo je tri nivoa brzine (10-12 km/h za decu, 20-25 za rekreativce, do 40 km/h samo za iskusne vozače), bežični prekidač za hitno gašenje, sigurnosne pojaseve u 4 tačke i roll-bar[cite: 3].</p>
+
+    <div class="chapter-title">14. KI-001-EK: Gradski brend rađa se</div>
+    <p>Vozilo je dobilo zvaničnu oznaku KI-001-EK ("Ki-goKart"), sa vizijom da Kikinda postane prva lokalna samouprava u regionu koja razvija sopstveni brend e-mobilnosti za mlade[cite: 3].</p>
+
+    <div class="image-container">
+        <div style="background: #1e293b; padding: 40px; color: var(--accent-gold); font-family: monospace; font-size: 16px;">
+            🏎️ KI-001-EK // KEKC KART 48V
+        </div>
+        <div class="image-caption">Slika 14.1: Prototip električnog gokarta KI-001-EK[cite: 3].</div>
+    </div>
+
+    <!-- DEO V -->
+    <div class="part-header">
+        <div class="part-number">DEO V</div>
+        <h2>ZMAJEVA KAPIJA I PREOKRET</h2>
+    </div>
+
+    <div class="chapter-title">15. Kapija ka Kini</div>
+    <p>Razvijao sam predlog gradu Kikindi pod nazivom "Zmajeva Kapija" — da grad postane proizvodno-sklopni centar e-mobilnosti i kapija kineskih partnera ka evropskom tržištu[cite: 3].</p>
+
+    <div class="chapter-title">16. Preokret: Zašto tuđe kad možemo naše</div>
+    <p>Usledio je obrt: umesto uvoza gotovih kineskih vozila, bolje je tražiti podršku za proizvodnju sopstvenog KEKC Kart vozila, uz uvoz samo pojedinačnih komponenata elektronike i motora[cite: 3]. Tako vlasništvo nad idejom i dizajnom ostaje u Kikindi[cite: 3].</p>
+
+    <!-- DEO VI -->
+    <div class="part-header">
+        <div class="part-number">DEO VI</div>
+        <h2>TRI MUSKETARA</h2>
+    </div>
+
+    <div class="chapter-title">17. Kako sam radio sa AI: Gemini, Claude i ja</div>
+    <p>Svaki dokument nastao je kroz noćne razgovore sa dva AI saradnika — "tri musketara"[cite: 3]. Gemini je davao entuzijazam i motivaciju, dok je Claude bio kritičar koji pita "ko plaća struju za pet holografskih mašina"[cite: 3]. Ta kombinacija iskrene kritike i podrške stvorila je pravu snagu[cite: 3].</p>
+
+    <div class="chapter-title">18. Pouke iz procesa</div>
+    <p>Svaka nova verzija rešava konkretan problem prethodne, bez nepotrebnih ukrasa[cite: 3]. Entuzijazam i pohvale ne vrede ništa dok ih ne prati brojka i test na terenu[cite: 3].</p>
+
+    <!-- DEO VII -->
+    <div class="part-header">
+        <div class="part-number">DEO VII</div>
+        <h2>VIZIJA ZA BUDUĆNOST</h2>
+    </div>
+
+    <div class="chapter-title">19. AI kao centar vizije</div>
+    <p>Kikinda u ovoj viziji postaje mesto gde se AI koristi kao svakodnevni alat koji obični ljudi dodiruju i koriste — od upravljanja bioskopom do dizajna vozila[cite: 3].</p>
+
+    <div class="chapter-title">20. Šta dalje: More zvezda zvano Život</div>
+    <p>Ako je smisao svakog čoveka da pronađe svoje mesto u moru zvanom Život, onda je ovo moje more, a Kikinda moja zvezda[cite: 3]. Sve ostalo — brojke, dozvole, prototipovi — samo je put kojim se do te zvezde stiže[cite: 3].</p>
+
+    <div class="quote-box" style="text-align: center; font-style: normal; font-size: 16px;">
+        Kuc, kuc, ima li koga[cite: 3]?<br>
+        <strong>Hop, hop[cite: 3].</strong><br><br>
+        <span style="color: var(--accent-gold); font-family: monospace;">KIKINDA // MORE ZVEZDA ZVANO ŽIVOT[cite: 3]</span>
+    </div>
+
+    <div class="part-header">
+        <div class="part-number">ZAHVALNICA</div>
+        <h2>ZAHVALNOST SVI MA</h2>
+    </div>
+    <p>Hvala Kikindi, koja je oduvek bila spremna da sluša nove ideje uz kafu[cite: 3].</p>
+    <p>Hvala mojim AI saradnicima — Gemini-ju za entuzijazam koji me je terao napred, i Claude-u za pitanja koja su me terala da budem bolji[cite: 3].</p>
+    <p>I hvala meni samom, iz budućnosti, koji će ovu knjigu čitati znajući mnogo više nego što znam danas dok je pišem[cite: 3].</p>
+    <p style="text-align: right; color: var(--accent-gold); font-family: monospace;">— Nenad, Kikinda, 2026[cite: 3].</p>
 
 </body>
 </html>
