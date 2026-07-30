@@ -329,3 +329,3245 @@
     <script src="script.js"></script>
 </body>
 </html>
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap");
+
+:root {
+    --color-bg: #04050d;
+    --color-bg-soft: #080b18;
+    --color-panel: rgba(8, 12, 29, 0.78);
+    --color-panel-strong: rgba(10, 15, 35, 0.94);
+
+    --color-white: #f4fbff;
+    --color-muted: #8fa3b8;
+    --color-dark: #02030a;
+
+    --color-cyan: #00f5ff;
+    --color-cyan-soft: #63fbff;
+    --color-blue: #3478ff;
+    --color-purple: #a855f7;
+    --color-magenta: #ff38c7;
+    --color-red: #ff325f;
+    --color-red-soft: #ff738f;
+    --color-gold: #ffd34d;
+    --color-green: #55ffb8;
+
+    --shadow-cyan:
+        0 0 8px rgba(0, 245, 255, 0.75),
+        0 0 24px rgba(0, 245, 255, 0.35);
+
+    --shadow-purple:
+        0 0 10px rgba(168, 85, 247, 0.7),
+        0 0 30px rgba(168, 85, 247, 0.35);
+
+    --font-display: "Orbitron", sans-serif;
+    --font-body: "Rajdhani", sans-serif;
+
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+    background: var(--color-bg);
+    color-scheme: dark;
+    touch-action: manipulation;
+}
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0;
+    overflow-x: hidden;
+    background:
+        radial-gradient(circle at 50% -20%, rgba(52, 120, 255, 0.18), transparent 42%),
+        radial-gradient(circle at 90% 20%, rgba(255, 56, 199, 0.12), transparent 32%),
+        radial-gradient(circle at 5% 75%, rgba(0, 245, 255, 0.1), transparent 34%),
+        var(--color-bg);
+    color: var(--color-white);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 4px;
+}
+
+.noscript-message {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: #050714;
+    color: #ffffff;
+    font-family: var(--font-display);
+    text-align: center;
+}
+
+.app-shell {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding:
+        calc(12px + var(--safe-top))
+        calc(12px + var(--safe-right))
+        calc(10px + var(--safe-bottom))
+        calc(12px + var(--safe-left));
+    overflow: hidden;
+}
+
+.background-system {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.background-system__grid {
+    position: absolute;
+    left: -25%;
+    right: -25%;
+    bottom: -36%;
+    height: 85%;
+    background-image:
+        linear-gradient(rgba(0, 245, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 245, 255, 0.1) 1px, transparent 1px);
+    background-size: 54px 54px;
+    transform: perspective(650px) rotateX(63deg);
+    transform-origin: center top;
+    opacity: 0.55;
+    mask-image: linear-gradient(to bottom, transparent 2%, black 45%, transparent 95%);
+    animation: gridFlow 12s linear infinite;
+}
+
+.background-system__scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 3px,
+        rgba(255, 255, 255, 0.018) 4px
+    );
+    mix-blend-mode: screen;
+    opacity: 0.5;
+}
+
+.background-system__noise {
+    position: absolute;
+    inset: -80px;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+    animation: noiseShift 0.35s steps(2) infinite;
+}
+
+.background-system__glow {
+    position: absolute;
+    width: 460px;
+    height: 460px;
+    border-radius: 50%;
+    filter: blur(110px);
+    opacity: 0.2;
+}
+
+.background-system__glow--one {
+    top: -220px;
+    left: -180px;
+    background: var(--color-cyan);
+    animation: ambientFloatOne 9s ease-in-out infinite alternate;
+}
+
+.background-system__glow--two {
+    right: -220px;
+    bottom: -220px;
+    background: var(--color-magenta);
+    animation: ambientFloatTwo 11s ease-in-out infinite alternate;
+}
+
+.game-header {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto 10px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 11px;
+}
+
+.brand__mark {
+    position: relative;
+    flex: 0 0 auto;
+    width: 46px;
+    height: 49px;
+    filter: drop-shadow(0 0 8px rgba(0, 245, 255, 0.7));
+}
+
+.brand__head {
+    position: absolute;
+    left: 9px;
+    bottom: 3px;
+    width: 29px;
+    height: 29px;
+    border: 2px solid var(--color-cyan);
+    border-radius: 45% 45% 52% 52%;
+    background:
+        linear-gradient(135deg, rgba(0, 245, 255, 0.22), rgba(168, 85, 247, 0.08)),
+        rgba(5, 10, 25, 0.9);
+    clip-path: polygon(
+        15% 18%,
+        44% 5%,
+        80% 14%,
+        98% 47%,
+        88% 80%,
+        58% 100%,
+        19% 89%,
+        0 55%
+    );
+}
+
+.brand__ear {
+    position: absolute;
+    top: 0;
+    width: 12px;
+    height: 31px;
+    border: 2px solid var(--color-cyan);
+    border-radius: 80% 80% 25% 25%;
+    background: linear-gradient(to bottom, rgba(0, 245, 255, 0.3), transparent);
+}
+
+.brand__ear--left {
+    left: 10px;
+    transform: rotate(-12deg);
+}
+
+.brand__ear--right {
+    right: 8px;
+    transform: rotate(14deg);
+}
+
+.brand__eye {
+    position: absolute;
+    right: 12px;
+    bottom: 18px;
+    width: 5px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-magenta);
+    box-shadow:
+        0 0 5px var(--color-magenta),
+        0 0 11px var(--color-magenta);
+}
+
+.brand__copy {
+    min-width: 0;
+}
+
+.brand__eyebrow {
+    margin: 0 0 2px;
+    overflow: hidden;
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: clamp(0.48rem, 1.6vw, 0.64rem);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.brand__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(0.92rem, 4vw, 1.55rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
+}
+
+.brand__title span {
+    color: var(--color-cyan);
+    text-shadow: var(--shadow-cyan);
+}
+
+.header-actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 7px;
+}
+
+.icon-button {
+    position: relative;
+    display: grid;
+    min-width: 54px;
+    min-height: 46px;
+    place-items: center;
+    gap: 1px;
+    padding: 5px 8px;
+    overflow: hidden;
+    border: 1px solid rgba(99, 251, 255, 0.22);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(0, 245, 255, 0.08), transparent 55%),
+        rgba(7, 11, 25, 0.82);
+    color: var(--color-white);
+    cursor: pointer;
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        transform 180ms ease,
+        opacity 180ms ease;
+}
+
+.icon-button::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.12), transparent 80%);
+    transform: translateX(-120%);
+    transition: transform 300ms ease;
+}
+
+.icon-button:hover::before {
+    transform: translateX(120%);
+}
+
+.icon-button:active {
+    transform: scale(0.94);
+}
+
+.icon-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+}
+
+.icon-button__icon {
+    color: var(--color-cyan);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    line-height: 1;
+    text-shadow: var(--shadow-cyan);
+}
+
+.icon-button__label {
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: 0.43rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+}
+
+.game-main {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1180px;
+    min-height: 0;
+    margin: 0 auto;
+}
+
+.hud {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 7px;
+}
+
+.hud-card {
+    position: relative;
+    min-width: 0;
+    padding: 8px 10px;
+    overflow: hidden;
+    border: 1px solid rgba(99, 251, 255, 0.14);
+    border-radius: 7px;
+    background:
+        linear-gradient(135deg, rgba(0, 245, 255, 0.065), transparent 45%),
+        var(--color-panel);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.hud-card::after {
+    position: absolute;
+    right: -12px;
+    bottom: -16px;
+    width: 55px;
+    height: 42px;
+    border: 1px solid rgba(0, 245, 255, 0.09);
+    content: "";
+    transform: rotate(-20deg);
+}
+
+.hud-card__label {
+    display: block;
+    margin-bottom: 2px;
+    overflow: hidden;
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: clamp(0.45rem, 1.8vw, 0.58rem);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hud-card__value {
+    position: relative;
+    z-index: 2;
+    display: block;
+    overflow: hidden;
+    color: var(--color-white);
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 5vw, 1.6rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: 0.05em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hud-card--score .hud-card__value {
+    color: var(--color-cyan-soft);
+    text-shadow: 0 0 14px rgba(0, 245, 255, 0.5);
+}
+
+.hud-card--combo .hud-card__value {
+    color: var(--color-magenta);
+    text-shadow: 0 0 14px rgba(255, 56, 199, 0.5);
+}
+
+.hud-card--level .hud-card__value {
+    color: var(--color-gold);
+    text-shadow: 0 0 14px rgba(255, 211, 77, 0.4);
+}
+
+.hud-card--combo.is-hot {
+    border-color: rgba(255, 56, 199, 0.65);
+    animation: comboCardPulse 0.7s ease-in-out infinite alternate;
+}
+
+.hud-card__pulse {
+    position: absolute;
+    inset: 0;
+    border: 1px solid transparent;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.hud-card.is-updated .hud-card__pulse {
+    animation: scoreCardPulse 320ms ease-out;
+}
+
+.status-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+}
+
+.status-chip {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 7px;
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: clamp(0.48rem, 1.8vw, 0.62rem);
+    font-weight: 600;
+    letter-spacing: 0.09em;
+}
+
+.status-chip__dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-green);
+    box-shadow:
+        0 0 7px var(--color-green),
+        0 0 15px rgba(85, 255, 184, 0.45);
+    animation: statusBlink 1.2s ease-in-out infinite;
+}
+
+.status-chip.is-danger .status-chip__dot {
+    background: var(--color-red);
+    box-shadow:
+        0 0 7px var(--color-red),
+        0 0 15px rgba(255, 50, 95, 0.45);
+}
+
+.status-chip.is-warning .status-chip__dot {
+    background: var(--color-gold);
+    box-shadow:
+        0 0 7px var(--color-gold),
+        0 0 15px rgba(255, 211, 77, 0.45);
+}
+
+.lives {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-red);
+}
+
+.life {
+    font-size: 0.76rem;
+    text-shadow:
+        0 0 7px var(--color-red),
+        0 0 14px rgba(255, 50, 95, 0.45);
+    transition:
+        color 220ms ease,
+        opacity 220ms ease,
+        transform 220ms ease;
+}
+
+.life--lost {
+    color: rgba(143, 163, 184, 0.22);
+    text-shadow: none;
+    transform: scale(0.65);
+}
+
+.timer-display {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    padding-left: 9px;
+    border-left: 1px solid rgba(99, 251, 255, 0.15);
+}
+
+.timer-display__label {
+    color: var(--color-muted);
+    font-family: var(--font-display);
+    font-size: 0.48rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+
+.timer-display strong {
+    min-width: 45px;
+    color: var(--color-white);
+    font-family: var(--font-display);
+    font-size: clamp(0.85rem, 4vw, 1.12rem);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.timer-display.is-critical strong {
+    color: var(--color-red-soft);
+    text-shadow: 0 0 10px var(--color-red);
+    animation: criticalTime 0.5s ease-in-out infinite alternate;
+}
+
+.game-stage {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    min-height: 390px;
+    overflow: hidden;
+    border: 1px solid rgba(99, 251, 255, 0.28);
+    border-radius: 13px;
+    background:
+        radial-gradient(circle at center, rgba(22, 44, 78, 0.26), transparent 65%),
+        linear-gradient(160deg, rgba(10, 17, 40, 0.96), rgba(2, 5, 14, 0.98));
+    box-shadow:
+        inset 0 0 70px rgba(0, 0, 0, 0.8),
+        inset 0 0 25px rgba(0, 245, 255, 0.03),
+        0 20px 70px rgba(0, 0, 0, 0.45),
+        0 0 30px rgba(0, 245, 255, 0.06);
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.game-stage::before {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    background:
+        linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.02), transparent),
+        repeating-linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.012) 0,
+            rgba(255, 255, 255, 0.012) 1px,
+            transparent 1px,
+            transparent 5px
+        );
+    content: "";
+    pointer-events: none;
+}
+
+.game-stage.is-hit {
+    animation: stageHit 220ms ease-out;
+}
+
+.game-stage.is-damaged {
+    animation: stageDamage 330ms ease-out;
+}
+
+.game-stage.is-level-up {
+    animation: levelStagePulse 700ms ease-out;
+}
+
+.particle-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.stage-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image:
+        linear-gradient(rgba(0, 245, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 245, 255, 0.045) 1px, transparent 1px);
+    background-size: 38px 38px;
+    mask-image: radial-gradient(circle at center, black, transparent 88%);
+    opacity: 0.75;
+    pointer-events: none;
+}
+
+.stage-grid::before,
+.stage-grid::after {
+    position: absolute;
+    content: "";
+    pointer-events: none;
+}
+
+.stage-grid::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.18), transparent);
+}
+
+.stage-grid::after {
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(0, 245, 255, 0.18), transparent);
+}
+
+.stage-frame {
+    position: absolute;
+    inset: 8px;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.stage-frame__corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+}
+
+.stage-frame__corner::before,
+.stage-frame__corner::after {
+    position: absolute;
+    background: var(--color-cyan);
+    box-shadow: var(--shadow-cyan);
+    content: "";
+}
+
+.stage-frame__corner::before {
+    width: 100%;
+    height: 2px;
+}
+
+.stage-frame__corner::after {
+    width: 2px;
+    height: 100%;
+}
+
+.stage-frame__corner--tl {
+    top: 0;
+    left: 0;
+}
+
+.stage-frame__corner--tr {
+    top: 0;
+    right: 0;
+    transform: rotate(90deg);
+}
+
+.stage-frame__corner--bl {
+    bottom: 0;
+    left: 0;
+    transform: rotate(-90deg);
+}
+
+.stage-frame__corner--br {
+    right: 0;
+    bottom: 0;
+    transform: rotate(180deg);
+}
+
+.target-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+}
+
+.target {
+    --target-size: 86px;
+    --target-color: var(--color-cyan);
+
+    position: absolute;
+    display: grid;
+    width: var(--target-size);
+    height: var(--target-size);
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--target-color);
+    cursor: pointer;
+    outline: none;
+    transform: translate(-50%, -50%) scale(0);
+    transform-origin: center;
+    will-change: transform, opacity;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.target.is-spawned {
+    animation: targetSpawn 220ms cubic-bezier(0.2, 1.55, 0.4, 1) forwards;
+}
+
+.target.is-expiring {
+    animation: targetExpire 180ms ease-in forwards;
+}
+
+.target.is-hit {
+    pointer-events: none;
+    animation: targetHit 230ms ease-out forwards;
+}
+
+.target__ring,
+.target__ring::before,
+.target__ring::after {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.target__ring {
+    inset: 2px;
+    border: 2px solid currentColor;
+    opacity: 0.68;
+    box-shadow:
+        0 0 10px currentColor,
+        inset 0 0 10px rgba(255, 255, 255, 0.06);
+    animation: targetRingRotate 2.2s linear infinite;
+}
+
+.target__ring::before {
+    inset: 8px;
+    border: 1px dashed currentColor;
+    content: "";
+    opacity: 0.55;
+    animation: targetRingRotateReverse 2.8s linear infinite;
+}
+
+.target__ring::after {
+    inset: -7px;
+    border: 1px solid currentColor;
+    content: "";
+    opacity: 0.22;
+    animation: targetPulse 0.8s ease-in-out infinite alternate;
+}
+
+.target__timer {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: conic-gradient(
+        currentColor calc(var(--life-progress, 1) * 1turn),
+        rgba(255, 255, 255, 0.07) 0
+    );
+    opacity: 0.6;
+    mask:
+        radial-gradient(
+            farthest-side,
+            transparent calc(100% - 3px),
+            #000 calc(100% - 2px)
+        );
+    -webkit-mask:
+        radial-gradient(
+            farthest-side,
+            transparent calc(100% - 3px),
+            #000 calc(100% - 2px)
+        );
+}
+
+.target__rabbit {
+    position: relative;
+    z-index: 3;
+    width: 47%;
+    height: 47%;
+    filter: drop-shadow(0 0 7px currentColor);
+}
+
+.target__rabbit-head {
+    position: absolute;
+    left: 16%;
+    bottom: 4%;
+    width: 68%;
+    height: 61%;
+    border: 2px solid currentColor;
+    border-radius: 44% 44% 53% 53%;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.16), transparent 48%),
+        rgba(5, 12, 26, 0.88);
+    clip-path: polygon(
+        11% 16%,
+        44% 4%,
+        79% 13%,
+        100% 46%,
+        88% 80%,
+        57% 100%,
+        18% 89%,
+        0 54%
+    );
+}
+
+.target__rabbit-ear {
+    position: absolute;
+    top: -4%;
+    width: 24%;
+    height: 54%;
+    border: 2px solid currentColor;
+    border-radius: 80% 80% 30% 30%;
+    background: rgba(6, 13, 29, 0.9);
+}
+
+.target__rabbit-ear--left {
+    left: 23%;
+    transform: rotate(-10deg);
+}
+
+.target__rabbit-ear--right {
+    right: 20%;
+    transform: rotate(12deg);
+}
+
+.target__rabbit-eye {
+    position: absolute;
+    right: 26%;
+    bottom: 34%;
+    width: 9%;
+    height: 7%;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 7px currentColor;
+}
+
+.target__core {
+    position: absolute;
+    z-index: 1;
+    width: 56%;
+    height: 56%;
+    border-radius: 50%;
+    background: radial-gradient(circle, currentColor 0, rgba(0, 245, 255, 0.2) 28%, transparent 68%);
+    opacity: 0.34;
+    animation: targetCorePulse 0.8s ease-in-out infinite alternate;
+}
+
+.target--rabbit {
+    --target-color: var(--color-cyan);
+}
+
+.target--rabbit:hover .target__ring {
+    opacity: 1;
+}
+
+.target--decoy {
+    --target-color: var(--color-red);
+}
+
+.target--decoy .target__rabbit-head {
+    border-radius: 20%;
+    background:
+        linear-gradient(135deg, rgba(255, 50, 95, 0.25), transparent),
+ "use strict";
+
+/**
+ * WHR Rabbit Reflex v1.0
+ * White Hat Rabbit Studios
+ *
+ * Vanilla JavaScript mini-game.
+ * No external game engine or JavaScript library.
+ */
+
+const GAME_CONFIG = Object.freeze({
+    version: "1.0",
+
+    initialTime: 45,
+    initialLives: 3,
+
+    baseTargetPoints: 100,
+    goldenTargetPoints: 500,
+    goldenTimeBonus: 2.5,
+
+    decoyPenalty: 250,
+    emptyTapPenalty: 0,
+
+    hitsPerLevel: 8,
+    maximumLevel: 20,
+
+    baseTargetLifetime: 1450,
+    minimumTargetLifetime: 520,
+    lifetimeDecreasePerLevel: 65,
+
+    baseSpawnDelay: 760,
+    minimumSpawnDelay: 260,
+    spawnDelayDecreasePerLevel: 36,
+
+    goldenChance: 0.08,
+    maximumGoldenChance: 0.16,
+
+    baseDecoyChance: 0.12,
+    maximumDecoyChance: 0.34,
+
+    comboResetDelay: 1700,
+    maximumComboMultiplier: 12,
+
+    targetSizeMobile: 82,
+    targetSizeDesktop: 94,
+    minimumTargetSize: 58,
+    targetSizeDecreasePerLevel: 1.8,
+
+    targetMargin: 52,
+
+    bestScoreStorageKey: "whr-rabbit-reflex-best-score",
+    soundStorageKey: "whr-rabbit-reflex-sound-enabled"
+});
+
+const TARGET_TYPES = Object.freeze({
+    RABBIT: "rabbit",
+    DECOY: "decoy",
+    GOLDEN: "golden"
+});
+
+const GAME_STATES = Object.freeze({
+    READY: "ready",
+    COUNTDOWN: "countdown",
+    PLAYING: "playing",
+    PAUSED: "paused",
+    GAME_OVER: "game-over"
+});
+
+class SafeStorage {
+    static getNumber(key, fallbackValue = 0) {
+        try {
+            const storedValue = window.localStorage.getItem(key);
+            const parsedValue = Number(storedValue);
+
+            return Number.isFinite(parsedValue)
+                ? parsedValue
+                : fallbackValue;
+        } catch (error) {
+            console.warn("Local storage is unavailable:", error);
+            return fallbackValue;
+        }
+    }
+
+    static getBoolean(key, fallbackValue = true) {
+        try {
+            const storedValue = window.localStorage.getItem(key);
+
+            if (storedValue === null) {
+                return fallbackValue;
+            }
+
+            return storedValue === "true";
+        } catch (error) {
+            console.warn("Local storage is unavailable:", error);
+            return fallbackValue;
+        }
+    }
+
+    static set(key, value) {
+        try {
+            window.localStorage.setItem(key, String(value));
+        } catch (error) {
+            console.warn("Unable to write to local storage:", error);
+        }
+    }
+}
+
+class AudioEngine {
+    constructor() {
+        this.context = null;
+        this.masterGain = null;
+        this.enabled = SafeStorage.getBoolean(
+            GAME_CONFIG.soundStorageKey,
+            true
+        );
+    }
+
+    initialize() {
+        if (this.context) {
+            return;
+        }
+
+        const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+            this.enabled = false;
+            return;
+        }
+
+        this.context = new AudioContextClass();
+        this.masterGain = this.context.createGain();
+        this.masterGain.gain.value = 0.16;
+        this.masterGain.connect(this.context.destination);
+    }
+
+    resume() {
+        this.initialize();
+
+        if (
+            this.context &&
+            this.context.state === "suspended"
+        ) {
+            this.context.resume().catch(() => {
+                // Audio remains optional.
+            });
+        }
+    }
+
+    setEnabled(enabled) {
+        this.enabled = Boolean(enabled);
+
+        SafeStorage.set(
+            GAME_CONFIG.soundStorageKey,
+            this.enabled
+        );
+
+        if (this.enabled) {
+            this.resume();
+            this.playUiConfirm();
+        }
+    }
+
+    toggle() {
+        this.setEnabled(!this.enabled);
+        return this.enabled;
+    }
+
+    createTone({
+        frequency = 440,
+        endFrequency = frequency,
+        duration = 0.1,
+        type = "sine",
+        volume = 0.2,
+        delay = 0
+    }) {
+        if (!this.enabled) {
+            return;
+        }
+
+        this.resume();
+
+        if (!this.context || !this.masterGain) {
+            return;
+        }
+
+        const startTime = this.context.currentTime + delay;
+        const endTime = startTime + duration;
+
+        const oscillator = this.context.createOscillator();
+        const gainNode = this.context.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(
+            Math.max(20, frequency),
+            startTime
+        );
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            Math.max(20, endFrequency),
+            endTime
+        );
+
+        gainNode.gain.setValueAtTime(0.0001, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(
+            Math.max(0.0001, volume),
+            startTime + Math.min(0.02, duration * 0.25)
+        );
+        gainNode.gain.exponentialRampToValueAtTime(
+            0.0001,
+            endTime
+        );
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.masterGain);
+
+        oscillator.start(startTime);
+        oscillator.stop(endTime + 0.02);
+    }
+
+    playStartSequence() {
+        const tones = [220, 330, 440, 660];
+
+        tones.forEach((frequency, index) => {
+            this.createTone({
+                frequency,
+                endFrequency: frequency * 1.08,
+                duration: 0.12,
+                type: "sawtooth",
+                volume: 0.16,
+                delay: index * 0.09
+            });
+        });
+    }
+
+    playCountdown(value) {
+        const frequencyMap = {
+            3: 290,
+            2: 360,
+            1: 440,
+            GO: 760
+        };
+
+        const frequency = frequencyMap[value] || 320;
+
+        this.createTone({
+            frequency,
+            endFrequency:
+                value === "GO"
+                    ? 1180
+                    : frequency * 1.15,
+            duration:
+                value === "GO"
+                    ? 0.22
+                    : 0.12,
+            type: "square",
+            volume: 0.2
+        });
+    }
+
+    playRabbitHit(comboMultiplier) {
+        const comboBoost = Math.min(comboMultiplier, 10) * 28;
+
+        this.createTone({
+            frequency: 480 + comboBoost,
+            endFrequency: 820 + comboBoost,
+            duration: 0.09,
+            type: "sine",
+            volume: 0.25
+        });
+
+        this.createTone({
+            frequency: 980 + comboBoost,
+            endFrequency: 1240 + comboBoost,
+            duration: 0.06,
+            type: "triangle",
+            volume: 0.11,
+            delay: 0.025
+        });
+    }
+
+    playGoldenHit() {
+        [660, 880, 1100, 1320].forEach((frequency, index) => {
+            this.createTone({
+                frequency,
+                endFrequency: frequency * 1.12,
+                duration: 0.16,
+                type: "triangle",
+                volume: 0.18,
+                delay: index * 0.045
+            });
+        });
+    }
+
+    playDamage() {
+        this.createTone({
+            frequency: 190,
+            endFrequency: 58,
+            duration: 0.28,
+            type: "sawtooth",
+            volume: 0.3
+        });
+
+        this.createTone({
+            frequency: 110,
+            endFrequency: 45,
+            duration: 0.34,
+            type: "square",
+            volume: 0.12,
+            delay: 0.025
+        });
+    }
+
+    playMiss() {
+        this.createTone({
+            frequency: 185,
+            endFrequency: 130,
+            duration: 0.12,
+            type: "triangle",
+            volume: 0.12
+        });
+    }
+
+    playLevelUp() {
+        [440, 554, 659, 880].forEach((frequency, index) => {
+            this.createTone({
+                frequency,
+                endFrequency: frequency * 1.05,
+                duration: 0.2,
+                type: "sine",
+                volume: 0.2,
+                delay: index * 0.075
+            });
+        });
+    }
+
+    playGameOver() {
+        [420, 320, 240, 150].forEach((frequency, index) => {
+            this.createTone({
+                frequency,
+                endFrequency: frequency * 0.75,
+                duration: 0.24,
+                type: "sawtooth",
+                volume: 0.17,
+                delay: index * 0.12
+            });
+        });
+    }
+
+    playUiConfirm() {
+        this.createTone({
+            frequency: 500,
+            endFrequency: 720,
+            duration: 0.07,
+            type: "sine",
+            volume: 0.12
+        });
+    }
+
+    playPause() {
+        this.createTone({
+            frequency: 520,
+            endFrequency: 260,
+            duration: 0.12,
+            type: "triangle",
+            volume: 0.12
+        });
+    }
+
+    playResume() {
+        this.createTone({
+            frequency: 260,
+            endFrequency: 540,
+            duration: 0.12,
+            type: "triangle",
+            volume: 0.12
+        });
+    }
+}
+
+class ParticleSystem {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.context = canvas.getContext("2d");
+        this.particles = [];
+        this.animationFrameId = null;
+        this.lastTimestamp = 0;
+        this.pixelRatio = Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+        this.resize = this.resize.bind(this);
+        this.animate = this.animate.bind(this);
+
+        window.addEventListener("resize", this.resize);
+        this.resize();
+        this.start();
+    }
+
+    resize() {
+        const bounds = this.canvas.getBoundingClientRect();
+
+        this.pixelRatio = Math.min(
+            window.devicePixelRatio || 1,
+            2
+        );
+
+        this.canvas.width = Math.max(
+            1,
+            Math.floor(bounds.width * this.pixelRatio)
+        );
+
+        this.canvas.height = Math.max(
+            1,
+            Math.floor(bounds.height * this.pixelRatio)
+        );
+
+        this.context.setTransform(
+            this.pixelRatio,
+            0,
+            0,
+            this.pixelRatio,
+            0,
+            0
+        );
+    }
+
+    start() {
+        if (this.animationFrameId !== null) {
+            return;
+        }
+
+        this.animationFrameId =
+            window.requestAnimationFrame(this.animate);
+    }
+
+    animate(timestamp) {
+        const deltaTime = Math.min(
+            32,
+            timestamp - (this.lastTimestamp || timestamp)
+        );
+
+        this.lastTimestamp = timestamp;
+
+        const bounds = this.canvas.getBoundingClientRect();
+
+        this.context.clearRect(
+            0,
+            0,
+            bounds.width,
+            bounds.height
+        );
+
+        this.particles = this.particles.filter((particle) => {
+            particle.life -= deltaTime;
+
+            if (particle.life <= 0) {
+                return false;
+            }
+
+            const progress = particle.life / particle.maxLife;
+
+            particle.x += particle.velocityX * (deltaTime / 16.67);
+            particle.y += particle.velocityY * (deltaTime / 16.67);
+            particle.velocityY += particle.gravity * (deltaTime / 16.67);
+            particle.velocityX *= 0.986;
+            particle.velocityY *= 0.986;
+            particle.rotation += particle.rotationSpeed * (deltaTime / 16.67);
+
+            this.context.save();
+            this.context.globalAlpha = Math.max(0, progress);
+            this.context.translate(particle.x, particle.y);
+            this.context.rotate(particle.rotation);
+
+            this.context.shadowBlur = particle.glow;
+            this.context.shadowColor = particle.color;
+            this.context.fillStyle = particle.color;
+
+            if (particle.shape === "line") {
+                this.context.fillRect(
+                    -particle.size,
+                    -1,
+                    particle.size * 2,
+                    2
+                );
+            } else if (particle.shape === "diamond") {
+                this.context.rotate(Math.PI / 4);
+                this.context.fillRect(
+                    -particle.size / 2,
+                    -particle.size / 2,
+                    particle.size,
+                    particle.size
+                );
+            } else {
+                this.context.beginPath();
+                this.context.arc(
+                    0,
+                    0,
+                    particle.size,
+                    0,
+                    Math.PI * 2
+                );
+                this.context.fill();
+            }
+
+            this.context.restore();
+
+            return true;
+        });
+
+        this.animationFrameId =
+            window.requestAnimationFrame(this.animate);
+    }
+
+    burst({
+        x,
+        y,
+        color = "#00f5ff",
+        count = 18,
+        power = 5,
+        gravity = 0.08,
+        shapes = ["circle", "line", "diamond"]
+    }) {
+        for (let index = 0; index < count; index += 1) {
+            const angle =
+                (Math.PI * 2 * index) / count +
+                Math.random() * 0.35;
+
+            const speed =
+                power * (0.45 + Math.random() * 0.75);
+
+            const life =
+                380 + Math.random() * 420;
+
+            this.particles.push({
+                x,
+                y,
+                velocityX: Math.cos(angle) * speed,
+                velocityY: Math.sin(angle) * speed,
+                gravity,
+                size: 1.2 + Math.random() * 3.4,
+                color,
+                glow: 5 + Math.random() * 9,
+                life,
+                maxLife: life,
+                rotation: Math.random() * Math.PI,
+                rotationSpeed: (Math.random() - 0.5) * 0.24,
+                shape:
+                    shapes[
+                        Math.floor(Math.random() * shapes.length)
+                    ]
+            });
+        }
+    }
+
+    ring({
+        x,
+        y,
+        color = "#00f5ff",
+        count = 16,
+        radius = 28
+    }) {
+        for (let index = 0; index < count; index += 1) {
+            const angle = (Math.PI * 2 * index) / count;
+
+            this.particles.push({
+                x: x + Math.cos(angle) * radius,
+                y: y + Math.sin(angle) * radius,
+                velocityX: Math.cos(angle) * 2.4,
+                velocityY: Math.sin(angle) * 2.4,
+                gravity: 0,
+                size: 1.5 + Math.random() * 1.8,
+                color,
+                glow: 8,
+                life: 430,
+                maxLife: 430,
+                rotation: angle,
+                rotationSpeed: 0.05,
+                shape: "line"
+            });
+        }
+    }
+
+    clear() {
+        this.particles.length = 0;
+    }
+}
+
+class RabbitReflexGame {
+    constructor() {
+        this.elements = this.collectElements();
+
+        this.audio = new AudioEngine();
+        this.particles = new ParticleSystem(
+            this.elements.particleCanvas
+        );
+
+        this.state = GAME_STATES.READY;
+        this.score = 0;
+        this.bestScore = SafeStorage.getNumber(
+            GAME_CONFIG.bestScoreStorageKey,
+            0
+        );
+
+        this.level = 1;
+        this.levelHits = 0;
+        this.totalSuccessfulHits = 0;
+        this.totalTargetAttempts = 0;
+        this.totalPlayerTaps = 0;
+
+        this.comboCount = 0;
+        this.comboMultiplier = 1;
+        this.maximumCombo = 1;
+
+        this.lives = GAME_CONFIG.initialLives;
+        this.timeRemaining = GAME_CONFIG.initialTime;
+
+        this.currentTarget = null;
+        this.targetTimeoutId = null;
+        this.spawnTimeoutId = null;
+        this.comboTimeoutId = null;
+        this.floatingMessageTimeoutId = null;
+
+        this.gameLoopFrameId = null;
+        this.lastFrameTimestamp = 0;
+        this.targetSpawnTimestamp = 0;
+        this.targetLifetime = GAME_CONFIG.baseTargetLifetime;
+
+        this.isStarting = false;
+        this.wasNewRecord = false;
+        this.visibilityPausedGame = false;
+
+        this.boundGameLoop = this.gameLoop.bind(this);
+
+        this.attachEventListeners();
+        this.updateAllUI();
+        this.updateSoundButton();
+        this.setStatus("SYSTEM READY", "normal");
+        this.resizeParticlesAfterLayout();
+    }
+
+    collectElements() {
+        const getRequiredElement = (id) => {
+            const element = document.getElementById(id);
+
+            if (!element) {
+                throw new Error(`Missing required element: #${id}`);
+            }
+
+            return element;
+        };
+
+        return {
+            appShell: getRequiredElement("appShell"),
+            gameStage: getRequiredElement("gameStage"),
+            targetLayer: getRequiredElement("targetLayer"),
+            particleCanvas: getRequiredElement("particleCanvas"),
+            crosshair: getRequiredElement("crosshair"),
+
+            startOverlay: getRequiredElement("startOverlay"),
+            countdownOverlay: getRequiredElement("countdownOverlay"),
+            pauseOverlay: getRequiredElement("pauseOverlay"),
+            gameOverOverlay: getRequiredElement("gameOverOverlay"),
+
+            startButton: getRequiredElement("startButton"),
+            pauseButton: getRequiredElement("pauseButton"),
+            resumeButton: getRequiredElement("resumeButton"),
+            restartButton: getRequiredElement("restartButton"),
+            soundButton: getRequiredElement("soundButton"),
+            soundIcon: getRequiredElement("soundIcon"),
+
+            countdownValue: getRequiredElement("countdownValue"),
+
+            scoreValue: getRequiredElement("scoreValue"),
+            bestScoreValue: getRequiredElement("bestScoreValue"),
+            comboValue: getRequiredElement("comboValue"),
+            comboCard: getRequiredElement("comboCard"),
+            levelValue: getRequiredElement("levelValue"),
+            timeValue: getRequiredElement("timeValue"),
+            timerDisplay: document.querySelector(".timer-display"),
+
+            statusText: getRequiredElement("statusText"),
+            statusChip: document.querySelector(".status-chip"),
+            livesContainer: getRequiredElement("livesContainer"),
+
+            progressText: getRequiredElement("progressText"),
+            progressFill: getRequiredElement("progressFill"),
+
+            floatingMessage: getRequiredElement("floatingMessage"),
+            floatingMessageMain:
+                document.querySelector(".floating-message__main"),
+            floatingMessageSub:
+                document.querySelector(".floating-message__sub"),
+
+            finalScoreValue: getRequiredElement("finalScoreValue"),
+            finalBestValue: getRequiredElement("finalBestValue"),
+            finalComboValue: getRequiredElement("finalComboValue"),
+            finalAccuracyValue: getRequiredElement("finalAccuracyValue"),
+            resultRank: getRequiredElement("resultRank"),
+            newRecordMessage: getRequiredElement("newRecordMessage"),
+
+            scoreCard: document.querySelector(".hud-card--score")
+        };
+    }
+
+    attachEventListeners() {
+        this.elements.startButton.addEventListener(
+            "click",
+            () => this.beginStartSequence()
+        );
+
+        this.elements.restartButton.addEventListener(
+            "click",
+            () => this.beginStartSequence()
+        );
+
+        this.elements.pauseButton.addEventListener(
+            "click",
+            () => this.togglePause()
+        );
+
+        this.elements.resumeButton.addEventListener(
+            "click",
+            () => this.resumeGame()
+        );
+
+        this.elements.soundButton.addEventListener(
+            "click",
+            () => {
+                this.audio.toggle();
+                this.updateSoundButton();
+            }
+        );
+
+        this.elements.gameStage.addEventListener(
+            "pointermove",
+            (event) => this.updateCrosshair(event)
+        );
+
+        this.elements.gameStage.addEventListener(
+            "pointerleave",
+            () => {
+                this.elements.crosshair.style.opacity = "0";
+            }
+        );
+
+        this.elements.gameStage.addEventListener(
+            "pointerenter",
+            () => {
+                this.elements.crosshair.style.opacity = "0.52";
+            }
+        );
+
+        this.elements.targetLayer.addEventListener(
+            "pointerdown",
+            (event) => this.handleStagePointerDown(event)
+        );
+
+        window.addEventListener(
+            "keydown",
+            (event) => this.handleKeyboardInput(event)
+        );
+
+        window.addEventListener(
+            "resize",
+            () => {
+                this.keepCurrentTargetInsideStage();
+                this.resizeParticlesAfterLayout();
+            }
+        );
+
+        document.addEventListener(
+            "visibilitychange",
+            () => this.handleVisibilityChange()
+        );
+    }
+
+    resizeParticlesAfterLayout() {
+        window.requestAnimationFrame(() => {
+            this.particles.resize();
+        });
+    }
+
+    updateCrosshair(event) {
+        const bounds =
+            this.elements.gameStage.getBoundingClientRect();
+
+        const x = event.clientX - bounds.left;
+        const y = event.clientY - bounds.top;
+
+        this.elements.crosshair.style.left = `${x}px`;
+        this.elements.crosshair.style.top = `${y}px`;
+    }
+
+    handleKeyboardInput(event) {
+        const key = event.key.toLowerCase();
+
+        if (
+            event.code === "Space" &&
+            (
+                this.state === GAME_STATES.READY ||
+                this.state === GAME_STATES.GAME_OVER
+            )
+        ) {
+            event.preventDefault();
+            this.beginStartSequence();
+            return;
+        }
+
+        if (
+            key === "p" ||
+            event.code === "Escape"
+        ) {
+            if (
+                this.state === GAME_STATES.PLAYING ||
+                this.state === GAME_STATES.PAUSED
+            ) {
+                event.preventDefault();
+                this.togglePause();
+            }
+        }
+    }
+
+    handleVisibilityChange() {
+        if (
+            document.hidden &&
+            this.state === GAME_STATES.PLAYING
+        ) {
+            this.visibilityPausedGame = true;
+            this.pauseGame();
+            return;
+        }
+
+        if (
+            !document.hidden &&
+            this.visibilityPausedGame
+        ) {
+            this.visibilityPausedGame = false;
+        }
+    }
+
+    async beginStartSequence() {
+        if (
+            this.isStarting ||
+            this.state === GAME_STATES.COUNTDOWN
+        ) {
+            return;
+        }
+
+        this.isStarting = true;
+        this.audio.resume();
+        this.audio.playStartSequence();
+
+        this.resetGameData();
+
+        this.hideOverlay(this.elements.startOverlay);
+        this.hideOverlay(this.elements.gameOverOverlay);
+        this.hideOverlay(this.elements.pauseOverlay);
+
+        this.state = GAME_STATES.COUNTDOWN;
+        this.elements.pauseButton.disabled = true;
+
+        this.showOverlay(this.elements.countdownOverlay);
+
+        const sequence = [3, 2, 1, "GO"];
+
+        for (const value of sequence) {
+            this.elements.countdownValue.textContent = value;
+            this.restartAnimation(
+                this.elements.countdownValue,
+                "countdown"
+            );
+            this.audio.playCountdown(value);
+
+            await this.wait(value === "GO" ? 620 : 760);
+        }
+
+        this.hideOverlay(this.elements.countdownOverlay);
+
+        this.isStarting = false;
+        this.startGame();
+    }
+
+    resetGameData() {
+        this.clearAllTimers();
+        this.removeCurrentTarget(false);
+        this.particles.clear();
+
+        this.score = 0;
+        this.level = 1;
+        this.levelHits = 0;
+
+        this.totalSuccessfulHits = 0;
+        this.totalTargetAttempts = 0;
+        this.totalPlayerTaps = 0;
+
+        this.comboCount = 0;
+        this.comboMultiplier = 1;
+        this.maximumCombo = 1;
+
+        this.lives = GAME_CONFIG.initialLives;
+        this.timeRemaining = GAME_CONFIG.initialTime;
+
+        this.lastFrameTimestamp = 0;
+        this.targetSpawnTimestamp = 0;
+        this.targetLifetime = this.calculateTargetLifetime();
+
+        this.wasNewRecord = false;
+
+        this.elements.newRecordMessage.classList.remove(
+            "is-visible"
+        );
+
+        this.updateAllUI();
+        this.setStatus("SYSTEM INITIALIZING", "warning");
+    }
+
+    startGame() {
+        this.state = GAME_STATES.PLAYING;
+        this.elements.pauseButton.disabled = false;
+
+        this.setStatus("REFLEX LINK ACTIVE", "normal");
+        this.showFloatingMessage(
+            "GO!",
+            "CHASE THE SIGNAL",
+            "normal"
+        );
+
+        this.spawnNextTarget(180);
+
+        this.lastFrameTimestamp = performance.now();
+        this.gameLoopFrameId =
+            window.requestAnimationFrame(this.boundGameLoop);
+    }
+
+    gameLoop(timestamp) {
+        if (this.state !== GAME_STATES.PLAYING) {
+            this.gameLoopFrameId = null;
+            return;
+        }
+
+        const deltaTime = Math.min(
+            100,
+            timestamp - this.lastFrameTimestamp
+        );
+
+        this.lastFrameTimestamp = timestamp;
+
+        this.timeRemaining -= deltaTime / 1000;
+
+        if (this.timeRemaining <= 0) {
+            this.timeRemaining = 0;
+            this.updateTimeUI();
+            this.endGame("TIME EXPIRED");
+            return;
+        }
+
+        this.updateTimeUI();
+        this.updateCurrentTargetTimer(timestamp);
+
+        this.gameLoopFrameId =
+            window.requestAnimationFrame(this.boundGameLoop);
+    }
+
+    updateCurrentTargetTimer(timestamp) {
+        if (
+            !this.currentTarget ||
+            !this.currentTarget.element
+        ) {
+            return;
+        }
+
+        const elapsed =
+            timestamp - this.currentTarget.spawnTime;
+
+        const remainingRatio = Math.max(
+            0,
+            1 - elapsed / this.currentTarget.lifetime
+        );
+
+        this.currentTarget.element.style.setProperty(
+            "--life-progress",
+            remainingRatio.toFixed(4)
+        );
+    }
+
+    spawnNextTarget(customDelay = null) {
+        if (this.state !== GAME_STATES.PLAYING) {
+            return;
+        }
+
+        window.clearTimeout(this.spawnTimeoutId);
+
+        const delay =
+            customDelay !== null
+                ? customDelay
+                : this.calculateSpawnDelay();
+
+        this.spawnTimeoutId = window.setTimeout(() => {
+            this.spawnTarget();
+        }, delay);
+    }
+
+    spawnTarget() {
+        if (
+            this.state !== GAME_STATES.PLAYING ||
+            this.currentTarget
+        ) {
+            return;
+        }
+
+        const type = this.chooseTargetType();
+        const lifetime = this.calculateTargetLifetime();
+        const size = this.calculateTargetSize();
+
+        const position = this.generateTargetPosition(size);
+
+        const targetElement =
+            this.createTargetElement(type, size);
+
+        targetElement.style.left = `${position.x}px`;
+        targetElement.style.top = `${position.y}px`;
+        targetElement.dataset.targetType = type;
+
+        const targetData = {
+            id: crypto.randomUUID
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random()}`,
+            type,
+            element: targetElement,
+            size,
+            lifetime,
+            spawnTime: performance.now(),
+            resolved: false
+        };
+
+        targetElement.dataset.targetId = targetData.id;
+
+        this.currentTarget = targetData;
+        this.targetLifetime = lifetime;
+        this.targetSpawnTimestamp = targetData.spawnTime;
+
+        this.elements.targetLayer.appendChild(targetElement);
+
+        window.requestAnimationFrame(() => {
+            targetElement.classList.add("is-spawned");
+        });
+
+        this.targetTimeoutId = window.setTimeout(() => {
+            this.handleTargetExpired(targetData.id);
+        }, lifetime);
+    }
+
+    chooseTargetType() {
+        const randomValue = Math.random();
+
+        const goldenChance = Math.min(
+            GAME_CONFIG.maximumGoldenChance,
+            GAME_CONFIG.goldenChance +
+                (this.level - 1) * 0.004
+        );
+
+        const decoyChance = Math.min(
+            GAME_CONFIG.maximumDecoyChance,
+            GAME_CONFIG.baseDecoyChance +
+                (this.level - 1) * 0.014
+        );
+
+        if (randomValue < goldenChance) {
+            return TARGET_TYPES.GOLDEN;
+        }
+
+        if (
+            this.level >= 2 &&
+            randomValue < goldenChance + decoyChance
+        ) {
+            return TARGET_TYPES.DECOY;
+        }
+
+        return TARGET_TYPES.RABBIT;
+    }
+
+    createTargetElement(type, size) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = `target target--${type}`;
+        button.style.setProperty(
+            "--target-size",
+            `${size}px`
+        );
+        button.style.setProperty("--life-progress", "1");
+
+        if (type === TARGET_TYPES.DECOY) {
+            button.setAttribute(
+                "aria-label",
+                "Crveni mamac. Ne dodiruj."
+            );
+        } else if (type === TARGET_TYPES.GOLDEN) {
+            button.setAttribute(
+                "aria-label",
+                "Zlatni bonus zec"
+            );
+        } else {
+            button.setAttribute(
+                "aria-label",
+                "Beli zec"
+            );
+        }
+
+        button.innerHTML = `
+            <span class="target__timer" aria-hidden="true"></span>
+            <span class="target__ring" aria-hidden="true"></span>
+            <span class="target__core" aria-hidden="true"></span>
+
+            <span class="target__rabbit" aria-hidden="true">
+                <span class="target__rabbit-ear target__rabbit-ear--left"></span>
+                <span class="target__rabbit-ear target__rabbit-ear--right"></span>
+                <span class="target__rabbit-head"></span>
+                <span class="target__rabbit-eye"></span>
+            </span>
+        `;
+
+        return button;
+    }
+
+    handleStagePointerDown(event) {
+        if (this.state !== GAME_STATES.PLAYING) {
+            return;
+        }
+
+        event.preventDefault();
+
+        this.totalPlayerTaps += 1;
+
+        const targetElement =
+            event.target.closest(".target");
+
+        if (!targetElement) {
+            this.handleEmptyTap(event);
+            return;
+        }
+
+        const targetId = targetElement.dataset.targetId;
+
+        if (
+            !this.currentTarget ||
+            this.currentTarget.id !== targetId ||
+            this.currentTarget.resolved
+        ) {
+            return;
+        }
+
+        this.currentTarget.resolved = true;
+
+        const type =
+            targetElement.dataset.targetType;
+
+        if (type === TARGET_TYPES.DECOY) {
+            this.handleDecoyHit(targetElement);
+        } else {
+            this.handleSuccessfulHit(
+                targetElement,
+                type
+            );
+        }
+    }
+
+    handleSuccessfulHit(targetElement, type) {
+        window.clearTimeout(this.targetTimeoutId);
+
+        const targetBounds =
+            targetElement.getBoundingClientRect();
+
+        const stageBounds =
+            this.elements.gameStage.getBoundingClientRect();
+
+        const centerX =
+            targetBounds.left -
+            stageBounds.left +
+            targetBounds.width / 2;
+
+        const centerY =
+            targetBounds.top -
+            stageBounds.top +
+            targetBounds.height / 2;
+
+        const reactionTime = Math.max(
+            0,
+            performance.now() -
+                this.currentTarget.spawnTime
+        );
+
+        const speedBonus = this.calculateSpeedBonus(
+            reactionTime,
+            this.currentTarget.lifetime
+        );
+
+        this.comboCount += 1;
+
+        this.comboMultiplier = Math.min(
+            GAME_CONFIG.maximumComboMultiplier,
+            1 + Math.floor(this.comboCount / 3)
+        );
+
+        this.maximumCombo = Math.max(
+            this.maximumCombo,
+            this.comboMultiplier
+        );
+
+        this.resetComboTimer();
+
+        const basePoints =
+            type === TARGET_TYPES.GOLDEN
+                ? GAME_CONFIG.goldenTargetPoints
+                : GAME_CONFIG.baseTargetPoints;
+
+        const levelBonus = 1 + (this.level - 1) * 0.08;
+
+        const points = Math.round(
+            (basePoints + speedBonus) *
+            this.comboMultiplier *
+            levelBonus
+        );
+
+        this.score += points;
+        this.totalSuccessfulHits += 1;
+        this.totalTargetAttempts += 1;
+        this.levelHits += 1;
+
+        if (type === TARGET_TYPES.GOLDEN) {
+            this.timeRemaining +=
+                GAME_CONFIG.goldenTimeBonus;
+
+            this.audio.playGoldenHit();
+            this.vibrate([18, 22, 26]);
+
+            this.particles.burst({
+                x: centerX,
+                y: centerY,
+                color: "#ffd34d",
+                count: 34,
+                power: 7,
+                gravity: 0.055
+            });
+
+            this.particles.ring({
+                x: centerX,
+                y: centerY,
+                color: "#ffd34d",
+                count: 22,
+                radius: targetBounds.width * 0.34
+            });
+
+            this.showScorePopup(
+                centerX,
+                centerY,
+                `+${points}  +${GAME_CONFIG.goldenTimeBonus.toFixed(1)}s`,
+                "gold"
+            );
+
+            this.showFloatingMessage(
+                "GOLDEN HIT",
+                `BONUS +${GAME_CONFIG.goldenTimeBonus.toFixed(1)} SEC`,
+                "golden"
+            );
+        } else {
+            this.audio.playRabbitHit(
+                this.comboMultiplier
+            );
+
+            this.vibrate(16);
+
+            this.particles.burst({
+                x: centerX,
+                y: centerY,
+                color: "#00f5ff",
+                count: 22 + this.comboMultiplier,
+                power: 5.5,
+                gravity: 0.06
+            });
+
+            this.particles.ring({
+                x: centerX,
+                y: centerY,
+                color: "#00f5ff",
+                count: 16,
+                radius: targetBounds.width * 0.3
+            });
+
+            this.showScorePopup(
+                centerX,
+                centerY,
+                `+${points}`,
+                "normal"
+            );
+
+            if (
+                this.comboMultiplier >= 3 &&
+                this.comboCount % 3 === 0
+            ) {
+                this.showFloatingMessage(
+                    `COMBO ×${this.comboMultiplier}`,
+                    this.getComboLabel(
+                        this.comboMultiplier
+                    ),
+                    "normal"
+                );
+            }
+        }
+
+        targetElement.classList.remove("is-spawned");
+        targetElement.classList.add("is-hit");
+
+        this.flashScreen("hit");
+        this.animateStage("is-hit");
+        this.animateScoreCard();
+
+        this.updateAllUI();
+
+        window.setTimeout(() => {
+            this.removeCurrentTarget(false);
+            this.checkLevelProgress();
+            this.spawnNextTarget();
+        }, 190);
+    }
+
+    handleDecoyHit(targetElement) {
+        window.clearTimeout(this.targetTimeoutId);
+
+        const targetBounds =
+            targetElement.getBoundingClientRect();
+
+        const stageBounds =
+            this.elements.gameStage.getBoundingClientRect();
+
+        const centerX =
+            targetBounds.left -
+            stageBounds.left +
+            targetBounds.width / 2;
+
+        const centerY =
+            targetBounds.top -
+            stageBounds.top +
+            targetBounds.height / 2;
+
+        this.totalTargetAttempts += 1;
+        this.score = Math.max(
+            0,
+            this.score - GAME_CONFIG.decoyPenalty
+        );
+
+        this.audio.playDamage();
+        this.vibrate([45, 35, 70]);
+
+        this.resetCombo();
+        this.loseLife();
+
+        this.particles.burst({
+            x: centerX,
+            y: centerY,
+            color: "#ff325f",
+            count: 30,
+            power: 6.5,
+            gravity: 0.085,
+            shapes: ["line", "diamond"]
+        });
+
+        this.showScorePopup(
+            centerX,
+            centerY,
+            `-${GAME_CONFIG.decoyPenalty}`,
+            "damage"
+        );
+
+        this.showFloatingMessage(
+            "DECOY HIT",
+            "SIGNAL CORRUPTED",
+            "danger"
+        );
+
+        this.flashScreen("damage");
+        this.animateStage("is-damaged");
+
+        targetElement.classList.remove("is-spawned");
+        targetElement.classList.add("is-hit");
+
+        this.updateAllUI();
+
+        window.setTimeout(() => {
+            this.removeCurrentTarget(false);
+
+            if (this.lives <= 0) {
+                this.endGame("LIVES DEPLETED");
+                return;
+            }
+
+            this.spawnNextTarget(450);
+        }, 230);
+    }
+
+    handleTargetExpired(targetId) {
+        if (
+            this.state !== GAME_STATES.PLAYING ||
+            !this.currentTarget ||
+            this.currentTarget.id !== targetId ||
+            this.currentTarget.resolved
+        ) {
+            return;
+        }
+
+        this.currentTarget.resolved = true;
+
+        const targetType = this.currentTarget.type;
+        const element = this.currentTarget.element;
+
+        element.classList.remove("is-spawned");
+        element.classList.add("is-expiring");
+
+        if (targetType === TARGET_TYPES.DECOY) {
+            window.setTimeout(() => {
+                this.removeCurrentTarget(false);
+                this.spawnNextTarget(120);
+            }, 170);
+
+            return;
+        }
+
+        this.totalTargetAttempts += 1;
+
+        this.audio.playMiss();
+        this.vibrate(24);
+
+        this.resetCombo();
+        this.loseLife();
+
+        this.showFloatingMessage(
+            "TARGET LOST",
+            "REFLEX LINK FAILED",
+            "danger"
+        );
+
+        this.flashScreen("damage");
+        this.animateStage("is-damaged");
+
+        this.updateAllUI();
+
+        window.setTimeout(() => {
+            this.removeCurrentTarget(false);
+
+            if (this.lives <= 0) {
+                this.endGame("LIVES DEPLETED");
+                return;
+            }
+
+            this.spawnNextTarget(300);
+        }, 180);
+    }
+
+    handleEmptyTap(event) {
+        if (
+            !this.currentTarget ||
+            this.currentTarget.type === TARGET_TYPES.DECOY
+        ) {
+            return;
+        }
+
+        this.resetCombo();
+
+        if (GAME_CONFIG.emptyTapPenalty > 0) {
+            this.score = Math.max(
+                0,
+                this.score -
+                    GAME_CONFIG.emptyTapPenalty
+            );
+
+            const stageBounds =
+                this.elements.gameStage.getBoundingClientRect();
+
+            this.showScorePopup(
+                event.clientX - stageBounds.left,
+                event.clientY - stageBounds.top,
+                `-${GAME_CONFIG.emptyTapPenalty}`,
+                "damage"
+            );
+        }
+
+        this.audio.playMiss();
+        this.updateComboUI();
+    }
+
+    loseLife() {
+        this.lives = Math.max(0, this.lives - 1);
+
+        if (this.lives === 1) {
+            this.setStatus(
+                "CRITICAL REFLEX STATE",
+                "danger"
+            );
+        } else if (this.lives === 2) {
+            this.setStatus(
+                "SIGNAL INSTABILITY",
+                "warning"
+            );
+        }
+
+        this.updateLivesUI();
+    }
+
+    resetComboTimer() {
+        window.clearTimeout(this.comboTimeoutId);
+
+        this.comboTimeoutId = window.setTimeout(() => {
+            if (this.state === GAME_STATES.PLAYING) {
+                this.resetCombo();
+                this.updateComboUI();
+            }
+        }, GAME_CONFIG.comboResetDelay);
+    }
+
+    resetCombo() {
+        window.clearTimeout(this.comboTimeoutId);
+
+        this.comboCount = 0;
+        this.comboMultiplier = 1;
+
+        this.updateComboUI();
+    }
+
+    checkLevelProgress() {
+        if (
+            this.levelHits <
+            GAME_CONFIG.hitsPerLevel
+        ) {
+            return;
+        }
+
+        this.levelHits = 0;
+
+        if (
+            this.level <
+            GAME_CONFIG.maximumLevel
+        ) {
+            this.level += 1;
+        }
+
+        this.timeRemaining += 1.25;
+
+        this.audio.playLevelUp();
+        this.vibrate([20, 20, 20, 20, 45]);
+
+        this.showFloatingMessage(
+            `LEVEL ${this.level}`,
+            "SYSTEM SPEED INCREASED",
+            "level"
+        );
+
+        this.animateStage("is-level-up");
+        this.setStatus(
+            `LEVEL ${this.level} PROTOCOL`,
+            "normal"
+        );
+
+        this.updateAllUI();
+    }
+
+    calculateSpeedBonus(
+        reactionTime,
+        targetLifetime
+    ) {
+        const reactionRatio = Math.max(
+            0,
+            Math.min(
+                1,
+                1 - reactionTime / targetLifetime
+            )
+        );
+
+        return Math.round(reactionRatio * 175);
+    }
+
+    calculateTargetLifetime() {
+        const lifetime =
+            GAME_CONFIG.baseTargetLifetime -
+            (this.level - 1) *
+                GAME_CONFIG.lifetimeDecreasePerLevel;
+
+        return Math.max(
+            GAME_CONFIG.minimumTargetLifetime,
+            lifetime
+        );
+    }
+
+    calculateSpawnDelay() {
+        const delay =
+            GAME_CONFIG.baseSpawnDelay -
+            (this.level - 1) *
+                GAME_CONFIG.spawnDelayDecreasePerLevel;
+
+        const variation =
+            0.78 + Math.random() * 0.44;
+
+        return Math.max(
+            GAME_CONFIG.minimumSpawnDelay,
+            delay * variation
+        );
+    }
+
+    calculateTargetSize() {
+        const stageWidth =
+            this.elements.gameStage.clientWidth;
+
+        const baseSize =
+            stageWidth < 620
+                ? GAME_CONFIG.targetSizeMobile
+                : GAME_CONFIG.targetSizeDesktop;
+
+        return Math.max(
+            GAME_CONFIG.minimumTargetSize,
+            baseSize -
+                (this.level - 1) *
+                    GAME_CONFIG.targetSizeDecreasePerLevel
+        );
+    }
+
+    generateTargetPosition(size) {
+        const width =
+            this.elements.gameStage.clientWidth;
+
+        const height =
+            this.elements.gameStage.clientHeight;
+
+        const edgeMargin = Math.max(
+            size / 2 + 14,
+            Math.min(
+                GAME_CONFIG.targetMargin,
+                Math.min(width, height) * 0.12
+            )
+        );
+
+        const availableWidth = Math.max(
+            1,
+            width - edgeMargin * 2
+        );
+
+        const availableHeight = Math.max(
+            1,
+            height - edgeMargin * 2
+        );
+
+        let x =
+            edgeMargin +
+            Math.random() * availableWidth;
+
+        let y =
+            edgeMargin +
+            Math.random() * availableHeight;
+
+        if (this.currentTarget) {
+            const previousX =
+                parseFloat(
+                    this.currentTarget.element.style.left
+                ) || width / 2;
+
+            const previousY =
+                parseFloat(
+                    this.currentTarget.element.style.top
+                ) || height / 2;
+
+            const minimumDistance =
+                Math.min(width, height) * 0.22;
+
+            let attempts = 0;
+
+            while (
+                Math.hypot(
+                    x - previousX,
+                    y - previousY
+                ) < minimumDistance &&
+                attempts < 8
+            ) {
+                x =
+                    edgeMargin +
+                    Math.random() * availableWidth;
+
+                y =
+                    edgeMargin +
+                    Math.random() * availableHeight;
+
+                attempts += 1;
+            }
+        }
+
+        return { x, y };
+    }
+
+    keepCurrentTargetInsideStage() {
+        if (!this.currentTarget) {
+            return;
+        }
+
+        const element =
+            this.currentTarget.element;
+
+        const width =
+            this.elements.gameStage.clientWidth;
+
+        const height =
+            this.elements.gameStage.clientHeight;
+
+        const radius =
+            this.currentTarget.size / 2 + 10;
+
+        const currentX =
+            parseFloat(element.style.left) ||
+            width / 2;
+
+        const currentY =
+            parseFloat(element.style.top) ||
+            height / 2;
+
+        const clampedX = Math.min(
+            width - radius,
+            Math.max(radius, currentX)
+        );
+
+        const clampedY = Math.min(
+            height - radius,
+            Math.max(radius, currentY)
+        );
+
+        element.style.left = `${clampedX}px`;
+        element.style.top = `${clampedY}px`;
+    }
+
+    pauseGame() {
+        if (this.state !== GAME_STATES.PLAYING) {
+            return;
+        }
+
+        this.state = GAME_STATES.PAUSED;
+
+        if (this.gameLoopFrameId !== null) {
+            window.cancelAnimationFrame(
+                this.gameLoopFrameId
+            );
+            this.gameLoopFrameId = null;
+        }
+
+        window.clearTimeout(this.targetTimeoutId);
+        window.clearTimeout(this.spawnTimeoutId);
+        window.clearTimeout(this.comboTimeoutId);
+
+        if (this.currentTarget) {
+            const elapsed =
+                performance.now() -
+                this.currentTarget.spawnTime;
+
+            this.currentTarget.remainingLifetime =
+                Math.max(
+                    0,
+                    this.currentTarget.lifetime -
+                        elapsed
+                );
+        }
+
+        this.audio.playPause();
+        this.setStatus("SYSTEM SUSPENDED", "warning");
+        this.showOverlay(this.elements.pauseOverlay);
+    }
+
+    resumeGame() {
+        if (this.state !== GAME_STATES.PAUSED) {
+            return;
+        }
+
+        this.state = GAME_STATES.PLAYING;
+        this.hideOverlay(this.elements.pauseOverlay);
+
+        this.audio.playResume();
+        this.setStatus("REFLEX LINK ACTIVE", "normal");
+
+        const now = performance.now();
+
+        if (this.currentTarget) {
+            const remainingLifetime =
+                this.currentTarget.remainingLifetime ??
+                this.currentTarget.lifetime;
+
+            this.currentTarget.lifetime =
+                remainingLifetime;
+
+            this.currentTarget.spawnTime = now;
+
+            this.targetTimeoutId =
+                window.setTimeout(() => {
+                    this.handleTargetExpired(
+                        this.currentTarget?.id
+                    );
+                }, remainingLifetime);
+        } else {
+            this.spawnNextTarget(180);
+        }
+
+        if (this.comboCount > 0) {
+            this.resetComboTimer();
+        }
+
+        this.lastFrameTimestamp = now;
+        this.gameLoopFrameId =
+            window.requestAnimationFrame(this.boundGameLoop);
+    }
+
+    togglePause() {
+        if (this.state === GAME_STATES.PLAYING) {
+            this.pauseGame();
+        } else if (
+            this.state === GAME_STATES.PAUSED
+        ) {
+            this.resumeGame();
+        }
+    }
+
+    endGame(reason) {
+        if (
+            this.state === GAME_STATES.GAME_OVER ||
+            this.state === GAME_STATES.READY
+        ) {
+            return;
+        }
+
+        this.state = GAME_STATES.GAME_OVER;
+
+        this.clearAllTimers();
+
+        if (this.gameLoopFrameId !== null) {
+            window.cancelAnimationFrame(
+                this.gameLoopFrameId
+            );
+            this.gameLoopFrameId = null;
+        }
+
+        this.removeCurrentTarget(false);
+        this.elements.pauseButton.disabled = true;
+
+        const previousBest = this.bestScore;
+
+        if (this.score > this.bestScore) {
+            this.bestScore = this.score;
+            this.wasNewRecord = true;
+
+            SafeStorage.set(
+                GAME_CONFIG.bestScoreStorageKey,
+                this.bestScore
+            );
+        }
+
+        this.audio.playGameOver();
+        this.vibrate([70, 45, 70]);
+
+        const accuracy =
+            this.totalTargetAttempts > 0
+                ? Math.round(
+                    (
+                        this.totalSuccessfulHits /
+                        this.totalTargetAttempts
+                    ) * 100
+                )
+                : 0;
+
+        this.elements.finalScoreValue.textContent =
+            this.formatScore(this.score);
+
+        this.elements.finalBestValue.textContent =
+            this.formatScore(this.bestScore);
+
+        this.elements.finalComboValue.textContent =
+            `×${this.maximumCombo}`;
+
+        this.elements.finalAccuracyValue.textContent =
+            `${accuracy}%`;
+
+        this.elements.resultRank.textContent =
+            this.calculateRank(
+                this.score,
+                accuracy,
+                this.maximumCombo
+            );
+
+        this.elements.newRecordMessage.classList.toggle(
+            "is-visible",
+            this.wasNewRecord && this.score > previousBest
+        );
+
+        this.setStatus(reason, "danger");
+        this.updateAllUI();
+
+        window.setTimeout(() => {
+            this.showOverlay(
+                this.elements.gameOverOverlay
+            );
+        }, 420);
+    }
+
+    calculateRank(score, accuracy, maxCombo) {
+        if (
+            score >= 50000 &&
+            accuracy >= 90 &&
+            maxCombo >= 8
+        ) {
+            return "WHITE HAT LEGEND";
+        }
+
+        if (
+            score >= 30000 &&
+            accuracy >= 82
+        ) {
+            return "CYBER RABBIT ELITE";
+        }
+
+        if (score >= 18000) {
+            return "NEON REFLEX MASTER";
+        }
+
+        if (score >= 9000) {
+            return "SIGNAL HUNTER";
+        }
+
+        if (score >= 3500) {
+            return "RABBIT OPERATIVE";
+        }
+
+        return "REFLEX ROOKIE";
+    }
+
+    getComboLabel(multiplier) {
+        if (multiplier >= 10) {
+            return "WHITE HAT OVERDRIVE";
+        }
+
+        if (multiplier >= 7) {
+            return "NEURAL VELOCITY";
+        }
+
+        if (multiplier >= 5) {
+            return "REFLEX OVERCLOCK";
+        }
+
+        if (multiplier >= 3) {
+            return "SIGNAL LOCKED";
+        }
+
+        return "COMBO ACTIVE";
+    }
+
+    removeCurrentTarget(animate = false) {
+        window.clearTimeout(this.targetTimeoutId);
+        this.targetTimeoutId = null;
+
+        if (!this.currentTarget) {
+            return;
+        }
+
+        const element =
+            this.currentTarget.element;
+
+        if (element && element.isConnected) {
+            if (animate) {
+                element.classList.add("is-expiring");
+
+                window.setTimeout(() => {
+                    element.remove();
+                }, 180);
+            } else {
+                element.remove();
+            }
+        }
+
+        this.currentTarget = null;
+    }
+
+    clearAllTimers() {
+        window.clearTimeout(this.targetTimeoutId);
+        window.clearTimeout(this.spawnTimeoutId);
+        window.clearTimeout(this.comboTimeoutId);
+        window.clearTimeout(
+            this.floatingMessageTimeoutId
+        );
+
+        this.targetTimeoutId = null;
+        this.spawnTimeoutId = null;
+        this.comboTimeoutId = null;
+        this.floatingMessageTimeoutId = null;
+    }
+
+    updateAllUI() {
+        this.updateScoreUI();
+        this.updateBestScoreUI();
+        this.updateComboUI();
+        this.updateLevelUI();
+        this.updateLivesUI();
+        this.updateTimeUI();
+        this.updateProgressUI();
+    }
+
+    updateScoreUI() {
+        this.elements.scoreValue.textContent =
+            this.formatScore(this.score);
+    }
+
+    updateBestScoreUI() {
+        const visibleBest = Math.max(
+            this.bestScore,
+            this.score
+        );
+
+        this.elements.bestScoreValue.textContent =
+            this.formatScore(visibleBest);
+    }
+
+    updateComboUI() {
+        this.elements.comboValue.textContent =
+            String(this.comboMultiplier);
+
+        this.elements.comboCard.classList.toggle(
+            "is-hot",
+            this.comboMultiplier >= 3
+        );
+    }
+
+    updateLevelUI() {
+        this.elements.levelValue.textContent =
+            String(this.level).padStart(2, "0");
+    }
+
+    updateLivesUI() {
+        const lifeElements =
+            this.elements.livesContainer.querySelectorAll(
+                ".life"
+            );
+
+        lifeElements.forEach((lifeElement, index) => {
+            const isActive = index < this.lives;
+
+            lifeElement.classList.toggle(
+                "life--active",
+                isActive
+            );
+
+            lifeElement.classList.toggle(
+                "life--lost",
+                !isActive
+            );
+        });
+    }
+
+    updateTimeUI() {
+        this.elements.timeValue.textContent =
+            Math.max(0, this.timeRemaining).toFixed(1);
+
+        if (this.elements.timerDisplay) {
+            this.elements.timerDisplay.classList.toggle(
+                "is-critical",
+                this.timeRemaining <= 8
+            );
+        }
+    }
+
+    updateProgressUI() {
+        const progressRatio =
+            this.levelHits /
+            GAME_CONFIG.hitsPerLevel;
+
+        const progressPercent = Math.min(
+            100,
+            Math.max(0, progressRatio * 100)
+        );
+
+        this.elements.progressFill.style.width =
+            `${progressPercent}%`;
+
+        this.elements.progressText.textContent =
+            `${this.levelHits} / ${GAME_CONFIG.hitsPerLevel}`;
+    }
+
+    updateSoundButton() {
+        const isEnabled = this.audio.enabled;
+
+        this.elements.soundButton.setAttribute(
+            "aria-pressed",
+            String(isEnabled)
+        );
+
+        this.elements.soundIcon.textContent =
+            isEnabled ? "◉" : "○";
+
+        this.elements.soundButton.style.opacity =
+            isEnabled ? "1" : "0.62";
+    }
+
+    setStatus(text, mode = "normal") {
+        this.elements.statusText.textContent = text;
+
+        if (!this.elements.statusChip) {
+            return;
+        }
+
+        this.elements.statusChip.classList.toggle(
+            "is-danger",
+            mode === "danger"
+        );
+
+        this.elements.statusChip.classList.toggle(
+            "is-warning",
+            mode === "warning"
+        );
+    }
+
+    showOverlay(element) {
+        element.classList.add(
+            "stage-overlay--visible"
+        );
+    }
+
+    hideOverlay(element) {
+        element.classList.remove(
+            "stage-overlay--visible"
+        );
+    }
+
+    showFloatingMessage(
+        mainText,
+        subText = "",
+        mode = "normal"
+    ) {
+        window.clearTimeout(
+            this.floatingMessageTimeoutId
+        );
+
+        this.elements.floatingMessageMain.textContent =
+            mainText;
+
+        this.elements.floatingMessageSub.textContent =
+            subText;
+
+        this.elements.floatingMessage.classList.remove(
+            "is-visible",
+            "is-danger",
+            "is-golden",
+            "is-level"
+        );
+
+        if (mode === "danger") {
+            this.elements.floatingMessage.classList.add(
+                "is-danger"
+            );
+        } else if (mode === "golden") {
+            this.elements.floatingMessage.classList.add(
+                "is-golden"
+            );
+        } else if (mode === "level") {
+            this.elements.floatingMessage.classList.add(
+                "is-level"
+            );
+        }
+
+        void this.elements.floatingMessage.offsetWidth;
+
+        this.elements.floatingMessage.classList.add(
+            "is-visible"
+        );
+
+        this.floatingMessageTimeoutId =
+            window.setTimeout(() => {
+                this.elements.floatingMessage.classList.remove(
+                    "is-visible"
+                );
+            }, 760);
+    }
+
+    showScorePopup(x, y, text, mode = "normal") {
+        const popup = document.createElement("div");
+
+        popup.className = "score-popup";
+        popup.textContent = text;
+        popup.style.left = `${x}px`;
+        popup.style.top = `${y}px`;
+
+        if (mode === "damage") {
+            popup.classList.add(
+                "score-popup--damage"
+            );
+        } else if (mode === "gold") {
+            popup.classList.add(
+                "score-popup--gold"
+            );
+        }
+
+        this.elements.gameStage.appendChild(popup);
+
+        window.setTimeout(() => {
+            popup.remove();
+        }, 800);
+    }
+
+    flashScreen(type) {
+        const flash = document.createElement("div");
+
+        flash.className =
+            type === "damage"
+                ? "screen-flash screen-flash--damage"
+                : "screen-flash screen-flash--hit";
+
+        document.body.appendChild(flash);
+
+        window.setTimeout(() => {
+            flash.remove();
+        }, type === "damage" ? 300 : 220);
+    }
+
+    animateStage(className) {
+        this.elements.gameStage.classList.remove(
+            className
+        );
+
+        void this.elements.gameStage.offsetWidth;
+
+        this.elements.gameStage.classList.add(
+            className
+        );
+
+        window.setTimeout(() => {
+            this.elements.gameStage.classList.remove(
+                className
+            );
+        }, 720);
+    }
+
+    animateScoreCard() {
+        if (!this.elements.scoreCard) {
+            return;
+        }
+
+        this.elements.scoreCard.classList.remove(
+            "is-updated"
+        );
+
+        void this.elements.scoreCard.offsetWidth;
+
+        this.elements.scoreCard.classList.add(
+            "is-updated"
+        );
+
+        window.setTimeout(() => {
+            this.elements.scoreCard.classList.remove(
+                "is-updated"
+            );
+        }, 350);
+    }
+
+    restartAnimation(element, animationName) {
+        element.style.animation = "none";
+        void element.offsetWidth;
+        element.style.animation = "";
+
+        if (animationName === "countdown") {
+            element.style.animation =
+                "countdownPulse 0.85s ease-out";
+        }
+    }
+
+    formatScore(value) {
+        return Math.max(
+            0,
+            Math.round(value)
+        )
+            .toString()
+            .padStart(6, "0");
+    }
+
+    vibrate(pattern) {
+        if (
+            "vibrate" in navigator
+        ) {
+            navigator.vibrate(pattern);
+        }
+    }
+
+    wait(milliseconds) {
+        return new Promise((resolve) => {
+            window.setTimeout(resolve, milliseconds);
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    try {
+        window.rabbitReflexGame =
+            new RabbitReflexGame();
+    } catch (error) {
+        console.error(
+            "WHR Rabbit Reflex failed to initialize:",
+            error
+        );
+
+        document.body.innerHTML = `
+            <main style="
+                min-height: 100vh;
+                display: grid;
+                place-items: center;
+                padding: 24px;
+                background: #050714;
+                color: #ffffff;
+                font-family: sans-serif;
+                text-align: center;
+            ">
+                <div>
+                    <h1 style="color: #00f5ff;">
+                        SYSTEM ERROR
+                    </h1>
+
+                    <p>
+                        WHR Rabbit Reflex nije mogao da se pokrene.
+                        Proveri da li su index.html, style.css i script.js
+                        sačuvani u istom folderu.
+                    </p>
+                </div>
+            </main>
+        `;
+    }
+});
