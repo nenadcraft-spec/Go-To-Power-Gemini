@@ -799,6 +799,238 @@
         </div>
 
         <!-- TAB 6: PROJEKTI -->
+        <!-- ============================================================
+     WHR PROJECTS // INTERAKTIVNI VIDEO CINEMA HUB
+============================================================ -->
+<style>
+    .whr-cinema-container {
+        max-width: 1000px;
+        margin: 30px auto;
+        padding: 25px;
+        background: #090d16;
+        border: 1px solid #1e293b;
+        border-radius: 16px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .whr-cinema-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #38bdf8;
+        padding-bottom: 12px;
+        margin-bottom: 20px;
+    }
+
+    .whr-cinema-title {
+        color: #38bdf8;
+        font-family: monospace;
+        font-size: 18px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    /* Grid layout: Plejer levo/gore, Playlista desno/dole */
+    .whr-cinema-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .whr-cinema-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Glavni Plejer */
+    .main-player-box {
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #334155;
+    }
+
+    .main-video-element {
+        width: 100%;
+        display: block;
+        max-height: 450px;
+        background: #000;
+    }
+
+    .video-info-box {
+        padding: 15px;
+        background: #0f172a;
+        border-top: 1px solid #1e293b;
+    }
+
+    .current-video-title {
+        color: #f8fafc;
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0 0 5px 0;
+    }
+
+    .current-video-desc {
+        color: #94a3b8;
+        font-size: 13px;
+        margin: 0;
+        font-family: monospace;
+    }
+
+    /* Playlista */
+    .playlist-box {
+        background: #0f172a;
+        border-radius: 12px;
+        border: 1px solid #1e293b;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 480px;
+        overflow-y: auto;
+    }
+
+    .playlist-title {
+        color: #e2e8f0;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        font-family: monospace;
+        text-transform: uppercase;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 5px;
+    }
+
+    .playlist-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        background: #1e293b;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .playlist-item:hover {
+        border-color: #38bdf8;
+        background: #334155;
+    }
+
+    .playlist-item.active {
+        border-color: #22c55e;
+        background: rgba(34, 197, 94, 0.15);
+    }
+
+    .item-icon {
+        font-size: 20px;
+    }
+
+    .item-details h4 {
+        margin: 0;
+        font-size: 13px;
+        color: #f1f5f9;
+    }
+
+    .item-details p {
+        margin: 2px 0 0 0;
+        font-size: 11px;
+        color: #94a3b8;
+        font-family: monospace;
+    }
+</style>
+
+<div class="whr-cinema-container">
+    <div class="whr-cinema-header">
+        <span class="whr-cinema-title">🎬 WHR PROJECTS // VIDEO PREMAZIVANJE & SHOWCASE</span>
+        <span style="color: #22c55e; font-size: 12px; font-family: monospace;">● CINEMA NODE ONLINE</span>
+    </div>
+
+    <div class="whr-cinema-layout">
+        <!-- LEVO: Glavni Plejer -->
+        <div class="main-player-box">
+            <video id="whrMainVideo" class="main-video-element" controls poster="poster-slika.jpg">
+                <source id="whrVideoSource" src="video1.mp4" type="video/mp4">
+                Vaš pregledač ne podržava video plejer.
+            </video>
+            
+            <div class="video-info-box">
+                <h3 id="whrVideoTitle" class="current-video-title">01. WHR Studio Teaser // Faza 1</h3>
+                <p id="whrVideoDesc" class="current-video-desc">Predstavljanje koncepta radne stanice i AI/3D virtualne produkcije.</p>
+            </div>
+        </div>
+
+        <!-- DESNO: Lista Videa (Playlista) -->
+        <div class="playlist-box">
+            <div class="playlist-title">📂 Izaberi Video Premaz:</div>
+
+            <!-- Video 1 -->
+            <div class="playlist-item active" onclick="playWHRVideo('video1.mp4', '01. WHR Studio Teaser // Faza 1', 'Predstavljanje koncepta radne stanice i AI/3D virtualne produkcije.', this)">
+                <span class="item-icon">🎬</span>
+                <div class="item-details">
+                    <h4>01. Studio Teaser</h4>
+                    <p>Faza 1 Showcase</p>
+                </div>
+            </div>
+
+            <!-- Video 2 -->
+            <div class="playlist-item" onclick="playWHRVideo('video2.mp4', '02. Virtual Production Test', 'Testiranje Unreal Engine 5 okruženja i render kompozitinga.', this)">
+                <span class="item-icon">🎥</span>
+                <div class="item-details">
+                    <h4>02. Virtual Production</h4>
+                    <p>UE5 Real-time Render</p>
+                </div>
+            </div>
+
+            <!-- Video 3 -->
+            <div class="playlist-item" onclick="playWHRVideo('video3.mp4', '03. AI Pipeline Showcase', 'ComfyUI & Flux lokalno generisanje u realnom vremenu.', this)">
+                <span class="item-icon">🤖</span>
+                <div class="item-details">
+                    <h4>03. AI Pipeline</h4>
+                    <p>ComfyUI & Flux Demo</p>
+                </div>
+            </div>
+
+            <!-- Video 4 (Primer za dodavanje) -->
+            <div class="playlist-item" onclick="playWHRVideo('video4.mp4', '04. Kikinda Story Concept', 'Kratki cinematic prikaz lokalne vizije i estetike.', this)">
+                <span class="item-icon">🐇</span>
+                <div class="item-details">
+                    <h4>04. Kikinda Story</h4>
+                    <p>Cinematic Concept</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JAVASCRIPT ZA PROMENU VIDEA KLIKOM -->
+<script>
+    function playWHRVideo(videoUrl, title, desc, element) {
+        var videoPlayer = document.getElementById('whrMainVideo');
+        var videoSource = document.getElementById('whrVideoSource');
+        var titleElem = document.getElementById('whrVideoTitle');
+        var descElem = document.getElementById('whrVideoDesc');
+
+        // Učitaj novi video
+        videoSource.src = videoUrl;
+        videoPlayer.load();
+        videoPlayer.play();
+
+        // Osveži tekstove
+        titleElem.innerText = title;
+        descElem.innerText = desc;
+
+        // Promeni aktivnu klasu u listi
+        var items = document.querySelectorAll('.playlist-item');
+        items.forEach(function(item) {
+            item.classList.remove('active');
+        });
+        element.classList.add('active');
+    }
+</script>
         <div id="tab-projects" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">AKTIVNE PRODUKCIJE & BRAND IP</h2>
             <div class="hud-card" style="border-top-color: var(--accent-purple);">
