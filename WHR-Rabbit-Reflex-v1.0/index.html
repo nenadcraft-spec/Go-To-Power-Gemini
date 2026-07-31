@@ -2,19 +2,18 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <!-- Onemogućeno neželjeno zumiranje pri brzom tapkanju na mobilnim telefonima -->
-    <meta 
-        name="viewport" 
+
+    <meta
+        name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     >
-    <meta 
-        name="description" 
+
+    <meta
+        name="description"
         content="WHR Rabbit Reflex v1.0 — cyberpunk reflex mini-game by White Hat Rabbit Studios."
     >
-    <meta 
-        name="theme-color" 
-        content="#050714"
-    >
+
+    <meta name="theme-color" content="#050714">
 
     <title>WHR Rabbit Reflex v1.0</title>
 
@@ -27,26 +26,20 @@
     </noscript>
 
     <div class="app-shell" id="appShell">
-        <div class="background-system" aria-hidden="true">
-            <div class="background-system__grid"></div>
-            <div class="background-system__scanlines"></div>
-            <div class="background-system__noise"></div>
-            <div class="background-system__glow background-system__glow--one"></div>
-            <div class="background-system__glow background-system__glow--two"></div>
-        </div>
-
         <header class="game-header">
             <div class="brand">
                 <div class="brand__mark" aria-hidden="true">
                     <span class="brand__ear brand__ear--left"></span>
                     <span class="brand__ear brand__ear--right"></span>
-                    <span class="brand__head"></span>
-                    <span class="brand__eye"></span>
+                    <span class="brand__face"></span>
                 </div>
 
-                <div class="brand__copy">
-                    <p class="brand__eyebrow">WHITE HAT RABBIT STUDIOS</p>
-                    <h1 class="brand__title">
+                <div class="brand__text">
+                    <p class="brand__eyebrow">
+                        WHITE HAT RABBIT STUDIOS
+                    </p>
+
+                    <h1>
                         RABBIT
                         <span>REFLEX</span>
                     </h1>
@@ -54,10 +47,10 @@
             </div>
 
             <div class="header-actions">
-                <button 
-                    class="icon-button" 
-                    id="soundButton" 
-                    type="button" 
+                <button
+                    class="icon-button"
+                    id="soundButton"
+                    type="button"
                     aria-label="Uključi ili isključi zvuk"
                     aria-pressed="true"
                 >
@@ -65,10 +58,10 @@
                     <span class="icon-button__label">SOUND</span>
                 </button>
 
-                <button 
-                    class="icon-button" 
-                    id="pauseButton" 
-                    type="button" 
+                <button
+                    class="icon-button"
+                    id="pauseButton"
+                    type="button"
                     aria-label="Pauziraj igru"
                     disabled
                 >
@@ -82,13 +75,16 @@
             <section class="hud" aria-label="Rezultati igre">
                 <article class="hud-card hud-card--score">
                     <span class="hud-card__label">SCORE</span>
-                    <strong class="hud-card__value" id="scoreValue">000000</strong>
-                    <span class="hud-card__pulse"></span>
+                    <strong class="hud-card__value" id="scoreValue">
+                        00000000
+                    </strong>
                 </article>
 
-                <article class="hud-card">
+                <article class="hud-card hud-card--best">
                     <span class="hud-card__label">BEST SCORE</span>
-                    <strong class="hud-card__value" id="bestScoreValue">000000</strong>
+                    <strong class="hud-card__value" id="bestScoreValue">
+                        00000000
+                    </strong>
                 </article>
 
                 <article class="hud-card hud-card--combo" id="comboCard">
@@ -110,7 +106,11 @@
                     <span id="statusText">SYSTEM READY</span>
                 </div>
 
-                <div class="lives" id="livesContainer" aria-label="Preostali životi">
+                <div
+                    class="lives"
+                    id="livesContainer"
+                    aria-label="Preostali životi"
+                >
                     <span class="life life--active">◆</span>
                     <span class="life life--active">◆</span>
                     <span class="life life--active">◆</span>
@@ -118,54 +118,93 @@
 
                 <div class="timer-display">
                     <span class="timer-display__label">TIME</span>
-                    <strong id="timeValue">45.0</strong>
+                    <strong id="timeValue">60.0</strong>
                 </div>
             </section>
 
             <section class="game-stage" id="gameStage">
-                <canvas 
-                    class="particle-canvas" 
-                    id="particleCanvas" 
+                <canvas
+                    class="particle-canvas"
+                    id="particleCanvas"
                     aria-hidden="true"
                 ></canvas>
 
                 <div class="stage-frame" aria-hidden="true">
-                    <span class="stage-frame__corner stage-frame__corner--tl"></span>
-                    <span class="stage-frame__corner stage-frame__corner--tr"></span>
-                    <span class="stage-frame__corner stage-frame__corner--bl"></span>
-                    <span class="stage-frame__corner stage-frame__corner--br"></span>
+                    <span
+                        class="stage-frame__corner stage-frame__corner--tl"
+                    ></span>
+
+                    <span
+                        class="stage-frame__corner stage-frame__corner--tr"
+                    ></span>
+
+                    <span
+                        class="stage-frame__corner stage-frame__corner--bl"
+                    ></span>
+
+                    <span
+                        class="stage-frame__corner stage-frame__corner--br"
+                    ></span>
                 </div>
 
                 <div class="stage-grid" aria-hidden="true"></div>
 
-                <div 
-                    class="target-layer" 
-                    id="targetLayer" 
+                <div
+                    class="target-layer"
+                    id="targetLayer"
                     aria-label="Polje za igru"
                 ></div>
 
-                <div class="crosshair" id="crosshair" aria-hidden="true">
+                <div
+                    class="crosshair"
+                    id="crosshair"
+                    aria-hidden="true"
+                >
                     <span class="crosshair__horizontal"></span>
                     <span class="crosshair__vertical"></span>
                     <span class="crosshair__circle"></span>
                 </div>
 
-                <div class="floating-message" id="floatingMessage" aria-live="polite">
+                <div
+                    class="floating-message"
+                    id="floatingMessage"
+                    aria-live="polite"
+                >
                     <span class="floating-message__main"></span>
                     <span class="floating-message__sub"></span>
                 </div>
 
-                <div class="stage-overlay stage-overlay--visible" id="startOverlay">
+                <!-- POČETNI EKRAN -->
+                <div
+                    class="stage-overlay stage-overlay--visible"
+                    id="startOverlay"
+                >
                     <div class="start-panel">
-                        <p class="start-panel__version">WHR SYSTEM // VERSION 1.0</p>
+                        <p class="start-panel__version">
+                            WHR SYSTEM // VERSION 1.0
+                        </p>
 
-                        <div class="start-panel__rabbit" aria-hidden="true">
-                            <span class="start-panel__ear start-panel__ear--left"></span>
-                            <span class="start-panel__ear start-panel__ear--right"></span>
+                        <div
+                            class="start-panel__rabbit"
+                            aria-hidden="true"
+                        >
+                            <span
+                                class="start-panel__ear start-panel__ear--left"
+                            ></span>
+
+                            <span
+                                class="start-panel__ear start-panel__ear--right"
+                            ></span>
 
                             <div class="start-panel__face">
-                                <span class="start-panel__eye start-panel__eye--left"></span>
-                                <span class="start-panel__eye start-panel__eye--right"></span>
+                                <span
+                                    class="start-panel__eye start-panel__eye--left"
+                                ></span>
+
+                                <span
+                                    class="start-panel__eye start-panel__eye--right"
+                                ></span>
+
                                 <span class="start-panel__nose"></span>
                             </div>
                         </div>
@@ -177,15 +216,18 @@
 
                         <p class="start-panel__description">
                             Pogodi svetlećeg Belog Zeca pre nego što nestane.
-                            Izbegavaj crvene mamce, održavaj combo i preživi
+                            Izbegavaj crvene mete, održavaj combo i preživi
                             sve brži sistem.
                         </p>
 
                         <div class="instruction-grid">
                             <div class="instruction-card">
-                                <span class="instruction-card__symbol instruction-card__symbol--rabbit">
+                                <span
+                                    class="instruction-card__symbol instruction-card__symbol--rabbit"
+                                >
                                     ◇
                                 </span>
+
                                 <div>
                                     <strong>BELI ZEC</strong>
                                     <small>Pogodi za poene</small>
@@ -193,19 +235,25 @@
                             </div>
 
                             <div class="instruction-card">
-                                <span class="instruction-card__symbol instruction-card__symbol--decoy">
+                                <span
+                                    class="instruction-card__symbol instruction-card__symbol--decoy"
+                                >
                                     ×
                                 </span>
+
                                 <div>
-                                    <strong>CRVENI MAMAC</strong>
-                                    <small>Ne dodiruj ga</small>
+                                    <strong>CRVENA META</strong>
+                                    <small>Ne dodiruj je</small>
                                 </div>
                             </div>
 
                             <div class="instruction-card">
-                                <span class="instruction-card__symbol instruction-card__symbol--gold">
+                                <span
+                                    class="instruction-card__symbol instruction-card__symbol--gold"
+                                >
                                     ★
                                 </span>
+
                                 <div>
                                     <strong>GOLDEN RABBIT</strong>
                                     <small>Bonus poeni i vreme</small>
@@ -213,10 +261,18 @@
                             </div>
                         </div>
 
-                        <button class="primary-button" id="startButton" type="button">
-                            <span class="primary-button__glitch" aria-hidden="true">
+                        <button
+                            class="primary-button"
+                            id="startButton"
+                            type="button"
+                        >
+                            <span
+                                class="primary-button__glitch"
+                                aria-hidden="true"
+                            >
                                 INITIALIZE
                             </span>
+
                             <span class="primary-button__text">
                                 INITIALIZE
                             </span>
@@ -228,47 +284,62 @@
                     </div>
                 </div>
 
+                <!-- ODBROJAVANJE -->
                 <div class="stage-overlay" id="countdownOverlay">
                     <div class="countdown" id="countdownValue">3</div>
                 </div>
 
+                <!-- PAUZA -->
                 <div class="stage-overlay" id="pauseOverlay">
                     <div class="modal-panel">
-                        <p class="modal-panel__eyebrow">SYSTEM SUSPENDED</p>
-                        <h2>PAUSED</h2>
-                        <p>
-                            Refleks modul je privremeno zaustavljen.
+                        <p class="modal-panel__eyebrow">
+                            SYSTEM SUSPENDED
                         </p>
 
-                        <button 
-                            class="primary-button primary-button--compact" 
-                            id="resumeButton" 
+                        <h2>PAUSED</h2>
+
+                        <p>
+                            Refleks protokol je privremeno zaustavljen.
+                        </p>
+
+                        <button
+                            class="primary-button"
+                            id="resumeButton"
                             type="button"
                         >
-                            <span class="primary-button__text">RESUME</span>
+                            <span class="primary-button__text">
+                                RESUME
+                            </span>
                         </button>
                     </div>
                 </div>
 
+                <!-- KRAJ IGRE -->
                 <div class="stage-overlay" id="gameOverOverlay">
-                    <div class="modal-panel modal-panel--game-over">
-                        <p class="modal-panel__eyebrow">SESSION COMPLETE</p>
+                    <div class="modal-panel modal-panel--results">
+                        <p class="modal-panel__eyebrow">
+                            SESSION COMPLETE
+                        </p>
 
-                        <h2>RUN TERMINATED</h2>
+                        <h2>GAME OVER</h2>
 
                         <div class="result-rank" id="resultRank">
                             REFLEX ROOKIE
                         </div>
 
-                        <div class="result-grid">
+                        <div class="results-grid">
                             <div class="result-item">
-                                <span>SCORE</span>
-                                <strong id="finalScoreValue">000000</strong>
+                                <span>FINAL SCORE</span>
+                                <strong id="finalScoreValue">
+                                    00000000
+                                </strong>
                             </div>
 
                             <div class="result-item">
-                                <span>BEST</span>
-                                <strong id="finalBestValue">000000</strong>
+                                <span>BEST SCORE</span>
+                                <strong id="finalBestValue">
+                                    00000000
+                                </strong>
                             </div>
 
                             <div class="result-item">
@@ -283,29 +354,37 @@
                         </div>
 
                         <p class="new-record" id="newRecordMessage">
-                            NEW WHITE HAT RECORD
+                            NEW SYSTEM RECORD
                         </p>
 
-                        <button class="primary-button" id="restartButton" type="button">
-                            <span class="primary-button__glitch" aria-hidden="true">
-                                RUN AGAIN
-                            </span>
+                        <button
+                            class="primary-button"
+                            id="restartButton"
+                            type="button"
+                        >
                             <span class="primary-button__text">
-                                RUN AGAIN
+                                REINITIALIZE
                             </span>
                         </button>
                     </div>
                 </div>
             </section>
 
-            <section class="progress-module" aria-label="Napredak nivoa">
+            <section
+                class="progress-module"
+                aria-label="Napredak nivoa"
+            >
                 <div class="progress-module__header">
                     <span>LEVEL PROGRESS</span>
-                    <span id="progressText">0 / 8</span>
+                    <span id="progressText">0 / 10</span>
                 </div>
 
                 <div class="progress-bar">
-                    <div class="progress-bar__fill" id="progressFill"></div>
+                    <div
+                        class="progress-bar__fill"
+                        id="progressFill"
+                    ></div>
+
                     <div class="progress-bar__shine"></div>
                 </div>
             </section>
