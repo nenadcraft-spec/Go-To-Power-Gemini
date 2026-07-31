@@ -430,58 +430,7 @@
         .modal-content { background: var(--bg-card); border: 1px solid var(--accent-green); border-radius: 8px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 20px; position: relative; }
         .modal-close { position: absolute; top: 10px; right: 15px; color: var(--accent-green); font-size: 24px; cursor: pointer; font-weight: bold; }
 
-        /* WHR CHANGELOG UPDATE FEED STYLES */
-        .update-feed-container {
-            display: flex; flex-direction: column; gap: 16px; margin-top: 15px;
-        }
-
-        .update-card-item {
-            border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 18px;
-            background: #020408; position: relative;
-        }
-
-        .update-card-item.latest {
-            border: 2px solid var(--accent-green);
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.15);
-        }
-
-        .latest-badge {
-            display: inline-block; background: var(--accent-green);
-            color: #000; font-size: 10px; font-weight: bold;
-            padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
-            text-transform: uppercase; font-family: monospace;
-        }
-
-        .update-meta-info {
-            display: flex; justify-content: space-between;
-            color: var(--accent-blue); font-size: 11px; font-family: monospace;
-            margin-bottom: 6px;
-        }
-
-        .update-item-title {
-            margin: 0 0 10px 0; font-size: 16px; color: #fff;
-        }
-
-        .update-item-tags {
-            display: flex; gap: 6px; margin-bottom: 12px;
-        }
-
-        .tag-pill {
-            font-size: 9px; padding: 2px 8px; border-radius: 4px;
-            font-weight: bold; text-transform: uppercase; font-family: monospace;
-        }
-
-        .tag-pill.igra { background: rgba(255, 56, 199, 0.2); color: #ff38c7; border: 1px solid #ff38c7; }
-        .tag-pill.novo { background: rgba(0, 255, 102, 0.2); color: #00ff66; border: 1px solid #00ff66; }
-        .tag-pill.fix { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
-
-        .update-details-list {
-            margin: 0; padding-left: 20px; color: var(--text-muted);
-            font-size: 12px; line-height: 1.6;
-        }
-
-        /* CLAUDE OFFICE ADVANCED STYLES */
+        /* CLAUDE & GAMING OFFICE ADVANCED STYLES */
         .claude-office-shell {
             position: relative; min-height: 520px; overflow: hidden;
             border: 1px solid #d97757; border-radius: 12px;
@@ -588,7 +537,7 @@
                 [OK] NEURAL CORE (RTX 5090): ACTIVE<br>
                 [OK] 10GbE NAS VAULT: CONNECTED<br>
                 [OK] AI MUSKETEERS (3v3): SYNCHRONIZED<br>
-                [OK] RABBIT REFLEX ENGINE v1.0: MOUNTED<br>
+                [OK] GAMING ROOM ENGINE v1.0: MOUNTED<br>
                 [OK] LIVING HISTORY TIMELINE: UPDATED
             </div>
             <div style="font-size: 11px; color: var(--accent-green);" id="bootProgressLabel">LOADING SYSTEM: 0%</div>
@@ -625,7 +574,7 @@
                 <div class="counter-card"><div class="counter-num">143</div><div class="counter-label">Ideas Archived</div></div>
                 <div class="counter-card"><div class="counter-num">7</div><div class="counter-label">Projects Active</div></div>
                 <div class="counter-card"><div class="counter-num" style="color: var(--accent-green);">3v3</div><div class="counter-label">AI Partners</div></div>
-                <div class="counter-card"><div class="counter-num" style="color: var(--accent-pink);">v1.0 ONLINE</div><div class="counter-label">Reflex Game</div></div>
+                <div class="counter-card"><div class="counter-num" style="color: var(--accent-pink);">v1.0 ONLINE</div><div class="counter-label">Gaming Room</div></div>
             </div>
         </div>
 
@@ -635,16 +584,14 @@
             <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-timeline')">⌛ Timeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-codex')">📜 Codex (Wiki)</button>
-            <button class="tab-btn" style="border-color:var(--accent-pink); color:#ff38c7;" onclick="window.open('WHR-Rabbit-Reflex-v1.0/', '_blank')">🕹️ Rabbit Reflex</button>
+            <button class="tab-btn" style="border-color:var(--accent-pink); color:#ff38c7;" onclick="openTab(event, 'tab-gaming')">🕹️ Gaming Room</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-projects')">🎬 Projekti</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-aitools')">🤖 AI Alati</button>
             <button class="tab-btn" style="border-color:#d97757;" onclick="openTab(event, 'tab-claude-office')">⚔️ Claude Office</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-invest')">🧰 Vault & Target</button>
-            <button class="tab-btn" style="border-color:var(--accent-green);" onclick="openTab(event, 'tab-whats-new')">🚀 Šta je novo</button>
-            <button class="tab-btn" style="border-color:var(--accent-blue);" onclick="openTab(event, 'tab-news')">📰 Novosti</button>
-            <button class="tab-btn" style="border-color:#f4a68a; color:#f4a68a;" onclick="openWhiteHatModal()">🛡️ White Hat Protocol</button>
+            <button class="tab-btn" style="border-color:var(--accent-green);" onclick="openTab(event, 'tab-news')">📰 Novosti</button>
         </div>
 
         <!-- TAB 0: WHR HEADQUARTERS // MAIN HALL -->
@@ -679,16 +626,16 @@
                             <strong>🐇 WHR CENTRAL COMMAND TERMINAL</strong>
                             <div class="whr-hq-terminal-line">Founder & Vision Lead: <span style="color:var(--accent-green);">ONLINE</span></div>
                             <div class="whr-hq-terminal-line">AI Musketeers Network: <span style="color:var(--accent-green);">SYNCHRONIZED</span></div>
-                            <div class="whr-hq-terminal-line">Arcade Game Engine: <span style="color:var(--accent-pink);">RABBIT REFLEX v1.0 ONLINE</span></div>
-                            <div class="whr-hq-terminal-line">Security Protocol: <span style="color:var(--accent-blue); cursor:pointer;" onclick="openWhiteHatModal()">[ACTIVE PROTOCOL]</span></div>
+                            <div class="whr-hq-terminal-line">Arcade Game Engine: <span style="color:var(--accent-pink);">GAMING ROOM v1.0 ONLINE</span></div>
+                            <div class="whr-hq-terminal-line">Mission: <span style="color:#f4a68a;">BUILDING THE FUTURE</span></div>
                         </div>
                     </div>
 
                     <!-- DESNO KRILO -->
                     <div class="whr-hq-wing">
-                        <div class="whr-room-door" style="--door-color:#ff38c7; --door-glow:rgba(255,56,199,0.35);" onclick="window.open('WHR-Rabbit-Reflex-v1.0/', '_blank')">
+                        <div class="whr-room-door" style="--door-color:#ff38c7; --door-glow:rgba(255,56,199,0.35);" onclick="enterHqRoom('tab-gaming')">
                             <div class="whr-room-glass"><div class="whr-room-icon">🕹️</div></div>
-                            <div class="whr-room-label"><strong>RABBIT REFLEX v1.0</strong><span>ARCADE TRAINING</span></div>
+                            <div class="whr-room-label"><strong>WHR GAMING ROOM</strong><span>ARCADE VAULT</span></div>
                         </div>
                         <div class="whr-room-door" style="--door-color:#00ff66; --door-glow:rgba(0,255,102,0.28);" onclick="enterHqRoom('tab-invest')">
                             <div class="whr-room-glass"><div class="whr-room-icon">🧰</div></div>
@@ -726,11 +673,11 @@
             <p style="color: var(--text-muted); font-size:12px;">Živi dnevnik nastanka i razvoja studija. Kliknite na događaj za detalje:</p>
 
             <div class="timeline-container">
-                <div class="timeline-item" onclick="alert('31. Jul 2026 (02:38 AM): Razvijena i objavljena prva interaktivna cyberpunk mini-igra WHR-Rabbit-Reflex-v1.0 za sajt!')">
+                <div class="timeline-item" onclick="alert('31. Jul 2026: Zvanično otvorena WHR CYBERPUNK GAMING SOBA sa neonskim portalom i kompletom arkadnih aparata!')">
                     <div class="timeline-dot" style="background:#ff38c7; box-shadow: 0 0 10px #ff38c7;"></div>
                     <div class="timeline-date" style="color:#ff38c7;">2026-07-31</div>
-                    <div class="timeline-title">🕹️ WHR Rabbit Reflex v1.0 Arcade Engine Launched</div>
-                    <div style="font-size:11px; color:var(--text-muted);">Prvi playable prototip igre razvijen u noćnom maratonu sa ChatGPT-om i integrisan na portal.</div>
+                    <div class="timeline-title">🕹️ WHR Gaming Room / Arcade Vault Opened</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Integrisan masivni WTF gaming portal sa neonskim vratima i arkadnim kabinetima.</div>
                 </div>
 
                 <div class="timeline-item" onclick="alert('29. Jul 2026: Zvanično sinhronizovan 3v3 AI Musketarski tim sa podeljenim ulogama po PC stanicama!')">
@@ -825,6 +772,91 @@
                 </div>
 
                 <div id="wikiContentArea" class="wiki-body"></div>
+            </div>
+        </div>
+
+        <!-- TAB: WHR GAMING ROOM // ARCADE VAULT -->
+        <div id="tab-gaming" class="tab-content">
+            <h2 style="color:#ff38c7; margin-top:0; font-size:16px;">🕹️ WHR GAMING ROOM // ARCADE VAULT</h2>
+            
+            <div id="gamingOfficeShell" class="claude-office-shell" style="border-color: #ff38c7; box-shadow: 0 0 35px rgba(255, 56, 199, 0.25); background: linear-gradient(145deg, #05020a 0%, #12031a 55%, #030108 100%);">
+                
+                <!-- NEON GATE (GAMING ULAZ) -->
+                <div class="claude-door-stage" id="gamingStage" style="background: rgba(3, 1, 8, 0.96);">
+                    <h3 style="color:#ff38c7; font-family:monospace; margin-bottom:5px; letter-spacing:3px; text-shadow: 0 0 10px #ff38c7;">WHR ARCADE ROOM ACCESS</h3>
+                    <p style="color:#94a3b8; font-size:11px; font-family:monospace; margin-bottom:20px;">AUTHORIZED PERSONNEL ONLY // HIGH SCORE ZONE</p>
+                    
+                    <div class="claude-door-frame" id="gamingDoorFrame" style="border-color: #ff38c7; box-shadow: 0 0 25px rgba(255, 56, 199, 0.4);">
+                        <div class="claude-door claude-door-left" style="border-right: 2px solid #ff38c7; background: linear-gradient(135deg, #1f0525 0%, #08010c 100%);">
+                            <div class="door-icon" style="filter: drop-shadow(0 0 8px #ff38c7);">🕹️</div>
+                            <div class="door-title" style="color: #ff38c7; text-shadow: 0 0 8px #ff38c7;">ARCADE CORE</div>
+                            <div class="door-subtitle">SECTOR G-01</div>
+                        </div>
+                        <div class="claude-door claude-door-right" style="border-left: 2px solid #ff38c7; background: linear-gradient(135deg, #1f0525 0%, #08010c 100%);">
+                            <div class="door-icon" style="filter: drop-shadow(0 0 8px #00ff66);">🐇</div>
+                            <div class="door-title" style="color: #00ff66; text-shadow: 0 0 8px #00ff66;">NEON MATRIX</div>
+                            <div class="door-subtitle">WHR STUDIOS</div>
+                        </div>
+                    </div>
+
+                    <button class="claude-enter-btn" onclick="enterGamingRoom()" style="border-color: #ff38c7; color: #ff38c7; box-shadow: 0 0 15px rgba(255, 56, 199, 0.3);">
+                        ENTER GAMING ROOM 🕹️ →
+                    </button>
+                </div>
+
+                <!-- UNUTRAŠNJOST GAMING SOBE -->
+                <div class="claude-office-interior" id="gamingInterior">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,56,199,0.3); padding-bottom:10px; margin-bottom:15px;">
+                        <h3 style="color:#ff38c7; margin:0; font-family:monospace; letter-spacing:1px;">🕹️ CYBERPUNK ARCADE CABINETS</h3>
+                        <span style="color:#00ff66; font-family:monospace; font-size:11px;">● GAMING CORE ONLINE</span>
+                    </div>
+
+                    <!-- STATUS SOBE -->
+                    <div style="background: rgba(10, 2, 20, 0.8); border: 1px solid #ff38c7; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-family: monospace; display: flex; justify-content: space-around; text-align: center;">
+                        <div><div style="color:#ff38c7; font-size:18px; font-weight:bold;">1</div><div style="color:#8b949e; font-size:10px;">ACTIVE GAMES</div></div>
+                        <div><div style="color:#38bdf8; font-size:18px; font-weight:bold;">60 FPS</div><div style="color:#8b949e; font-size:10px;">ENGINE SPEED</div></div>
+                        <div><div style="color:#00ff66; font-size:18px; font-weight:bold;">LEGEND</div><div style="color:#8b949e; font-size:10px;">TOP RANK</div></div>
+                    </div>
+
+                    <!-- GRID SA ARKADNIM APARATIMA (IGRAMA) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+                        
+                        <!-- KABINET 1: RABBIT REFLEX -->
+                        <div style="background: #06020e; border: 2px solid #ff38c7; border-radius: 12px; padding: 15px; position: relative; box-shadow: 0 0 20px rgba(255, 56, 199, 0.2); transition: transform 0.3s ease;">
+                            <div style="position: absolute; top: 10px; right: 10px; background: #ff38c7; color: #000; font-size: 9px; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-family: monospace;">
+                                VERIFIED v1.0
+                            </div>
+                            <div style="font-size: 32px; text-align: center; margin-bottom: 10px;">🐇⚡</div>
+                            <h4 style="color: #fff; margin: 0 0 5px 0; text-align: center; font-family: monospace; font-size: 16px;">RABBIT REFLEX v1.0</h4>
+                            <p style="color: #94a3b8; font-size: 11px; text-align: center; margin-bottom: 15px; line-height: 1.4;">
+                                Službeni trenažer brzine reakcije! Pogađaj Belog Zeca, izbegavaj crvene mamce i osvoji titulu White Hat Legend!
+                            </p>
+                            <a href="WHR-Rabbit-Reflex-v1.0/" target="_blank" class="download-btn" style="display: block; text-align: center; border-color: #ff38c7; color: #ff38c7; background: rgba(255, 56, 199, 0.15); box-shadow: 0 0 10px rgba(255, 56, 199, 0.3);">
+                                🎮 INSERT COIN & PLAY ↗
+                            </a>
+                        </div>
+
+                        <!-- KABINET 2: CHATGAT / PHASE 2 (SLOT ZA NOVU IGRU) -->
+                        <div style="background: #030108; border: 1px dashed #38bdf8; border-radius: 12px; padding: 15px; position: relative; opacity: 0.85;">
+                            <div style="position: absolute; top: 10px; right: 10px; background: #38bdf8; color: #000; font-size: 9px; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-family: monospace;">
+                                NEW ARRIVAL
+                            </div>
+                            <div style="font-size: 32px; text-align: center; margin-bottom: 10px;">🔥👾</div>
+                            <h4 style="color: #38bdf8; margin: 0 0 5px 0; text-align: center; font-family: monospace; font-size: 16px;">WHR ARCADE // PHASE 2</h4>
+                            <p style="color: #94a3b8; font-size: 11px; text-align: center; margin-bottom: 15px; line-height: 1.4;">
+                                Nova ChatGPT igra je sklapana i spremna za montažu u ovaj kabinet!
+                            </p>
+                            <button onclick="alert('Novi kabinet se sprema! Čim postavimo GitHub Pages link, igramo novu igricu direktno odavde!')" class="download-btn" style="width:100%; border-color: #38bdf8; color: #38bdf8; background: transparent; cursor: pointer;">
+                                ⚡ SYSTEM MOUNTING...
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top:25px; text-align: right;">
+                        <button class="claude-office-button" onclick="exitGamingRoom()" style="border-color:#ff38c7; color:#ff38c7;">← EXIT GAMING ROOM</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1034,6 +1066,7 @@
         <div id="tab-invest" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">WHR EQUIPMENT VAULT // HARDWARE TARGETS</h2>
             
+            <!-- PROGRESS BAR INDIKATOR NA VRHU VAULT-A -->
             <div style="background: rgba(10,15,29,0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 15px; margin-bottom: 20px; font-family: monospace;">
                 <div style="display:flex; justify-content:space-between; font-size: 11px; margin-bottom: 6px;">
                     <span style="color: var(--accent-green); font-weight: bold;">HARDWARE VAULT PROGRESS</span>
@@ -1072,6 +1105,362 @@
                         </div>
                     </div>
                 </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Apsolutna zver od grafičke kartice. Temelj za lokalni AI pipeline u studiju."</span>
+                </div>
+            </div>
+
+            <!-- #2 CPU -->
+            <div class="hud-card" style="border-top-color: var(--accent-green); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>🧠 PRIORITY TARGET #2 // SYSTEM CPU</span>
+                    <span class="badge" style="background:rgba(0,255,102,0.2); color:#00ff66; border-color:#00ff66;">ACTIVE IN BOOT</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-blue); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(56,189,248,0.15);">
+                        <img src="./cpu.jpg" alt="AMD Ryzen 9 9950X" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-blue); margin-top: 8px; font-family: monospace;">PROCESSOR // 16C / 32T</div>
+                        <div style="font-size: 9px; color: var(--accent-green); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">Zen 5 • High-Speed</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">AMD Ryzen 9 9950X (16C/32T)</div>
+                        <div style="color: var(--accent-blue); font-size: 11px; margin-bottom: 10px;">Zen 5 Arhitektura za masivni multi-threading i fiziku</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~650 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Pozadinsko renderovanje u Blenderu i obrada skripti
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">9.7/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"32 threada omogućavaju neometan paralelni rad bez seckanja dok renderuje u pozadini."</span>
+                </div>
+            </div>
+
+            <!-- #3 RAM -->
+            <div class="hud-card" style="border-top-color: var(--accent-blue); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>🧮 PRIORITY TARGET #3 // MEMORY (RAM)</span>
+                    <span class="badge" style="background:rgba(56,189,248,0.2); color:var(--accent-blue); border-color:var(--accent-blue);">STABLE OPTIMAL</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-blue); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(56,189,248,0.15);">
+                        <img src="./ram.jpg" alt="Kingston Fury Renegade 128GB DDR5" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-blue); margin-top: 8px; font-family: monospace;">MEMORY // 128GB DDR5</div>
+                        <div style="font-size: 9px; color: var(--accent-green); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">6000MHz • CL30 • 4x32GB</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">Kingston Fury Renegade 128GB</div>
+                        <div style="color: var(--accent-blue); font-size: 11px; margin-bottom: 10px;">DDR5 6000MHz CL30 (4x32GB)</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~450 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Paralelni rad ComfyUI + Unreal Engine bez usporavanja
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">8.8/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"128GB ostavlja prostor za rast — cinema 4K/8K montaža i AI modeli zajedno lako pojedu 60-80GB."</span>
+                </div>
+            </div>
+
+            <!-- #4 SSD -->
+            <div class="hud-card" style="border-top-color: var(--accent-green); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>💾 PRIORITY TARGET #4 // STORAGE (SSD)</span>
+                    <span class="badge" style="background:rgba(0,255,102,0.2); color:#00ff66; border-color:#00ff66;">HIGH (9.4/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(0,255,102,0.15);">
+                        <img src="./ssd.jpg" alt="Samsung 990 Pro 4TB NVMe" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-green); margin-top: 8px; font-family: monospace;">STORAGE // 4TB NVMe GEN5</div>
+                        <div style="font-size: 9px; color: var(--accent-blue); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">~12,000 MB/s • M.2 2280</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">Samsung 990 Pro / Crucial T705 4TB</div>
+                        <div style="color: var(--accent-green); font-size: 11px; margin-bottom: 10px;">NVMe Gen5 // Primarni disk za aktivne projekte</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~350 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Eliminiše čekanje pri scrubovanju 4K/8K tajmlajna
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">9.4/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Gen5 brzina znači da veliki cinema fajlovi više nikad ne usporavaju radni tok."</span>
+                </div>
+            </div>
+
+            <!-- #5 MATIČNA PLOČA -->
+            <div class="hud-card" style="border-top-color: var(--accent-purple); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>🔌 PRIORITY TARGET #5 // MOTHERBOARD</span>
+                    <span class="badge" style="background:rgba(192,132,252,0.2); color:var(--accent-purple); border-color:var(--accent-purple);">MEDIUM (8.9/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-purple); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(192,132,252,0.15);">
+                        <img src="./motherboard.jpg" alt="ASUS ROG Crosshair X870E" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-purple); margin-top: 8px; font-family: monospace;">FOUNDATION // X870E</div>
+                        <div style="font-size: 9px; color: var(--accent-green); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">AM5 • PCIe 5.0 • 10GbE ugrađen</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">ASUS ROG Crosshair X870E</div>
+                        <div style="color: var(--accent-purple); font-size: 11px; margin-bottom: 10px;">5x M.2 slotova // Ugrađen 10GbE port</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~600 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Direktno povezuje radnu stanicu sa NAS-om bez dodatne kartice
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">8.9/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Ugrađen 10GbE štedi jedan slot i jednu kupovinu — mala stvar koja se dugoročno isplati."</span>
+                </div>
+            </div>
+
+            <!-- #6 HLAĐENJE -->
+            <div class="hud-card" style="border-top-color: var(--accent-blue); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>❄️ PRIORITY TARGET #6 // COOLING</span>
+                    <span class="badge" style="background:rgba(56,189,248,0.2); color:var(--accent-blue); border-color:var(--accent-blue);">MEDIUM (8.5/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-blue); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(56,189,248,0.15);">
+                        <img src="./cooling.jpg" alt="Arctic Liquid Freezer III 360" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-blue); margin-top: 8px; font-family: monospace;">THERMAL // 360mm AIO</div>
+                        <div style="font-size: 9px; color: var(--accent-green); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">3x120mm PWM • &lt;32dB(A)</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">Arctic Liquid Freezer III 360</div>
+                        <div style="color: var(--accent-blue); font-size: 11px; margin-bottom: 10px;">Tečno hlađenje // Tih rad pod opterećenjem</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~140 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Sprečava thermal throttling tokom dugih rendering sesija
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">8.5/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Tišina tokom noćnog renderinga ima svoju vrednost — ovaj model je i tih i efikasan."</span>
+                </div>
+            </div>
+
+            <!-- #7 KUĆIŠTE -->
+            <div class="hud-card" style="border-top-color: var(--accent-green); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>📦 PRIORITY TARGET #7 // CASE</span>
+                    <span class="badge" style="background:rgba(0,255,102,0.2); color:#00ff66; border-color:#00ff66;">LOW (8.2/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(0,255,102,0.15);">
+                        <img src="./case.jpg" alt="Fractal Design North XL" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-green); margin-top: 8px; font-family: monospace;">CHASSIS // FULL TOWER</div>
+                        <div style="font-size: 9px; color: var(--accent-blue); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">Mesh airflow • 8+ diskova</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">Fractal Design North XL</div>
+                        <div style="color: var(--accent-green); font-size: 11px; margin-bottom: 10px;">Mesh airflow dizajn // Prostor za proširenje</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~180 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Drži temperature niskim čak i uz RTX 5090 pod punim opterećenjem
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">8.2/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Estetika i funkcija idu ruku pod ruku — bira se poslednje, ali se vidi prvo."</span>
+                </div>
+            </div>
+
+            <!-- #8 NAPAJANJE (PSU) -->
+            <div class="hud-card" style="border-top-color: var(--accent-amber); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>🔋 PRIORITY TARGET #8 // POWER SUPPLY</span>
+                    <span class="badge" style="background:rgba(245,158,11,0.2); color:#f59e0b; border-color:#f59e0b;">HIGH (9.1/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-amber); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(245,158,11,0.15);">
+                        <img src="./psu.jpg" alt="Corsair RM1200x" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-amber); margin-top: 8px; font-family: monospace;">POWER // 1200W PLATINUM</div>
+                        <div style="font-size: 9px; color: var(--accent-green); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">80+ Platinum • Potpuno modularno</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">Corsair RM1200x</div>
+                        <div style="color: var(--accent-amber); font-size: 11px; margin-bottom: 10px;">Rezerva za buduće nadogradnje</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~250 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> RTX 5090 + CPU pod punim opterećenjem zahtevaju rezervu snage
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">9.1/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Ne štedi na napajanju — jedina komponenta čiji kvar može povući sve ostale sa sobom."</span>
+                </div>
+            </div>
+
+            <!-- #9 MONITORI -->
+            <div class="hud-card" style="border-top-color: var(--accent-purple); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>🖥️ PRIORITY TARGET #9 // MONITORS</span>
+                    <span class="badge" style="background:rgba(192,132,252,0.2); color:var(--accent-purple); border-color:var(--accent-purple);">HIGH (9.6/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-purple); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(192,132,252,0.15);">
+                        <img src="./monitors.jpg" alt="ASUS ProArt PA32UCX-K" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-purple); margin-top: 8px; font-family: monospace;">DISPLAY // 4K HDR x2</div>
+                        <div style="font-size: 9px; color: var(--accent-green); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">99% DCI-P3 • Kalibrisan</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">2x ASUS ProArt PA32UCX-K</div>
+                        <div style="color: var(--accent-purple); font-size: 11px; margin-bottom: 10px;">Kalibrisan prikaz za color grading</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~2x 2,800 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Boje u WHR epizodama izgledaju isto na svakom ekranu
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">9.6/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Boja koju vidiš na ovom ekranu je boja koju gledalac vidi u bioskopu. Tu se ne pregovara."</span>
+                </div>
+            </div>
+
+            <!-- #10 NAS -->
+            <div class="hud-card" style="border-top-color: var(--accent-green); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>🗄️ PRIORITY TARGET #10 // NAS VAULT</span>
+                    <span class="badge" style="background:rgba(0,255,102,0.2); color:#00ff66; border-color:#00ff66;">HIGH (9.3/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(0,255,102,0.15);">
+                        <img src="./nas.jpg" alt="UGREEN NASync DXP4800" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-green); margin-top: 8px; font-family: monospace;">ARCHIVE // 10GbE NAS</div>
+                        <div style="font-size: 9px; color: var(--accent-blue); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">4 Bays • RAID podržan</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">UGREEN NASync DXP4800</div>
+                        <div style="color: var(--accent-green); font-size: 11px; margin-bottom: 10px;">Centralno skladište za sav produkcijski materijal</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~700 € (bez diskova)</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Centralna tačka arhive, dostupna celom timu i AI pipeline-u
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">9.3/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Sav trud produkcije prolazi kroz ovu kutiju. Backup nije opcija, to je temelj."</span>
+                </div>
+            </div>
+
+            <!-- #11 UPS -->
+            <div class="hud-card" style="border-top-color: var(--accent-blue); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>🔌 PRIORITY TARGET #11 // UPS BACKUP POWER</span>
+                    <span class="badge" style="background:rgba(56,189,248,0.2); color:var(--accent-blue); border-color:var(--accent-blue);">MEDIUM (8.0/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-blue); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(56,189,248,0.15);">
+                        <img src="./ups.jpg" alt="APC Smart-UPS 1500VA" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-blue); margin-top: 8px; font-family: monospace;">BACKUP // 1500VA</div>
+                        <div style="font-size: 9px; color: var(--accent-green); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">Line-interactive • ~10-15 min autonomije</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">APC Smart-UPS 1500VA</div>
+                        <div style="color: var(--accent-blue); font-size: 11px; margin-bottom: 10px;">Štiti NAS i aktivan render od nestanka struje</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~300 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> Kikinda povremeno ima nestanke struje — ovo štiti NAS 24/7
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">8.0/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Mala investicija koja štiti sate izgubljenog rada — ovo se ne preskače."</span>
+                </div>
+            </div>
+
+            <!-- #12 NETWORKING -->
+            <div class="hud-card" style="border-top-color: var(--accent-purple); margin-bottom: 20px;">
+                <div class="hud-header">
+                    <span>🌐 PRIORITY TARGET #12 // NETWORKING</span>
+                    <span class="badge" style="background:rgba(192,132,252,0.2); color:var(--accent-purple); border-color:var(--accent-purple);">MEDIUM (8.6/10)</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; align-items: center; margin: 10px 0;">
+                    <div style="background: #020408; border: 1px solid var(--accent-purple); border-radius: 8px; padding: 10px; text-align: center; box-shadow: 0 0 15px rgba(192,132,252,0.15);">
+                        <img src="./networking.jpg" alt="10GbE Switch + Router" style="max-width: 100%; height: auto; border-radius: 4px; display: block; margin: 0 auto;" onerror="this.onerror=null; this.src='./studio.png';">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--accent-purple); margin-top: 8px; font-family: monospace;">NETWORK // 10GbE</div>
+                        <div style="font-size: 9px; color: var(--accent-green); margin-top: 2px; font-family: monospace; letter-spacing: 0.5px;">WiFi 6E • Cat 6A kabliranje</div>
+                    </div>
+                    <div style="font-family: monospace;">
+                        <div style="color: #fff; font-weight: bold; font-size: 14px; margin-bottom: 5px;">TP-Link 10GbE Switch + Router</div>
+                        <div style="color: var(--accent-purple); font-size: 11px; margin-bottom: 10px;">Brz transfer velikih fajlova bez uskih grla</div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-green); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Procenjena cena:</strong> <span style="color: var(--accent-green);">~350 €</span>
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-purple); padding: 8px 10px; margin-bottom: 6px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>Uloga u studiju:</strong> 10GbE veza između radne stanice i NAS-a sprečava usko grlo
+                        </div>
+                        <div style="background: rgba(10,15,29,0.8); border-left: 3px solid var(--accent-blue); padding: 8px 10px; border-radius: 0 4px 4px 0; font-size: 11px;">
+                            <strong>ROI Ocena:</strong> <span style="color: var(--accent-blue);">8.6/10</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(1, 2, 4, 0.9); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; font-size: 11px; font-family: monospace; margin-top: 10px; line-height: 1.5;">
+                    <span style="color: var(--accent-amber); font-weight: bold;">📡 WHR AI CREW SCAN:</span>
+                    <span style="color: var(--text-muted);">"Brzina mreže je nevidljiva dok ne fali — onda postane jedino o čemu razmišljaš."</span>
+                </div>
             </div>
 
             <!-- ROI KALKULATOR -->
@@ -1083,24 +1472,13 @@
             </div>
         </div>
 
-        <!-- TAB 10: ŠTA JE NOVO (CHANGELOG/MASTER UPDATES) -->
-        <div id="tab-whats-new" class="tab-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:10px; margin-bottom:15px;">
-                <h2 style="color: var(--accent-green); margin:0; font-size: 16px;">🚀 ŠTA JE NOVO // SITE UPDATES</h2>
-                <span style="background:rgba(0,255,102,0.1); color:var(--accent-green); font-size:10px; padding:3px 8px; border-radius:4px; font-family:monospace; border:1px solid var(--accent-green);">LIVE CHANGELOG</span>
-            </div>
-            
-            <!-- Dinamički kontejner za unose ažuriranja -->
-            <div id="whatsNewFeedContainer" class="update-feed-container"></div>
-        </div>
-
-        <!-- TAB 11: WHR NOVOSTI -->
+        <!-- TAB 10: WHR NOVOSTI -->
         <div id="tab-news" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">WHR STUDIO TRANSMISSION</h2>
             <div id="newsGridContainer" class="news-grid"></div>
         </div>
 
-        <!-- Modalni prozor za Novosti -->
+        <!-- Modalni prozor -->
         <div id="newsModal" class="modal-overlay" onclick="closeModal(event)">
             <div class="modal-content">
                 <span class="modal-close" onclick="closeModalDirect()">&times;</span>
@@ -1108,29 +1486,6 @@
                 <h2 id="modalNewsTitle" style="color:#fff; margin:10px 0; font-size:18px;"></h2>
                 <img id="modalNewsImg" src="" style="width:100%; border-radius:6px; margin:10px 0; display:block;" onerror="this.src='./studio.png'">
                 <p id="modalNewsText" style="color: #cbd5e1; white-space: pre-line; font-size:13px; line-height:1.6;"></p>
-            </div>
-        </div>
-
-        <!-- MODALNI PROZOR: WHITE HAT PROTOCOL (POPUP ZA HAKERE) -->
-        <div id="whiteHatModal" class="modal-overlay" onclick="closeWhiteHatModal(event)">
-            <div class="modal-content" style="border-color: #38bdf8; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);">
-                <span class="modal-close" style="color: #38bdf8;" onclick="closeWhiteHatDirect()">&times;</span>
-                <div style="color: #38bdf8; font-family: monospace; font-size: 11px;">SECURITY & ETHICAL PROTOCOL</div>
-                <h2 style="color: #fff; margin: 5px 0 15px 0; font-size: 18px;">🛡️ WHITE HAT PROTOCOL // MESSAGE TO HACKERS</h2>
-                <hr style="border-color: #38bdf8; opacity: 0.3; margin-bottom: 15px;">
-                
-                <div style="color: #cbd5e1; font-size: 13px; line-height: 1.6;">
-                    <p style="color: var(--accent-green); font-weight: bold;">Ova igra i portal su napravljeni za zabavu i zajednicu.</p>
-                    <p><strong>PORUKA HAKERIMA & ETHICAL HACKER-IMA:</strong></p>
-                    <p>Molimo vas da ne kvarite doživljaj drugima. Ako ste <em>ethical hacker</em> i pronađete ranjivost ili propust u sistemu, prijavite ga odgovorno timu.</p>
-                    
-                    <div style="background: rgba(2, 4, 8, 0.8); border-left: 3px solid #38bdf8; padding: 10px; border-radius: 4px; margin: 15px 0; font-family: monospace;">
-                        <strong style="color: #fff;">PRAVILA PONAŠANJA:</strong><br>
-                        • 01. NE KVARI IGRU (Bez aimbota, auto-fire skripti)<br>
-                        • 02. NE DIRAJ DRUGE IGRAČE<br>
-                        • 03. TESTIRANJE SE ZAUSTAVLJA NA DUGMETU START
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -1194,106 +1549,71 @@
             openTab(null, tabId);
         }
 
-        // =========================================
-        // CHANGELOG / ŠTA JE NOVO DATA & RENDER
-        // =========================================
-        var whatsNewData = [
-            {
-                id: 3,
-                title: "Nova Igra: WHR Rabbit Reflex v1.0 🕹️",
-                date: "31. Jul 2026.",
-                version: "v2.4.0",
-                tags: ["igra", "novo"],
-                changes: [
-                    "Dodata nova interaktivna mini-igra sa Canvas česticama i Web Audio zvucima.",
-                    "Integrisana globalna tabela i sistem nivoa (Level 01+).",
-                    "Popravljeno prikazivanje taba sa vestima u komandnom centru."
-                ]
-            },
-            {
-                id: 2,
-                title: "Novi Vizuelni BOOT Preloader & HQ Proširenje ⚡",
-                date: "28. Jul 2026.",
-                version: "v2.3.1",
-                tags: ["novo"],
-                changes: [
-                    "Ugrađen Cyberpunk BOOT terminal sa statusnim logovima prilikom ulaska.",
-                    "Dodata podrška za Claude Office sa animiranim vratima.",
-                    "Master Codex osvežen novim 8K vodičima."
-                ]
-            },
-            {
-                id: 1,
-                title: "Inicijalno Lansiranje Studijskog Portala 🚀",
-                date: "15. Jul 2026.",
-                version: "v2.3.0",
-                tags: ["fix"],
-                changes: [
-                    "Postavljen osnovni 11.1 Control Center interfejs u Kikindi.",
-                    "Povezana baze i kalkulator povrata investicije za RTX 5090."
-                ]
-            }
-        ];
-
-        function renderWhatsNew() {
-            var container = document.getElementById('whatsNewFeedContainer');
-            if(!container) return;
-
-            var sortedData = whatsNewData.sort(function(a, b) { return b.id - a.id; });
-            var html = '';
-
-            sortedData.forEach(function(item, index) {
-                var isLatest = index === 0;
-                
-                var tagsHTML = item.tags.map(function(t) {
-                    return '<span class="tag-pill ' + t + '">' + t + '</span>';
-                }).join(' ');
-
-                var changesHTML = item.changes.map(function(c) {
-                    return '<li>' + c + '</li>';
-                }).join('');
-
-                html += '<div class="update-card-item ' + (isLatest ? 'latest' : '') + '">' +
-                            (isLatest ? '<span class="latest-badge">NAJNOVIJI MASTER UPDATE ★</span>' : '') +
-                            '<div class="update-meta-info">' +
-                                '<span>Verzija ' + item.version + '</span>' +
-                                '<span>' + item.date + '</span>' +
-                            '</div>' +
-                            '<h3 class="update-item-title">' + item.title + '</h3>' +
-                            '<div class="update-item-tags">' + tagsHTML + '</div>' +
-                            '<ul class="update-details-list">' + changesHTML + '</ul>' +
-                        '</div>';
-            });
-
-            container.innerHTML = html;
-        }
-
-        // =========================================
-        // WHITE HAT MODAL LOGIKA (Pop-up popravka)
-        // =========================================
-        function openWhiteHatModal() {
-            document.getElementById('whiteHatModal').classList.add('active');
-            document.body.style.overflow = "hidden";
-        }
-
-        function closeWhiteHatModal(e) {
-            if(e.target === document.getElementById('whiteHatModal')) {
-                document.getElementById('whiteHatModal').classList.remove('active');
-                document.body.style.overflow = "";
-            }
-        }
-
-        function closeWhiteHatDirect() {
-            document.getElementById('whiteHatModal').classList.remove('active');
-            document.body.style.overflow = "";
-        }
-
         // WIKI POGLAVLJA
         var wikiChapters = {
-            ch1: { title: "01. Kinematografija & RAW Signal", content: "Snimanje u RED ili Blackmagic RAW formatima pruža do 16 blendi dinamičkog opsega za vrhunski compositing sa Unreal Engine 3D pozadinama." },
-            ch2: { title: "02. DMX LED Rasveta", content: "Preko DMX protokola, svetla u studiju trenutno menjaju boju i jačinu u sinhronizaciji sa Unreal Engine svetlom." },
-            ch3: { title: "03. Neural Workstation", content: "<p style='color:#cbd5e1;'>Lokalni AI pipeline za ComfyUI, Flux i DaVinci Resolve.</p>" },
-            ch4: { title: "04. 10GbE NAS Vault", content: "Arhiviranje po 3-2-1 pravilu garantuje sigurnost svih snimljenih projekata." }
+            ch1: { 
+                title: "01. Kinematografija & RAW Signal", 
+                content: "Snimanje u RED ili Blackmagic RAW formatima pruža do 16 blendi dinamičkog opsega za vrhunski compositing sa Unreal Engine 3D pozadinama." 
+            },
+            ch2: { 
+                title: "02. DMX LED Rasveta", 
+                content: "Preko DMX protokola, svetla u studiju trenutno menjaju boju i jačinu u sinhronizaciji sa Unreal Engine svetlom." 
+            },
+            ch3: { 
+                title: "03. Neural Workstation", 
+                content: `
+                    <p style="color:#cbd5e1; line-height:1.7;">
+                        <strong>Neural Workstation</strong> je profesionalna radna stanica projektovana za lokalno pokretanje AI modela, 3D renderovanje, video produkciju i obradu velikih količina podataka bez oslanjanja na eksterne cloud servise.
+                    </p>
+
+                    <h4 style="color:var(--accent-green); margin-top:20px;">⚡ Šta ovaj sistem omogućava?</h4>
+                    <ul style="color:#94a3b8; line-height:1.8; padding-left:20px;">
+                        <li>Lokalno generisanje slika i animacija bez slanja privatnih podataka na internet.</li>
+                        <li>Izvršavanje naprednih workflow-a u ComfyUI, Flux.1, Blenderu i Unreal Engine 5.</li>
+                        <li>Real-time 4K i 8K RAW video montažu i color grading u DaVinci Resolve-u.</li>
+                        <li>Paralelno pokretanje više masivnih profesionalnih aplikacija.</li>
+                        <li>Razvoj i lokalno fino podešavanje (fine-tuning) budućih AI agenata.</li>
+                    </ul>
+
+                    <h4 style="color:var(--accent-green); margin-top:20px;">🛠️ Ključni Hardware Stack</h4>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin:15px 0;">
+                        <div style="background:#111827; border:1px solid #1f2937; border-left:4px solid #38bdf8; padding:10px; border-radius:6px;">
+                            <strong style="color:#38bdf8; font-family:monospace;">GPU:</strong><br>
+                            <span style="color:#e2e8f0; font-size:12px;">NVIDIA RTX 5090, 32 GB GDDR7</span>
+                        </div>
+                        <div style="background:#111827; border:1px solid #1f2937; border-left:4px solid #22c55e; padding:10px; border-radius:6px;">
+                            <strong style="color:#22c55e; font-family:monospace;">CPU:</strong><br>
+                            <span style="color:#e2e8f0; font-size:12px;">AMD Ryzen 9 9950X (16C/32T)</span>
+                        </div>
+                        <div style="background:#111827; border:1px solid #1f2937; border-left:4px solid #f59e0b; padding:10px; border-radius:6px;">
+                            <strong style="color:#f59e0b; font-family:monospace;">RAM:</strong><br>
+                            <span style="color:#e2e8f0; font-size:12px;">128 GB DDR5 6000MHz</span>
+                        </div>
+                        <div style="background:#111827; border:1px solid #1f2937; border-left:4px solid #a855f7; padding:10px; border-radius:6px;">
+                            <strong style="color:#a855f7; font-family:monospace;">STORAGE:</strong><br>
+                            <span style="color:#e2e8f0; font-size:12px;">PCIe 5.0 NVMe (12,000 MB/s)</span>
+                        </div>
+                    </div>
+
+                    <h4 style="color:var(--accent-green); margin-top:20px;">🔒 Zašto lokalni AI?</h4>
+                    <ul style="color:#94a3b8; line-height:1.8; padding-left:20px;">
+                        <li><strong style="color:#f8fafc;">Privatnost:</strong> Osetljivi autorski projekti i podaci ostaju 100% unutar WHR sistema.</li>
+                        <li><strong style="color:#f8fafc;">Kontrola:</strong> Potpuna sloboda u izboru modela, parametara i spojenih čvorova.</li>
+                        <li><strong style="color:#f8fafc;">Brzina:</strong> Nulta latencija i eliminacija čekanja na cloud.</li>
+                        <li><strong style="color:#f8fafc;">Nezavisnost:</strong> Rad bez stalnih mesečnih pretplata i ograničenja.</li>
+                    </ul>
+
+                    <h4 style="color:var(--accent-green); margin-top:20px;">📚 Povezani Dokumenti</h4>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                        <a href="White_Hat_Rabbit_Master_Equipment_Book_v7_Enhanced.pdf" target="_blank" class="download-btn">📖 Master Equipment Book v7 ↗</a>
+                        <a href="WHR_System_Book_001.pdf" target="_blank" class="download-btn" style="border-color:#38bdf8; color:#38bdf8;">📘 WHR System Book 001 ↗</a>
+                    </div>
+                ` 
+            },
+            ch4: { 
+                title: "04. 10GbE NAS Vault", 
+                content: "Arhiviranje po 3-2-1 pravilu garantuje sigurnost svih snimljenih projekata." 
+            }
         };
 
         function loadWikiChapter(chId, element) {
@@ -1320,13 +1640,14 @@
         // ROI kalkulator
         function updateROI() {
             var income = document.getElementById('incomeSlider').value;
-            var months = Math.ceil(12120 / income);
+            var totalInvest = 12120;
+            var months = Math.ceil(totalInvest / income);
             document.getElementById('roiResult').innerHTML = 'Prihod: ' + income + ' €/mesec ➔ Povrat za: <span style="color:#00ff66">' + months + ' Meseci</span>';
         }
 
         // Novosti
         var whrNewsData = [
-            { tag: "SPECIAL TRANSMISSION", date: "31. Jul 2026.", title: "RABBIT REFLEX v1.0 // Arcade Engine is Live!", summary: "Lansiran je prvi playable reflex trenažer u cyberpunk stilu!", text: "Mini-igra sa Web Audio oscilatorima i 60fps Canvas česticama! Proveri reflekse Belog Zeke! 🐇⚡🎮", image: "./power_on.png" },
+            { tag: "SPECIAL TRANSMISSION", date: "31. Jul 2026.", title: "WHR GAMING ROOM // Arcade Vault Opened!", summary: "Lansiran je zvanični gaming portal u cyberpunk stilu sa arkadnim kabinetima!", text: "Predstavljamo novi WHR Cyberpunk Gaming Hub! Od sada sve igrice studija dobijaju svoj privatni neonski kabinet! 🐇⚡🎮", image: "./power_on.png" },
             { tag: "STUDIO UPDATE", date: "28. Jul 2026.", title: "WHR Production Codex v11.1 je online", summary: "Lansiran kompletiran Equipment Vault sa svih 12 komponenti.", text: "Master Codex, Vault i AI Kancelarije u punoj funkciji sa novom grafikom.", image: "./studio.png" }
         ];
 
@@ -1417,7 +1738,9 @@
             var doors = document.getElementById('claudeDoorFrame');
             if (!shell || !doors) return;
             doors.classList.add('opening');
-            setTimeout(function() { shell.classList.add('office-open'); }, 850);
+            setTimeout(function() { 
+                shell.classList.add('office-open'); 
+            }, 850);
         }
 
         function exitClaudeOffice() {
@@ -1425,13 +1748,35 @@
             var doors = document.getElementById('claudeDoorFrame');
             if (!shell || !doors) return;
             shell.classList.remove('office-open');
-            setTimeout(function() { doors.classList.remove('opening'); }, 700);
+            setTimeout(function() { 
+                doors.classList.remove('opening'); 
+            }, 700);
+        }
+
+        // Gaming Room Funkcije
+        function enterGamingRoom() {
+            var shell = document.getElementById('gamingOfficeShell');
+            var doors = document.getElementById('gamingDoorFrame');
+            if (!shell || !doors) return;
+            doors.classList.add('opening');
+            setTimeout(function() { 
+                shell.classList.add('office-open'); 
+            }, 850);
+        }
+
+        function exitGamingRoom() {
+            var shell = document.getElementById('gamingOfficeShell');
+            var doors = document.getElementById('gamingDoorFrame');
+            if (!shell || !doors) return;
+            shell.classList.remove('office-open');
+            setTimeout(function() { 
+                doors.classList.remove('opening'); 
+            }, 700);
         }
 
         // Start
         window.onload = function() {
             runWhrBoot();
-            renderWhatsNew();
             loadNews();
             loadWikiChapter('ch1');
             updateHeroDots();
