@@ -740,8 +740,10 @@ button {
 }
 
 .target--redrabbit .target__rabbit-eye {
-  background: #fff;
-  box-shadow: 0 0 7px #fff;
+  background: #ff6b7f;
+  box-shadow:
+    0 0 8px #ff0033,
+    0 0 14px rgba(255, 0, 51, 0.8);
 }
 
 .target--redrabbit .target__core {
