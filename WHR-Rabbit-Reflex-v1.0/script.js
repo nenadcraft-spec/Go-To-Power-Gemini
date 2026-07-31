@@ -794,12 +794,16 @@ class Game {
   }
 
   updateSound() {
-    this.e.sound.setAttribute("aria-pressed", String(this.audio.enabled));
-    this.e.soundIcon.textContent =
-  this.audio.enabled
-    ? "ON"
-    : "OFF";
-  }
+  this.e.sound.setAttribute(
+    "aria-pressed",
+    String(this.audio.enabled)
+  );
+
+  this.e.soundIcon.textContent =
+    this.audio.enabled
+      ? "ON"
+      : "OFF";
+}
 
   update() {
     this.e.score.textContent = pad(this.score);
