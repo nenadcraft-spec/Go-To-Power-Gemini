@@ -2,531 +2,1926 @@
 
 const CONFIG = {
   time: 60,
-  lives: 3, 
+  lives: 3,
   hitsPerLevel: 10,
   maxLevel: 99,
+
   rabbitPoints: 250,
   goldenPoints: 1200,
+  goldenBonus: 5.0,
   freezePoints: 500,
+
   redPenaltyPoints: 500,
   redPenaltyTime: 3.0,
   decoyPenalty: 300,
-  baseLife: 1450, minLife: 350, lifeStep: 45,
-  baseDelay: 760, minDelay: 180, delayStep: 25,
-  comboReset: 1800, maxCombo: 25,
+
+  baseLife: 1450,
+  minLife: 350,
+  lifeStep: 45,
+
+  baseDelay: 760,
+  minDelay: 180,
+  delayStep: 25,
+
+  comboReset: 1800,
+  maxCombo: 25,
+
   bestKey: "whr-rabbit-reflex-best-score",
   soundKey: "whr-rabbit-reflex-sound-enabled"
 };
 
 const $ = id => {
-  const el = document.getElementById(id);
-  if (!el) throw new Error(`Missing #${id}`);
-  return el;
+  const element = document.getElementById(id);
+
+  if (!element) {
+    throw new Error(`Missing #${id}`);
+  }
+
+  return element;
 };
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const pad = n => String(Math.max(0, Math.floor(n))).padStart(8, "0");
+
+const sleep = milliseconds => {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+};
+
+const clamp = (value, minimum, maximum) => {
+  return Math.max(minimum, Math.min(maximum, value));
+};
+
+const pad = number => {
+  return String(
+    Math.max(0, Math.floor(number))
+  ).padStart(8, "0");
+};
+
+/* ==============================
+   ZVUČNI EFEKTI
+   ============================== */
 
 class AudioFX {
-  constructor() { this.ctx = null; this.enabled = localStorage.getItem(CONFIG.soundKey) !== "false"; }
-  init() { if (this.ctx) return; const C = window.AudioContext || window.webkitAudioContext; if (C) this.ctx = new C(); }
-  tone(f = 440, d = .08, type = "sine", end = f) {
-    if (!this.enabled) return; this.init(); if (!this.ctx) return;
-    if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
-    const o = this.ctx.createOscillator(), g = this.ctx.createGain(), t = this.ctx.currentTime;
-    o.type = type; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(Math.max(20, end), t + d);
-    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.16, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + d);
-    o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + d + .02);
+  constructor() {
+    this.context = null;
+
+    this.enabled =
+      localStorage.getItem(CONFIG.soundKey) !== "false";
   }
-  hit(c) { this.tone(480 + c * 24, .09, "sine", 820 + c * 24); }
-  gold() { [660, 880, 1100].forEach((f, i) => setTimeout(() => this.tone(f, .13, "triangle", f * 1.1), i * 45)); }
-  freeze() { [900, 700, 500].forEach((f, i) => setTimeout(() => this.tone(f, .15, "sine", f * 0.8), i * 50)); }
-  red() { [200, 150, 100].forEach((f, i) => setTimeout(() => this.tone(f, .18, "sawtooth", f * 0.6), i * 60)); }
-  bad() { this.tone(190, .24, "sawtooth", 55); }
-  level() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, .16, "sine", f * 1.05), i * 65)); }
-  click() { this.tone(500, .07, "sine", 720); }
-  over() { [420, 320, 230, 150].forEach((f, i) => setTimeout(() => this.tone(f, .2, "sawtooth", f * .7), i * 90)); }
-  toggle() { this.enabled = !this.enabled; localStorage.setItem(CONFIG.soundKey, String(this.enabled)); if (this.enabled) this.click(); return this.enabled; }
+
+  init() {
+    if (this.context) {
+      return;
+    }
+
+    const AudioContextClass =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if (AudioContextClass) {
+      this.context = new AudioContextClass();
+    }
+  }
+
+  tone(
+    frequency = 440,
+    duration = 0.08,
+    type = "sine",
+    endFrequency = frequency
+  ) {
+    if (!this.enabled) {
+      return;
+    }
+
+    this.init();
+
+    if (!this.context) {
+      return;
+    }
+
+    if (this.context.state === "suspended") {
+      this.context.resume().catch(() => {});
+    }
+
+    const oscillator =
+      this.context.createOscillator();
+
+    const gain =
+      this.context.createGain();
+
+    const now =
+      this.context.currentTime;
+
+    oscillator.type = type;
+
+    oscillator.frequency.setValueAtTime(
+      frequency,
+      now
+    );
+
+    oscillator.frequency.exponentialRampToValueAtTime(
+      Math.max(20, endFrequency),
+      now + duration
+    );
+
+    gain.gain.setValueAtTime(
+      0.0001,
+      now
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.16,
+      now + 0.015
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      now + duration
+    );
+
+    oscillator.connect(gain);
+    gain.connect(this.context.destination);
+
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.02);
+  }
+
+  hit(combo) {
+    this.tone(
+      480 + combo * 24,
+      0.09,
+      "sine",
+      820 + combo * 24
+    );
+  }
+
+  gold() {
+    [660, 880, 1100].forEach((frequency, index) => {
+      setTimeout(() => {
+        this.tone(
+          frequency,
+          0.13,
+          "triangle",
+          frequency * 1.1
+        );
+      }, index * 45);
+    });
+  }
+
+  freeze() {
+    [900, 700, 500].forEach((frequency, index) => {
+      setTimeout(() => {
+        this.tone(
+          frequency,
+          0.15,
+          "sine",
+          frequency * 0.8
+        );
+      }, index * 50);
+    });
+  }
+
+  red() {
+    [200, 150, 100].forEach((frequency, index) => {
+      setTimeout(() => {
+        this.tone(
+          frequency,
+          0.18,
+          "sawtooth",
+          frequency * 0.6
+        );
+      }, index * 60);
+    });
+  }
+
+  bad() {
+    this.tone(
+      190,
+      0.24,
+      "sawtooth",
+      55
+    );
+  }
+
+  level() {
+    [440, 554, 659, 880].forEach(
+      (frequency, index) => {
+        setTimeout(() => {
+          this.tone(
+            frequency,
+            0.16,
+            "sine",
+            frequency * 1.05
+          );
+        }, index * 65);
+      }
+    );
+  }
+
+  click() {
+    this.tone(
+      500,
+      0.07,
+      "sine",
+      720
+    );
+  }
+
+  over() {
+    [420, 320, 230, 150].forEach(
+      (frequency, index) => {
+        setTimeout(() => {
+          this.tone(
+            frequency,
+            0.2,
+            "sawtooth",
+            frequency * 0.7
+          );
+        }, index * 90);
+      }
+    );
+  }
+
+  toggle() {
+    this.enabled = !this.enabled;
+
+    localStorage.setItem(
+      CONFIG.soundKey,
+      String(this.enabled)
+    );
+
+    if (this.enabled) {
+      this.click();
+    }
+
+    return this.enabled;
+  }
 }
+
+/* ==============================
+   ČESTICE
+   ============================== */
 
 class Particles {
   constructor(canvas) {
-    this.c = canvas; this.x = canvas.getContext("2d"); this.p = []; this.last = 0;
+    this.canvas = canvas;
+    this.context = canvas.getContext("2d");
+    this.particles = [];
+    this.lastTime = 0;
+
     this.resize = () => {
-      const r = canvas.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
-      canvas.width = r.width * d; canvas.height = r.height * d;
-      this.x.resetTransform?.() || this.x.setTransform(1, 0, 0, 1, 0, 0);
-      this.x.scale(d, d);
+      const rectangle =
+        canvas.getBoundingClientRect();
+
+      const density =
+        Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width =
+        rectangle.width * density;
+
+      canvas.height =
+        rectangle.height * density;
+
+      if (this.context.resetTransform) {
+        this.context.resetTransform();
+      } else {
+        this.context.setTransform(
+          1,
+          0,
+          0,
+          1,
+          0,
+          0
+        );
+      }
+
+      this.context.scale(
+        density,
+        density
+      );
     };
-    addEventListener("resize", this.resize); this.resize(); requestAnimationFrame(t => this.loop(t));
+
+    window.addEventListener(
+      "resize",
+      this.resize
+    );
+
+    this.resize();
+
+    requestAnimationFrame(time => {
+      this.loop(time);
+    });
   }
-  burst(x, y, color, count = 18) {
-    for (let i = 0; i < count; i++) {
-      const a = Math.PI * 2 * i / count + Math.random() * .4, s = 2 + Math.random() * 4, l = 350 + Math.random() * 350;
-      this.p.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, l, m: l, color, size: 1 + Math.random() * 3 });
+
+  burst(
+    x,
+    y,
+    color,
+    count = 18
+  ) {
+    for (
+      let index = 0;
+      index < count;
+      index++
+    ) {
+      const angle =
+        Math.PI * 2 * index / count +
+        Math.random() * 0.4;
+
+      const speed =
+        2 + Math.random() * 4;
+
+      const lifetime =
+        350 + Math.random() * 350;
+
+      this.particles.push({
+        x,
+        y,
+
+        velocityX:
+          Math.cos(angle) * speed,
+
+        velocityY:
+          Math.sin(angle) * speed,
+
+        lifetime,
+        maximumLifetime: lifetime,
+        color,
+
+        size:
+          1 + Math.random() * 3
+      });
     }
   }
-  loop(t) {
-    const dt = Math.min(32, t - (this.last || t)); this.last = t;
-    const r = this.c.getBoundingClientRect(); this.x.clearRect(0, 0, r.width, r.height);
-    this.p = this.p.filter(p => {
-      p.l -= dt; if (p.l <= 0) return false;
-      p.x += p.vx * dt / 16.7; p.y += p.vy * dt / 16.7; p.vy += .06 * dt / 16.7;
-      this.x.save(); this.x.globalAlpha = p.l / p.m; this.x.fillStyle = p.color;
-      this.x.shadowColor = p.color; this.x.shadowBlur = 8; this.x.beginPath();
-      this.x.arc(p.x, p.y, p.size, 0, Math.PI * 2); this.x.fill(); this.x.restore();
-      return true;
+
+  loop(time) {
+    const deltaTime = Math.min(
+      32,
+      time - (this.lastTime || time)
+    );
+
+    this.lastTime = time;
+
+    const rectangle =
+      this.canvas.getBoundingClientRect();
+
+    this.context.clearRect(
+      0,
+      0,
+      rectangle.width,
+      rectangle.height
+    );
+
+    this.particles = this.particles.filter(
+      particle => {
+        particle.lifetime -= deltaTime;
+
+        if (particle.lifetime <= 0) {
+          return false;
+        }
+
+        particle.x +=
+          particle.velocityX *
+          deltaTime / 16.7;
+
+        particle.y +=
+          particle.velocityY *
+          deltaTime / 16.7;
+
+        particle.velocityY +=
+          0.06 * deltaTime / 16.7;
+
+        this.context.save();
+
+        this.context.globalAlpha =
+          particle.lifetime /
+          particle.maximumLifetime;
+
+        this.context.fillStyle =
+          particle.color;
+
+        this.context.shadowColor =
+          particle.color;
+
+        this.context.shadowBlur = 8;
+
+        this.context.beginPath();
+
+        this.context.arc(
+          particle.x,
+          particle.y,
+          particle.size,
+          0,
+          Math.PI * 2
+        );
+
+        this.context.fill();
+        this.context.restore();
+
+        return true;
+      }
+    );
+
+    requestAnimationFrame(nextTime => {
+      this.loop(nextTime);
     });
-    requestAnimationFrame(n => this.loop(n));
   }
 }
 
+/* ==============================
+   GLAVNA KLASA IGRE
+   ============================== */
+
 class Game {
   constructor() {
-    this.e = {
-      stage: $("gameStage"), layer: $("targetLayer"), canvas: $("particleCanvas"), cross: $("crosshair"),
-      startO: $("startOverlay"), countO: $("countdownOverlay"), pauseO: $("pauseOverlay"), overO: $("gameOverOverlay"),
-      start: $("startButton"), restart: $("restartButton"), pause: $("pauseButton"), resume: $("resumeButton"), sound: $("soundButton"), soundIcon: $("soundIcon"),
-      count: $("countdownValue"), score: $("scoreValue"), best: $("bestScoreValue"), combo: $("comboValue"), comboCard: $("comboCard"), level: $("levelValue"), time: $("timeValue"),
-      status: $("statusText"), lives: $("livesContainer"), progressText: $("progressText"), progressFill: $("progressFill"),
-      float: $("floatingMessage"), floatMain: document.querySelector(".floating-message__main"), floatSub: document.querySelector(".floating-message__sub"),
-      finalScore: $("finalScoreValue"), finalBest: $("finalBestValue"), finalCombo: $("finalComboValue"), finalAcc: $("finalAccuracyValue"), rank: $("resultRank"), record: $("newRecordMessage")
+    this.elements = {
+      stage: $("gameStage"),
+      layer: $("targetLayer"),
+      canvas: $("particleCanvas"),
+      crosshair: $("crosshair"),
+
+      startOverlay: $("startOverlay"),
+      countdownOverlay: $("countdownOverlay"),
+      pauseOverlay: $("pauseOverlay"),
+      gameOverOverlay: $("gameOverOverlay"),
+
+      startButton: $("startButton"),
+      restartButton: $("restartButton"),
+      pauseButton: $("pauseButton"),
+      resumeButton: $("resumeButton"),
+
+      soundButton: $("soundButton"),
+      soundIcon: $("soundIcon"),
+
+      countdownValue: $("countdownValue"),
+      scoreValue: $("scoreValue"),
+      bestScoreValue: $("bestScoreValue"),
+      comboValue: $("comboValue"),
+      comboCard: $("comboCard"),
+      levelValue: $("levelValue"),
+      timeValue: $("timeValue"),
+
+      statusText: $("statusText"),
+      livesContainer: $("livesContainer"),
+
+      progressText: $("progressText"),
+      progressFill: $("progressFill"),
+
+      floatingMessage: $("floatingMessage"),
+
+      floatingMain:
+        document.querySelector(
+          ".floating-message__main"
+        ),
+
+      floatingSub:
+        document.querySelector(
+          ".floating-message__sub"
+        ),
+
+      finalScoreValue: $("finalScoreValue"),
+      finalBestValue: $("finalBestValue"),
+      finalComboValue: $("finalComboValue"),
+      finalAccuracyValue:
+        $("finalAccuracyValue"),
+
+      resultRank: $("resultRank"),
+      newRecordMessage:
+        $("newRecordMessage")
     };
-    this.audio = new AudioFX(); this.particles = new Particles(this.e.canvas);
-    this.best = Number(localStorage.getItem(CONFIG.bestKey)) || 0;
-    this.state = "ready"; this.starting = false;
+
+    this.audio = new AudioFX();
+
+    this.particleSystem =
+      new Particles(this.elements.canvas);
+
+    this.bestScore =
+      Number(
+        localStorage.getItem(CONFIG.bestKey)
+      ) || 0;
+
+    this.state = "ready";
+    this.starting = false;
+
     this.targets = new Map();
+
     this.isFrozen = false;
     this.freezeTimer = null;
-    this.bind(); this.reset(); this.show(this.e.startO, true); this.updateSound();
+
+    this.bindEvents();
+    this.reset();
+
+    this.showOverlay(
+      this.elements.startOverlay,
+      true
+    );
+
+    this.updateSoundButton();
   }
 
-  bind() {
-    this.e.start.onclick = () => this.start();
-    this.e.restart.onclick = () => this.start();
-    this.e.pause.onclick = () => this.togglePause();
-    this.e.resume.onclick = () => this.resume();
-    this.e.sound.onclick = () => { this.audio.toggle(); this.updateSound(); };
+  /* ==============================
+     KONTROLE
+     ============================== */
 
-    this.e.stage.addEventListener("pointermove", ev => {
-      const r = this.e.stage.getBoundingClientRect();
-      this.e.cross.style.left = `${ev.clientX - r.left}px`;
-      this.e.cross.style.top = `${ev.clientY - r.top}px`;
-      this.e.cross.style.opacity = "1";
-    });
+  bindEvents() {
+    this.elements.startButton.onclick = () => {
+      this.start();
+    };
 
-    this.e.stage.addEventListener("pointerleave", () => this.e.cross.style.opacity = "0");
+    this.elements.restartButton.onclick = () => {
+      this.start();
+    };
 
-    this.e.stage.addEventListener("pointerdown", ev => {
-      if (this.state !== "playing") return;
-      if (!ev.target.closest(".target")) this.emptyTap();
-    });
+    this.elements.pauseButton.onclick = () => {
+      this.togglePause();
+    };
 
-    document.addEventListener("keydown", ev => {
-      if (ev.code === "Space") {
-        ev.preventDefault();
-        if (this.state === "ready" || this.state === "gameover") this.start();
-        else if (this.state === "playing") this.pause();
-        else if (this.state === "paused") this.resume();
+    this.elements.resumeButton.onclick = () => {
+      this.resume();
+    };
+
+    this.elements.soundButton.onclick = () => {
+      this.audio.toggle();
+      this.updateSoundButton();
+    };
+
+    this.elements.stage.addEventListener(
+      "pointermove",
+      event => {
+        const rectangle =
+          this.elements.stage.getBoundingClientRect();
+
+        this.elements.crosshair.style.left =
+          `${event.clientX - rectangle.left}px`;
+
+        this.elements.crosshair.style.top =
+          `${event.clientY - rectangle.top}px`;
+
+        this.elements.crosshair.style.opacity =
+          "1";
       }
-      if (ev.code === "Escape" && this.state === "playing") this.pause();
-    });
+    );
 
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden && this.state === "playing") this.pause();
-    });
+    this.elements.stage.addEventListener(
+      "pointerleave",
+      () => {
+        this.elements.crosshair.style.opacity =
+          "0";
+      }
+    );
+
+    this.elements.stage.addEventListener(
+      "pointerdown",
+      event => {
+        if (this.state !== "playing") {
+          return;
+        }
+
+        if (!event.target.closest(".target")) {
+          this.emptyTap();
+        }
+      }
+    );
+
+    document.addEventListener(
+      "keydown",
+      event => {
+        if (event.code === "Space") {
+          event.preventDefault();
+
+          if (
+            this.state === "ready" ||
+            this.state === "gameover"
+          ) {
+            this.start();
+          } else if (
+            this.state === "playing"
+          ) {
+            this.pause();
+          } else if (
+            this.state === "paused"
+          ) {
+            this.resume();
+          }
+        }
+
+        if (
+          event.code === "Escape" &&
+          this.state === "playing"
+        ) {
+          this.pause();
+        }
+      }
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (
+          document.hidden &&
+          this.state === "playing"
+        ) {
+          this.pause();
+        }
+      }
+    );
   }
+
+  /* ==============================
+     RESETOVANJE
+     ============================== */
 
   reset() {
-    if (this.raf) cancelAnimationFrame(this.raf);
-    clearTimeout(this.spawnTimer); clearTimeout(this.comboTimer); clearTimeout(this.freezeTimer);
-    this.removeAllTargets();
-    this.isFrozen = false;
-    this.e.stage.classList.remove("is-frozen");
-    this.score = 0; this.level = 1; this.levelHits = 0; this.comboCount = 0;
-    this.mult = 1; this.maxCombo = 1; this.lives = CONFIG.lives;
-    this.timeLeft = CONFIG.time; this.hits = 0; this.attempts = 0; this.taps = 0; this.last = 0;
-    this.update();
-  }
-
-  show(el, on) { el.classList.toggle("stage-overlay--visible", on); }
-
-  async start() {
-    if (this.starting) return;
-    this.starting = true;
-    this.reset();
-    this.state = "countdown";
-    this.show(this.e.startO, false); this.show(this.e.overO, false); this.show(this.e.pauseO, false); this.show(this.e.countO, true);
-    this.audio.click();
-
-    for (const v of ["3", "2", "1", "GO"]) {
-      if (this.state !== "countdown") { this.starting = false; return; }
-      this.e.count.textContent = v;
-      this.audio.tone(v === "GO" ? 760 : 300 + Number(v) * 60, .12, "square", v === "GO" ? 1100 : 500);
-      await sleep(v === "GO" ? 500 : 700);
+    if (this.animationFrame) {
+      cancelAnimationFrame(
+        this.animationFrame
+      );
     }
 
-    this.show(this.e.countO, false);
+    clearTimeout(this.spawnTimer);
+    clearTimeout(this.comboTimer);
+    clearTimeout(this.freezeTimer);
+
+    this.removeAllTargets();
+
+    this.isFrozen = false;
+
+    this.elements.stage.classList.remove(
+      "is-frozen"
+    );
+
+    this.score = 0;
+    this.level = 1;
+    this.levelHits = 0;
+
+    this.comboCount = 0;
+    this.multiplier = 1;
+    this.maximumCombo = 1;
+
+    this.lives = CONFIG.lives;
+    this.timeLeft = CONFIG.time;
+
+    this.hits = 0;
+    this.attempts = 0;
+    this.taps = 0;
+
+    this.lastFrameTime = 0;
+
+    this.updateInterface();
+  }
+
+  showOverlay(element, visible) {
+    element.classList.toggle(
+      "stage-overlay--visible",
+      visible
+    );
+  }
+
+  /* ==============================
+     POKRETANJE IGRE
+     ============================== */
+
+  async start() {
+    if (this.starting) {
+      return;
+    }
+
+    this.starting = true;
+
+    this.reset();
+
+    this.state = "countdown";
+
+    this.showOverlay(
+      this.elements.startOverlay,
+      false
+    );
+
+    this.showOverlay(
+      this.elements.gameOverOverlay,
+      false
+    );
+
+    this.showOverlay(
+      this.elements.pauseOverlay,
+      false
+    );
+
+    this.showOverlay(
+      this.elements.countdownOverlay,
+      true
+    );
+
+    this.audio.click();
+
+    for (
+      const value of ["3", "2", "1", "GO"]
+    ) {
+      if (this.state !== "countdown") {
+        this.starting = false;
+        return;
+      }
+
+      this.elements.countdownValue.textContent =
+        value;
+
+      this.audio.tone(
+        value === "GO"
+          ? 760
+          : 300 + Number(value) * 60,
+
+        0.12,
+        "square",
+
+        value === "GO"
+          ? 1100
+          : 500
+      );
+
+      await sleep(
+        value === "GO"
+          ? 500
+          : 700
+      );
+    }
+
+    this.showOverlay(
+      this.elements.countdownOverlay,
+      false
+    );
+
     this.state = "playing";
-    this.e.pause.disabled = false;
-    this.setStatus("TARGET ACQUISITION", "normal");
-    this.last = performance.now();
-    this.raf = requestAnimationFrame(t => this.loop(t));
-    this.schedule(250);
+
+    this.elements.pauseButton.disabled =
+      false;
+
+    this.setStatus(
+      "TARGET ACQUISITION",
+      "normal"
+    );
+
+    this.lastFrameTime =
+      performance.now();
+
+    this.animationFrame =
+      requestAnimationFrame(time => {
+        this.gameLoop(time);
+      });
+
+    this.scheduleSpawn(250);
+
     this.starting = false;
   }
 
-  loop(t) {
-    if (this.state !== "playing") return;
-    let dt = Math.min(0.1, (t - (this.last || t)) / 1000);
-    this.last = t;
-    
-    if (this.isFrozen) dt *= 0.5;
+  /* ==============================
+     GLAVNA PETLJA
+     ============================== */
 
-    if (isNaN(this.timeLeft)) this.timeLeft = CONFIG.time;
+  gameLoop(time) {
+    if (this.state !== "playing") {
+      return;
+    }
 
-    this.timeLeft = Math.max(0, this.timeLeft - dt);
-    this.e.time.textContent = this.timeLeft.toFixed(1);
+    let deltaTime = Math.min(
+      0.1,
+      (
+        time -
+        (this.lastFrameTime || time)
+      ) / 1000
+    );
 
-    document.querySelector(".timer-display")?.classList.toggle("is-critical", this.timeLeft <= 8);
+    this.lastFrameTime = time;
+
+    if (this.isFrozen) {
+      deltaTime *= 0.5;
+    }
+
+    if (!Number.isFinite(this.timeLeft)) {
+      this.timeLeft = CONFIG.time;
+    }
+
+    this.timeLeft = Math.max(
+      0,
+      this.timeLeft - deltaTime
+    );
+
+    this.elements.timeValue.textContent =
+      this.timeLeft.toFixed(1);
+
+    const timerDisplay =
+      document.querySelector(
+        ".timer-display"
+      );
+
+    if (timerDisplay) {
+      timerDisplay.classList.toggle(
+        "is-critical",
+        this.timeLeft <= 8
+      );
+    }
 
     const now = performance.now();
-    for (const [id, targetData] of this.targets.entries()) {
-      const p = clamp(1 - (now - targetData.spawnAt) / targetData.life, 0, 1);
-      targetData.element.style.setProperty("--life-progress", p);
+
+    for (
+      const targetData
+      of this.targets.values()
+    ) {
+      const progress = clamp(
+        1 -
+          (
+            now -
+            targetData.spawnTime
+          ) /
+          targetData.lifetime,
+
+        0,
+        1
+      );
+
+      targetData.element.style.setProperty(
+        "--life-progress",
+        progress
+      );
     }
 
     if (this.timeLeft <= 0) {
       this.finish();
       return;
     }
-    this.raf = requestAnimationFrame(n => this.loop(n));
+
+    this.animationFrame =
+      requestAnimationFrame(nextTime => {
+        this.gameLoop(nextTime);
+      });
   }
 
-  getMaxSimultaneousTargets() {
-    return Math.min(6, 1 + Math.floor(this.level / 5));
+  /* ==============================
+     BRZINA I TEŽINA
+     ============================== */
+
+  getMaximumTargets() {
+    return Math.min(
+      6,
+      1 + Math.floor(this.level / 5)
+    );
   }
 
-  schedule(delay = this.spawnDelay()) {
+  scheduleSpawn(
+    delay = this.getSpawnDelay()
+  ) {
     clearTimeout(this.spawnTimer);
+
     this.spawnTimer = setTimeout(() => {
-      const maxTargets = this.getMaxSimultaneousTargets();
-      if (this.targets.size < maxTargets) {
-        this.spawn();
+      const maximumTargets =
+        this.getMaximumTargets();
+
+      if (
+        this.targets.size <
+        maximumTargets
+      ) {
+        this.spawnTarget();
       }
-      this.schedule();
+
+      this.scheduleSpawn();
     }, delay);
   }
 
-  spawnDelay() {
-    let delay = Math.max(CONFIG.minDelay, CONFIG.baseDelay - (this.level - 1) * CONFIG.delayStep);
-    return this.isFrozen ? delay * 1.8 : delay;
+  getSpawnDelay() {
+    const delay = Math.max(
+      CONFIG.minDelay,
+
+      CONFIG.baseDelay -
+        (this.level - 1) *
+        CONFIG.delayStep
+    );
+
+    return this.isFrozen
+      ? delay * 1.8
+      : delay;
   }
 
-  lifetime() {
-    let life = Math.max(CONFIG.minLife, CONFIG.baseLife - (this.level - 1) * CONFIG.lifeStep);
-    return this.isFrozen ? life * 1.8 : life;
+  getTargetLifetime() {
+    const lifetime = Math.max(
+      CONFIG.minLife,
+
+      CONFIG.baseLife -
+        (this.level - 1) *
+        CONFIG.lifeStep
+    );
+
+    return this.isFrozen
+      ? lifetime * 1.8
+      : lifetime;
   }
 
-  spawn() {
-    if (this.state !== "playing") return;
-    
-    const roll = Math.random();
-    const decoyProb = Math.min(.12 + (this.level - 1) * .012, .28);
-    const goldProb = Math.min(.08 + (this.level - 1) * .004, .15);
-    const freezeProb = Math.min(.08, .04 + (this.level - 1) * .005);
-    const redProb = Math.min(.18, .06 + (this.level - 1) * .012); // CRVENI ZEC
-    const netProb = this.level >= 3 ? Math.min(.12, .03 + (this.level - 3) * .01) : 0;
+  /* ==============================
+     STVARANJE META
+     ============================== */
+
+  spawnTarget() {
+    if (this.state !== "playing") {
+      return;
+    }
+
+    const randomValue = Math.random();
+
+    const decoyProbability = Math.min(
+      0.12 +
+        (this.level - 1) * 0.012,
+      0.28
+    );
+
+    const goldenProbability = Math.min(
+      0.08 +
+        (this.level - 1) * 0.004,
+      0.15
+    );
+
+    const freezeProbability = Math.min(
+      0.08,
+      0.04 +
+        (this.level - 1) * 0.005
+    );
+
+    const redRabbitProbability = Math.min(
+      0.18,
+      0.06 +
+        (this.level - 1) * 0.012
+    );
+
+    const netProbability =
+      this.level >= 3
+        ? Math.min(
+            0.12,
+            0.03 +
+              (this.level - 3) * 0.01
+          )
+        : 0;
 
     let type = "rabbit";
-    if (roll < goldProb) type = "golden";
-    else if (roll < goldProb + freezeProb) type = "freeze";
-    else if (roll < goldProb + freezeProb + redProb) type = "redrabbit"; // CRVENI ZEC (OPASAN)
-    else if (roll < goldProb + freezeProb + redProb + netProb) type = "net";
-    else if (roll < goldProb + freezeProb + redProb + netProb + decoyProb) type = "decoy";
 
-    const size = Math.max(58, (innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.8);
+    if (
+      randomValue <
+      goldenProbability
+    ) {
+      type = "golden";
+    } else if (
+      randomValue <
+      goldenProbability +
+      freezeProbability
+    ) {
+      type = "freeze";
+    } else if (
+      randomValue <
+      goldenProbability +
+      freezeProbability +
+      redRabbitProbability
+    ) {
+      type = "redrabbit";
+    } else if (
+      randomValue <
+      goldenProbability +
+      freezeProbability +
+      redRabbitProbability +
+      netProbability
+    ) {
+      type = "net";
+    } else if (
+      randomValue <
+      goldenProbability +
+      freezeProbability +
+      redRabbitProbability +
+      netProbability +
+      decoyProbability
+    ) {
+      type = "decoy";
+    }
 
-    const r = this.e.stage.getBoundingClientRect(), m = size / 2 + 18;
-    const x = m + Math.random() * Math.max(1, r.width - m * 2), y = m + Math.random() * Math.max(1, r.height - m * 2);
+    const targetSize = Math.max(
+      58,
 
-    const b = document.createElement("button");
-    b.className = `target target--${type}`;
-    b.type = "button";
-    b.setAttribute("aria-label", type);
-    b.style.setProperty("--target-size", `${size}px`);
-    b.style.left = `${x}px`; b.style.top = `${y}px`;
+      (
+        window.innerWidth < 700
+          ? 82
+          : 94
+      ) -
+        (this.level - 1) * 1.8
+    );
+
+    const stageRectangle =
+      this.elements.stage.getBoundingClientRect();
+
+    const margin =
+      targetSize / 2 + 18;
+
+    const availableWidth = Math.max(
+      1,
+      stageRectangle.width -
+        margin * 2
+    );
+
+    const availableHeight = Math.max(
+      1,
+      stageRectangle.height -
+        margin * 2
+    );
+
+    const x =
+      margin +
+      Math.random() * availableWidth;
+
+    const y =
+      margin +
+      Math.random() * availableHeight;
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      `target target--${type}`;
+
+    button.type = "button";
+
+    button.setAttribute(
+      "aria-label",
+      this.getTargetLabel(type)
+    );
+
+    button.style.setProperty(
+      "--target-size",
+      `${targetSize}px`
+    );
+
+    button.style.left = `${x}px`;
+    button.style.top = `${y}px`;
 
     if (type === "net") {
-      b.innerHTML = '<span class="target__timer"></span><div class="target__net-grid"></div><span class="target__net-warning">CYBER NET</span>';
+      button.innerHTML = `
+        <span class="target__timer"></span>
+        <div class="target__net-grid"></div>
+        <span class="target__net-warning">
+          CYBER NET
+        </span>
+      `;
     } else {
-      b.innerHTML = '<span class="target__timer"></span><span class="target__ring"></span><span class="target__core"></span><span class="target__rabbit"><span class="target__rabbit-ear target__rabbit-ear--left"></span><span class="target__rabbit-ear target__rabbit-ear--right"></span><span class="target__rabbit-head"></span><span class="target__rabbit-eye"></span></span>';
+      button.innerHTML = `
+        <span class="target__timer"></span>
+        <span class="target__ring"></span>
+        <span class="target__core"></span>
+
+        <span class="target__rabbit">
+          <span
+            class="target__rabbit-ear target__rabbit-ear--left"
+          ></span>
+
+          <span
+            class="target__rabbit-ear target__rabbit-ear--right"
+          ></span>
+
+          <span class="target__rabbit-head"></span>
+          <span class="target__rabbit-eye"></span>
+        </span>
+      `;
     }
 
     const id = Symbol();
-    const life = this.lifetime();
-    const spawnAt = performance.now();
 
-    const timerId = setTimeout(() => this.miss(id), life);
+    const lifetime =
+      this.getTargetLifetime();
 
-    b.addEventListener("pointerdown", ev => {
-      ev.stopPropagation();
-      this.hit(id, type, b, x, y);
+    const spawnTime =
+      performance.now();
+
+    const timerId = setTimeout(() => {
+      this.missTarget(id);
+    }, lifetime);
+
+    button.addEventListener(
+      "pointerdown",
+      event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        this.hitTarget(
+          id,
+          type,
+          button,
+          x,
+          y
+        );
+      }
+    );
+
+    this.elements.layer.appendChild(
+      button
+    );
+
+    this.targets.set(id, {
+      element: button,
+      type,
+      lifetime,
+      spawnTime,
+      timerId
     });
 
-    this.e.layer.appendChild(b);
-    requestAnimationFrame(() => b.classList.add("is-spawned"));
-
-    this.targets.set(id, { element: b, type, life, spawnAt, timerId });
+    requestAnimationFrame(() => {
+      button.classList.add(
+        "is-spawned"
+      );
+    });
   }
 
-  hit(id, type, b, x, y) {
-    if (this.state !== "playing" || !this.targets.has(id)) return;
-    const targetData = this.targets.get(id);
-    clearTimeout(targetData.timerId);
-    this.targets.delete(id);
+  getTargetLabel(type) {
+    const labels = {
+      rabbit: "Beli zec",
+      golden: "Zlatni zec",
+      freeze: "Ledeni zec",
+      redrabbit: "Crveni opasni zec",
+      net: "Cyber mreža",
+      decoy: "Crveni mamac"
+    };
 
-    this.taps++; this.attempts++;
-    b.classList.add("is-hit");
+    return labels[type] || "Meta";
+  }
 
-    if (type === "decoy") {
-      this.score = Math.max(0, this.score - (CONFIG.decoyPenalty || 300));
-      this.lives--;
-      this.breakCombo();
-      this.audio.bad();
-      this.flash("DECOY HIT", `-${CONFIG.decoyPenalty || 300}`, "#ff325f");
-      this.effect("is-damaged");
-      this.setStatus("SYSTEM DAMAGE", "danger");
-      this.particles.burst(x, y, "#ff325f", 24);
-      if (this.lives <= 0) { setTimeout(() => this.finish(), 180); return; }
-    } else if (type === "redrabbit") {
-      // 🔴 CRVENI ZEC: SKIDA POENE I VREME!
-      const penaltyPts = CONFIG.redPenaltyPoints || 500;
-      const penaltyTime = CONFIG.redPenaltyTime || 3.0;
+  /* ==============================
+     POGODAK METE
+     ============================== */
 
-      this.score = Math.max(0, this.score - penaltyPts);
-      this.timeLeft = Math.max(0, this.timeLeft - penaltyTime);
-      this.breakCombo();
-      this.audio.red();
-      this.flash("RED RABBIT HIT!", `-${penaltyPts} PTS / -${penaltyTime}s`, "#ff0033");
-      this.effect("is-damaged");
-      this.setStatus("CRITICAL ERROR!", "danger");
-      this.particles.burst(x, y, "#ff0033", 35);
-    } else if (type === "net") {
-      this.timeLeft = Math.max(0, this.timeLeft - 1.5);
-      this.breakCombo();
-      this.audio.bad();
-      this.flash("NET TRAP!", "COMBO RESET / -1.5s", "#a855f7");
-      this.effect("is-damaged");
-      this.setStatus("NETWORK BLOCKED!", "warning");
-      this.particles.burst(x, y, "#a855f7", 20);
-    } else {
-      this.hits++; this.comboCount++;
-      this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
-      this.maxCombo = Math.max(this.maxCombo, this.mult);
-      
-      let pts = CONFIG.rabbitPoints;
-      if (type === "golden") pts = CONFIG.goldenPoints;
-      else if (type === "freeze") pts = CONFIG.freezePoints;
-      
-      pts *= this.mult;
-      this.score += pts; 
-      this.levelHits++;
-
-      if (type === "golden") {
-        this.timeLeft += CONFIG.goldenBonus;
-        this.audio.gold();
-        this.flash("GOLDEN RABBIT", `+${pts} / +${CONFIG.goldenBonus.toFixed(1)}s`, "#ffd34d");
-        this.particles.burst(x, y, "#ffd34d", 30);
-      } else if (type === "freeze") {
-        this.applyFreeze();
-        this.audio.freeze();
-        this.flash("FREEZE RABBIT", `TIME SLOWED! +${pts}`, "#00f5ff");
-        this.particles.burst(x, y, "#00f5ff", 30);
-      } else {
-        this.audio.hit(this.mult);
-        this.flash("DIRECT HIT", `+${pts}`, "#00f5ff");
-        this.particles.burst(x, y, "#00f5ff", 20);
-      }
-
-      this.effect("is-hit");
-      this.setStatus("TARGET CONFIRMED", "normal");
-
-      clearTimeout(this.comboTimer);
-      this.comboTimer = setTimeout(() => this.breakCombo(), CONFIG.comboReset);
-
-      if (this.levelHits >= CONFIG.hitsPerLevel) this.levelUp();
+  hitTarget(
+    id,
+    type,
+    button,
+    x,
+    y
+  ) {
+    if (
+      this.state !== "playing" ||
+      !this.targets.has(id)
+    ) {
+      return;
     }
 
-    setTimeout(() => b.remove(), 230);
-    this.update();
+    const targetData =
+      this.targets.get(id);
+
+    clearTimeout(
+      targetData.timerId
+    );
+
+    this.targets.delete(id);
+
+    this.taps++;
+    this.attempts++;
+
+    button.classList.add("is-hit");
+
+    if (type === "decoy") {
+      this.hitDecoy(x, y);
+    } else if (
+      type === "redrabbit"
+    ) {
+      this.hitRedRabbit(x, y);
+    } else if (
+      type === "net"
+    ) {
+      this.hitNet(x, y);
+    } else {
+      this.hitGoodTarget(
+        type,
+        x,
+        y
+      );
+    }
+
+    setTimeout(() => {
+      button.remove();
+    }, 230);
+
+    this.updateInterface();
   }
+
+  hitDecoy(x, y) {
+    this.score = Math.max(
+      0,
+      this.score -
+        CONFIG.decoyPenalty
+    );
+
+    this.lives--;
+
+    this.breakCombo();
+    this.audio.bad();
+
+    this.showMessage(
+      "DECOY HIT",
+      `-${CONFIG.decoyPenalty}`,
+      "#ff325f"
+    );
+
+    this.stageEffect("is-damaged");
+
+    this.setStatus(
+      "SYSTEM DAMAGE",
+      "danger"
+    );
+
+    this.particleSystem.burst(
+      x,
+      y,
+      "#ff325f",
+      24
+    );
+
+    if (this.lives <= 0) {
+      setTimeout(() => {
+        this.finish();
+      }, 180);
+    }
+  }
+
+  hitRedRabbit(x, y) {
+    this.score = Math.max(
+      0,
+      this.score -
+        CONFIG.redPenaltyPoints
+    );
+
+    this.timeLeft = Math.max(
+      0,
+      this.timeLeft -
+        CONFIG.redPenaltyTime
+    );
+
+    this.breakCombo();
+    this.audio.red();
+
+    this.showMessage(
+      "RED RABBIT HIT!",
+      `-${CONFIG.redPenaltyPoints} PTS / -${CONFIG.redPenaltyTime.toFixed(1)}s`,
+      "#ff0033"
+    );
+
+    this.stageEffect("is-damaged");
+
+    this.setStatus(
+      "CRITICAL ERROR!",
+      "danger"
+    );
+
+    this.particleSystem.burst(
+      x,
+      y,
+      "#ff0033",
+      35
+    );
+
+    if (this.timeLeft <= 0) {
+      this.finish();
+    }
+  }
+
+  hitNet(x, y) {
+    this.timeLeft = Math.max(
+      0,
+      this.timeLeft - 1.5
+    );
+
+    this.breakCombo();
+    this.audio.bad();
+
+    this.showMessage(
+      "NET TRAP!",
+      "COMBO RESET / -1.5s",
+      "#a855f7"
+    );
+
+    this.stageEffect("is-damaged");
+
+    this.setStatus(
+      "NETWORK BLOCKED!",
+      "warning"
+    );
+
+    this.particleSystem.burst(
+      x,
+      y,
+      "#a855f7",
+      20
+    );
+
+    if (this.timeLeft <= 0) {
+      this.finish();
+    }
+  }
+
+  hitGoodTarget(type, x, y) {
+    this.hits++;
+    this.comboCount++;
+
+    this.multiplier = Math.min(
+      CONFIG.maxCombo,
+
+      1 +
+        Math.floor(
+          this.comboCount / 3
+        )
+    );
+
+    this.maximumCombo = Math.max(
+      this.maximumCombo,
+      this.multiplier
+    );
+
+    let points =
+      CONFIG.rabbitPoints;
+
+    if (type === "golden") {
+      points =
+        CONFIG.goldenPoints;
+    } else if (
+      type === "freeze"
+    ) {
+      points =
+        CONFIG.freezePoints;
+    }
+
+    points *= this.multiplier;
+
+    this.score += points;
+    this.levelHits++;
+
+    if (type === "golden") {
+      this.timeLeft +=
+        CONFIG.goldenBonus;
+
+      this.audio.gold();
+
+      this.showMessage(
+        "GOLDEN RABBIT",
+        `+${points} / +${CONFIG.goldenBonus.toFixed(1)}s`,
+        "#ffd34d"
+      );
+
+      this.particleSystem.burst(
+        x,
+        y,
+        "#ffd34d",
+        30
+      );
+    } else if (
+      type === "freeze"
+    ) {
+      this.applyFreeze();
+      this.audio.freeze();
+
+      this.showMessage(
+        "FREEZE RABBIT",
+        `TIME SLOWED! +${points}`,
+        "#00f5ff"
+      );
+
+      this.particleSystem.burst(
+        x,
+        y,
+        "#00f5ff",
+        30
+      );
+    } else {
+      this.audio.hit(
+        this.multiplier
+      );
+
+      this.showMessage(
+        "DIRECT HIT",
+        `+${points}`,
+        "#00f5ff"
+      );
+
+      this.particleSystem.burst(
+        x,
+        y,
+        "#00f5ff",
+        20
+      );
+    }
+
+    this.stageEffect("is-hit");
+
+    this.setStatus(
+      "TARGET CONFIRMED",
+      "normal"
+    );
+
+    clearTimeout(this.comboTimer);
+
+    this.comboTimer = setTimeout(() => {
+      this.breakCombo();
+      this.updateInterface();
+    }, CONFIG.comboReset);
+
+    if (
+      this.levelHits >=
+      CONFIG.hitsPerLevel
+    ) {
+      this.levelUp();
+    }
+  }
+
+  /* ==============================
+     FREEZE BONUS
+     ============================== */
 
   applyFreeze() {
     this.isFrozen = true;
-    this.e.stage.classList.add("is-frozen");
+
+    this.elements.stage.classList.add(
+      "is-frozen"
+    );
+
     clearTimeout(this.freezeTimer);
+
     this.freezeTimer = setTimeout(() => {
       this.isFrozen = false;
-      this.e.stage.classList.remove("is-frozen");
+
+      this.elements.stage.classList.remove(
+        "is-frozen"
+      );
     }, 4000);
   }
 
-  miss(id) {
-    if (!this.targets.has(id) || this.state !== "playing") return;
-    const targetData = this.targets.get(id);
-    const isBadType = targetData.type === "decoy" || targetData.type === "redrabbit" || targetData.type === "net";
-    const b = targetData.element;
-    
-    this.targets.delete(id);
-    b.classList.add("is-expiring");
-    setTimeout(() => b.remove(), 180);
+  /* ==============================
+     META JE NESTALA
+     ============================== */
 
-    if (!isBadType) {
+  missTarget(id) {
+    if (
+      !this.targets.has(id) ||
+      this.state !== "playing"
+    ) {
+      return;
+    }
+
+    const targetData =
+      this.targets.get(id);
+
+    const badTarget =
+      targetData.type === "decoy" ||
+      targetData.type === "redrabbit" ||
+      targetData.type === "net";
+
+    const button =
+      targetData.element;
+
+    this.targets.delete(id);
+
+    button.classList.add(
+      "is-expiring"
+    );
+
+    setTimeout(() => {
+      button.remove();
+    }, 180);
+
+    /*
+     * Igrač nije kažnjen ako propusti:
+     * crvenog zeca, mamac ili mrežu.
+     */
+    if (!badTarget) {
       this.attempts++;
       this.breakCombo();
       this.lives--;
       this.audio.bad();
-      this.flash("TARGET ESCAPED", "LIFE -1", "#ff325f");
-      this.effect("is-damaged");
-      this.setStatus("TARGET ESCAPED", "warning");
-      if (this.lives <= 0) { this.finish(); return; }
+
+      this.showMessage(
+        "TARGET ESCAPED",
+        "LIFE -1",
+        "#ff325f"
+      );
+
+      this.stageEffect(
+        "is-damaged"
+      );
+
+      this.setStatus(
+        "TARGET ESCAPED",
+        "warning"
+      );
+
+      if (this.lives <= 0) {
+        this.finish();
+        return;
+      }
     }
-    this.update();
+
+    this.updateInterface();
   }
 
   emptyTap() {
     this.taps++;
+
     this.breakCombo();
-    this.audio.tone(180, .08, "triangle", 130);
-    this.flash("MISS", "COMBO RESET", "#8fa3b8");
-    this.update();
+
+    this.audio.tone(
+      180,
+      0.08,
+      "triangle",
+      130
+    );
+
+    this.showMessage(
+      "MISS",
+      "COMBO RESET",
+      "#8fa3b8"
+    );
+
+    this.updateInterface();
   }
+
+  /* ==============================
+     NOVI NIVO
+     ============================== */
 
   levelUp() {
     this.levelHits = 0;
-    if (this.level < CONFIG.maxLevel) this.level++;
+
+    if (
+      this.level <
+      CONFIG.maxLevel
+    ) {
+      this.level++;
+    }
+
     this.audio.level();
-    this.effect("is-level-up");
-    this.flash(`LEVEL ${String(this.level).padStart(2, "0")}`, "SYSTEM SPEED & TARGETS UP!", "#ffd34d");
-    this.setStatus("LEVEL ADVANCED", "normal");
+
+    this.stageEffect(
+      "is-level-up"
+    );
+
+    this.showMessage(
+      `LEVEL ${String(this.level).padStart(2, "0")}`,
+      "SYSTEM SPEED & TARGETS UP!",
+      "#ffd34d"
+    );
+
+    this.setStatus(
+      "LEVEL ADVANCED",
+      "normal"
+    );
   }
 
-  breakCombo() { this.comboCount = 0; this.mult = 1; clearTimeout(this.comboTimer); }
-  
+  breakCombo() {
+    this.comboCount = 0;
+    this.multiplier = 1;
+
+    clearTimeout(this.comboTimer);
+  }
+
   removeAllTargets() {
-    for (const [id, targetData] of this.targets.entries()) {
-      clearTimeout(targetData.timerId);
+    for (
+      const targetData
+      of this.targets.values()
+    ) {
+      clearTimeout(
+        targetData.timerId
+      );
+
       targetData.element.remove();
     }
+
     this.targets.clear();
   }
 
+  /* ==============================
+     PAUZA
+     ============================== */
+
   pause() {
-    if (this.state !== "playing") return;
+    if (this.state !== "playing") {
+      return;
+    }
+
     this.state = "paused";
-    if (this.raf) cancelAnimationFrame(this.raf);
+
+    if (this.animationFrame) {
+      cancelAnimationFrame(
+        this.animationFrame
+      );
+    }
+
     clearTimeout(this.spawnTimer);
+
     this.removeAllTargets();
-    this.show(this.e.pauseO, true);
-    this.e.pause.disabled = true;
-    this.setStatus("SYSTEM SUSPENDED", "warning");
+
+    this.showOverlay(
+      this.elements.pauseOverlay,
+      true
+    );
+
+    this.elements.pauseButton.disabled =
+      true;
+
+    this.setStatus(
+      "SYSTEM SUSPENDED",
+      "warning"
+    );
   }
 
   resume() {
-    if (this.state !== "paused") return;
-    this.show(this.e.pauseO, false);
+    if (this.state !== "paused") {
+      return;
+    }
+
+    this.showOverlay(
+      this.elements.pauseOverlay,
+      false
+    );
+
     this.state = "playing";
-    this.e.pause.disabled = false;
-    this.last = performance.now();
-    this.raf = requestAnimationFrame(t => this.loop(t));
-    this.schedule(300);
-    this.setStatus("TARGET ACQUISITION", "normal");
+
+    this.elements.pauseButton.disabled =
+      false;
+
+    this.lastFrameTime =
+      performance.now();
+
+    this.animationFrame =
+      requestAnimationFrame(time => {
+        this.gameLoop(time);
+      });
+
+    this.scheduleSpawn(300);
+
+    this.setStatus(
+      "TARGET ACQUISITION",
+      "normal"
+    );
+
     this.audio.click();
   }
 
-  togglePause() { this.state === "playing" ? this.pause() : this.state === "paused" && this.resume(); }
+  togglePause() {
+    if (this.state === "playing") {
+      this.pause();
+    } else if (
+      this.state === "paused"
+    ) {
+      this.resume();
+    }
+  }
+
+  /* ==============================
+     KRAJ IGRE
+     ============================== */
 
   finish() {
-    if (this.state === "gameover") return;
+    if (this.state === "gameover") {
+      return;
+    }
+
     this.state = "gameover";
-    if (this.raf) cancelAnimationFrame(this.raf);
-    clearTimeout(this.spawnTimer); clearTimeout(this.comboTimer); clearTimeout(this.freezeTimer);
+
+    if (this.animationFrame) {
+      cancelAnimationFrame(
+        this.animationFrame
+      );
+    }
+
+    clearTimeout(this.spawnTimer);
+    clearTimeout(this.comboTimer);
+    clearTimeout(this.freezeTimer);
+
     this.removeAllTargets();
-    this.e.pause.disabled = true;
 
-    const record = this.score > this.best;
-    if (record) { this.best = this.score; localStorage.setItem(CONFIG.bestKey, String(this.best)); }
+    this.elements.pauseButton.disabled =
+      true;
 
-    const acc = this.attempts ? Math.round(this.hits / this.attempts * 100) : 0;
-    this.e.finalScore.textContent = pad(this.score);
-    this.e.finalBest.textContent = pad(this.best);
-    this.e.finalCombo.textContent = `×${this.maxCombo}`;
-    this.e.finalAcc.textContent = `${acc}%`;
-    this.e.rank.textContent = this.rank();
-    this.e.record.classList.toggle("is-visible", record);
+    const newRecord =
+      this.score > this.bestScore;
 
-    this.update();
-    this.show(this.e.overO, true);
-    this.setStatus("SESSION COMPLETE", "danger");
+    if (newRecord) {
+      this.bestScore = this.score;
+
+      localStorage.setItem(
+        CONFIG.bestKey,
+        String(this.bestScore)
+      );
+    }
+
+    const accuracy =
+      this.attempts
+        ? Math.round(
+            this.hits /
+            this.attempts *
+            100
+          )
+        : 0;
+
+    this.elements.finalScoreValue.textContent =
+      pad(this.score);
+
+    this.elements.finalBestValue.textContent =
+      pad(this.bestScore);
+
+    this.elements.finalComboValue.textContent =
+      `×${this.maximumCombo}`;
+
+    this.elements.finalAccuracyValue.textContent =
+      `${accuracy}%`;
+
+    this.elements.resultRank.textContent =
+      this.getRank();
+
+    this.elements.newRecordMessage.classList.toggle(
+      "is-visible",
+      newRecord
+    );
+
+    this.updateInterface();
+
+    this.showOverlay(
+      this.elements.gameOverOverlay,
+      true
+    );
+
+    this.setStatus(
+      "SESSION COMPLETE",
+      "danger"
+    );
+
     this.audio.over();
   }
 
-  rank() {
-    if (this.score >= 500000) return "WHITE HAT GODLIKE";
-    if (this.score >= 150000) return "CYBER HUNTER";
-    if (this.score >= 50000) return "REFLEX OPERATIVE";
-    if (this.score >= 10000) return "RABBIT TRACKER";
+  getRank() {
+    if (this.score >= 500000) {
+      return "WHITE HAT GODLIKE";
+    }
+
+    if (this.score >= 150000) {
+      return "CYBER HUNTER";
+    }
+
+    if (this.score >= 50000) {
+      return "REFLEX OPERATIVE";
+    }
+
+    if (this.score >= 10000) {
+      return "RABBIT TRACKER";
+    }
+
     return "REFLEX ROOKIE";
   }
 
+  /* ==============================
+     INTERFEJS
+     ============================== */
+
   setStatus(text, type) {
-    this.e.status.textContent = text;
-    const c = document.querySelector(".status-chip");
-    c?.classList.toggle("is-danger", type === "danger");
-    c?.classList.toggle("is-warning", type === "warning");
+    this.elements.statusText.textContent =
+      text;
+
+    const statusChip =
+      document.querySelector(
+        ".status-chip"
+      );
+
+    if (!statusChip) {
+      return;
+    }
+
+    statusChip.classList.toggle(
+      "is-danger",
+      type === "danger"
+    );
+
+    statusChip.classList.toggle(
+      "is-warning",
+      type === "warning"
+    );
   }
 
-  flash(main, sub, color) {
-    this.e.floatMain.textContent = main;
-    this.e.floatSub.textContent = sub;
-    this.e.float.style.color = color;
-    this.e.float.classList.remove("is-visible");
-    requestAnimationFrame(() => this.e.float.classList.add("is-visible"));
+  showMessage(
+    mainText,
+    subText,
+    color
+  ) {
+    this.elements.floatingMain.textContent =
+      mainText;
+
+    this.elements.floatingSub.textContent =
+      subText;
+
+    this.elements.floatingMessage.style.color =
+      color;
+
+    this.elements.floatingMessage.classList.remove(
+      "is-visible"
+    );
+
+    requestAnimationFrame(() => {
+      this.elements.floatingMessage.classList.add(
+        "is-visible"
+      );
+    });
   }
 
-  effect(cls) {
-    this.e.stage.classList.remove(cls);
-    requestAnimationFrame(() => this.e.stage.classList.add(cls));
-    setTimeout(() => this.e.stage.classList.remove(cls), 700);
+  stageEffect(className) {
+    this.elements.stage.classList.remove(
+      className
+    );
+
+    requestAnimationFrame(() => {
+      this.elements.stage.classList.add(
+        className
+      );
+    });
+
+    setTimeout(() => {
+      this.elements.stage.classList.remove(
+        className
+      );
+    }, 700);
   }
 
-  updateSound() {
-    this.e.sound.setAttribute("aria-pressed", String(this.audio.enabled));
-    this.e.soundIcon.textContent = this.audio.enabled ? "◉" : "○";
+  updateSoundButton() {
+    this.elements.soundButton.setAttribute(
+      "aria-pressed",
+      String(this.audio.enabled)
+    );
+
+    this.elements.soundIcon.textContent =
+      this.audio.enabled
+        ? "◉"
+        : "○";
   }
 
-  update() {
-    this.e.score.textContent = pad(this.score);
-    this.e.best.textContent = pad(this.best);
-    this.e.combo.textContent = String(this.mult);
-    this.e.level.textContent = String(this.level).padStart(2, "0");
-    this.e.time.textContent = (isNaN(this.timeLeft) ? 60.0 : this.timeLeft).toFixed(1);
+  updateInterface() {
+    this.elements.scoreValue.textContent =
+      pad(this.score);
 
-    this.e.comboCard.classList.toggle("is-hot", this.mult >= 3);
-    this.e.progressText.textContent = `${this.levelHits} / ${CONFIG.hitsPerLevel}`;
-    this.e.progressFill.style.width = `${this.levelHits / CONFIG.hitsPerLevel * 100}%`;
+    this.elements.bestScoreValue.textContent =
+      pad(this.bestScore);
 
-    [...this.e.lives.children].forEach((el, i) => {
-      el.classList.toggle("life--active", i < this.lives);
-      el.classList.toggle("life--lost", i >= this.lives);
+    this.elements.comboValue.textContent =
+      String(this.multiplier);
+
+    this.elements.levelValue.textContent =
+      String(this.level).padStart(2, "0");
+
+    const safeTime =
+      Number.isFinite(this.timeLeft)
+        ? this.timeLeft
+        : CONFIG.time;
+
+    this.elements.timeValue.textContent =
+      safeTime.toFixed(1);
+
+    this.elements.comboCard.classList.toggle(
+      "is-hot",
+      this.multiplier >= 3
+    );
+
+    this.elements.progressText.textContent =
+      `${this.levelHits} / ${CONFIG.hitsPerLevel}`;
+
+    this.elements.progressFill.style.width =
+      `${this.levelHits / CONFIG.hitsPerLevel * 100}%`;
+
+    [
+      ...this.elements
+        .livesContainer
+        .children
+    ].forEach((element, index) => {
+      element.classList.toggle(
+        "life--active",
+        index < this.lives
+      );
+
+      element.classList.toggle(
+        "life--lost",
+        index >= this.lives
+      );
     });
   }
 }
 
-addEventListener("DOMContentLoaded", () => {
-  try { new Game(); } catch (err) {
-    console.error(err);
-    alert("Igra nije mogla da se pokrene. Proveri da li su index.html, style.css i script.js u istom folderu.");
+/* ==============================
+   POKRETANJE APLIKACIJE
+   ============================== */
+
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    try {
+      new Game();
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Igra nije mogla da se pokrene. " +
+        "Proveri da li su index.html, " +
+        "style.css i script.js " +
+        "u istom folderu."
+      );
+    }
   }
-});
+);
