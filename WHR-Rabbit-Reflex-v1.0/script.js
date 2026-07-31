@@ -1,6 +1,3 @@
-script-v1.1-COPY-PASTE.txt
-
-
 "use strict";
 
 const CONFIG = {
