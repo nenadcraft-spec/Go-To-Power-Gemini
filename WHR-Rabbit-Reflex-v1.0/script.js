@@ -1,3 +1,6 @@
+script-v1.1-COPY-PASTE.txt
+
+
 "use strict";
 
 const CONFIG = {
@@ -385,8 +388,14 @@ class Game {
   getMaxSimultaneousTargets() {
     const cap = innerWidth < 700 ? 6 : 8;
     if (this.level < 5) return 1;
-    if (this.level < 10) return Math.min(cap, 2 + Math.floor((this.level - 5) / 2));
-    return Math.min(cap, 4 + Math.floor((this.level - 10) / 2));
+    if (this.level < 10) return 4;
+    return cap;
+  }
+
+  getSpawnBatchSize() {
+    if (this.level >= 10) return 3;
+    if (this.level >= 5) return 2;
+    return 1;
   }
 
   schedule(delay = this.spawnDelay()) {
@@ -395,8 +404,13 @@ class Game {
     this.spawnTimer = setTimeout(() => {
       this.spawnDueAt = 0;
       const maxTargets = this.getMaxSimultaneousTargets();
-      if (this.targets.size < maxTargets) {
-        this.spawn();
+      const batchSize = this.getSpawnBatchSize();
+      const availableSlots = maxTargets - this.targets.size;
+
+      if (availableSlots >= batchSize) {
+        for (let i = 0; i < batchSize; i++) {
+          this.spawn();
+        }
       }
       this.schedule();
     }, delay);
@@ -549,7 +563,7 @@ class Game {
         return;
       }
     } else if (type === "redrabbit") {
-      // ðŸ”´ CRVENI ZEC: SKIDA POENE I VREME!
+      // CRVENI ZEC: SKIDA POENE I VREME!
       const penaltyPts = CONFIG.redPenaltyPoints || 500;
       const penaltyTime = CONFIG.redPenaltyTime || 3.0;
 
@@ -820,7 +834,7 @@ class Game {
       : 0;
     this.e.finalScore.textContent = pad(this.score);
     this.e.finalBest.textContent = pad(this.best);
-    this.e.finalCombo.textContent = `Ã—${this.maxCombo}`;
+    this.e.finalCombo.textContent = `x${this.maxCombo}`;
     this.e.finalAcc.textContent = `${acc}%`;
     this.e.rank.textContent = this.rank();
     this.e.record.classList.toggle("is-visible", record);
