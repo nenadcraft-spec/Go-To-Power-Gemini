@@ -181,7 +181,10 @@ class Game {
     let dt = Math.min(0.1, (t - (this.last || t)) / 1000);
     this.last = t;
     
-    if (this.isFrozen) dt *= 0.5; // Vreme ide usporeno tokom leda!
+    if (this.isFrozen) dt *= 0.5;
+
+    // SPREČAVANJE NaN BAGA NA TAJMERU
+    if (isNaN(this.timeLeft)) this.timeLeft = CONFIG.time;
 
     this.timeLeft = Math.max(0, this.timeLeft - dt);
     this.e.time.textContent = this.timeLeft.toFixed(1);
@@ -233,14 +236,14 @@ class Game {
     const decoyProb = Math.min(.12 + (this.level - 1) * .012, .28);
     const goldProb = Math.min(.08 + (this.level - 1) * .004, .15);
     const freezeProb = Math.min(.08, .04 + (this.level - 1) * .005);
-    const fireProb = Math.min(.15, .05 + (this.level - 1) * .01); // VATRENI ZEC
-    const netProb = this.level >= 3 ? Math.min(.12, .03 + (this.level - 3) * .01) : 0; // MREŽA PREPREKA
+    const fireProb = Math.min(.18, .06 + (this.level - 1) * .012); // Povećana šansa za Vatrenog zeca!
+    const netProb = this.level >= 3 ? Math.min(.12, .03 + (this.level - 3) * .01) : 0;
 
     let type = "rabbit";
     if (roll < goldProb) type = "golden";
     else if (roll < goldProb + freezeProb) type = "freeze";
-    else if (roll < goldProb + freezeProb + fireProb) type = "fire"; // OPASNI VATRENI ZEC
-    else if (roll < goldProb + freezeProb + fireProb + netProb) type = "net"; // MREŽA
+    else if (roll < goldProb + freezeProb + fireProb) type = "fire"; // FIRE RABBIT
+    else if (roll < goldProb + freezeProb + fireProb + netProb) type = "net";
     else if (roll < goldProb + freezeProb + fireProb + netProb + decoyProb) type = "decoy";
 
     const size = Math.max(58, (innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.8);
@@ -287,29 +290,30 @@ class Game {
     this.taps++; this.attempts++;
     b.classList.add("is-hit");
 
-    // 1. LOŠI ELEMENTI (Opasnosti i prepreke)
     if (type === "decoy") {
-      this.score = Math.max(0, this.score - CONFIG.decoyPenalty);
+      this.score = Math.max(0, this.score - (CONFIG.decoyPenalty || 300));
       this.lives--;
       this.breakCombo();
       this.audio.bad();
-      this.flash("DECOY HIT", `-${CONFIG.decoyPenalty}`, "#ff325f");
+      this.flash("DECOY HIT", `-${CONFIG.decoyPenalty || 300}`, "#ff325f");
       this.effect("is-damaged");
       this.setStatus("SYSTEM DAMAGE", "danger");
       this.particles.burst(x, y, "#ff325f", 24);
       if (this.lives <= 0) { setTimeout(() => this.finish(), 180); return; }
     } else if (type === "fire") {
-      // 🔥 VATRENI ZEC: KAZNA POENI I KAZNA VREME!
-      this.score = Math.max(0, this.score - CONFIG.firePenaltyPoints);
-      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.firePenaltyTime);
+      // VATRENI ZEC: DUGUJE SE KAZNA POENA I KAZNA VREMENA SREĐENA BEZ NaN
+      const penaltyPts = CONFIG.firePenaltyPoints || 500;
+      const penaltyTime = CONFIG.firePenaltyTime || 3.0;
+
+      this.score = Math.max(0, this.score - penaltyPts);
+      this.timeLeft = Math.max(0, this.timeLeft - penaltyTime);
       this.breakCombo();
       this.audio.fire();
-      this.flash("FIRE RABBIT HIT!", `-${CONFIG.firePenaltyPoints} PTS / -${CONFIG.firePenaltyTime}s`, "#ff4500");
+      this.flash("FIRE RABBIT HIT!", `-${penaltyPts} PTS / -${penaltyTime}s`, "#ff4500");
       this.effect("is-damaged");
       this.setStatus("SYSTEM OVERHEAT!", "danger");
       this.particles.burst(x, y, "#ff4500", 35);
     } else if (type === "net") {
-      // 🕸️ MREŽA PREPREKA
       this.timeLeft = Math.max(0, this.timeLeft - 1.5);
       this.breakCombo();
       this.audio.bad();
@@ -318,7 +322,6 @@ class Game {
       this.setStatus("NETWORK BLOCKED!", "warning");
       this.particles.burst(x, y, "#a855f7", 20);
     } else {
-      // 2. DOBRI ZEČEVI
       this.hits++; this.comboCount++;
       this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
       this.maxCombo = Math.max(this.maxCombo, this.mult);
@@ -380,7 +383,6 @@ class Game {
     b.classList.add("is-expiring");
     setTimeout(() => b.remove(), 180);
 
-    // Ako nam pobegne DOBAR zec, gubimo život! Ako pobegne Vatreni/Mreža/Mamac, nikom ništa.
     if (!isBadType) {
       this.attempts++;
       this.breakCombo();
@@ -510,7 +512,7 @@ class Game {
     this.e.best.textContent = pad(this.best);
     this.e.combo.textContent = String(this.mult);
     this.e.level.textContent = String(this.level).padStart(2, "0");
-    this.e.time.textContent = this.timeLeft.toFixed(1);
+    this.e.time.textContent = (isNaN(this.timeLeft) ? 60.0 : this.timeLeft).toFixed(1);
 
     this.e.comboCard.classList.toggle("is-hot", this.mult >= 3);
     this.e.progressText.textContent = `${this.levelHits} / ${CONFIG.hitsPerLevel}`;
