@@ -3,6 +3,7 @@
 const CONFIG = {
   time: 60,
   lives: 3,
+  maxLives: 5,
   hitsPerLevel: 10,
   maxLevel: 99,
   rabbitPoints: 250,
@@ -12,6 +13,9 @@ const CONFIG = {
   redPenaltyPoints: 500,
   redPenaltyTime: 3.0,
   decoyPenalty: 300,
+  extraLifeChance: 0.10,
+  extraLifeStartLevel: 5,
+  extraLifeFullPoints: 1500,
   baseLife: 1450,
   minLife: 350,
   lifeStep: 45,
@@ -78,6 +82,11 @@ class AudioFX {
   red() {
     [200, 150, 100].forEach((f, i) =>
       setTimeout(() => this.tone(f, 0.18, "sawtooth", f * 0.6), i * 60)
+    );
+  }
+  life() {
+    [520, 660, 880, 1040].forEach((f, i) =>
+      setTimeout(() => this.tone(f, 0.14, "triangle", f * 1.12), i * 45)
     );
   }
   bad() {
@@ -218,6 +227,7 @@ class Game {
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
     this.bind();
+    this.ensureLifeSlots();
     this.reset();
     this.show(this.e.startO, true);
     this.updateSound();
@@ -298,6 +308,15 @@ class Game {
     el.classList.toggle("stage-overlay--visible", on);
   }
 
+  ensureLifeSlots() {
+    while (this.e.lives.children.length < CONFIG.maxLives) {
+      const life = document.createElement("span");
+      life.className = "life life--lost";
+      life.textContent = "◆";
+      this.e.lives.appendChild(life);
+    }
+  }
+
   async start() {
     if (this.starting) return;
     this.starting = true;
@@ -364,7 +383,10 @@ class Game {
   }
 
   getMaxSimultaneousTargets() {
-    return Math.min(6, 1 + Math.floor(this.level / 5));
+    const cap = innerWidth < 700 ? 6 : 8;
+    if (this.level < 5) return 1;
+    if (this.level < 10) return Math.min(cap, 2 + Math.floor((this.level - 5) / 2));
+    return Math.min(cap, 4 + Math.floor((this.level - 10) / 2));
   }
 
   schedule(delay = this.spawnDelay()) {
@@ -396,6 +418,32 @@ class Game {
     return this.isFrozen ? life * 1.8 : life;
   }
 
+  findSpawnPosition(size, rect) {
+    const margin = size / 2 + 18;
+    let fallback = { x: rect.width / 2, y: rect.height / 2 };
+
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const point = {
+        x: margin + Math.random() * Math.max(1, rect.width - margin * 2),
+        y: margin + Math.random() * Math.max(1, rect.height - margin * 2),
+      };
+      fallback = point;
+
+      const overlaps = [...this.targets.values()].some((targetData) => {
+        const other = targetData.element;
+        const otherSize = parseFloat(other.style.getPropertyValue("--target-size")) || size;
+        const dx = point.x - parseFloat(other.style.left);
+        const dy = point.y - parseFloat(other.style.top);
+        const safeDistance = (size + otherSize) / 2 + 10;
+        return Math.hypot(dx, dy) < safeDistance;
+      });
+
+      if (!overlaps) return point;
+    }
+
+    return fallback;
+  }
+
   spawn() {
     if (this.state !== "playing") return;
 
@@ -406,14 +454,17 @@ class Game {
     const redProb = Math.min(0.18, 0.06 + (this.level - 1) * 0.012); // CRVENI ZEC
     const netProb =
       this.level >= 3 ? Math.min(0.12, 0.03 + (this.level - 3) * 0.01) : 0;
+    const lifeProb =
+      this.level >= CONFIG.extraLifeStartLevel ? CONFIG.extraLifeChance : 0;
 
     let type = "rabbit";
-    if (roll < goldProb) type = "golden";
-    else if (roll < goldProb + freezeProb) type = "freeze";
-    else if (roll < goldProb + freezeProb + redProb)
+    if (roll < lifeProb) type = "life";
+    else if (roll < lifeProb + goldProb) type = "golden";
+    else if (roll < lifeProb + goldProb + freezeProb) type = "freeze";
+    else if (roll < lifeProb + goldProb + freezeProb + redProb)
       type = "redrabbit"; // CRVENI ZEC (OPASAN)
-    else if (roll < goldProb + freezeProb + redProb + netProb) type = "net";
-    else if (roll < goldProb + freezeProb + redProb + netProb + decoyProb)
+    else if (roll < lifeProb + goldProb + freezeProb + redProb + netProb) type = "net";
+    else if (roll < lifeProb + goldProb + freezeProb + redProb + netProb + decoyProb)
       type = "decoy";
 
     const size = Math.max(
@@ -421,10 +472,9 @@ class Game {
       (innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.8
     );
 
-    const r = this.e.stage.getBoundingClientRect(),
-      m = size / 2 + 18;
-    const x = m + Math.random() * Math.max(1, r.width - m * 2),
-      y = m + Math.random() * Math.max(1, r.height - m * 2);
+    const r = this.e.stage.getBoundingClientRect();
+    const position = this.findSpawnPosition(size, r);
+    const { x, y } = position;
 
     const b = document.createElement("button");
     b.className = `target target--${type}`;
@@ -440,6 +490,9 @@ class Game {
     } else {
       b.innerHTML =
         '<span class="target__timer"></span><span class="target__ring"></span><span class="target__core"></span><span class="target__rabbit"><span class="target__rabbit-ear target__rabbit-ear--left"></span><span class="target__rabbit-ear target__rabbit-ear--right"></span><span class="target__rabbit-head"></span><span class="target__rabbit-eye"></span></span>';
+      if (type === "life") {
+        b.insertAdjacentHTML("beforeend", '<span class="target__life-plus">+1</span>');
+      }
     }
 
     const id = Symbol();
@@ -469,7 +522,20 @@ class Game {
     this.attempts++;
     b.classList.add("is-hit");
 
-    if (type === "decoy") {
+    if (type === "life") {
+      this.hits++;
+      if (this.lives < CONFIG.maxLives) {
+        this.lives++;
+        this.flash("EXTRA LIFE!", "LIFE +1", "#55ff88");
+      } else {
+        this.score += CONFIG.extraLifeFullPoints;
+        this.flash("LIFE BANK FULL", `+${CONFIG.extraLifeFullPoints} PTS`, "#55ff88");
+      }
+      this.audio.life();
+      this.effect("is-hit");
+      this.setStatus("LIFE RESTORED", "normal");
+      this.particles.burst(x, y, "#55ff88", 36);
+    } else if (type === "decoy") {
       this.score = Math.max(0, this.score - (CONFIG.decoyPenalty || 300));
       this.lives--;
       this.breakCombo();
@@ -579,7 +645,8 @@ class Game {
     const isBadType =
       targetData.type === "decoy" ||
       targetData.type === "redrabbit" ||
-      targetData.type === "net";
+      targetData.type === "net" ||
+      targetData.type === "life";
     const b = targetData.element;
 
     this.targets.delete(id);
@@ -794,16 +861,9 @@ class Game {
   }
 
   updateSound() {
-  this.e.sound.setAttribute(
-    "aria-pressed",
-    String(this.audio.enabled)
-  );
-
-  this.e.soundIcon.textContent =
-    this.audio.enabled
-      ? "ON"
-      : "OFF";
-}
+    this.e.sound.setAttribute("aria-pressed", String(this.audio.enabled));
+    this.e.soundIcon.textContent = this.audio.enabled ? "ON" : "OFF";
+  }
 
   update() {
     this.e.score.textContent = pad(this.score);
