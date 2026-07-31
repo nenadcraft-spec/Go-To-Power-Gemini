@@ -511,13 +511,58 @@ button {
   opacity: .3;
 }
 
+/* Tipovi Meta */
 .target--decoy { --target-color: var(--red); }
 .target--decoy .target__rabbit-head { border-radius: 18%; transform: rotate(45deg); }
 .target--decoy .target__rabbit-ear { display: none; }
 .target--decoy .target__rabbit-eye { left: 45%; top: 45%; width: 10%; height: 10%; }
 
-.target--golden { --target-color: var(--gold); }
-.target--golden { filter: drop-shadow(0 0 12px var(--gold)); }
+.target--golden { --target-color: var(--gold); filter: drop-shadow(0 0 12px var(--gold)); }
+
+/* Crveni Zec (Opasan) */
+.target--redrabbit {
+  --target-color: #ff0033;
+  filter: drop-shadow(0 0 18px #ff0033);
+  animation: spawn .22s cubic-bezier(.2, 1.55, .4, 1) forwards, redPulse 0.4s infinite alternate !important;
+}
+
+/* Ledeni Zec */
+.target--freeze {
+  --target-color: #00f5ff;
+  filter: drop-shadow(0 0 16px #00f5ff);
+}
+.target--freeze .target__ring { border-style: double; }
+
+/* Cyber Net Trap (Mreža Prepreka) */
+.target--net {
+  --target-color: #a855f7;
+  border-radius: 8px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid #a855f7;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+.target__net-grid {
+  position: absolute;
+  inset: 4px;
+  background-image: linear-gradient(#a855f7 1px, transparent 1px), linear-gradient(90deg, #a855f7 1px, transparent 1px);
+  background-size: 10px 10px;
+  opacity: 0.6;
+}
+.target__net-warning {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: 800 0.5rem var(--display);
+  color: #a855f7;
+}
+
+/* Frozen Stage Effect */
+.game-stage.is-frozen {
+  box-shadow: inset 0 0 90px rgba(0, 245, 255, 0.6), 0 20px 60px rgba(0, 0, 0, .45);
+  border-color: #00f5ff;
+}
 
 /* Crosshair & Floating Text */
 .crosshair {
@@ -769,3 +814,8 @@ button {
 @keyframes damage { 50% { box-shadow: inset 0 0 70px rgba(255, 50, 95, .35); } }
 @keyframes levelup { 50% { box-shadow: inset 0 0 70px rgba(255, 211, 77, .3); } }
 @keyframes pulse-red { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+
+@keyframes redPulse {
+  0% { transform: translate(-50%, -50%) scale(0.95); filter: drop-shadow(0 0 12px #ff0033); }
+  100% { transform: translate(-50%, -50%) scale(1.08); filter: drop-shadow(0 0 22px #ff0000); }
+}
