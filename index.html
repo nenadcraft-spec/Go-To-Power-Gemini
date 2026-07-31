@@ -5,22 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Šta je novo - Updates</title>
   <style>
-    /* Osnovni stilovi za stranicu */
-    body {
-      background-color: #f3f4f6;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 40px 20px;
+    /* Tamna zamagljena pozadina (Modal Overlay) */
+    .news-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     /* Kontejner taba */
     .news-tab-container {
+      width: 100%;
       max-width: 600px;
-      margin: 0 auto;
+      max-height: 85vh;
       background: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       padding: 24px;
+      position: relative;
+      overflow-y: auto;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     /* Zaglavlje */
@@ -31,6 +44,7 @@
       border-bottom: 2px solid #f0f0f0;
       padding-bottom: 14px;
       margin-bottom: 24px;
+      padding-right: 40px; /* Prostor za X dugme */
     }
 
     .tab-header h2 {
@@ -51,6 +65,32 @@
       border-radius: 9999px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+
+    /* DUGME ZA ZATVARANJE (X) */
+    .close-modal-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #f3f4f6;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #4b5563;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .close-modal-btn:hover {
+      background: #e5e7eb;
+      color: #111827;
+      transform: scale(1.05);
     }
 
     /* Kartica ažuriranja */
@@ -132,14 +172,21 @@
 </head>
 <body>
 
-  <div class="news-tab-container">
-    <div class="tab-header">
-      <h2>Šta je novo 🚀</h2>
-      <span class="live-badge">Live Updates</span>
+  <!-- Modal Kontejner sa pozadinom -->
+  <div id="newsModal" class="news-modal-overlay">
+    <div class="news-tab-container">
+      
+      <!-- DUGME ZA ZATVARANJE -->
+      <button class="close-modal-btn" onclick="closeNewsModal()" aria-label="Zatvori">✕</button>
+
+      <div class="tab-header">
+        <h2>Šta je novo 🚀</h2>
+        <span class="live-badge">Live Updates</span>
+      </div>
+      
+      <!-- JS ovde automatski ubacuje objave -->
+      <div id="updates-feed"></div>
     </div>
-    
-    <!-- JS ovde automatski ubacuje objave -->
-    <div id="updates-feed"></div>
   </div>
 
   <script>
@@ -217,6 +264,29 @@
         feedContainer.appendChild(card);
       });
     }
+
+    // Funkcija za zatvaranje modala
+    function closeNewsModal() {
+      const modal = document.getElementById("newsModal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    // Zatvaranje klikom van modala (na zamagljenu pozadinu)
+    window.addEventListener("click", function(event) {
+      const modal = document.getElementById("newsModal");
+      if (event.target === modal) {
+        closeNewsModal();
+      }
+    });
+
+    // Zatvaranje pritiskom na ESC taster
+    window.addEventListener("keydown", function(event) {
+      if (event.key === "Escape") {
+        closeNewsModal();
+      }
+    });
 
     // Pokreni prikazivanje
     document.addEventListener("DOMContentLoaded", renderUpdates);
