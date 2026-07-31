@@ -13,7 +13,7 @@ const CONFIG = {
   redPenaltyPoints: 500,
   redPenaltyTime: 3.0,
   decoyPenalty: 300,
-  extraLifeChance: 0.10,
+  extraLifeChance: 0.03,
   extraLifeStartLevel: 5,
   extraLifeFullPoints: 1500,
   baseLife: 1450,
