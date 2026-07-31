@@ -6,28 +6,32 @@ const CONFIG = {
   hitsPerLevel: 10,     // Pogodaka potrebnih za sledeći nivo
   maxLevel: 100,        // Maksimalni nivo
   
-  // Poeni i Vremenski Bonusi (DUPLIRANO VREME!)
+  // Poeni i Vremenski Bonusi
   rabbitPoints: 100,
-  rabbitBonus: 1.0,     // SVAKI beli zec dodaje +1.0s na tajmer!
+  rabbitBonus: 1.0,     // Beli zec: +1.0s
   goldenPoints: 500,
-  goldenBonus: 8.0,     // Zlatni zec dāje čak +8.0s na tajmer!
+  goldenBonus: 8.0,     // Zlatni zec: +8.0s
   
+  // Freeze Rabbit (Plavi zec)
+  freezePoints: 300,
+  freezeDuration: 3.0,  // Zamrzava tajmer na 3.0s!
+
   // Kazne
-  decoyPenalty: 300,    // Oduzimanje poena
+  decoyPenalty: 300,
   decoyTimePenalty: 3.0,// Crveni mamac skida -3.0s sa tajmera!
 
   // Brzina i Trajanje na ekranu (Life u ms)
-  baseLife: 1650,       // Level 1: zec stoji 1.65 sekundi
-  minLife: 400,         // Najbrži nivo: 0.40s reakcije!
-  lifeStep: 12,         // Fina progresija skraćivanja trajanja
+  baseLife: 1650,       
+  minLife: 400,         
+  lifeStep: 12,         
 
   // Pauza između spawnovanja (Delay u ms)
   baseDelay: 650,
   minDelay: 120,
   delayStep: 6,
 
-  comboReset: 1600,     // Vreme za resetovanje comba
-  maxCombo: 15,         // Maksimalni multiplikator (x15)
+  comboReset: 1600,     
+  maxCombo: 15,         
 
   bestKey: "whr-rabbit-reflex-best-score",
   soundKey: "whr-rabbit-reflex-sound-enabled"
@@ -55,6 +59,7 @@ class AudioFX {
   }
   hit(c) { this.tone(480 + c * 24, .09, "sine", 820 + c * 24); }
   gold() { [660, 880, 1100].forEach((f, i) => setTimeout(() => this.tone(f, .13, "triangle", f * 1.1), i * 45)); }
+  freeze() { [800, 1000, 1200, 1500].forEach((f, i) => setTimeout(() => this.tone(f, .1, "sine", f * .8), i * 40)); }
   bad() { this.tone(190, .24, "sawtooth", 55); }
   level() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, .16, "sine", f * 1.05), i * 65)); }
   click() { this.tone(500, .07, "sine", 720); }
@@ -110,6 +115,7 @@ class Game {
     this.state = "ready"; this.starting = false;
     this.targets = new Map();
     this.nextTargetId = 0;
+    this.freezeLeft = 0; // Trajanje zamrzavanja tajmera u sekundama
     this.bind(); this.reset(); this.show(this.e.startO, true); this.updateSound();
   }
 
@@ -156,6 +162,8 @@ class Game {
     this.score = 0; this.level = 1; this.levelHits = 0; this.comboCount = 0;
     this.mult = 1; this.maxCombo = 1; this.lives = CONFIG.lives;
     this.timeLeft = CONFIG.time; this.hits = 0; this.attempts = 0; this.taps = 0; this.last = 0;
+    this.freezeLeft = 0;
+    this.e.stage.classList.remove("is-frozen");
     this.update();
   }
 
@@ -192,10 +200,18 @@ class Game {
     const dt = Math.min(0.1, (t - (this.last || t)) / 1000);
     this.last = t;
     
-    this.timeLeft = Math.max(0, this.timeLeft - dt);
-    this.e.time.textContent = this.timeLeft.toFixed(1);
+    // Provera da li je aktivno zamrzavanje tajmera
+    if (this.freezeLeft > 0) {
+      this.freezeLeft = Math.max(0, this.freezeLeft - dt);
+      if (this.freezeLeft <= 0) {
+        this.e.stage.classList.remove("is-frozen");
+      }
+    } else {
+      this.timeLeft = Math.max(0, this.timeLeft - dt);
+    }
 
-    document.querySelector(".timer-display")?.classList.toggle("is-critical", this.timeLeft <= 8);
+    this.e.time.textContent = this.timeLeft.toFixed(1);
+    document.querySelector(".timer-display")?.classList.toggle("is-critical", this.timeLeft <= 8 && this.freezeLeft <= 0);
 
     for (const [id, targetData] of this.targets) {
       const p = clamp(1 - (t - targetData.spawnAt) / targetData.life, 0, 1);
@@ -209,7 +225,6 @@ class Game {
     this.raf = requestAnimationFrame(n => this.loop(n));
   }
 
-  // NOVA SKALA: Level 5 -> 2 zeca, Level 10 -> 3 zeca, Level 15 -> 4 zeca
   maxTargetsForLevel() {
     if (this.level >= 15) return 4;
     if (this.level >= 10) return 3;
@@ -237,9 +252,14 @@ class Game {
     
     const roll = Math.random();
     const decoyProb = Math.min(.12 + (this.level - 1) * .008, .35);
-    const goldProb = Math.min(.08 + (this.level - 1) * .003, .18);
-    const type = roll < goldProb ? "golden" : roll < goldProb + decoyProb ? "decoy" : "rabbit";
-    
+    const goldProb = Math.min(.08 + (this.level - 1) * .003, .16);
+    const freezeProb = Math.min(.07 + (this.level - 1) * .002, .14); // Plavi zec šansa
+
+    let type = "rabbit";
+    if (roll < freezeProb) type = "freeze";
+    else if (roll < freezeProb + goldProb) type = "golden";
+    else if (roll < freezeProb + goldProb + decoyProb) type = "decoy";
+
     const size = Math.max(54, (innerWidth < 700 ? 80 : 92) - (this.level - 1) * 0.8);
     const r = this.e.stage.getBoundingClientRect();
     const m = size / 2 + 18;
@@ -260,7 +280,7 @@ class Game {
     const b = document.createElement("button");
     b.className = `target target--${type}`;
     b.type = "button";
-    b.setAttribute("aria-label", type === "decoy" ? "Crveni mamac" : type === "golden" ? "Golden Rabbit" : "Beli Zec");
+    b.setAttribute("aria-label", type === "decoy" ? "Crveni mamac" : type === "golden" ? "Golden Rabbit" : type === "freeze" ? "Freeze Rabbit" : "Beli Zec");
     b.style.setProperty("--target-size", `${size}px`);
     b.style.left = `${x}px`; b.style.top = `${y}px`;
 
@@ -308,22 +328,34 @@ class Game {
       this.hits++; this.comboCount++;
       this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
       this.maxCombo = Math.max(this.maxCombo, this.mult);
-      const pts = (type === "golden" ? CONFIG.goldenPoints : CONFIG.rabbitPoints) * this.mult;
+      
+      let basePts = CONFIG.rabbitPoints;
+      if (type === "golden") basePts = CONFIG.goldenPoints;
+      if (type === "freeze") basePts = CONFIG.freezePoints;
+
+      const pts = basePts * this.mult;
       this.score += pts; this.levelHits++;
 
-      if (type === "golden") {
-        this.timeLeft += CONFIG.goldenBonus; // +8.0 SEKUNDI BONUS!
+      if (type === "freeze") {
+        this.freezeLeft = CONFIG.freezeDuration;
+        this.e.stage.classList.add("is-frozen");
+        this.audio.freeze();
+        this.flash("TIME FROZEN", `+${pts} / FREEZE ${CONFIG.freezeDuration.toFixed(1)}s`, "#00bfff");
+        this.particles.burst(x, y, "#00bfff", 28);
+      } else if (type === "golden") {
+        this.timeLeft += CONFIG.goldenBonus;
         this.audio.gold();
         this.flash("GOLDEN RABBIT", `+${pts} / +${CONFIG.goldenBonus.toFixed(1)}s`, "#ffd34d");
+        this.particles.burst(x, y, "#ffd34d", 30);
       } else {
-        this.timeLeft += CONFIG.rabbitBonus; // +1.0 SEKUNDA ZA BELOG ZECA!
+        this.timeLeft += CONFIG.rabbitBonus;
         this.audio.hit(this.mult);
         this.flash("DIRECT HIT", `+${pts} / +${CONFIG.rabbitBonus.toFixed(1)}s`, "#00f5ff");
+        this.particles.burst(x, y, "#00f5ff", 20);
       }
 
       this.effect("is-hit");
       this.setStatus("TARGET CONFIRMED", "normal");
-      this.particles.burst(x, y, type === "golden" ? "#ffd34d" : "#00f5ff", type === "golden" ? 30 : 20);
 
       clearTimeout(this.comboTimer);
       this.comboTimer = setTimeout(() => this.breakCombo(), CONFIG.comboReset);
@@ -420,6 +452,7 @@ class Game {
     if (this.raf) cancelAnimationFrame(this.raf);
     clearTimeout(this.spawnTimer); clearTimeout(this.comboTimer);
     this.removeAllTargets();
+    this.e.stage.classList.remove("is-frozen");
     this.e.pause.disabled = true;
 
     const record = this.score > this.best;
