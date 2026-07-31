@@ -2,19 +2,17 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    <!-- Onemogućeno neželjeno zumiranje pri brzom tapkanju na mobilnim telefonima -->
+    <meta 
+        name="viewport" 
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     >
-
-    <meta
-        name="description"
+    <meta 
+        name="description" 
         content="WHR Rabbit Reflex v1.0 — cyberpunk reflex mini-game by White Hat Rabbit Studios."
     >
-
-    <meta
-        name="theme-color"
+    <meta 
+        name="theme-color" 
         content="#050714"
     >
 
@@ -56,10 +54,10 @@
             </div>
 
             <div class="header-actions">
-                <button
-                    class="icon-button"
-                    id="soundButton"
-                    type="button"
+                <button 
+                    class="icon-button" 
+                    id="soundButton" 
+                    type="button" 
                     aria-label="Uključi ili isključi zvuk"
                     aria-pressed="true"
                 >
@@ -67,10 +65,10 @@
                     <span class="icon-button__label">SOUND</span>
                 </button>
 
-                <button
-                    class="icon-button"
-                    id="pauseButton"
-                    type="button"
+                <button 
+                    class="icon-button" 
+                    id="pauseButton" 
+                    type="button" 
                     aria-label="Pauziraj igru"
                     disabled
                 >
@@ -125,9 +123,9 @@
             </section>
 
             <section class="game-stage" id="gameStage">
-                <canvas
-                    class="particle-canvas"
-                    id="particleCanvas"
+                <canvas 
+                    class="particle-canvas" 
+                    id="particleCanvas" 
                     aria-hidden="true"
                 ></canvas>
 
@@ -140,9 +138,9 @@
 
                 <div class="stage-grid" aria-hidden="true"></div>
 
-                <div
-                    class="target-layer"
-                    id="targetLayer"
+                <div 
+                    class="target-layer" 
+                    id="targetLayer" 
                     aria-label="Polje za igru"
                 ></div>
 
@@ -242,9 +240,9 @@
                             Refleks modul je privremeno zaustavljen.
                         </p>
 
-                        <button
-                            class="primary-button primary-button--compact"
-                            id="resumeButton"
+                        <button 
+                            class="primary-button primary-button--compact" 
+                            id="resumeButton" 
                             type="button"
                         >
                             <span class="primary-button__text">RESUME</span>
