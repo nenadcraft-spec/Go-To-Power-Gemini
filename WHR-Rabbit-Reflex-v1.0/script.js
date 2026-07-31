@@ -1,17 +1,19 @@
 "use strict";
 
 const CONFIG = {
-  time: 60,                // Malo više početnog vremena
+  time: 60,
   lives: 3, 
-  hitsPerLevel: 10,        // 10 pogodaka po nivou
-  maxLevel: 99,            // Podignuto sa 20 na 99!
-  rabbitPoints: 250,       // Povećani poeni (bilo 100)
-  goldenPoints: 1200,      // Povećan bonus za zlatnog (bilo 500)
-  goldenBonus: 3.0, 
+  hitsPerLevel: 10,
+  maxLevel: 99,
+  rabbitPoints: 250,
+  goldenPoints: 1200,
+  freezePoints: 500,
+  firePenaltyPoints: 500,
+  firePenaltyTime: 3.0,
   decoyPenalty: 300,
-  baseLife: 1450, minLife: 350, lifeStep: 45, // Mete ostaju trunku duže na višim nivoima
+  baseLife: 1450, minLife: 350, lifeStep: 45,
   baseDelay: 760, minDelay: 180, delayStep: 25,
-  comboReset: 1800, maxCombo: 25,             // Max Combo podignut na x25 za ekstremne skorove!
+  comboReset: 1800, maxCombo: 25,
   bestKey: "whr-rabbit-reflex-best-score",
   soundKey: "whr-rabbit-reflex-sound-enabled"
 };
@@ -38,6 +40,8 @@ class AudioFX {
   }
   hit(c) { this.tone(480 + c * 24, .09, "sine", 820 + c * 24); }
   gold() { [660, 880, 1100].forEach((f, i) => setTimeout(() => this.tone(f, .13, "triangle", f * 1.1), i * 45)); }
+  freeze() { [900, 700, 500].forEach((f, i) => setTimeout(() => this.tone(f, .15, "sine", f * 0.8), i * 50)); }
+  fire() { [200, 150, 100].forEach((f, i) => setTimeout(() => this.tone(f, .18, "sawtooth", f * 0.6), i * 60)); }
   bad() { this.tone(190, .24, "sawtooth", 55); }
   level() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, .16, "sine", f * 1.05), i * 65)); }
   click() { this.tone(500, .07, "sine", 720); }
@@ -91,6 +95,9 @@ class Game {
     this.audio = new AudioFX(); this.particles = new Particles(this.e.canvas);
     this.best = Number(localStorage.getItem(CONFIG.bestKey)) || 0;
     this.state = "ready"; this.starting = false;
+    this.targets = new Map();
+    this.isFrozen = false;
+    this.freezeTimer = null;
     this.bind(); this.reset(); this.show(this.e.startO, true); this.updateSound();
   }
 
@@ -132,8 +139,10 @@ class Game {
 
   reset() {
     if (this.raf) cancelAnimationFrame(this.raf);
-    clearTimeout(this.spawnTimer); clearTimeout(this.targetTimer); clearTimeout(this.comboTimer);
-    this.removeTarget();
+    clearTimeout(this.spawnTimer); clearTimeout(this.comboTimer); clearTimeout(this.freezeTimer);
+    this.removeAllTargets();
+    this.isFrozen = false;
+    this.e.stage.classList.remove("is-frozen");
     this.score = 0; this.level = 1; this.levelHits = 0; this.comboCount = 0;
     this.mult = 1; this.maxCombo = 1; this.lives = CONFIG.lives;
     this.timeLeft = CONFIG.time; this.hits = 0; this.attempts = 0; this.taps = 0; this.last = 0;
@@ -169,17 +178,20 @@ class Game {
 
   loop(t) {
     if (this.state !== "playing") return;
-    const dt = Math.min(0.1, (t - (this.last || t)) / 1000);
+    let dt = Math.min(0.1, (t - (this.last || t)) / 1000);
     this.last = t;
     
+    if (this.isFrozen) dt *= 0.5; // Vreme ide usporeno tokom leda!
+
     this.timeLeft = Math.max(0, this.timeLeft - dt);
     this.e.time.textContent = this.timeLeft.toFixed(1);
 
     document.querySelector(".timer-display")?.classList.toggle("is-critical", this.timeLeft <= 8);
 
-    if (this.current) {
-      const p = clamp(1 - (t - this.spawnAt) / this.life, 0, 1);
-      this.current.style.setProperty("--life-progress", p);
+    const now = performance.now();
+    for (const [id, targetData] of this.targets.entries()) {
+      const p = clamp(1 - (now - targetData.spawnAt) / targetData.life, 0, 1);
+      targetData.element.style.setProperty("--life-progress", p);
     }
 
     if (this.timeLeft <= 0) {
@@ -189,18 +201,48 @@ class Game {
     this.raf = requestAnimationFrame(n => this.loop(n));
   }
 
-  schedule(delay = this.spawnDelay()) {
-    clearTimeout(this.spawnTimer);
-    this.spawnTimer = setTimeout(() => this.spawn(), delay);
+  getMaxSimultaneousTargets() {
+    return Math.min(6, 1 + Math.floor(this.level / 5));
   }
 
-  spawnDelay() { return Math.max(CONFIG.minDelay, CONFIG.baseDelay - (this.level - 1) * CONFIG.delayStep); }
-  lifetime() { return Math.max(CONFIG.minLife, CONFIG.baseLife - (this.level - 1) * CONFIG.lifeStep); }
+  schedule(delay = this.spawnDelay()) {
+    clearTimeout(this.spawnTimer);
+    this.spawnTimer = setTimeout(() => {
+      const maxTargets = this.getMaxSimultaneousTargets();
+      if (this.targets.size < maxTargets) {
+        this.spawn();
+      }
+      this.schedule();
+    }, delay);
+  }
+
+  spawnDelay() {
+    let delay = Math.max(CONFIG.minDelay, CONFIG.baseDelay - (this.level - 1) * CONFIG.delayStep);
+    return this.isFrozen ? delay * 1.8 : delay;
+  }
+
+  lifetime() {
+    let life = Math.max(CONFIG.minLife, CONFIG.baseLife - (this.level - 1) * CONFIG.lifeStep);
+    return this.isFrozen ? life * 1.8 : life;
+  }
 
   spawn() {
-    if (this.state !== "playing" || this.current) return;
-    const roll = Math.random(), decoy = Math.min(.12 + (this.level - 1) * .012, .34), gold = Math.min(.08 + (this.level - 1) * .004, .16);
-    const type = roll < gold ? "golden" : roll < gold + decoy ? "decoy" : "rabbit";
+    if (this.state !== "playing") return;
+    
+    const roll = Math.random();
+    const decoyProb = Math.min(.12 + (this.level - 1) * .012, .28);
+    const goldProb = Math.min(.08 + (this.level - 1) * .004, .15);
+    const freezeProb = Math.min(.08, .04 + (this.level - 1) * .005);
+    const fireProb = Math.min(.15, .05 + (this.level - 1) * .01); // VATRENI ZEC
+    const netProb = this.level >= 3 ? Math.min(.12, .03 + (this.level - 3) * .01) : 0; // MREŽA PREPREKA
+
+    let type = "rabbit";
+    if (roll < goldProb) type = "golden";
+    else if (roll < goldProb + freezeProb) type = "freeze";
+    else if (roll < goldProb + freezeProb + fireProb) type = "fire"; // OPASNI VATRENI ZEC
+    else if (roll < goldProb + freezeProb + fireProb + netProb) type = "net"; // MREŽA
+    else if (roll < goldProb + freezeProb + fireProb + netProb + decoyProb) type = "decoy";
+
     const size = Math.max(58, (innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.8);
 
     const r = this.e.stage.getBoundingClientRect(), m = size / 2 + 18;
@@ -209,31 +251,43 @@ class Game {
     const b = document.createElement("button");
     b.className = `target target--${type}`;
     b.type = "button";
-    b.setAttribute("aria-label", type === "decoy" ? "Crveni mamac" : type === "golden" ? "Golden Rabbit" : "Beli Zec");
+    b.setAttribute("aria-label", type);
     b.style.setProperty("--target-size", `${size}px`);
     b.style.left = `${x}px`; b.style.top = `${y}px`;
 
-    b.innerHTML = '<span class="target__timer"></span><span class="target__ring"></span><span class="target__core"></span><span class="target__rabbit"><span class="target__rabbit-ear target__rabbit-ear--left"></span><span class="target__rabbit-ear target__rabbit-ear--right"></span><span class="target__rabbit-head"></span><span class="target__rabbit-eye"></span></span>';
+    if (type === "net") {
+      b.innerHTML = '<span class="target__timer"></span><div class="target__net-grid"></div><span class="target__net-warning">CYBER NET</span>';
+    } else {
+      b.innerHTML = '<span class="target__timer"></span><span class="target__ring"></span><span class="target__core"></span><span class="target__rabbit"><span class="target__rabbit-ear target__rabbit-ear--left"></span><span class="target__rabbit-ear target__rabbit-ear--right"></span><span class="target__rabbit-head"></span><span class="target__rabbit-eye"></span></span>';
+    }
+
+    const id = Symbol();
+    const life = this.lifetime();
+    const spawnAt = performance.now();
+
+    const timerId = setTimeout(() => this.miss(id), life);
 
     b.addEventListener("pointerdown", ev => {
       ev.stopPropagation();
-      this.hit(type, b, x, y);
+      this.hit(id, type, b, x, y);
     });
 
     this.e.layer.appendChild(b);
     requestAnimationFrame(() => b.classList.add("is-spawned"));
-    this.current = b; this.currentType = type; this.life = this.lifetime(); this.spawnAt = performance.now();
 
-    clearTimeout(this.targetTimer);
-    this.targetTimer = setTimeout(() => this.miss(), this.life);
+    this.targets.set(id, { element: b, type, life, spawnAt, timerId });
   }
 
-  hit(type, b, x, y) {
-    if (this.state !== "playing" || b !== this.current) return;
+  hit(id, type, b, x, y) {
+    if (this.state !== "playing" || !this.targets.has(id)) return;
+    const targetData = this.targets.get(id);
+    clearTimeout(targetData.timerId);
+    this.targets.delete(id);
+
     this.taps++; this.attempts++;
-    clearTimeout(this.targetTimer);
     b.classList.add("is-hit");
 
+    // 1. LOŠI ELEMENTI (Opasnosti i prepreke)
     if (type === "decoy") {
       this.score = Math.max(0, this.score - CONFIG.decoyPenalty);
       this.lives--;
@@ -244,24 +298,57 @@ class Game {
       this.setStatus("SYSTEM DAMAGE", "danger");
       this.particles.burst(x, y, "#ff325f", 24);
       if (this.lives <= 0) { setTimeout(() => this.finish(), 180); return; }
+    } else if (type === "fire") {
+      // 🔥 VATRENI ZEC: KAZNA POENI I KAZNA VREME!
+      this.score = Math.max(0, this.score - CONFIG.firePenaltyPoints);
+      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.firePenaltyTime);
+      this.breakCombo();
+      this.audio.fire();
+      this.flash("FIRE RABBIT HIT!", `-${CONFIG.firePenaltyPoints} PTS / -${CONFIG.firePenaltyTime}s`, "#ff4500");
+      this.effect("is-damaged");
+      this.setStatus("SYSTEM OVERHEAT!", "danger");
+      this.particles.burst(x, y, "#ff4500", 35);
+    } else if (type === "net") {
+      // 🕸️ MREŽA PREPREKA
+      this.timeLeft = Math.max(0, this.timeLeft - 1.5);
+      this.breakCombo();
+      this.audio.bad();
+      this.flash("NET TRAP!", "COMBO RESET / -1.5s", "#a855f7");
+      this.effect("is-damaged");
+      this.setStatus("NETWORK BLOCKED!", "warning");
+      this.particles.burst(x, y, "#a855f7", 20);
     } else {
+      // 2. DOBRI ZEČEVI
       this.hits++; this.comboCount++;
       this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
       this.maxCombo = Math.max(this.maxCombo, this.mult);
-      const pts = (type === "golden" ? CONFIG.goldenPoints : CONFIG.rabbitPoints) * this.mult;
-      this.score += pts; this.levelHits++;
+      
+      let pts = CONFIG.rabbitPoints;
+      if (type === "golden") pts = CONFIG.goldenPoints;
+      else if (type === "freeze") pts = CONFIG.freezePoints;
+      
+      pts *= this.mult;
+      this.score += pts; 
+      this.levelHits++;
 
       if (type === "golden") {
         this.timeLeft += CONFIG.goldenBonus;
         this.audio.gold();
         this.flash("GOLDEN RABBIT", `+${pts} / +${CONFIG.goldenBonus.toFixed(1)}s`, "#ffd34d");
+        this.particles.burst(x, y, "#ffd34d", 30);
+      } else if (type === "freeze") {
+        this.applyFreeze();
+        this.audio.freeze();
+        this.flash("FREEZE RABBIT", `TIME SLOWED! +${pts}`, "#00f5ff");
+        this.particles.burst(x, y, "#00f5ff", 30);
       } else {
         this.audio.hit(this.mult);
         this.flash("DIRECT HIT", `+${pts}`, "#00f5ff");
+        this.particles.burst(x, y, "#00f5ff", 20);
       }
+
       this.effect("is-hit");
       this.setStatus("TARGET CONFIRMED", "normal");
-      this.particles.burst(x, y, type === "golden" ? "#ffd34d" : "#00f5ff", type === "golden" ? 30 : 20);
 
       clearTimeout(this.comboTimer);
       this.comboTimer = setTimeout(() => this.breakCombo(), CONFIG.comboReset);
@@ -269,31 +356,42 @@ class Game {
       if (this.levelHits >= CONFIG.hitsPerLevel) this.levelUp();
     }
 
-    this.current = null;
     setTimeout(() => b.remove(), 230);
     this.update();
-    this.schedule();
   }
 
-  miss() {
-    if (!this.current || this.state !== "playing") return;
-    const wasDecoy = this.currentType === "decoy", b = this.current;
-    this.current = null;
+  applyFreeze() {
+    this.isFrozen = true;
+    this.e.stage.classList.add("is-frozen");
+    clearTimeout(this.freezeTimer);
+    this.freezeTimer = setTimeout(() => {
+      this.isFrozen = false;
+      this.e.stage.classList.remove("is-frozen");
+    }, 4000);
+  }
+
+  miss(id) {
+    if (!this.targets.has(id) || this.state !== "playing") return;
+    const targetData = this.targets.get(id);
+    const isBadType = targetData.type === "decoy" || targetData.type === "fire" || targetData.type === "net";
+    const b = targetData.element;
+    
+    this.targets.delete(id);
     b.classList.add("is-expiring");
     setTimeout(() => b.remove(), 180);
 
-    if (!wasDecoy) {
+    // Ako nam pobegne DOBAR zec, gubimo život! Ako pobegne Vatreni/Mreža/Mamac, nikom ništa.
+    if (!isBadType) {
       this.attempts++;
       this.breakCombo();
       this.lives--;
       this.audio.bad();
-      this.flash("TARGET LOST", "LIFE -1", "#ff325f");
+      this.flash("TARGET ESCAPED", "LIFE -1", "#ff325f");
       this.effect("is-damaged");
       this.setStatus("TARGET ESCAPED", "warning");
       if (this.lives <= 0) { this.finish(); return; }
     }
     this.update();
-    this.schedule();
   }
 
   emptyTap() {
@@ -309,19 +407,26 @@ class Game {
     if (this.level < CONFIG.maxLevel) this.level++;
     this.audio.level();
     this.effect("is-level-up");
-    this.flash(`LEVEL ${String(this.level).padStart(2, "0")}`, "SPEED INCREASED", "#ffd34d");
+    this.flash(`LEVEL ${String(this.level).padStart(2, "0")}`, "SYSTEM SPEED & TARGETS UP!", "#ffd34d");
     this.setStatus("LEVEL ADVANCED", "normal");
   }
 
   breakCombo() { this.comboCount = 0; this.mult = 1; clearTimeout(this.comboTimer); }
-  removeTarget() { if (this.current) this.current.remove(); this.current = null; }
+  
+  removeAllTargets() {
+    for (const [id, targetData] of this.targets.entries()) {
+      clearTimeout(targetData.timerId);
+      targetData.element.remove();
+    }
+    this.targets.clear();
+  }
 
   pause() {
     if (this.state !== "playing") return;
     this.state = "paused";
     if (this.raf) cancelAnimationFrame(this.raf);
-    clearTimeout(this.spawnTimer); clearTimeout(this.targetTimer);
-    this.removeTarget();
+    clearTimeout(this.spawnTimer);
+    this.removeAllTargets();
     this.show(this.e.pauseO, true);
     this.e.pause.disabled = true;
     this.setStatus("SYSTEM SUSPENDED", "warning");
@@ -345,8 +450,8 @@ class Game {
     if (this.state === "gameover") return;
     this.state = "gameover";
     if (this.raf) cancelAnimationFrame(this.raf);
-    clearTimeout(this.spawnTimer); clearTimeout(this.targetTimer); clearTimeout(this.comboTimer);
-    this.removeTarget();
+    clearTimeout(this.spawnTimer); clearTimeout(this.comboTimer); clearTimeout(this.freezeTimer);
+    this.removeAllTargets();
     this.e.pause.disabled = true;
 
     const record = this.score > this.best;
@@ -391,7 +496,7 @@ class Game {
 
   effect(cls) {
     this.e.stage.classList.remove(cls);
-    requestAnimationFrame(() => this.e.stage.classList.add(cls)); // Ispravljen bag
+    requestAnimationFrame(() => this.e.stage.classList.add(cls));
     setTimeout(() => this.e.stage.classList.remove(cls), 700);
   }
 
