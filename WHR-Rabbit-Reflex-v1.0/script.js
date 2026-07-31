@@ -795,7 +795,10 @@ class Game {
 
   updateSound() {
     this.e.sound.setAttribute("aria-pressed", String(this.audio.enabled));
-    this.e.soundIcon.textContent = this.audio.enabled ? "â—‰" : "â—‹";
+    this.elements.soundIcon.textContent =
+  this.audio.enabled
+    ? "ON"
+    : "OFF";
   }
 
   update() {
