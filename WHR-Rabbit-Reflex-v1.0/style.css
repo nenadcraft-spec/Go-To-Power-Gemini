@@ -20,7 +20,8 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   min-width: 320px;
   min-height: 100%;
@@ -62,7 +63,10 @@ button {
   flex-direction: column;
 }
 
-/* Background Effects */
+/* ==============================
+   POZADINSKI SISTEM
+   ============================== */
+
 .background-system {
   position: fixed;
   inset: 0;
@@ -74,22 +78,35 @@ button {
 .background-system__grid {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(0, 245, 255, .05) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(0, 245, 255, .05) 1px, transparent 1px);
+  background-image:
+    linear-gradient(
+      rgba(0, 245, 255, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 245, 255, 0.05) 1px,
+      transparent 1px
+    );
   background-size: 42px 42px;
   mask-image: radial-gradient(circle, #000, transparent 85%);
+  -webkit-mask-image: radial-gradient(circle, #000, transparent 85%);
 }
 
 .background-system__scanlines {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(255, 255, 255, .02) 4px);
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 3px,
+    rgba(255, 255, 255, 0.02) 4px
+  );
 }
 
 .background-system__noise {
   position: absolute;
   inset: -40px;
-  opacity: .025;
+  opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -99,7 +116,7 @@ button {
   height: 420px;
   border-radius: 50%;
   filter: blur(110px);
-  opacity: .18;
+  opacity: 0.18;
 }
 
 .background-system__glow--one {
@@ -114,8 +131,13 @@ button {
   background: var(--pink);
 }
 
-/* Header & Brand */
-.game-header, .game-main, .game-footer {
+/* ==============================
+   ZAGLAVLJE I BREND
+   ============================== */
+
+.game-header,
+.game-main,
+.game-footer {
   width: 100%;
   max-width: 1180px;
   margin-inline: auto;
@@ -138,6 +160,7 @@ button {
 
 .brand__mark {
   position: relative;
+  flex: 0 0 auto;
   width: 44px;
   height: 48px;
   filter: drop-shadow(0 0 8px var(--cyan));
@@ -162,8 +185,15 @@ button {
   border-radius: 80% 80% 25% 25%;
 }
 
-.brand__ear--left { left: 10px; transform: rotate(-12deg); }
-.brand__ear--right { right: 8px; transform: rotate(14deg); }
+.brand__ear--left {
+  left: 10px;
+  transform: rotate(-12deg);
+}
+
+.brand__ear--right {
+  right: 8px;
+  transform: rotate(14deg);
+}
 
 .brand__eye {
   position: absolute;
@@ -176,18 +206,22 @@ button {
   box-shadow: 0 0 10px var(--pink);
 }
 
+.brand__copy {
+  min-width: 0;
+}
+
 .brand__eyebrow {
   margin: 0;
   color: var(--muted);
-  font: 600 .56rem var(--display);
-  letter-spacing: .14em;
+  font: 600 0.56rem var(--display);
+  letter-spacing: 0.14em;
   white-space: nowrap;
 }
 
 .brand__title {
   margin: 2px 0 0;
-  font: 900 clamp(1rem, 4vw, 1.6rem)/1 var(--display);
-  letter-spacing: .06em;
+  font: 900 clamp(1rem, 4vw, 1.6rem) / 1 var(--display);
+  letter-spacing: 0.06em;
 }
 
 .brand__title span {
@@ -195,7 +229,10 @@ button {
   text-shadow: 0 0 14px var(--cyan);
 }
 
-/* Header Actions */
+/* ==============================
+   TASTERI U ZAGLAVLJU
+   ============================== */
+
 .header-actions {
   display: flex;
   gap: 7px;
@@ -204,12 +241,15 @@ button {
 .icon-button {
   min-width: 56px;
   min-height: 46px;
-  border: 1px solid rgba(0, 245, 255, .25);
+  border: 1px solid rgba(0, 245, 255, 0.25);
   border-radius: 8px;
-  background: rgba(7, 11, 25, .86);
+  background: rgba(7, 11, 25, 0.86);
   color: #fff;
   cursor: pointer;
-  transition: all .2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .icon-button:hover:not(:disabled) {
@@ -223,23 +263,26 @@ button {
 }
 
 .icon-button:disabled {
-  opacity: .35;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .icon-button__icon {
   display: block;
   color: var(--cyan);
-  font: 700 .9rem var(--display);
+  font: 700 0.9rem var(--display);
 }
 
 .icon-button__label {
-  font: 700 .43rem var(--display);
-  letter-spacing: .1em;
+  font: 700 0.43rem var(--display);
+  letter-spacing: 0.1em;
   color: var(--muted);
 }
 
-/* HUD Grid */
+/* ==============================
+   GLAVNI SADRŽAJ I HUD
+   ============================== */
+
 .game-main {
   display: flex;
   flex: 1;
@@ -257,17 +300,23 @@ button {
 .hud-card {
   position: relative;
   padding: 8px 10px;
-  border: 1px solid rgba(0, 245, 255, .16);
+  border: 1px solid rgba(0, 245, 255, 0.16);
   border-radius: 8px;
-  background: linear-gradient(135deg, rgba(0, 245, 255, .06), transparent), var(--panel);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 245, 255, 0.06),
+      transparent
+    ),
+    var(--panel);
   overflow: hidden;
 }
 
 .hud-card__label {
   display: block;
   color: var(--muted);
-  font: 700 .54rem var(--display);
-  letter-spacing: .12em;
+  font: 700 0.54rem var(--display);
+  letter-spacing: 0.12em;
 }
 
 .hud-card__value {
@@ -276,14 +325,30 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-.hud-card--score .hud-card__value { color: var(--cyan); }
-.hud-card--combo .hud-card__value { color: var(--pink); }
-.hud-card--level .hud-card__value { color: var(--gold); }
+.hud-card--score .hud-card__value {
+  color: var(--cyan);
+}
 
-.hud-card.is-updated { animation: flash .28s ease; }
-.hud-card--combo.is-hot { box-shadow: 0 0 18px rgba(255, 56, 199, .35); }
+.hud-card--combo .hud-card__value {
+  color: var(--pink);
+}
 
-/* Status & Timer Row */
+.hud-card--level .hud-card__value {
+  color: var(--gold);
+}
+
+.hud-card.is-updated {
+  animation: flash 0.28s ease;
+}
+
+.hud-card--combo.is-hot {
+  box-shadow: 0 0 18px rgba(255, 56, 199, 0.35);
+}
+
+/* ==============================
+   STATUS, ŽIVOTI I VREME
+   ============================== */
+
 .status-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -298,8 +363,8 @@ button {
   gap: 7px;
   min-width: 0;
   color: var(--muted);
-  font: 600 .58rem var(--display);
-  letter-spacing: .08em;
+  font: 600 0.58rem var(--display);
+  letter-spacing: 0.08em;
 }
 
 .status-chip__dot {
@@ -326,19 +391,27 @@ button {
   color: var(--red);
 }
 
-.life { transition: .2s; }
-.life--lost { opacity: .2; transform: scale(.7); }
+.life {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.life--lost {
+  opacity: 0.2;
+  transform: scale(0.7);
+}
 
 .timer-display {
   display: flex;
   align-items: baseline;
   gap: 5px;
   padding-left: 9px;
-  border-left: 1px solid rgba(0, 245, 255, .18);
+  border-left: 1px solid rgba(0, 245, 255, 0.18);
 }
 
 .timer-display__label {
-  font: 700 .48rem var(--display);
+  font: 700 0.48rem var(--display);
   color: var(--muted);
 }
 
@@ -346,32 +419,51 @@ button {
   min-width: 48px;
   text-align: right;
   font: 700 1rem var(--display);
+  font-variant-numeric: tabular-nums;
 }
 
 .timer-display.is-critical strong {
   color: var(--red);
   text-shadow: 0 0 10px var(--red);
-  animation: pulse-red .6s infinite alternate;
+  animation: pulse-red 0.6s infinite alternate;
 }
 
-/* Stage Area */
+/* ==============================
+   POLJE ZA IGRU
+   ============================== */
+
 .game-stage {
   position: relative;
   flex: 1;
   min-height: 390px;
   overflow: hidden;
-  border: 1px solid rgba(0, 245, 255, .3);
+  border: 1px solid rgba(0, 245, 255, 0.3);
   border-radius: 13px;
-  background: radial-gradient(circle at center, rgba(22, 44, 78, .26), transparent 65%),
-              linear-gradient(160deg, #0a1128, #02050e);
-  box-shadow: inset 0 0 70px #000, 0 20px 60px rgba(0, 0, 0, .45);
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(22, 44, 78, 0.26),
+      transparent 65%
+    ),
+    linear-gradient(160deg, #0a1128, #02050e);
+  box-shadow:
+    inset 0 0 70px #000,
+    0 20px 60px rgba(0, 0, 0, 0.45);
   cursor: crosshair;
   touch-action: none;
 }
 
-.game-stage.is-hit { animation: hit .22s; }
-.game-stage.is-damaged { animation: damage .35s; }
-.game-stage.is-level-up { animation: levelup .65s; }
+.game-stage.is-hit {
+  animation: hit 0.22s;
+}
+
+.game-stage.is-damaged {
+  animation: damage 0.35s;
+}
+
+.game-stage.is-level-up {
+  animation: levelup 0.65s;
+}
 
 .particle-canvas {
   position: absolute;
@@ -385,8 +477,16 @@ button {
 .stage-grid {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(0, 245, 255, .045) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(0, 245, 255, .045) 1px, transparent 1px);
+  background-image:
+    linear-gradient(
+      rgba(0, 245, 255, 0.045) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 245, 255, 0.045) 1px,
+      transparent 1px
+    );
   background-size: 38px 38px;
 }
 
@@ -404,10 +504,33 @@ button {
   border-color: var(--cyan);
 }
 
-.stage-frame__corner--tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; }
-.stage-frame__corner--tr { top: 0; right: 0; border-top: 2px solid; border-right: 2px solid; }
-.stage-frame__corner--bl { bottom: 0; left: 0; border-bottom: 2px solid; border-left: 2px solid; }
-.stage-frame__corner--br { right: 0; bottom: 0; border-right: 2px solid; border-bottom: 2px solid; }
+.stage-frame__corner--tl {
+  top: 0;
+  left: 0;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.stage-frame__corner--tr {
+  top: 0;
+  right: 0;
+  border-top: 2px solid;
+  border-right: 2px solid;
+}
+
+.stage-frame__corner--bl {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+}
+
+.stage-frame__corner--br {
+  right: 0;
+  bottom: 0;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+}
 
 .target-layer {
   position: absolute;
@@ -415,10 +538,14 @@ button {
   z-index: 10;
 }
 
-/* Target Styles */
+/* ==============================
+   OSNOVNA META
+   ============================== */
+
 .target {
   --target-size: 86px;
   --target-color: var(--cyan);
+
   position: absolute;
   width: var(--target-size);
   height: var(--target-size);
@@ -432,9 +559,21 @@ button {
   will-change: transform, opacity;
 }
 
-.target.is-spawned { animation: spawn .22s cubic-bezier(.2, 1.55, .4, 1) forwards; }
-.target.is-hit { pointer-events: none; animation: targethit .22s forwards; }
-.target.is-expiring { animation: expire .18s forwards; }
+.target.is-spawned {
+  animation:
+    spawn 0.22s cubic-bezier(0.2, 1.55, 0.4, 1)
+    forwards;
+}
+
+.target.is-hit {
+  pointer-events: none;
+  animation: target-hit 0.22s forwards;
+}
+
+.target.is-expiring {
+  pointer-events: none;
+  animation: expire 0.18s forwards;
+}
 
 .target__ring {
   position: absolute;
@@ -445,7 +584,7 @@ button {
   animation: spin 2.2s linear infinite;
 }
 
-.target__ring:before {
+.target__ring::before {
   content: "";
   position: absolute;
   inset: 8px;
@@ -458,9 +597,20 @@ button {
   position: absolute;
   inset: -3px;
   border-radius: 50%;
-  background: conic-gradient(currentColor calc(var(--life-progress, 1) * 1turn), rgba(255, 255, 255, .07) 0);
-  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  background: conic-gradient(
+    currentColor calc(var(--life-progress, 1) * 1turn),
+    rgba(255, 255, 255, 0.07) 0
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3px),
+    #000 calc(100% - 2px)
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3px),
+    #000 calc(100% - 2px)
+  );
 }
 
 .target__rabbit {
@@ -477,7 +627,7 @@ button {
   height: 60%;
   border: 2px solid currentColor;
   border-radius: 44%;
-  background: rgba(5, 12, 26, .9);
+  background: rgba(5, 12, 26, 0.9);
 }
 
 .target__rabbit-ear {
@@ -490,8 +640,15 @@ button {
   background: #06101e;
 }
 
-.target__rabbit-ear--left { left: 22%; transform: rotate(-10deg); }
-.target__rabbit-ear--right { right: 20%; transform: rotate(12deg); }
+.target__rabbit-ear--left {
+  left: 22%;
+  transform: rotate(-10deg);
+}
+
+.target__rabbit-ear--right {
+  right: 20%;
+  transform: rotate(12deg);
+}
 
 .target__rabbit-eye {
   position: absolute;
@@ -507,33 +664,113 @@ button {
   position: absolute;
   inset: 22%;
   border-radius: 50%;
-  background: radial-gradient(circle, currentColor, transparent 68%);
-  opacity: .3;
+  background: radial-gradient(
+    circle,
+    currentColor,
+    transparent 68%
+  );
+  opacity: 0.3;
 }
 
-/* Tipovi Meta */
-.target--decoy { --target-color: var(--red); }
-.target--decoy .target__rabbit-head { border-radius: 18%; transform: rotate(45deg); }
-.target--decoy .target__rabbit-ear { display: none; }
-.target--decoy .target__rabbit-eye { left: 45%; top: 45%; width: 10%; height: 10%; }
+/* ==============================
+   CRVENI MAMAC
+   ============================== */
 
-.target--golden { --target-color: var(--gold); filter: drop-shadow(0 0 12px var(--gold)); }
+.target--decoy {
+  --target-color: var(--red);
+}
 
-/* Crveni Zec (Opasan) */
+.target--decoy .target__rabbit-head {
+  border-radius: 18%;
+  transform: rotate(45deg);
+}
+
+.target--decoy .target__rabbit-ear {
+  display: none;
+}
+
+.target--decoy .target__rabbit-eye {
+  left: 45%;
+  top: 45%;
+  width: 10%;
+  height: 10%;
+}
+
+/* ==============================
+   ZLATNI ZEC
+   ============================== */
+
+.target--golden {
+  --target-color: var(--gold);
+  filter: drop-shadow(0 0 12px var(--gold));
+}
+
+/* ==============================
+   CRVENI ZEC — OPASNA META
+   ============================== */
+
 .target--redrabbit {
   --target-color: #ff0033;
   filter: drop-shadow(0 0 18px #ff0033);
-  animation: spawn .22s cubic-bezier(.2, 1.55, .4, 1) forwards, redPulse 0.4s infinite alternate !important;
 }
 
-/* Ledeni Zec */
+.target--redrabbit .target__ring,
+.target--redrabbit .target__timer {
+  color: #ff0033;
+}
+
+.target--redrabbit .target__rabbit {
+  color: #ff0033;
+  animation:
+    red-rabbit-pulse 0.4s ease-in-out
+    infinite alternate;
+}
+
+.target--redrabbit .target__rabbit-head,
+.target--redrabbit .target__rabbit-ear {
+  border-color: #ff0033;
+  background: linear-gradient(
+    145deg,
+    #ff174a,
+    #8f001d
+  );
+  box-shadow:
+    inset 0 0 10px rgba(255, 255, 255, 0.18),
+    0 0 13px #ff0033;
+}
+
+.target--redrabbit .target__rabbit-eye {
+  background: #fff;
+  box-shadow: 0 0 7px #fff;
+}
+
+.target--redrabbit .target__core {
+  background: radial-gradient(
+    circle,
+    #ff4d6d 0 20%,
+    #ff0033 42%,
+    transparent 70%
+  );
+  opacity: 0.55;
+}
+
+/* ==============================
+   LEDENI ZEC
+   ============================== */
+
 .target--freeze {
   --target-color: #00f5ff;
   filter: drop-shadow(0 0 16px #00f5ff);
 }
-.target--freeze .target__ring { border-style: double; }
 
-/* Cyber Net Trap (Mreža Prepreka) */
+.target--freeze .target__ring {
+  border-style: double;
+}
+
+/* ==============================
+   CYBER NET PREPREKA
+   ============================== */
+
 .target--net {
   --target-color: #a855f7;
   border-radius: 8px;
@@ -541,30 +778,49 @@ button {
   border: 1px solid #a855f7;
   box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
 }
+
 .target__net-grid {
   position: absolute;
   inset: 4px;
-  background-image: linear-gradient(#a855f7 1px, transparent 1px), linear-gradient(90deg, #a855f7 1px, transparent 1px);
+  background-image:
+    linear-gradient(
+      #a855f7 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      #a855f7 1px,
+      transparent 1px
+    );
   background-size: 10px 10px;
   opacity: 0.6;
 }
+
 .target__net-warning {
   position: absolute;
+  right: 0;
   bottom: 4px;
   left: 0;
-  right: 0;
   text-align: center;
-  font: 800 0.5rem var(--display);
   color: #a855f7;
+  font: 800 0.5rem var(--display);
 }
 
-/* Frozen Stage Effect */
+/* ==============================
+   FREEZE EFEKAT
+   ============================== */
+
 .game-stage.is-frozen {
-  box-shadow: inset 0 0 90px rgba(0, 245, 255, 0.6), 0 20px 60px rgba(0, 0, 0, .45);
   border-color: #00f5ff;
+  box-shadow:
+    inset 0 0 90px rgba(0, 245, 255, 0.6),
+    0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
-/* Crosshair & Floating Text */
+/* ==============================
+   NIŠAN I PORUKE
+   ============================== */
+
 .crosshair {
   position: absolute;
   z-index: 15;
@@ -575,10 +831,31 @@ button {
   transform: translate(-50%, -50%);
 }
 
-.crosshair span { position: absolute; background: var(--cyan); }
-.crosshair__horizontal { left: 0; top: 50%; width: 100%; height: 1px; }
-.crosshair__vertical { top: 0; left: 50%; width: 1px; height: 100%; }
-.crosshair__circle { inset: 8px; border: 1px solid var(--cyan); border-radius: 50%; background: transparent !important; }
+.crosshair span {
+  position: absolute;
+  background: var(--cyan);
+}
+
+.crosshair__horizontal {
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+}
+
+.crosshair__vertical {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+}
+
+.crosshair__circle {
+  inset: 8px;
+  border: 1px solid var(--cyan);
+  border-radius: 50%;
+  background: transparent !important;
+}
 
 .floating-message {
   position: absolute;
@@ -592,11 +869,24 @@ button {
   transform: translate(-50%, -50%);
 }
 
-.floating-message.is-visible { animation: floatmsg .8s ease-out; }
-.floating-message__main { font: 900 clamp(1.2rem, 5vw, 2.3rem) var(--display); text-shadow: 0 0 18px currentColor; }
-.floating-message__sub { color: var(--muted); font: 700 .65rem var(--display); }
+.floating-message.is-visible {
+  animation: floating-message 0.8s ease-out;
+}
 
-/* Overlays & Panels */
+.floating-message__main {
+  font: 900 clamp(1.2rem, 5vw, 2.3rem) var(--display);
+  text-shadow: 0 0 18px currentColor;
+}
+
+.floating-message__sub {
+  color: var(--muted);
+  font: 700 0.65rem var(--display);
+}
+
+/* ==============================
+   OVERLAY EKRANI
+   ============================== */
+
 .stage-overlay {
   position: absolute;
   inset: 0;
@@ -604,12 +894,16 @@ button {
   display: grid;
   place-items: center;
   padding: 18px;
-  background: rgba(2, 4, 12, .78);
+  overflow-y: auto;
+  background: rgba(2, 4, 12, 0.78);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity .25s ease, visibility .25s ease;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
 }
 
 .stage-overlay--visible {
@@ -618,34 +912,49 @@ button {
   pointer-events: auto;
 }
 
-.start-panel, .modal-panel {
+.start-panel,
+.modal-panel {
   width: min(560px, 100%);
   padding: 24px;
-  border: 1px solid rgba(0, 245, 255, .3);
+  border: 1px solid rgba(0, 245, 255, 0.3);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(9, 15, 36, .97), rgba(3, 7, 18, .97));
+  background: linear-gradient(
+    145deg,
+    rgba(9, 15, 36, 0.97),
+    rgba(3, 7, 18, 0.97)
+  );
   text-align: center;
-  box-shadow: 0 0 35px rgba(0, 245, 255, .1);
+  box-shadow: 0 0 35px rgba(0, 245, 255, 0.1);
 }
 
-.start-panel__version, .modal-panel__eyebrow {
+.start-panel__version,
+.modal-panel__eyebrow {
   margin: 0;
   color: var(--muted);
-  font: 700 .58rem var(--display);
-  letter-spacing: .12em;
+  font: 700 0.58rem var(--display);
+  letter-spacing: 0.12em;
 }
 
-.start-panel__title, .modal-panel h2 {
+.start-panel__title,
+.modal-panel h2 {
   margin: 12px 0;
   font: 900 clamp(1.8rem, 8vw, 3.7rem) var(--display);
 }
 
-.start-panel__title span { color: var(--cyan); }
+.start-panel__title span {
+  color: var(--cyan);
+  text-shadow: 0 0 18px rgba(0, 245, 255, 0.65);
+}
 
-.start-panel__description, .modal-panel p {
+.start-panel__description,
+.modal-panel p {
   color: #b9c8d7;
   font-size: 1rem;
 }
+
+/* ==============================
+   VELIKI ZEC NA POČETNOM EKRANU
+   ============================== */
 
 .start-panel__rabbit {
   position: relative;
@@ -662,7 +971,7 @@ button {
   height: 52px;
   border: 2px solid var(--cyan);
   border-radius: 45%;
-  box-shadow: 0 0 14px rgba(0, 245, 255, .4);
+  box-shadow: 0 0 14px rgba(0, 245, 255, 0.4);
 }
 
 .start-panel__ear {
@@ -674,8 +983,15 @@ button {
   border-radius: 80% 80% 25% 25%;
 }
 
-.start-panel__ear--left { left: 24px; transform: rotate(-12deg); }
-.start-panel__ear--right { right: 22px; transform: rotate(12deg); }
+.start-panel__ear--left {
+  left: 24px;
+  transform: rotate(-12deg);
+}
+
+.start-panel__ear--right {
+  right: 22px;
+  transform: rotate(12deg);
+}
 
 .start-panel__eye {
   position: absolute;
@@ -686,8 +1002,13 @@ button {
   background: var(--pink);
 }
 
-.start-panel__eye--left { left: 13px; }
-.start-panel__eye--right { right: 13px; }
+.start-panel__eye--left {
+  left: 13px;
+}
+
+.start-panel__eye--right {
+  right: 13px;
+}
 
 .start-panel__nose {
   position: absolute;
@@ -698,6 +1019,10 @@ button {
   background: var(--cyan);
   transform: translateX(-50%) rotate(45deg);
 }
+
+/* ==============================
+   UPUTSTVA
+   ============================== */
 
 .instruction-grid {
   display: grid;
@@ -711,111 +1036,555 @@ button {
   align-items: center;
   gap: 12px;
   padding: 10px;
-  border: 1px solid rgba(0, 245, 255, .12);
+  border: 1px solid rgba(0, 245, 255, 0.12);
   border-radius: 8px;
   text-align: left;
-  background: rgba(255, 255, 255, .025);
+  background: rgba(255, 255, 255, 0.025);
 }
 
-.instruction-card strong { display: block; font: 700 .7rem var(--display); }
-.instruction-card small { color: var(--muted); }
-.instruction-card__symbol { font: 900 1.4rem var(--display); }
-.instruction-card__symbol--rabbit { color: var(--cyan); }
-.instruction-card__symbol--decoy { color: var(--red); }
-.instruction-card__symbol--gold { color: var(--gold); }
+.instruction-card strong {
+  display: block;
+  font: 700 0.7rem var(--display);
+}
 
-/* Primary Action Buttons */
+.instruction-card small {
+  color: var(--muted);
+}
+
+.instruction-card__symbol {
+  font: 900 1.4rem var(--display);
+}
+
+.instruction-card__symbol--rabbit {
+  color: var(--cyan);
+}
+
+.instruction-card__symbol--decoy {
+  color: var(--red);
+}
+
+.instruction-card__symbol--gold {
+  color: var(--gold);
+}
+
+/* ==============================
+   GLAVNI TASTERI
+   ============================== */
+
 .primary-button {
   position: relative;
   min-width: 190px;
+  min-height: 48px;
   padding: 14px 22px;
   border: 1px solid var(--cyan);
   border-radius: 8px;
-  background: linear-gradient(135deg, rgba(0, 245, 255, .2), rgba(168, 85, 247, .18));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 245, 255, 0.2),
+    rgba(168, 85, 247, 0.18)
+  );
   color: #fff;
-  font: 800 .75rem var(--display);
-  letter-spacing: .12em;
+  font: 800 0.75rem var(--display);
+  letter-spacing: 0.12em;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(0, 245, 255, .2);
-  transition: all .2s ease;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
 }
 
 .primary-button:hover {
-  background: linear-gradient(135deg, rgba(0, 245, 255, .35), rgba(168, 85, 247, .3));
-  box-shadow: 0 0 25px rgba(0, 245, 255, .4);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 245, 255, 0.35),
+    rgba(168, 85, 247, 0.3)
+  );
+  box-shadow: 0 0 25px rgba(0, 245, 255, 0.4);
 }
 
-.primary-button:active { transform: scale(.96); }
-.primary-button__glitch { display: none; }
-.primary-button--compact { min-width: 150px; }
-.start-panel__hint { font: 700 .56rem var(--display); letter-spacing: .12em; color: var(--muted); }
+.primary-button:active {
+  transform: scale(0.96);
+}
+
+.primary-button__glitch {
+  display: none;
+}
+
+.primary-button--compact {
+  min-width: 150px;
+}
+
+.start-panel__hint {
+  color: var(--muted);
+  font: 700 0.56rem var(--display);
+  letter-spacing: 0.12em;
+}
+
+/* ==============================
+   ODBROJAVANJE I REZULTATI
+   ============================== */
 
 .countdown {
-  font: 900 clamp(5rem, 25vw, 12rem) var(--display);
   color: var(--cyan);
+  font: 900 clamp(5rem, 25vw, 12rem) var(--display);
   text-shadow: 0 0 30px var(--cyan);
 }
 
-.result-rank { margin: 0 auto 14px; color: var(--gold); font: 800 1rem var(--display); }
-.result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.result-item { padding: 10px; border: 1px solid rgba(0, 245, 255, .14); border-radius: 8px; }
-.result-item span { display: block; color: var(--muted); font: 700 .52rem var(--display); }
-.result-item strong { font: 800 1.15rem var(--display); }
+.result-rank {
+  margin: 0 auto 14px;
+  color: var(--gold);
+  font: 800 1rem var(--display);
+}
 
-.new-record { display: none; color: var(--gold) !important; font: 800 .8rem var(--display) !important; }
-.new-record.is-visible { display: block; }
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
 
-/* Progress Module */
-.progress-module { margin-top: 8px; }
-.progress-module__header { display: flex; justify-content: space-between; color: var(--muted); font: 700 .52rem var(--display); letter-spacing: .1em; }
-.progress-bar { position: relative; height: 7px; margin-top: 5px; border-radius: 99px; background: rgba(255, 255, 255, .08); overflow: hidden; }
-.progress-bar__fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--purple), var(--pink)); box-shadow: 0 0 12px var(--cyan); transition: width .25s ease; }
+.result-item {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(0, 245, 255, 0.14);
+  border-radius: 8px;
+}
 
-/* Footer */
-.game-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; color: var(--muted); font: 600 .48rem var(--display); letter-spacing: .08em; }
-.game-footer p { margin: 0; }
-.game-footer span { color: var(--cyan); }
-.game-footer__signature { color: var(--pink) !important; }
+.result-item span {
+  display: block;
+  color: var(--muted);
+  font: 700 0.52rem var(--display);
+}
 
-/* Media Queries & Responsive Adjustments */
+.result-item strong {
+  font: 800 clamp(0.85rem, 4vw, 1.15rem) var(--display);
+  overflow-wrap: anywhere;
+}
+
+.new-record {
+  display: none;
+  color: var(--gold) !important;
+  font: 800 0.8rem var(--display) !important;
+}
+
+.new-record.is-visible {
+  display: block;
+}
+
+/* ==============================
+   NAPREDAK NIVOA
+   ============================== */
+
+.progress-module {
+  margin-top: 8px;
+}
+
+.progress-module__header {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font: 700 0.52rem var(--display);
+  letter-spacing: 0.1em;
+}
+
+.progress-bar {
+  position: relative;
+  height: 7px;
+  margin-top: 5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--cyan),
+    var(--purple),
+    var(--pink)
+  );
+  box-shadow: 0 0 12px var(--cyan);
+  transition: width 0.25s ease;
+}
+
+/* ==============================
+   PODNOŽJE
+   ============================== */
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--muted);
+  font: 600 0.48rem var(--display);
+  letter-spacing: 0.08em;
+}
+
+.game-footer p {
+  margin: 0;
+}
+
+.game-footer span {
+  color: var(--cyan);
+}
+
+.game-footer__signature {
+  color: var(--pink) !important;
+}
+
+/* ==============================
+   TABLETI I DESKTOP
+   ============================== */
+
 @media (min-width: 700px) {
-  .app-shell { padding: 18px; }
-  .hud { grid-template-columns: repeat(4, 1fr); }
-  .instruction-grid { grid-template-columns: repeat(3, 1fr); }
-  .game-stage { min-height: 520px; }
-  .stage-overlay { padding: 28px; }
+  .app-shell {
+    padding: 18px;
+  }
+
+  .hud {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .instruction-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .game-stage {
+    min-height: 520px;
+  }
+
+  .stage-overlay {
+    padding: 28px;
+  }
+}
+
+/* ==============================
+   MOBILNI TELEFONI
+   ============================== */
+
+@media (max-width: 480px) {
+  .app-shell {
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+  }
+
+  .game-header {
+    gap: 6px;
+    margin-bottom: 7px;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .brand__mark {
+    width: 36px;
+    height: 41px;
+  }
+
+  .brand__head {
+    left: 7px;
+    width: 25px;
+    height: 24px;
+  }
+
+  .brand__ear {
+    width: 10px;
+    height: 26px;
+  }
+
+  .brand__ear--left {
+    left: 8px;
+  }
+
+  .brand__ear--right {
+    right: 6px;
+  }
+
+  .brand__eye {
+    right: 9px;
+    bottom: 14px;
+  }
+
+  .brand__eyebrow {
+    font-size: 0.43rem;
+    letter-spacing: 0.08em;
+  }
+
+  .brand__title {
+    font-size: clamp(0.9rem, 4.5vw, 1.15rem);
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .icon-button {
+    min-width: 49px;
+    min-height: 43px;
+    padding: 2px;
+  }
+
+  .hud-card {
+    padding: 7px 8px;
+  }
+
+  .hud-card__value {
+    font-size: clamp(0.9rem, 4.6vw, 1.25rem);
+  }
+
+  .status-row {
+    gap: 5px;
+  }
+
+  .status-chip {
+    font-size: 0.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  .timer-display {
+    gap: 3px;
+    padding-left: 6px;
+  }
+
+  .timer-display strong {
+    min-width: 43px;
+    font-size: 0.88rem;
+  }
+
+  .game-stage {
+    min-height: 390px;
+  }
+
+  .stage-overlay {
+    padding: 10px;
+  }
+
+  .start-panel,
+  .modal-panel {
+    padding: 16px 14px;
+  }
+
+  .start-panel__description,
+  .modal-panel p {
+    font-size: 0.9rem;
+  }
+
+  .primary-button {
+    min-height: 50px;
+  }
 }
 
 @media (pointer: coarse) {
-  .crosshair { display: none; }
-  .game-stage { cursor: default; }
+  .crosshair {
+    display: none;
+  }
+
+  .game-stage {
+    cursor: default;
+  }
+
+  .target {
+    min-width: 58px;
+    min-height: 58px;
+  }
 }
+
+/* Kraći mobilni ekrani */
 
 @media (max-height: 740px) {
-  .game-stage { min-height: 330px; }
-  .start-panel { padding: 16px; }
-  .start-panel__rabbit { display: none; }
-  .start-panel__description { margin: 8px 0; }
-  .instruction-grid { margin: 10px 0; }
+  .game-stage {
+    min-height: 330px;
+  }
+
+  .start-panel {
+    padding: 16px;
+  }
+
+  .start-panel__rabbit {
+    display: none;
+  }
+
+  .start-panel__description {
+    margin: 8px 0;
+  }
+
+  .instruction-grid {
+    margin: 10px 0;
+  }
 }
 
-/* Animations */
-@keyframes spawn { to { transform: translate(-50%, -50%) scale(1); } }
-@keyframes targethit { to { opacity: 0; transform: translate(-50%, -50%) scale(1.7) rotate(20deg); } }
-@keyframes expire { to { opacity: 0; transform: translate(-50%, -50%) scale(.2); } }
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes floatmsg {
-  0% { opacity: 0; transform: translate(-50%, -20%); }
-  20%, 70% { opacity: 1; transform: translate(-50%, -50%); }
-  100% { opacity: 0; transform: translate(-50%, -80%); }
-}
-@keyframes flash { 50% { box-shadow: 0 0 20px var(--cyan); } }
-@keyframes hit { 50% { box-shadow: inset 0 0 50px rgba(0, 245, 255, .25); } }
-@keyframes damage { 50% { box-shadow: inset 0 0 70px rgba(255, 50, 95, .35); } }
-@keyframes levelup { 50% { box-shadow: inset 0 0 70px rgba(255, 211, 77, .3); } }
-@keyframes pulse-red { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+/* Veoma kratki horizontalni ekrani */
 
-@keyframes redPulse {
-  0% { transform: translate(-50%, -50%) scale(0.95); filter: drop-shadow(0 0 12px #ff0033); }
-  100% { transform: translate(-50%, -50%) scale(1.08); filter: drop-shadow(0 0 22px #ff0000); }
+@media (max-height: 520px) and (orientation: landscape) {
+  .app-shell {
+    padding: 6px 10px;
+  }
+
+  .game-header {
+    margin-bottom: 4px;
+  }
+
+  .hud {
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 4px;
+  }
+
+  .hud-card {
+    padding: 4px 7px;
+  }
+
+  .status-row {
+    margin-bottom: 4px;
+  }
+
+  .game-stage {
+    min-height: 250px;
+  }
+
+  .start-panel,
+  .modal-panel {
+    max-height: 94%;
+    padding: 10px;
+  }
+
+  .start-panel__rabbit,
+  .start-panel__description,
+  .start-panel__hint {
+    display: none;
+  }
+
+  .instruction-grid {
+    grid-template-columns: repeat(3, 1fr);
+    margin: 7px 0;
+  }
+
+  .instruction-card {
+    padding: 6px;
+  }
+
+  .game-footer {
+    display: none;
+  }
+}
+
+/* ==============================
+   ANIMACIJE
+   ============================== */
+
+@keyframes spawn {
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes target-hit {
+  to {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(1.7)
+      rotate(20deg);
+  }
+}
+
+@keyframes expire {
+  to {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(0.2);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes floating-message {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20%);
+  }
+
+  20%,
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -80%);
+  }
+}
+
+@keyframes flash {
+  50% {
+    box-shadow: 0 0 20px var(--cyan);
+  }
+}
+
+@keyframes hit {
+  50% {
+    box-shadow:
+      inset 0 0 50px rgba(0, 245, 255, 0.25);
+  }
+}
+
+@keyframes damage {
+  50% {
+    box-shadow:
+      inset 0 0 70px rgba(255, 50, 95, 0.35);
+  }
+}
+
+@keyframes levelup {
+  50% {
+    box-shadow:
+      inset 0 0 70px rgba(255, 211, 77, 0.3);
+  }
+}
+
+@keyframes pulse-red {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.4;
+  }
+}
+
+@keyframes red-rabbit-pulse {
+  from {
+    transform: scale(0.94);
+    filter: drop-shadow(0 0 7px #ff0033);
+  }
+
+  to {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 15px #ff0000);
+  }
+}
+
+/* Smanjene animacije za korisnike koji ih ne žele */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
