@@ -26,20 +26,35 @@
     </noscript>
 
     <div class="app-shell" id="appShell">
+        <div class="background-system" aria-hidden="true">
+            <div class="background-system__grid"></div>
+            <div class="background-system__scanlines"></div>
+            <div class="background-system__noise"></div>
+
+            <div
+                class="background-system__glow background-system__glow--one"
+            ></div>
+
+            <div
+                class="background-system__glow background-system__glow--two"
+            ></div>
+        </div>
+
         <header class="game-header">
             <div class="brand">
                 <div class="brand__mark" aria-hidden="true">
                     <span class="brand__ear brand__ear--left"></span>
                     <span class="brand__ear brand__ear--right"></span>
-                    <span class="brand__face"></span>
+                    <span class="brand__head"></span>
+                    <span class="brand__eye"></span>
                 </div>
 
-                <div class="brand__text">
+                <div class="brand__copy">
                     <p class="brand__eyebrow">
                         WHITE HAT RABBIT STUDIOS
                     </p>
 
-                    <h1>
+                    <h1 class="brand__title">
                         RABBIT
                         <span>REFLEX</span>
                     </h1>
@@ -75,20 +90,34 @@
             <section class="hud" aria-label="Rezultati igre">
                 <article class="hud-card hud-card--score">
                     <span class="hud-card__label">SCORE</span>
-                    <strong class="hud-card__value" id="scoreValue">
-                        00000000
+
+                    <strong
+                        class="hud-card__value"
+                        id="scoreValue"
+                    >
+                        000000
                     </strong>
+
+                    <span class="hud-card__pulse"></span>
                 </article>
 
-                <article class="hud-card hud-card--best">
+                <article class="hud-card">
                     <span class="hud-card__label">BEST SCORE</span>
-                    <strong class="hud-card__value" id="bestScoreValue">
-                        00000000
+
+                    <strong
+                        class="hud-card__value"
+                        id="bestScoreValue"
+                    >
+                        000000
                     </strong>
                 </article>
 
-                <article class="hud-card hud-card--combo" id="comboCard">
+                <article
+                    class="hud-card hud-card--combo"
+                    id="comboCard"
+                >
                     <span class="hud-card__label">COMBO</span>
+
                     <strong class="hud-card__value">
                         ×<span id="comboValue">1</span>
                     </strong>
@@ -96,7 +125,13 @@
 
                 <article class="hud-card hud-card--level">
                     <span class="hud-card__label">LEVEL</span>
-                    <strong class="hud-card__value" id="levelValue">01</strong>
+
+                    <strong
+                        class="hud-card__value"
+                        id="levelValue"
+                    >
+                        01
+                    </strong>
                 </article>
             </section>
 
@@ -216,7 +251,7 @@
 
                         <p class="start-panel__description">
                             Pogodi svetlećeg Belog Zeca pre nego što nestane.
-                            Izbegavaj crvene mete, održavaj combo i preživi
+                            Izbegavaj crvene mamce, održavaj combo i preživi
                             sve brži sistem.
                         </p>
 
@@ -242,8 +277,8 @@
                                 </span>
 
                                 <div>
-                                    <strong>CRVENA META</strong>
-                                    <small>Ne dodiruj je</small>
+                                    <strong>CRVENI MAMAC</strong>
+                                    <small>Ne dodiruj ga</small>
                                 </div>
                             </div>
 
@@ -285,12 +320,23 @@
                 </div>
 
                 <!-- ODBROJAVANJE -->
-                <div class="stage-overlay" id="countdownOverlay">
-                    <div class="countdown" id="countdownValue">3</div>
+                <div
+                    class="stage-overlay"
+                    id="countdownOverlay"
+                >
+                    <div
+                        class="countdown"
+                        id="countdownValue"
+                    >
+                        3
+                    </div>
                 </div>
 
                 <!-- PAUZA -->
-                <div class="stage-overlay" id="pauseOverlay">
+                <div
+                    class="stage-overlay"
+                    id="pauseOverlay"
+                >
                     <div class="modal-panel">
                         <p class="modal-panel__eyebrow">
                             SYSTEM SUSPENDED
@@ -299,11 +345,11 @@
                         <h2>PAUSED</h2>
 
                         <p>
-                            Refleks protokol je privremeno zaustavljen.
+                            Refleks modul je privremeno zaustavljen.
                         </p>
 
                         <button
-                            class="primary-button"
+                            class="primary-button primary-button--compact"
                             id="resumeButton"
                             type="button"
                         >
@@ -315,46 +361,59 @@
                 </div>
 
                 <!-- KRAJ IGRE -->
-                <div class="stage-overlay" id="gameOverOverlay">
-                    <div class="modal-panel modal-panel--results">
+                <div
+                    class="stage-overlay"
+                    id="gameOverOverlay"
+                >
+                    <div class="modal-panel modal-panel--game-over">
                         <p class="modal-panel__eyebrow">
                             SESSION COMPLETE
                         </p>
 
-                        <h2>GAME OVER</h2>
+                        <h2>RUN TERMINATED</h2>
 
-                        <div class="result-rank" id="resultRank">
+                        <div
+                            class="result-rank"
+                            id="resultRank"
+                        >
                             REFLEX ROOKIE
                         </div>
 
-                        <div class="results-grid">
+                        <div class="result-grid">
                             <div class="result-item">
-                                <span>FINAL SCORE</span>
+                                <span>SCORE</span>
                                 <strong id="finalScoreValue">
-                                    00000000
+                                    000000
                                 </strong>
                             </div>
 
                             <div class="result-item">
-                                <span>BEST SCORE</span>
+                                <span>BEST</span>
                                 <strong id="finalBestValue">
-                                    00000000
+                                    000000
                                 </strong>
                             </div>
 
                             <div class="result-item">
                                 <span>MAX COMBO</span>
-                                <strong id="finalComboValue">×1</strong>
+                                <strong id="finalComboValue">
+                                    ×1
+                                </strong>
                             </div>
 
                             <div class="result-item">
                                 <span>ACCURACY</span>
-                                <strong id="finalAccuracyValue">0%</strong>
+                                <strong id="finalAccuracyValue">
+                                    0%
+                                </strong>
                             </div>
                         </div>
 
-                        <p class="new-record" id="newRecordMessage">
-                            NEW SYSTEM RECORD
+                        <p
+                            class="new-record"
+                            id="newRecordMessage"
+                        >
+                            NEW WHITE HAT RECORD
                         </p>
 
                         <button
@@ -362,8 +421,15 @@
                             id="restartButton"
                             type="button"
                         >
+                            <span
+                                class="primary-button__glitch"
+                                aria-hidden="true"
+                            >
+                                RUN AGAIN
+                            </span>
+
                             <span class="primary-button__text">
-                                REINITIALIZE
+                                RUN AGAIN
                             </span>
                         </button>
                     </div>
