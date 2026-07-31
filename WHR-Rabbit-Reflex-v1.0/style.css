@@ -280,7 +280,7 @@ button {
 }
 
 /* ==============================
-   GLAVNI SADRŽAJ I HUD
+   GLAVNI SADRÅ½AJ I HUD
    ============================== */
 
 .game-main {
@@ -346,7 +346,7 @@ button {
 }
 
 /* ==============================
-   STATUS, ŽIVOTI I VREME
+   STATUS, Å½IVOTI I VREME
    ============================== */
 
 .status-row {
@@ -706,7 +706,7 @@ button {
 }
 
 /* ==============================
-   CRVENI ZEC — OPASNA META
+   CRVENI ZEC â€” OPASNA META
    ============================== */
 
 .target--redrabbit {
@@ -769,6 +769,46 @@ button {
   border-style: double;
 }
 
+/* Green Extra Life Rabbit */
+.target--life {
+  --target-color: #55ff88;
+  filter: drop-shadow(0 0 17px #30ff72);
+}
+
+.target--life .target__rabbit-head,
+.target--life .target__rabbit-ear {
+  border-color: #55ff88;
+  background: linear-gradient(145deg, #35e978, #075c32);
+  box-shadow: inset 0 0 9px rgba(255, 255, 255, .16), 0 0 13px #30ff72;
+}
+
+.target--life .target__rabbit-eye {
+  background: #d8ffe5;
+  box-shadow: 0 0 8px #55ff88;
+}
+
+.target--life .target__core {
+  background: radial-gradient(circle, #baffce 0 18%, #30ff72 40%, transparent 70%);
+  opacity: .6;
+}
+
+.target__life-plus {
+  position: absolute;
+  z-index: 3;
+  right: -4px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #d8ffe5;
+  border-radius: 50%;
+  background: #08703d;
+  color: #fff;
+  font: 900 .66rem var(--display);
+  box-shadow: 0 0 13px #30ff72;
+}
+
 /* ==============================
    CYBER NET PREPREKA
    ============================== */
@@ -820,7 +860,7 @@ button {
 }
 
 /* ==============================
-   NIŠAN I PORUKE
+   NIÅ AN I PORUKE
    ============================== */
 
 .crosshair {
@@ -955,7 +995,7 @@ button {
 }
 
 /* ==============================
-   VELIKI ZEC NA POČETNOM EKRANU
+   VELIKI ZEC NA POÄŒETNOM EKRANU
    ============================== */
 
 .start-panel__rabbit {
@@ -1212,7 +1252,7 @@ button {
 }
 
 /* ==============================
-   PODNOŽJE
+   PODNOÅ½JE
    ============================== */
 
 .game-footer {
@@ -1398,7 +1438,7 @@ button {
   }
 }
 
-/* Kraći mobilni ekrani */
+/* KraÄ‡i mobilni ekrani */
 
 @media (max-height: 740px) {
   .game-stage {
@@ -1578,7 +1618,7 @@ button {
   }
 }
 
-/* Smanjene animacije za korisnike koji ih ne žele */
+/* Smanjene animacije za korisnike koji ih ne Å¾ele */
 
 @media (prefers-reduced-motion: reduce) {
   *,
