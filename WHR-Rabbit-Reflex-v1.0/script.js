@@ -8,8 +8,8 @@ const CONFIG = {
   rabbitPoints: 250,
   goldenPoints: 1200,
   freezePoints: 500,
-  firePenaltyPoints: 500,
-  firePenaltyTime: 3.0,
+  redPenaltyPoints: 500,
+  redPenaltyTime: 3.0,
   decoyPenalty: 300,
   baseLife: 1450, minLife: 350, lifeStep: 45,
   baseDelay: 760, minDelay: 180, delayStep: 25,
@@ -41,7 +41,7 @@ class AudioFX {
   hit(c) { this.tone(480 + c * 24, .09, "sine", 820 + c * 24); }
   gold() { [660, 880, 1100].forEach((f, i) => setTimeout(() => this.tone(f, .13, "triangle", f * 1.1), i * 45)); }
   freeze() { [900, 700, 500].forEach((f, i) => setTimeout(() => this.tone(f, .15, "sine", f * 0.8), i * 50)); }
-  fire() { [200, 150, 100].forEach((f, i) => setTimeout(() => this.tone(f, .18, "sawtooth", f * 0.6), i * 60)); }
+  red() { [200, 150, 100].forEach((f, i) => setTimeout(() => this.tone(f, .18, "sawtooth", f * 0.6), i * 60)); }
   bad() { this.tone(190, .24, "sawtooth", 55); }
   level() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, .16, "sine", f * 1.05), i * 65)); }
   click() { this.tone(500, .07, "sine", 720); }
@@ -183,7 +183,6 @@ class Game {
     
     if (this.isFrozen) dt *= 0.5;
 
-    // SPREČAVANJE NaN BAGA NA TAJMERU
     if (isNaN(this.timeLeft)) this.timeLeft = CONFIG.time;
 
     this.timeLeft = Math.max(0, this.timeLeft - dt);
@@ -236,15 +235,15 @@ class Game {
     const decoyProb = Math.min(.12 + (this.level - 1) * .012, .28);
     const goldProb = Math.min(.08 + (this.level - 1) * .004, .15);
     const freezeProb = Math.min(.08, .04 + (this.level - 1) * .005);
-    const fireProb = Math.min(.18, .06 + (this.level - 1) * .012); // Povećana šansa za Vatrenog zeca!
+    const redProb = Math.min(.18, .06 + (this.level - 1) * .012); // CRVENI ZEC
     const netProb = this.level >= 3 ? Math.min(.12, .03 + (this.level - 3) * .01) : 0;
 
     let type = "rabbit";
     if (roll < goldProb) type = "golden";
     else if (roll < goldProb + freezeProb) type = "freeze";
-    else if (roll < goldProb + freezeProb + fireProb) type = "fire"; // FIRE RABBIT
-    else if (roll < goldProb + freezeProb + fireProb + netProb) type = "net";
-    else if (roll < goldProb + freezeProb + fireProb + netProb + decoyProb) type = "decoy";
+    else if (roll < goldProb + freezeProb + redProb) type = "redrabbit"; // CRVENI ZEC (OPASAN)
+    else if (roll < goldProb + freezeProb + redProb + netProb) type = "net";
+    else if (roll < goldProb + freezeProb + redProb + netProb + decoyProb) type = "decoy";
 
     const size = Math.max(58, (innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.8);
 
@@ -300,19 +299,19 @@ class Game {
       this.setStatus("SYSTEM DAMAGE", "danger");
       this.particles.burst(x, y, "#ff325f", 24);
       if (this.lives <= 0) { setTimeout(() => this.finish(), 180); return; }
-    } else if (type === "fire") {
-      // VATRENI ZEC: DUGUJE SE KAZNA POENA I KAZNA VREMENA SREĐENA BEZ NaN
-      const penaltyPts = CONFIG.firePenaltyPoints || 500;
-      const penaltyTime = CONFIG.firePenaltyTime || 3.0;
+    } else if (type === "redrabbit") {
+      // 🔴 CRVENI ZEC: SKIDA POENE I VREME!
+      const penaltyPts = CONFIG.redPenaltyPoints || 500;
+      const penaltyTime = CONFIG.redPenaltyTime || 3.0;
 
       this.score = Math.max(0, this.score - penaltyPts);
       this.timeLeft = Math.max(0, this.timeLeft - penaltyTime);
       this.breakCombo();
-      this.audio.fire();
-      this.flash("FIRE RABBIT HIT!", `-${penaltyPts} PTS / -${penaltyTime}s`, "#ff4500");
+      this.audio.red();
+      this.flash("RED RABBIT HIT!", `-${penaltyPts} PTS / -${penaltyTime}s`, "#ff0033");
       this.effect("is-damaged");
-      this.setStatus("SYSTEM OVERHEAT!", "danger");
-      this.particles.burst(x, y, "#ff4500", 35);
+      this.setStatus("CRITICAL ERROR!", "danger");
+      this.particles.burst(x, y, "#ff0033", 35);
     } else if (type === "net") {
       this.timeLeft = Math.max(0, this.timeLeft - 1.5);
       this.breakCombo();
@@ -376,7 +375,7 @@ class Game {
   miss(id) {
     if (!this.targets.has(id) || this.state !== "playing") return;
     const targetData = this.targets.get(id);
-    const isBadType = targetData.type === "decoy" || targetData.type === "fire" || targetData.type === "net";
+    const isBadType = targetData.type === "decoy" || targetData.type === "redrabbit" || targetData.type === "net";
     const b = targetData.element;
     
     this.targets.delete(id);
