@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="WHR: POWER WTF UP — futuristička arkadna igra multitaskinga, koncentracije i kontrolisanog haosa.">
     <meta name="theme-color" content="#05040a">
-    <title>WHR: POWER WTF UP v1.0</title>
+    <title>WHR: POWER WTF UP v1.0.1</title>
 
     <style>
         /* =========================================================
-           STILOVI ZA "ŠTA JE NOVO" (TAB / MODAL NOVOSTI)
-           ========================================================= */
+           STILOVI ZA "ŠTA JE NOVO"
+        ========================================================= */
         .news-modal-overlay {
             display: none;
             position: fixed;
@@ -145,9 +145,20 @@
             text-transform: uppercase;
         }
 
-        .tag.igra { background: #dbeafe; color: #1e40af; }
-        .tag.novo { background: #fef3c7; color: #92400e; }
-        .tag.fix { background: #fee2e2; color: #991b1b; }
+        .tag.igra {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tag.novo {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag.fix {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
         .update-details {
             margin: 0;
@@ -157,7 +168,9 @@
             line-height: 1.4;
         }
 
-        .update-details li { margin-bottom: 4px; }
+        .update-details li {
+            margin-bottom: 4px;
+        }
 
         .btn-news {
             background: #10b981 !important;
@@ -189,19 +202,26 @@
     <main id="gameApp" class="game-app">
 
         <!-- START SCREEN -->
-        <section id="startScreen" class="screen screen--active start-screen" aria-labelledby="gameTitle">
+        <section
+            id="startScreen"
+            class="screen screen--active start-screen"
+            aria-labelledby="gameTitle"
+        >
             <div class="start-screen__content">
 
                 <div class="brand-mark" aria-hidden="true">
                     <span class="brand-mark__ear brand-mark__ear--left"></span>
                     <span class="brand-mark__ear brand-mark__ear--right"></span>
+
                     <span class="brand-mark__head">
                         <span class="brand-mark__eye brand-mark__eye--left"></span>
                         <span class="brand-mark__eye brand-mark__eye--right"></span>
                     </span>
                 </div>
 
-                <p class="start-screen__eyebrow">WHITE HAT RABBIT ARCADE SYSTEM</p>
+                <p class="start-screen__eyebrow">
+                    WHITE HAT RABBIT ARCADE SYSTEM
+                </p>
 
                 <h1 id="gameTitle" class="game-title">
                     <span class="game-title__small">WHR:</span>
@@ -220,22 +240,44 @@
                     <span class="system-status__text">CHAOS ENGINE READY</span>
                 </div>
 
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <button id="startButton" class="button button--primary" type="button">
+                <div
+                    style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 8px;
+                    "
+                >
+                    <button
+                        id="startButton"
+                        class="button button--primary"
+                        type="button"
+                    >
                         <span class="button__label">START GAME</span>
                     </button>
 
-                    <!-- NOVO DUGME ZA POZIVANJE NOVOSTI -->
-                    <button id="newsButton" class="button button--primary btn-news" type="button" onclick="openNewsModal()">
+                    <button
+                        id="newsButton"
+                        class="button button--primary btn-news"
+                        type="button"
+                        onclick="openNewsModal()"
+                    >
                         <span class="button__label">🚀 ŠTA JE NOVO</span>
                     </button>
 
-                    <button id="howToPlayButton" class="button button--secondary" type="button">
+                    <button
+                        id="howToPlayButton"
+                        class="button button--secondary"
+                        type="button"
+                    >
                         HOW TO PLAY
                     </button>
 
-                    <!-- WHITE HAT PROTOCOL BUTTON -->
-                    <button id="whiteHatProtocolButton" class="button button--white-hat" type="button">
+                    <button
+                        id="whiteHatProtocolButton"
+                        class="button button--white-hat"
+                        type="button"
+                    >
                         <span class="white-hat-button__icon">♞</span>
                         WHITE HAT PROTOCOL
                     </button>
@@ -244,200 +286,657 @@
                 <div class="start-screen__records">
                     <div class="record-card">
                         <span class="record-card__label">BEST SCORE</span>
-                        <strong id="startBestScore" class="record-card__value">000000</strong>
+                        <strong
+                            id="startBestScore"
+                            class="record-card__value"
+                        >
+                            000000
+                        </strong>
                     </div>
 
                     <div class="record-card">
                         <span class="record-card__label">MAX LEVEL</span>
-                        <strong id="startMaxLevel" class="record-card__value">01</strong>
+                        <strong
+                            id="startMaxLevel"
+                            class="record-card__value"
+                        >
+                            01
+                        </strong>
                     </div>
                 </div>
 
-                <p class="start-screen__warning">EXPECT THE UNEXPECTED</p>
+                <p class="start-screen__warning">
+                    EXPECT THE UNEXPECTED
+                </p>
 
             </div>
         </section>
 
         <!-- HOW TO PLAY SCREEN -->
-        <section id="howToPlayScreen" class="screen how-to-play-screen" aria-labelledby="howToPlayTitle">
+        <section
+            id="howToPlayScreen"
+            class="screen how-to-play-screen"
+            aria-labelledby="howToPlayTitle"
+        >
             <div class="panel instructions-panel">
-                <button id="closeHowToPlayButton" class="icon-button instructions-panel__close" type="button" aria-label="Zatvori uputstvo">×</button>
-                <p class="panel__eyebrow">WHR TRAINING PROTOCOL</p>
-                <h2 id="howToPlayTitle" class="panel__title">HOW TO PLAY</h2>
+
+                <button
+                    id="closeHowToPlayButton"
+                    class="icon-button instructions-panel__close"
+                    type="button"
+                    aria-label="Zatvori uputstvo"
+                >
+                    ×
+                </button>
+
+                <p class="panel__eyebrow">
+                    WHR TRAINING PROTOCOL
+                </p>
+
+                <h2
+                    id="howToPlayTitle"
+                    class="panel__title"
+                >
+                    HOW TO PLAY
+                </h2>
 
                 <div class="instructions-grid">
+
                     <article class="instruction-card">
                         <span class="instruction-card__number">01</span>
+
                         <div>
                             <h3>KREĆI SE</h3>
-                            <p>Koristi strelice levo i desno ili tastere <strong>A</strong> i <strong>D</strong>.</p>
+
+                            <p>
+                                Koristi strelice levo i desno ili tastere
+                                <strong>A</strong> i <strong>D</strong>.
+                            </p>
                         </div>
                     </article>
 
                     <article class="instruction-card">
                         <span class="instruction-card__number">02</span>
+
                         <div>
                             <h3>PUCAJ NAGORE</h3>
-                            <p>Pritisni <strong>SPACE</strong> ili dodirni dugme za pucanje.</p>
+
+                            <p>
+                                Pritisni <strong>SPACE</strong> ili dodirni
+                                dugme za pucanje.
+                            </p>
                         </div>
                     </article>
 
                     <article class="instruction-card">
                         <span class="instruction-card__number">03</span>
+
                         <div>
                             <h3>UNIŠTI SVE ORBOVE</h3>
-                            <p>Veliki orbovi se dele na manje. Nivo se završava tek kada nestane poslednji fragment.</p>
+
+                            <p>
+                                Veliki orbovi se dele na manje. Nivo se završava
+                                tek kada nestane poslednji fragment.
+                            </p>
                         </div>
                     </article>
 
                     <article class="instruction-card">
                         <span class="instruction-card__number">04</span>
+
                         <div>
                             <h3>PREŽIVI</h3>
-                            <p>Imaš tri života. Jedan dodir orb-a znači gubitak života, osim kada je štit aktivan.</p>
+
+                            <p>
+                                Imaš tri života. Jedan dodir orb-a znači gubitak
+                                života, osim kada je štit aktivan.
+                            </p>
                         </div>
                     </article>
+
                 </div>
 
-                <button id="instructionsStartButton" class="button button--primary" type="button">ENTER THE CHAOS</button>
+                <button
+                    id="instructionsStartButton"
+                    class="button button--primary"
+                    type="button"
+                >
+                    ENTER THE CHAOS
+                </button>
+
             </div>
         </section>
 
         <!-- GAME SCREEN -->
-        <section id="gameScreen" class="screen game-screen" aria-label="WHR igra">
+        <section
+            id="gameScreen"
+            class="screen game-screen"
+            aria-label="WHR igra"
+        >
             <header class="hud">
+
                 <div class="hud__section hud__section--left">
+
                     <div class="hud-stat">
                         <span class="hud-stat__label">SCORE</span>
-                        <strong id="scoreValue" class="hud-stat__value">000000</strong>
+
+                        <strong
+                            id="scoreValue"
+                            class="hud-stat__value"
+                        >
+                            000000
+                        </strong>
                     </div>
+
                     <div class="hud-stat">
                         <span class="hud-stat__label">BEST</span>
-                        <strong id="bestScoreValue" class="hud-stat__value">000000</strong>
+
+                        <strong
+                            id="bestScoreValue"
+                            class="hud-stat__value"
+                        >
+                            000000
+                        </strong>
                     </div>
+
                 </div>
 
                 <div class="hud__section hud__section--center">
+
                     <div class="level-display">
                         <span class="level-display__label">LEVEL</span>
-                        <strong id="levelValue" class="level-display__value">01</strong>
+
+                        <strong
+                            id="levelValue"
+                            class="level-display__value"
+                        >
+                            01
+                        </strong>
                     </div>
-                    <div id="dangerMeter" class="danger-meter" aria-label="Nivo opasnosti">
+
+                    <div
+                        id="dangerMeter"
+                        class="danger-meter"
+                        aria-label="Nivo opasnosti"
+                    >
                         <span class="danger-meter__label">CHAOS</span>
+
                         <div class="danger-meter__track">
-                            <div id="dangerMeterFill" class="danger-meter__fill"></div>
+                            <div
+                                id="dangerMeterFill"
+                                class="danger-meter__fill"
+                            ></div>
                         </div>
                     </div>
+
                 </div>
 
                 <div class="hud__section hud__section--right">
+
                     <div class="hud-stat hud-stat--combo">
                         <span class="hud-stat__label">COMBO</span>
-                        <strong id="comboValue" class="hud-stat__value">x1</strong>
+
+                        <strong
+                            id="comboValue"
+                            class="hud-stat__value"
+                        >
+                            x1
+                        </strong>
                     </div>
+
                     <div class="lives-display">
                         <span class="lives-display__label">LIVES</span>
-                        <div id="livesContainer" class="lives-display__icons" aria-label="Preostali životi">
+
+                        <div
+                            id="livesContainer"
+                            class="lives-display__icons"
+                            aria-label="Preostali životi"
+                        >
                             <span class="life-icon">♥</span>
                             <span class="life-icon">♥</span>
                             <span class="life-icon">♥</span>
                         </div>
                     </div>
+
                 </div>
+
             </header>
 
-            <div id="activeEffectsPanel" class="active-effects-panel" aria-live="polite">
-                <div id="shieldIndicator" class="effect-indicator" hidden><span class="effect-indicator__icon">◉</span><span class="effect-indicator__label">SHIELD</span><span id="shieldTimer" class="effect-indicator__timer"></span></div>
-                <div id="freezeIndicator" class="effect-indicator" hidden><span class="effect-indicator__icon">❄</span><span class="effect-indicator__label">FREEZE</span><span id="freezeTimer" class="effect-indicator__timer"></span></div>
-                <div id="rapidIndicator" class="effect-indicator" hidden><span class="effect-indicator__icon">⚡</span><span class="effect-indicator__label">RAPID</span><span id="rapidTimer" class="effect-indicator__timer"></span></div>
-                <div id="doubleBeamIndicator" class="effect-indicator" hidden><span class="effect-indicator__icon">Ⅱ</span><span class="effect-indicator__label">DOUBLE</span><span id="doubleBeamTimer" class="effect-indicator__timer"></span></div>
+            <div
+                id="activeEffectsPanel"
+                class="active-effects-panel"
+                aria-live="polite"
+            >
+                <div
+                    id="shieldIndicator"
+                    class="effect-indicator"
+                    hidden
+                >
+                    <span class="effect-indicator__icon">◉</span>
+                    <span class="effect-indicator__label">SHIELD</span>
+                    <span
+                        id="shieldTimer"
+                        class="effect-indicator__timer"
+                    ></span>
+                </div>
+
+                <div
+                    id="freezeIndicator"
+                    class="effect-indicator"
+                    hidden
+                >
+                    <span class="effect-indicator__icon">❄</span>
+                    <span class="effect-indicator__label">FREEZE</span>
+                    <span
+                        id="freezeTimer"
+                        class="effect-indicator__timer"
+                    ></span>
+                </div>
+
+                <div
+                    id="rapidIndicator"
+                    class="effect-indicator"
+                    hidden
+                >
+                    <span class="effect-indicator__icon">⚡</span>
+                    <span class="effect-indicator__label">RAPID</span>
+                    <span
+                        id="rapidTimer"
+                        class="effect-indicator__timer"
+                    ></span>
+                </div>
+
+                <div
+                    id="doubleBeamIndicator"
+                    class="effect-indicator"
+                    hidden
+                >
+                    <span class="effect-indicator__icon">Ⅱ</span>
+                    <span class="effect-indicator__label">DOUBLE</span>
+                    <span
+                        id="doubleBeamTimer"
+                        class="effect-indicator__timer"
+                    ></span>
+                </div>
             </div>
 
-            <div id="gameStage" class="game-stage">
-                <canvas id="gameCanvas" aria-label="Polje igre WHR: POWER WTF UP"></canvas>
-                <div id="screenFlash" class="screen-flash" aria-hidden="true"></div>
-                <div id="earthquakeOverlay" class="earthquake-overlay" aria-hidden="true"><span>SEISMIC ANOMALY</span></div>
+            <div
+                id="gameStage"
+                class="game-stage"
+            >
+                <canvas
+                    id="gameCanvas"
+                    tabindex="0"
+                    aria-label="Polje igre WHR: POWER WTF UP"
+                ></canvas>
 
-                <div id="levelAnnouncement" class="level-announcement" aria-live="assertive">
-                    <span class="level-announcement__small">ENTERING</span>
-                    <strong id="levelAnnouncementValue" class="level-announcement__main">LEVEL 01</strong>
-                    <span id="levelAnnouncementMessage" class="level-announcement__message">CONTROL THE CHAOS</span>
+                <div
+                    id="screenFlash"
+                    class="screen-flash"
+                    aria-hidden="true"
+                ></div>
+
+                <div
+                    id="earthquakeOverlay"
+                    class="earthquake-overlay"
+                    aria-hidden="true"
+                >
+                    <span>SEISMIC ANOMALY</span>
                 </div>
 
-                <div id="wtfAnnouncement" class="wtf-announcement" aria-live="assertive">
-                    <span class="wtf-announcement__power">POWER</span>
-                    <strong class="wtf-announcement__wtf">WTF</strong>
-                    <span class="wtf-announcement__up">UP</span>
-                    <small id="wtfEffectMessage" class="wtf-announcement__effect"></small>
+                <div
+                    id="levelAnnouncement"
+                    class="level-announcement"
+                    aria-live="assertive"
+                >
+                    <span class="level-announcement__small">
+                        ENTERING
+                    </span>
+
+                    <strong
+                        id="levelAnnouncementValue"
+                        class="level-announcement__main"
+                    >
+                        LEVEL 01
+                    </strong>
+
+                    <span
+                        id="levelAnnouncementMessage"
+                        class="level-announcement__message"
+                    >
+                        CONTROL THE CHAOS
+                    </span>
                 </div>
 
-                <div id="comboAnnouncement" class="combo-announcement" aria-live="polite">COMBO x2</div>
-                <div id="statusMessage" class="status-message" aria-live="polite"></div>
+                <div
+                    id="wtfAnnouncement"
+                    class="wtf-announcement"
+                    aria-live="assertive"
+                >
+                    <span class="wtf-announcement__power">
+                        POWER
+                    </span>
 
-                <div id="pauseOverlay" class="game-overlay pause-overlay" hidden>
+                    <strong class="wtf-announcement__wtf">
+                        WTF
+                    </strong>
+
+                    <span class="wtf-announcement__up">
+                        UP
+                    </span>
+
+                    <small
+                        id="wtfEffectMessage"
+                        class="wtf-announcement__effect"
+                    ></small>
+                </div>
+
+                <div
+                    id="comboAnnouncement"
+                    class="combo-announcement"
+                    aria-live="polite"
+                >
+                    COMBO x2
+                </div>
+
+                <div
+                    id="statusMessage"
+                    class="status-message"
+                    aria-live="polite"
+                ></div>
+
+                <!-- PAUSE OVERLAY -->
+                <div
+                    id="pauseOverlay"
+                    class="game-overlay pause-overlay"
+                    hidden
+                >
                     <div class="game-overlay__content">
-                        <p class="game-overlay__eyebrow">SYSTEM PAUSED</p>
-                        <h2 class="game-overlay__title">PAUSE</h2>
-                        <button id="resumeButton" class="button button--primary" type="button">RESUME</button>
-                        <button id="restartFromPauseButton" class="button button--secondary" type="button">RESTART</button>
-                        <button id="quitFromPauseButton" class="button button--ghost" type="button">MAIN MENU</button>
+
+                        <p class="game-overlay__eyebrow">
+                            SYSTEM PAUSED
+                        </p>
+
+                        <h2 class="game-overlay__title">
+                            PAUSE
+                        </h2>
+
+                        <button
+                            id="resumeButton"
+                            class="button button--primary"
+                            type="button"
+                        >
+                            RESUME
+                        </button>
+
+                        <button
+                            id="restartFromPauseButton"
+                            class="button button--secondary"
+                            type="button"
+                        >
+                            RESTART
+                        </button>
+
+                        <button
+                            id="quitFromPauseButton"
+                            class="button button--ghost"
+                            type="button"
+                        >
+                            MAIN MENU
+                        </button>
+
                     </div>
                 </div>
+
             </div>
 
-            <div id="mobileControls" class="mobile-controls" aria-label="Kontrole na dodir">
+            <!-- MOBILE CONTROLS -->
+            <div
+                id="mobileControls"
+                class="mobile-controls"
+                aria-label="Kontrole na dodir"
+            >
                 <div class="mobile-controls__movement">
-                    <button id="moveLeftButton" class="control-button control-button--move" type="button" aria-label="Kretanje ulevo"><span aria-hidden="true">◀</span></button>
-                    <button id="moveRightButton" class="control-button control-button--move" type="button" aria-label="Kretanje udesno"><span aria-hidden="true">▶</span></button>
+
+                    <button
+                        id="moveLeftButton"
+                        class="control-button control-button--move"
+                        type="button"
+                        aria-label="Kretanje ulevo"
+                    >
+                        <span aria-hidden="true">◀</span>
+                    </button>
+
+                    <button
+                        id="moveRightButton"
+                        class="control-button control-button--move"
+                        type="button"
+                        aria-label="Kretanje udesno"
+                    >
+                        <span aria-hidden="true">▶</span>
+                    </button>
+
                 </div>
-                <button id="shootButton" class="control-button control-button--shoot" type="button" aria-label="Pucaj"><span class="control-button__text">FIRE</span></button>
+
+                <button
+                    id="shootButton"
+                    class="control-button control-button--shoot"
+                    type="button"
+                    aria-label="Pucaj"
+                >
+                    <span class="control-button__text">
+                        FIRE
+                    </span>
+                </button>
+
             </div>
 
             <footer class="game-footer">
+
                 <div class="game-footer__controls">
-                    <span><kbd>A</kbd> <kbd>D</kbd> MOVE</span>
-                    <span><kbd>SPACE</kbd> FIRE</span>
-                    <span><kbd>P</kbd> PAUSE</span>
+                    <span>
+                        <kbd>A</kbd>
+                        <kbd>D</kbd>
+                        MOVE
+                    </span>
+
+                    <span>
+                        <kbd>SPACE</kbd>
+                        FIRE
+                    </span>
+
+                    <span>
+                        <kbd>P</kbd>
+                        PAUSE
+                    </span>
                 </div>
-                <button id="pauseButton" class="pause-button" type="button" aria-label="Pauziraj igru"><span></span><span></span></button>
+
+                <button
+                    id="pauseButton"
+                    class="pause-button"
+                    type="button"
+                    aria-label="Pauziraj igru"
+                >
+                    <span></span>
+                    <span></span>
+                </button>
+
             </footer>
+
         </section>
 
         <!-- LEVEL COMPLETE SCREEN -->
-        <section id="levelCompleteScreen" class="screen result-screen level-complete-screen" aria-labelledby="levelCompleteTitle">
+        <section
+            id="levelCompleteScreen"
+            class="screen result-screen level-complete-screen"
+            aria-labelledby="levelCompleteTitle"
+        >
             <div class="result-panel">
-                <p class="result-panel__eyebrow">CHAOS CONTAINED</p>
-                <h2 id="levelCompleteTitle" class="result-panel__title">LEVEL COMPLETE</h2>
+
+                <p class="result-panel__eyebrow">
+                    CHAOS CONTAINED
+                </p>
+
+                <h2
+                    id="levelCompleteTitle"
+                    class="result-panel__title"
+                >
+                    LEVEL COMPLETE
+                </h2>
+
                 <div class="result-panel__stats">
-                    <div class="result-stat"><span class="result-stat__label">LEVEL SCORE</span><strong id="levelScoreValue" class="result-stat__value">000000</strong></div>
-                    <div class="result-stat"><span class="result-stat__label">MAX COMBO</span><strong id="levelMaxComboValue" class="result-stat__value">x1</strong></div>
-                    <div class="result-stat"><span class="result-stat__label">ORBS DESTROYED</span><strong id="orbsDestroyedValue" class="result-stat__value">0</strong></div>
+
+                    <div class="result-stat">
+                        <span class="result-stat__label">
+                            LEVEL SCORE
+                        </span>
+
+                        <strong
+                            id="levelScoreValue"
+                            class="result-stat__value"
+                        >
+                            000000
+                        </strong>
+                    </div>
+
+                    <div class="result-stat">
+                        <span class="result-stat__label">
+                            MAX COMBO
+                        </span>
+
+                        <strong
+                            id="levelMaxComboValue"
+                            class="result-stat__value"
+                        >
+                            x1
+                        </strong>
+                    </div>
+
+                    <div class="result-stat">
+                        <span class="result-stat__label">
+                            ORBS DESTROYED
+                        </span>
+
+                        <strong
+                            id="orbsDestroyedValue"
+                            class="result-stat__value"
+                        >
+                            0
+                        </strong>
+                    </div>
+
                 </div>
-                <p id="levelCompleteMessage" class="result-panel__message"></p>
-                <button id="nextLevelButton" class="button button--primary" type="button">NEXT LEVEL</button>
+
+                <p
+                    id="levelCompleteMessage"
+                    class="result-panel__message"
+                ></p>
+
+                <button
+                    id="nextLevelButton"
+                    class="button button--primary"
+                    type="button"
+                >
+                    NEXT LEVEL
+                </button>
+
             </div>
         </section>
 
         <!-- GAME OVER SCREEN -->
-        <section id="gameOverScreen" class="screen result-screen game-over-screen" aria-labelledby="gameOverTitle">
+        <section
+            id="gameOverScreen"
+            class="screen result-screen game-over-screen"
+            aria-labelledby="gameOverTitle"
+        >
             <div class="result-panel result-panel--danger">
-                <p class="result-panel__eyebrow">CHAOS WON</p>
-                <h2 id="gameOverTitle" class="result-panel__title result-panel__title--danger">GAME OVER</h2>
-                <p class="game-over-wtf">WTF?</p>
+
+                <p class="result-panel__eyebrow">
+                    CHAOS WON
+                </p>
+
+                <h2
+                    id="gameOverTitle"
+                    class="result-panel__title result-panel__title--danger"
+                >
+                    GAME OVER
+                </h2>
+
+                <p class="game-over-wtf">
+                    WTF?
+                </p>
+
                 <div class="result-panel__stats">
-                    <div class="result-stat"><span class="result-stat__label">FINAL SCORE</span><strong id="finalScoreValue" class="result-stat__value">000000</strong></div>
-                    <div class="result-stat"><span class="result-stat__label">LEVEL REACHED</span><strong id="finalLevelValue" class="result-stat__value">01</strong></div>
-                    <div class="result-stat"><span class="result-stat__label">BEST COMBO</span><strong id="finalComboValue" class="result-stat__value">x1</strong></div>
+
+                    <div class="result-stat">
+                        <span class="result-stat__label">
+                            FINAL SCORE
+                        </span>
+
+                        <strong
+                            id="finalScoreValue"
+                            class="result-stat__value"
+                        >
+                            000000
+                        </strong>
+                    </div>
+
+                    <div class="result-stat">
+                        <span class="result-stat__label">
+                            LEVEL REACHED
+                        </span>
+
+                        <strong
+                            id="finalLevelValue"
+                            class="result-stat__value"
+                        >
+                            01
+                        </strong>
+                    </div>
+
+                    <div class="result-stat">
+                        <span class="result-stat__label">
+                            BEST COMBO
+                        </span>
+
+                        <strong
+                            id="finalComboValue"
+                            class="result-stat__value"
+                        >
+                            x1
+                        </strong>
+                    </div>
+
                 </div>
-                <div id="newRecordBadge" class="new-record-badge" hidden>NEW HIGH SCORE</div>
-                <button id="playAgainButton" class="button button--primary" type="button">PLAY AGAIN</button>
-                <button id="gameOverMenuButton" class="button button--secondary" type="button">MAIN MENU</button>
+
+                <div
+                    id="newRecordBadge"
+                    class="new-record-badge"
+                    hidden
+                >
+                    NEW HIGH SCORE
+                </div>
+
+                <button
+                    id="playAgainButton"
+                    class="button button--primary"
+                    type="button"
+                >
+                    PLAY AGAIN
+                </button>
+
+                <button
+                    id="gameOverMenuButton"
+                    class="button button--secondary"
+                    type="button"
+                >
+                    MAIN MENU
+                </button>
+
             </div>
         </section>
 
-        <!-- ======================================================
-             WHR WHITE HAT PROTOCOL MODAL
-        ======================================================= -->
+        <!-- WHITE HAT PROTOCOL MODAL -->
         <section
             id="whiteHatProtocolModal"
             class="white-hat-modal"
@@ -458,6 +957,7 @@
                 <div class="white-hat-terminal__scanline"></div>
 
                 <header class="white-hat-terminal__header">
+
                     <div class="white-hat-terminal__identity">
                         <span class="white-hat-terminal__signal"></span>
 
@@ -480,18 +980,28 @@
                     >
                         ×
                     </button>
+
                 </header>
 
                 <div class="white-hat-terminal__content">
 
-                    <div class="white-hat-emblem" aria-hidden="true">
+                    <div
+                        class="white-hat-emblem"
+                        aria-hidden="true"
+                    >
                         <div class="white-hat-emblem__hat">
                             <span></span>
                         </div>
 
                         <div class="white-hat-emblem__rabbit">
-                            <span class="white-hat-emblem__ear white-hat-emblem__ear--left"></span>
-                            <span class="white-hat-emblem__ear white-hat-emblem__ear--right"></span>
+                            <span
+                                class="white-hat-emblem__ear white-hat-emblem__ear--left"
+                            ></span>
+
+                            <span
+                                class="white-hat-emblem__ear white-hat-emblem__ear--right"
+                            ></span>
+
                             <span class="white-hat-emblem__head"></span>
                         </div>
 
@@ -515,12 +1025,13 @@
                         id="whiteHatProtocolDescription"
                         class="white-hat-terminal__intro"
                     >
-                        Ova igra je napravljena da testira reflekse, koncentraciju
-                        i sposobnost upravljanja haosom — ne aimbot, auto-fire
-                        i lažne rezultate.
+                        Ova igra je napravljena da testira reflekse,
+                        koncentraciju i sposobnost upravljanja haosom —
+                        ne aimbot, auto-fire i lažne rezultate.
                     </p>
 
                     <div class="white-hat-message">
+
                         <span class="white-hat-message__label">
                             PORUKA HAKERIMA
                         </span>
@@ -531,36 +1042,44 @@
                         </p>
 
                         <p>
-                            Ako ste ethical hacker i pronađete bezbednosni propust,
-                            nemojte ga zloupotrebiti niti javno objaviti detaljno
-                            uputstvo za napad.
+                            Ako ste ethical hacker i pronađete bezbednosni
+                            propust, nemojte ga zloupotrebiti niti javno
+                            objaviti detaljno uputstvo za napad.
                         </p>
 
                         <p>
                             Prijavite ga odgovorno i pomozite nam da WHR sistem
                             postane sigurniji.
                         </p>
+
                     </div>
 
                     <div class="white-hat-rules">
 
                         <article class="white-hat-rule">
-                            <span class="white-hat-rule__number">01</span>
+                            <span class="white-hat-rule__number">
+                                01
+                            </span>
 
                             <div>
                                 <h3>NE KVARI IGRU</h3>
+
                                 <p>
-                                    Bez aimbota, auto-fire skripti, manipulacije
-                                    rezultatom i namernog rušenja sistema.
+                                    Bez aimbota, auto-fire skripti,
+                                    manipulacije rezultatom i namernog
+                                    rušenja sistema.
                                 </p>
                             </div>
                         </article>
 
                         <article class="white-hat-rule">
-                            <span class="white-hat-rule__number">02</span>
+                            <span class="white-hat-rule__number">
+                                02
+                            </span>
 
                             <div>
                                 <h3>NE DIRAJ DRUGE IGRAČE</h3>
+
                                 <p>
                                     Testiranje se zaustavlja tamo gde počinje
                                     šteta, krađa podataka ili ometanje drugih.
@@ -569,10 +1088,13 @@
                         </article>
 
                         <article class="white-hat-rule">
-                            <span class="white-hat-rule__number">03</span>
+                            <span class="white-hat-rule__number">
+                                03
+                            </span>
 
                             <div>
                                 <h3>SAČUVAJ DOKAZ</h3>
+
                                 <p>
                                     Zapiši verziju igre, uređaj, pregledač,
                                     korake za ponavljanje i očekivano ponašanje.
@@ -581,13 +1103,17 @@
                         </article>
 
                         <article class="white-hat-rule">
-                            <span class="white-hat-rule__number">04</span>
+                            <span class="white-hat-rule__number">
+                                04
+                            </span>
 
                             <div>
                                 <h3>PRIJAVI ODGOVORNO</h3>
+
                                 <p>
-                                    Pošalji kratak opis bez objavljivanja exploita,
-                                    lozinki, tokena ili osetljivih podataka.
+                                    Pošalji kratak opis bez objavljivanja
+                                    exploita, lozinki, tokena ili osetljivih
+                                    podataka.
                                 </p>
                             </div>
                         </article>
@@ -637,8 +1163,13 @@
                     ></div>
 
                     <footer class="white-hat-terminal__footer">
-                        <span>WHR GUARDIAN PROTOCOL v1.0</span>
-                        <span>TRUST // RESPECT // RESPONSIBLE DISCLOSURE</span>
+                        <span>
+                            WHR GUARDIAN PROTOCOL v1.0
+                        </span>
+
+                        <span>
+                            TRUST // RESPECT // RESPONSIBLE DISCLOSURE
+                        </span>
                     </footer>
 
                 </div>
@@ -647,33 +1178,85 @@
 
     </main>
 
-    <!-- MODAL POPUP: ŠTA JE NOVO -->
-    <div id="newsModal" class="news-modal-overlay">
+    <!-- NEWS MODAL -->
+    <div
+        id="newsModal"
+        class="news-modal-overlay"
+        aria-hidden="true"
+    >
         <div class="news-tab-container">
-            <button class="close-modal-btn" onclick="closeNewsModal()" aria-label="Zatvori">✕</button>
+
+            <button
+                class="close-modal-btn"
+                type="button"
+                onclick="closeNewsModal()"
+                aria-label="Zatvori"
+            >
+                ✕
+            </button>
 
             <div class="tab-header">
                 <h2>Šta je novo 🚀</h2>
                 <span class="live-badge">Live Updates</span>
             </div>
-            
+
             <div id="updates-feed"></div>
+
         </div>
     </div>
 
     <!-- ORIENTATION MESSAGE -->
-    <div id="orientationMessage" class="orientation-message" aria-hidden="true">
-        <div class="orientation-message__phone"><span></span></div>
-        <p>Za najbolji doživljaj okreni telefon horizontalno.</p>
+    <div
+        id="orientationMessage"
+        class="orientation-message"
+        aria-hidden="true"
+    >
+        <div
+            class="orientation-message__phone"
+            aria-hidden="true"
+        >
+            <span></span>
+        </div>
+
+        <strong>
+            OKRENI TELEFON HORIZONTALNO
+        </strong>
+
+        <p>
+            WHR arena je projektovana za 16:9 format.
+        </p>
     </div>
 
-    <div id="audioStatus" class="visually-hidden" aria-live="polite"></div>
+    <div
+        id="audioStatus"
+        class="visually-hidden"
+        aria-live="polite"
+    ></div>
 
-    <!-- SKRIPTE -->
-    <script src="script.js" defer></script>
+    <!-- MAIN GAME SCRIPT -->
+    <script
+        src="script.js"
+        defer
+    ></script>
+
+    <!-- NEWS SCRIPT -->
     <script>
-        // Logika za Novosti Modal Pop-up
+        "use strict";
+
         const updatesData = [
+            {
+                id: 4,
+                title: "WHR Power WTF Up — Hotfix",
+                date: "31. jul 2026.",
+                version: "v1.0.1",
+                tags: ["igra", "fix"],
+                changes: [
+                    "Poboljšano upravljanje tastaturom i SPACE pucanje.",
+                    "Ispravljen problem sa Pause ekranom pri pokretanju igre.",
+                    "Mobilna verzija koristi horizontalni 16:9 režim.",
+                    "Dodat ekran za okretanje telefona u landscape položaj."
+                ]
+            },
             {
                 id: 3,
                 title: "Nova Igra: WHR Power WTF Up! 🛸",
@@ -710,29 +1293,63 @@
         ];
 
         function renderUpdates() {
-            const feedContainer = document.getElementById("updates-feed");
-            if (!feedContainer) return;
-            
+            const feedContainer =
+                document.getElementById("updates-feed");
+
+            if (!feedContainer) {
+                return;
+            }
+
             feedContainer.innerHTML = "";
-            const sortedUpdates = updatesData.sort((a, b) => b.id - a.id);
+
+            const sortedUpdates = [...updatesData].sort(
+                (a, b) => b.id - a.id
+            );
 
             sortedUpdates.forEach((item, index) => {
                 const isLatest = index === 0;
-                const card = document.createElement("div");
-                card.className = `update-card ${isLatest ? 'latest' : ''}`;
 
-                const tagsHTML = item.tags.map(tag => `<span class="tag ${tag}">${tag}</span>`).join("");
-                const changesHTML = item.changes.map(change => `<li>${change}</li>`).join("");
+                const card = document.createElement("div");
+
+                card.className =
+                    `update-card ${isLatest ? "latest" : ""}`;
+
+                const tagsHTML = item.tags
+                    .map(
+                        tag =>
+                            `<span class="tag ${tag}">${tag}</span>`
+                    )
+                    .join("");
+
+                const changesHTML = item.changes
+                    .map(
+                        change => `<li>${change}</li>`
+                    )
+                    .join("");
 
                 card.innerHTML = `
-                    ${isLatest ? '<span class="latest-tag">Najnoviji Update ★</span>' : ''}
+                    ${
+                        isLatest
+                            ? '<span class="latest-tag">Najnoviji Update ★</span>'
+                            : ""
+                    }
+
                     <div class="update-meta">
                         <span>Verzija ${item.version}</span>
                         <span>${item.date}</span>
                     </div>
-                    <h3 class="update-title">${item.title}</h3>
-                    <div class="update-tags">${tagsHTML}</div>
-                    <ul class="update-details">${changesHTML}</ul>
+
+                    <h3 class="update-title">
+                        ${item.title}
+                    </h3>
+
+                    <div class="update-tags">
+                        ${tagsHTML}
+                    </div>
+
+                    <ul class="update-details">
+                        ${changesHTML}
+                    </ul>
                 `;
 
                 feedContainer.appendChild(card);
@@ -740,32 +1357,52 @@
         }
 
         function openNewsModal() {
-            const modal = document.getElementById("newsModal");
-            if (modal) {
-                modal.style.display = "flex";
-                renderUpdates();
+            const modal =
+                document.getElementById("newsModal");
+
+            if (!modal) {
+                return;
             }
+
+            modal.style.display = "flex";
+            modal.setAttribute("aria-hidden", "false");
+
+            renderUpdates();
         }
 
         function closeNewsModal() {
-            const modal = document.getElementById("newsModal");
-            if (modal) {
-                modal.style.display = "none";
+            const modal =
+                document.getElementById("newsModal");
+
+            if (!modal) {
+                return;
             }
+
+            modal.style.display = "none";
+            modal.setAttribute("aria-hidden", "true");
         }
 
-        window.addEventListener("click", function(event) {
-            const modal = document.getElementById("newsModal");
-            if (event.target === modal) {
-                closeNewsModal();
-            }
-        });
+        window.addEventListener(
+            "click",
+            event => {
+                const modal =
+                    document.getElementById("newsModal");
 
-        window.addEventListener("keydown", function(event) {
-            if (event.key === "Escape") {
-                closeNewsModal();
+                if (event.target === modal) {
+                    closeNewsModal();
+                }
             }
-        });
+        );
+
+        window.addEventListener(
+            "keydown",
+            event => {
+                if (event.code === "Escape") {
+                    closeNewsModal();
+                }
+            }
+        );
     </script>
+
 </body>
 </html>
