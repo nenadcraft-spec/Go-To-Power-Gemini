@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>White Hat Rabbit Studios // Control Center v10.9</title>
+    <title>White Hat Rabbit Studios // Control Center v11.0</title>
     <style>
         :root {
             --bg-main: #030508;
@@ -12,6 +12,7 @@
             --accent-purple: #c084fc;
             --accent-blue: #38bdf8;
             --accent-amber: #f59e0b;
+            --accent-pink: #ff38c7;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #1e293b;
@@ -411,14 +412,6 @@
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
         }
 
-        .musketar-warning {
-            margin-top: 25px;
-            font-size: 11px;
-            color: #71717a;
-            font-style: italic;
-            line-height: 1.5;
-        }
-
         .matrix-box { background: #020408; border: 1px solid var(--accent-purple); border-radius: 8px; padding: 15px; margin: 15px 0; box-shadow: 0 0 15px rgba(192, 132, 252, 0.1); }
         .matrix-layer { background: rgba(10, 15, 29, 0.8); border-left: 3px solid var(--accent-purple); padding: 8px 12px; margin-bottom: 8px; border-radius: 0 4px 4px 0; font-size: 12px; }
 
@@ -504,20 +497,6 @@
 
         .claude-office-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
 
-        .claude-gallery-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;
-        }
-
-        .claude-gallery-grid img {
-            width: 100%; height: 110px; object-fit: cover;
-            border: 1px solid var(--border-color); border-radius: 6px;
-            cursor: pointer; transition: 0.25s ease;
-        }
-
-        .claude-gallery-grid img:hover {
-            border-color: #f4a68a; transform: scale(1.03); box-shadow: 0 0 15px rgba(217,119,87,0.3);
-        }
-
         .claude-info-card {
             background: rgba(3,5,8,0.92); border: 1px solid var(--border-color);
             border-top: 3px solid #d97757; border-radius: 7px; padding: 12px;
@@ -558,7 +537,8 @@
                 [OK] NEURAL CORE (RTX 5090): ACTIVE<br>
                 [OK] 10GbE NAS VAULT: CONNECTED<br>
                 [OK] AI MUSKETEERS (3v3): SYNCHRONIZED<br>
-                [OK] LIVING HISTORY TIMELINE: MOUNTED
+                [OK] RABBIT REFLEX ENGINE v1.0: MOUNTED<br>
+                [OK] LIVING HISTORY TIMELINE: UPDATED
             </div>
             <div style="font-size: 11px; color: var(--accent-green);" id="bootProgressLabel">LOADING SYSTEM: 0%</div>
             <div class="boot-progress-bar">
@@ -571,7 +551,7 @@
         <!-- Hero Header -->
         <div class="hero">
             <h1>WHITE HAT RABBIT STUDIOS</h1>
-            <div class="hero-subtitle">CONTROL CENTER // v10.9 LABORATORY EDITION 🐇⚔️</div>
+            <div class="hero-subtitle">CONTROL CENTER // v11.0 LABORATORY EDITION 🐇⚔️</div>
             
             <div class="studio-hero-img-box" id="heroSlideshowContainer" style="position: relative; cursor: pointer;" onclick="onHeroSlideClick()" onmouseenter="pauseHeroSlideshow()" onmouseleave="resumeHeroSlideshow()">
                 <img id="heroSlideImg" src="./power_on.png" alt="WHR Studios Showcase" style="transition: opacity 0.8s ease-in-out; width:100%; display:block;" onerror="this.onerror=null; this.src='./studio.png';">
@@ -594,7 +574,7 @@
                 <div class="counter-card"><div class="counter-num">143</div><div class="counter-label">Ideas Archived</div></div>
                 <div class="counter-card"><div class="counter-num">7</div><div class="counter-label">Projects Active</div></div>
                 <div class="counter-card"><div class="counter-num" style="color: var(--accent-green);">3v3</div><div class="counter-label">AI Partners</div></div>
-                <div class="counter-card"><div class="counter-num" style="color: var(--accent-purple);">IN PROGRESS</div><div class="counter-label">Mission Status</div></div>
+                <div class="counter-card"><div class="counter-num" style="color: var(--accent-pink);">v1.0 ONLINE</div><div class="counter-label">Reflex Game</div></div>
             </div>
         </div>
 
@@ -604,6 +584,7 @@
             <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-timeline')">⌛ Timeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-codex')">📜 Codex (Wiki)</button>
+            <button class="tab-btn" style="border-color:var(--accent-pink); color:#ff38c7;" onclick="window.open('WHR-Rabbit-Reflex-v1.0/', '_blank')">🕹️ Rabbit Reflex</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-workstation')">💻 Workstation</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-pipeline')">🚀 AI Pipeline</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-projects')">🎬 Projekti</button>
@@ -645,16 +626,16 @@
                             <strong>🐇 WHR CENTRAL COMMAND TERMINAL</strong>
                             <div class="whr-hq-terminal-line">Founder & Vision Lead: <span style="color:var(--accent-green);">ONLINE</span></div>
                             <div class="whr-hq-terminal-line">AI Musketeers Network: <span style="color:var(--accent-green);">SYNCHRONIZED</span></div>
-                            <div class="whr-hq-terminal-line">Neural Core: <span style="color:var(--accent-blue);">RTX 5090 TARGET ACTIVE</span></div>
+                            <div class="whr-hq-terminal-line">Arcade Game Engine: <span style="color:var(--accent-pink);">RABBIT REFLEX v1.0 ONLINE</span></div>
                             <div class="whr-hq-terminal-line">Mission: <span style="color:#f4a68a;">BUILDING THE FUTURE</span></div>
                         </div>
                     </div>
 
                     <!-- DESNO KRILO -->
                     <div class="whr-hq-wing">
-                        <div class="whr-room-door" style="--door-color:#d97757; --door-glow:rgba(217,119,87,0.32);" onclick="enterHqRoom('tab-claude-office', 'CLAUDE OFFICE')">
-                            <div class="whr-room-glass"><div class="whr-room-icon">⚔️</div></div>
-                            <div class="whr-room-label"><strong>CLAUDE OFFICE</strong><span>SYSTEMS INTEGRITY</span></div>
+                        <div class="whr-room-door" style="--door-color:#ff38c7; --door-glow:rgba(255,56,199,0.35);" onclick="window.open('WHR-Rabbit-Reflex-v1.0/', '_blank')">
+                            <div class="whr-room-glass"><div class="whr-room-icon">🕹️</div></div>
+                            <div class="whr-room-label"><strong>RABBIT REFLEX v1.0</strong><span>ARCADE TRAINING</span></div>
                         </div>
                         <div class="whr-room-door" style="--door-color:#00ff66; --door-glow:rgba(0,255,102,0.28);" onclick="enterHqRoom('tab-invest', 'EQUIPMENT VAULT')">
                             <div class="whr-room-glass"><div class="whr-room-icon">🧰</div></div>
@@ -692,6 +673,13 @@
             <p style="color: var(--text-muted); font-size:12px;">Živi dnevnik nastanka i razvoja studija. Kliknite na događaj za detalje:</p>
 
             <div class="timeline-container">
+                <div class="timeline-item" onclick="alert('31. Jul 2026 (02:38 AM): Razvijena i objavljena prva interaktivna cyberpunk mini-igra WHR-Rabbit-Reflex-v1.0 za sajt!')">
+                    <div class="timeline-dot" style="background:#ff38c7; box-shadow: 0 0 10px #ff38c7;"></div>
+                    <div class="timeline-date" style="color:#ff38c7;">2026-07-31</div>
+                    <div class="timeline-title">🕹️ WHR Rabbit Reflex v1.0 Arcade Engine Launched</div>
+                    <div style="font-size:11px; color:var(--text-muted);">Prvi playable prototip igre razvijen u noćnom maratonu sa ChatGPT-om i integrisan na portal.</div>
+                </div>
+
                 <div class="timeline-item" onclick="alert('29. Jul 2026: Zvanično sinhronizovan 3v3 AI Musketarski tim sa podeljenim ulogama po PC stanicama!')">
                     <div class="timeline-dot"></div>
                     <div class="timeline-date">2026-07-29</div>
@@ -719,6 +707,17 @@
         <div id="tab-codex" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">MASTER PRODUCTION CODEX // WIKI SYSTEM</h2>
             
+            <!-- RABBIT REFLEX V1.0 ARCADE GAME -->
+            <div class="hud-card" style="border-left: 4px solid #ff38c7; border-top-color:#ff38c7; margin-bottom: 20px; background:#080c1d;">
+                <div class="hud-header">
+                    <span style="color:#ff38c7; font-family:monospace;">INTERACTIVE TRAINER // MINI-GAME</span>
+                    <span class="badge" style="background:rgba(255, 56, 199, 0.15); color:#ff38c7; border-color:rgba(255, 56, 199, 0.3);">● SYSTEM ONLINE v1.0</span>
+                </div>
+                <h3 style="font-size:18px; color:#f0f6fc; margin:5px 0;">🕹️ RABBIT REFLEX v1.0</h3>
+                <p style="color:#8b949e; font-size:13px; margin-bottom:15px;">Službeni reflex trenažer White Hat Rabbit Studija. Testiraj brzinu reakcije, pogađaj Belog Zeca, izbegavaj crvene mamce i osvoji titulu WHITE HAT LEGEND!</p>
+                <a href="WHR-Rabbit-Reflex-v1.0/" target="_blank" class="download-btn" style="border-color:#ff38c7; color:#ff38c7; background:rgba(255,56,199,0.1);">🎮 Pokreni "Rabbit Reflex v1.0" Arcade Engine ↗</a>
+            </div>
+
             <!-- SYSTEM BOOK 001 -->
             <div class="hud-card" style="border-left: 4px solid #38bdf8; margin-bottom: 20px;">
                 <div class="hud-header">
@@ -1040,7 +1039,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT KÔD NA PRAVOM MESTU -->
+    <!-- JAVASCRIPT KÔD -->
     <script>
         // WHR BOOT SEQUENCE
         function runWhrBoot() {
@@ -1190,8 +1189,8 @@
 
         // Novosti
         var whrNewsData = [
-            { tag: "SPECIAL TRANSMISSION", date: "28. Jul 2026.", title: "POP-UP POWER ON // Status: WRRAAAAAA!", summary: "Lansiran je novi energetski booster za WHR Control Center!", text: "Sistem je prešao u maksimalni režim rada! WRRAAAAAA! 🐇⚔️⚡", image: "./power_on.png" },
-            { tag: "STUDIO UPDATE", date: "28. Jul 2026.", title: "WHR Production Codex v10.9 je online", summary: "Lansirana je kompletirana Claude Office KancelARIJA.", text: "Master Codex i AI KancelARIJE u punoj funkciji sa novom grafikom.", image: "./studio.png" }
+            { tag: "SPECIAL TRANSMISSION", date: "31. Jul 2026.", title: "RABBIT REFLEX v1.0 // Arcade Engine is Live!", summary: "Lansiran je prvi playable reflex trenažer u cyberpunk stilu!", text: "Ti i ChatGPT ste u dvosatnom noćnom maratonu sklopili potpuno opremljenu mini-igru sa Web Audio oscilatorima i 60fps Canvas česticama! Proveri reflekse Belog Zeke! 🐇⚡🎮", image: "./power_on.png" },
+            { tag: "STUDIO UPDATE", date: "28. Jul 2026.", title: "WHR Production Codex v10.9 je online", summary: "Lansirana je kompletirana Claude Office Kancelarija.", text: "Master Codex i AI Kancelarije u punoj funkciji sa novom grafikom.", image: "./studio.png" }
         ];
 
         function loadNews() {
