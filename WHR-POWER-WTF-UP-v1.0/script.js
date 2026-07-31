@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v1.0.1 (HOTFIX RELEASE)
+   WHR: POWER WTF UP v1.0
    GAME ENGINE
 ========================================================= */
 
@@ -160,11 +160,6 @@
 
         audioStatus: document.getElementById("audioStatus")
     };
-
-    // Osiguraj da canvas može prihvatiti fokus
-    if (dom.canvas) {
-        dom.canvas.setAttribute("tabindex", "0");
-    }
 
     const ctx = dom.canvas.getContext("2d", { alpha: true });
 
@@ -844,48 +839,24 @@
             button.addEventListener("pointerleave", end);
         }
 
-        /* 🛠️ HOTFIX: Korišćenje event.code === "Space" i sprečavanje default skrolovanja */
         handleKeyDown(event) {
-            const isModalOpen = document.getElementById("whiteHatProtocolModal")?.classList.contains("white-hat-modal--open") || 
-                                document.getElementById("newsModal")?.style.display === "flex";
-
-            if (isModalOpen) return; // Ako su modali otvoreni, komande igre se ignorišu
-
-            if (event.code === "Space" || event.code === "ArrowLeft" || event.code === "ArrowRight") {
-                event.preventDefault(); // Sprečava ponovno pokretanje dugmeta preko Space
-            }
-
+            const key = event.key.toLowerCase();
+            if (["arrowleft", "arrowright", " ", "spacebar"].includes(key)) { event.preventDefault(); }
             audio.initialize();
 
-            if (event.code === "ArrowLeft" || event.key.toLowerCase() === "a") {
-                this.keys.left = true;
-            }
-            if (event.code === "ArrowRight" || event.key.toLowerCase() === "d") {
-                this.keys.right = true;
-            }
-            if (event.code === "Space") {
-                this.keys.shoot = true;
-                if (this.running && !this.paused && !this.inTransition) {
-                    this.player.shoot(Utils.now());
-                }
-            }
-            if (event.code === "KeyP" || event.code === "Escape") {
-                if (this.running) {
-                    this.paused ? this.resume() : this.pause();
-                }
+            if (key === "arrowleft" || key === "a") { this.keys.left = true; }
+            if (key === "arrowright" || key === "d") { this.keys.right = true; }
+            if (key === " " || key === "spacebar") { this.keys.shoot = true; this.player.shoot(Utils.now()); }
+            if (key === "p" || key === "escape") {
+                if (this.running) { this.paused ? this.resume() : this.pause(); }
             }
         }
 
         handleKeyUp(event) {
-            if (event.code === "ArrowLeft" || event.key.toLowerCase() === "a") {
-                this.keys.left = false;
-            }
-            if (event.code === "ArrowRight" || event.key.toLowerCase() === "d") {
-                this.keys.right = false;
-            }
-            if (event.code === "Space") {
-                this.keys.shoot = false;
-            }
+            const key = event.key.toLowerCase();
+            if (key === "arrowleft" || key === "a") { this.keys.left = false; }
+            if (key === "arrowright" || key === "d") { this.keys.right = false; }
+            if (key === " " || key === "spacebar") { this.keys.shoot = false; }
         }
 
         resize() {
@@ -924,14 +895,6 @@
             dom.body.classList.add("game-running");
             dom.body.classList.remove("is-paused", "critical-mode", "damage-mode", "wtf-mode", "freeze-mode");
             dom.pauseOverlay.hidden = true;
-
-            /* 🛠️ HOTFIX: Ukloni fokus sa START dugmeta i fokusiraj canvas */
-            if (document.activeElement) {
-                document.activeElement.blur();
-            }
-            if (dom.canvas) {
-                dom.canvas.focus();
-            }
 
             this.clearEffects();
             this.orbs = []; this.beams = []; this.powerUps = []; this.particles = [];
@@ -1526,15 +1489,19 @@
 
     window.WHRPowerWtfUp = {
         game,
-        version: "1.0.1",
+        version: "1.0.0",
         triggerWtf() { if (game.running && !game.paused) game.triggerWtfPowerUp(); },
         addLife() { if (game.running) { game.lives += 1; game.updateHUD(); } },
         nextLevel() { if (game.running) { game.orbs.forEach(orb => { orb.dead = true; }); } }
     };
 
     console.log(
-        "%c WHR: POWER WTF UP v1.0.1 HOTFIX ",
-        "background:#38f5ff;color:#000000;font-size:16px;font-weight:900;padding:8px 12px;"
+        "%c WHR: POWER WTF UP v1.0 ",
+        "background:#ff3cac;color:#ffffff;font-size:16px;font-weight:900;padding:8px 12px;"
+    );
+    console.log(
+        "%c Što si bolji, dobijaš više mogućnosti... ali igra postaje još opasnija. ",
+        "color:#38f5ff;font-size:12px;"
     );
 })();
 
@@ -1563,7 +1530,7 @@
         "WHR: POWER WTF UP",
         "",
         "VERSION:",
-        "v1.0.1",
+        "v1.0",
         "",
         "REPORTER / ALIAS:",
         "",
