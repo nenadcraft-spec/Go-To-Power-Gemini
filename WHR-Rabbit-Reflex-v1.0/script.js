@@ -23,7 +23,7 @@ const $ = id => {
 };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const pad = n => String(Math.max(0, Math.floor(n))).padStart(8, "0"); // Podignuto na 8 cifara za milione!
+const pad = n => String(Math.max(0, Math.floor(n))).padStart(8, "0");
 
 class AudioFX {
   constructor() { this.ctx = null; this.enabled = localStorage.getItem(CONFIG.soundKey) !== "false"; }
@@ -391,7 +391,7 @@ class Game {
 
   effect(cls) {
     this.e.stage.classList.remove(cls);
-    requestAnimationFrame(() => this.e.stage.classList.add("is-visible"));
+    requestAnimationFrame(() => this.e.stage.classList.add(cls)); // Ispravljen bag
     setTimeout(() => this.e.stage.classList.remove(cls), 700);
   }
 
