@@ -1,24 +1,24 @@
 "use strict";
 
 const CONFIG = {
-  time: 25.0,           // Početno vreme u sekundama (sada se gradi kroz igru!)
+  time: 30.0,           // Početno vreme u sekundama
   lives: 3,             // Broj života
   hitsPerLevel: 10,     // Pogodaka potrebnih za sledeći nivo
   maxLevel: 100,        // Maksimalni nivo
   
-  // Poeni i Vremenski Bonusi
+  // Poeni i Vremenski Bonusi (DUPLIRANO VREME!)
   rabbitPoints: 100,
-  rabbitBonus: 0.5,     // SVAKI beli zec dodaje +0.5s na tajmer!
+  rabbitBonus: 1.0,     // SVAKI beli zec dodaje +1.0s na tajmer!
   goldenPoints: 500,
-  goldenBonus: 4.0,     // Zlatni zec dāje +4.0s na tajmer!
+  goldenBonus: 8.0,     // Zlatni zec dāje čak +8.0s na tajmer!
   
   // Kazne
   decoyPenalty: 300,    // Oduzimanje poena
   decoyTimePenalty: 3.0,// Crveni mamac skida -3.0s sa tajmera!
 
   // Brzina i Trajanje na ekranu (Life u ms)
-  baseLife: 1550,       // Level 1: zec stoji 1.55 sekundi
-  minLife: 360,         // Najbrži nivo: 0.36s reakcije!
+  baseLife: 1650,       // Level 1: zec stoji 1.65 sekundi
+  minLife: 400,         // Najbrži nivo: 0.40s reakcije!
   lifeStep: 12,         // Fina progresija skraćivanja trajanja
 
   // Pauza između spawnovanja (Delay u ms)
@@ -108,7 +108,7 @@ class Game {
     this.audio = new AudioFX(); this.particles = new Particles(this.e.canvas);
     this.best = Number(localStorage.getItem(CONFIG.bestKey)) || 0;
     this.state = "ready"; this.starting = false;
-    this.targets = new Map(); // Mapa za podršku više zečeva odjednom na ekranu
+    this.targets = new Map();
     this.nextTargetId = 0;
     this.bind(); this.reset(); this.show(this.e.startO, true); this.updateSound();
   }
@@ -197,7 +197,6 @@ class Game {
 
     document.querySelector(".timer-display")?.classList.toggle("is-critical", this.timeLeft <= 8);
 
-    // Azuriranje napretka tajmera po meti za nivo trajanja
     for (const [id, targetData] of this.targets) {
       const p = clamp(1 - (t - targetData.spawnAt) / targetData.life, 0, 1);
       targetData.el.style.setProperty("--life-progress", p);
@@ -210,11 +209,11 @@ class Game {
     this.raf = requestAnimationFrame(n => this.loop(n));
   }
 
-  // Određuje koliko zečeva treba da stoji na ekranu na osnovu nivoa
+  // NOVA SKALA: Level 5 -> 2 zeca, Level 10 -> 3 zeca, Level 15 -> 4 zeca
   maxTargetsForLevel() {
-    if (this.level >= 30) return 4;
-    if (this.level >= 20) return 3;
-    if (this.level >= 10) return 2;
+    if (this.level >= 15) return 4;
+    if (this.level >= 10) return 3;
+    if (this.level >= 5) return 2;
     return 1;
   }
 
@@ -245,7 +244,6 @@ class Game {
     const r = this.e.stage.getBoundingClientRect();
     const m = size / 2 + 18;
 
-    // Pronalaženje pozicije koja se ne preklapa sa postojećim metama
     let x = 0, y = 0, overlaps = false, attempts = 0;
     do {
       x = m + Math.random() * Math.max(1, r.width - m * 2);
@@ -297,7 +295,7 @@ class Game {
 
     if (type === "decoy") {
       this.score = Math.max(0, this.score - CONFIG.decoyPenalty);
-      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.decoyTimePenalty); // Skida vreme!
+      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.decoyTimePenalty);
       this.lives--;
       this.breakCombo();
       this.audio.bad();
@@ -314,11 +312,11 @@ class Game {
       this.score += pts; this.levelHits++;
 
       if (type === "golden") {
-        this.timeLeft += CONFIG.goldenBonus; // Ogroman bonus na vreme!
+        this.timeLeft += CONFIG.goldenBonus; // +8.0 SEKUNDI BONUS!
         this.audio.gold();
         this.flash("GOLDEN RABBIT", `+${pts} / +${CONFIG.goldenBonus.toFixed(1)}s`, "#ffd34d");
       } else {
-        this.timeLeft += CONFIG.rabbitBonus; // GRADIMO VREME za svakog belog zeca (+0.5s)!
+        this.timeLeft += CONFIG.rabbitBonus; // +1.0 SEKUNDA ZA BELOG ZECA!
         this.audio.hit(this.mult);
         this.flash("DIRECT HIT", `+${pts} / +${CONFIG.rabbitBonus.toFixed(1)}s`, "#00f5ff");
       }
