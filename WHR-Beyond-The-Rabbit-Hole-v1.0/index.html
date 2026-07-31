@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>WHR Beyond The Rabbit Hole v1.0</title>
+
+    <meta name="description" content="WHR Beyond The Rabbit Hole - Cyberpunk Mystery Reflex Game">
+    <meta name="theme-color" content="#050510">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="backgroundGlow"></div>
+
+<header class="topBar">
+
+    <div class="logo">
+        🐇 WHR
+    </div>
+
+    <div class="title">
+        Beyond The Rabbit Hole
+    </div>
+
+</header>
+
+
+<section class="hud">
+
+    <div class="panel">
+        <span>SCORE</span>
+        <strong id="score">0</strong>
+    </div>
+
+    <div class="panel">
+        <span>BEST</span>
+        <strong id="bestScore">0</strong>
+    </div>
+
+    <div class="panel">
+        <span>LEVEL</span>
+        <strong id="level">1</strong>
+    </div>
+
+    <div class="panel">
+        <span>DEPTH</span>
+        <strong id="depth">0%</strong>
+    </div>
+
+    <div class="panel">
+        <span>ENERGY</span>
+        <strong id="energy">100%</strong>
+    </div>
+
+    <div class="panel comboPanel">
+        <span>COMBO</span>
+        <strong id="combo">x1</strong>
+    </div>
+
+</section>
+
+
+
+<main id="gameArea">
+
+    <div id="portalGrid">
+
+        <!-- JavaScript pravi rupe -->
+
+    </div>
+
+</main>
+
+
+
+<section id="messageBox">
+
+    <h2 id="messageTitle">
+        Welcome Explorer
+    </h2>
+
+    <p id="messageText">
+
+        Find the White Rabbit...
+
+    </p>
+
+</section>
+
+
+
+<section id="memoryChallenge" class="hidden">
+
+    <h2>Memory Sequence</h2>
+
+    <p>Remember the glowing portals.</p>
+
+    <button id="memoryStart">
+
+        START
+
+    </button>
+
+</section>
+
+
+
+<section id="logicChallenge" class="hidden">
+
+    <h2>Logic Puzzle</h2>
+
+    <div id="logicContent">
+
+    </div>
+
+</section>
+
+
+
+<div id="floatingTextLayer"></div>
+
+<div id="particleLayer"></div>
+
+
+
+<footer>
+
+    <button id="startButton">
+
+        ENTER THE RABBIT HOLE
+
+    </button>
+
+</footer>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
