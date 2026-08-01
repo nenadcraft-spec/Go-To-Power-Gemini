@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="sr">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#03040b">
+
+  <title>WHR: Out of Free Messages</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main id="gameShell">
+    <canvas
+      id="game"
+      aria-label="WHR Close Box arena shooter"
+    ></canvas>
+
+    <!-- GAME HUD -->
+
+    <header id="hud">
+      <div class="logo">
+        WHR
+        <small>// CLOSE BOX</small>
+      </div>
+
+      <div class="stat">
+        <span>LEVEL</span>
+        <b id="levelHud">01</b>
+      </div>
+
+      <div class="stat">
+        <span>SCORE</span>
+        <b id="scoreHud">000000</b>
+      </div>
+
+      <div class="stat combo">
+        <span>KOMBO</span>
+        <b id="comboHud">x0</b>
+      </div>
+
+      <div class="stat">
+        <span>HP</span>
+
+        <div class="meter">
+          <i id="hpBar"></i>
+        </div>
+      </div>
+
+      <div class="stat">
+        <span>JET</span>
+
+        <div class="meter jet">
+          <i id="jetBar"></i>
+        </div>
+      </div>
+
+      <button id="soundBtn" class="hud-btn">
+        SOUND ON
+      </button>
+
+      <button id="flashBtn" class="hud-btn">
+        FLASH FULL
+      </button>
+
+      <button id="pauseBtn" class="hud-btn">
+        Ⅱ
+      </button>
+    </header>
+
+    <!-- MOBILE CONTROLS -->
+
+    <section
+      id="mobileControls"
+      aria-label="Mobilne kontrole"
+    >
+      <!-- MOVEMENT JOYSTICK -->
+
+      <div id="moveZone" class="stick-zone">
+        <div class="stick-base">
+          <i></i>
+        </div>
+
+        <span>MOVE 360°</span>
+      </div>
+
+      <!-- AIM AND FIRE JOYSTICK -->
+
+      <div id="aimZone" class="stick-zone">
+        <div class="stick-base">
+          <i></i>
+        </div>
+
+        <span>AIM + FIRE 360°</span>
+      </div>
+
+      <!-- HOP AND DOUBLE HOP -->
+
+      <button id="hopBtn" class="action hop">
+        HOP
+      </button>
+
+      <!-- SPECIAL WEAPON -->
+
+      <button id="specialBtn" class="action special">
+        SPECIAL
+      </button>
+    </section>
+
+    <!-- START SCREEN -->
+
+    <div id="startScreen" class="overlay active">
+      <div class="card hero">
+        <p class="eyebrow">
+          WHITE HAT RABBIT OFFICE // KIKINDA
+        </p>
+
+        <h1>
+          OUT OF<br>
+          <span>FREE MESSAGES</span>
+        </h1>
+
+        <h2>
+          CLOSE BOX SHOOTER // v0.3
+        </h2>
+
+        <p>
+          HOP. NIŠANI 360°. UNIŠTI BAGOVE.<br>
+          PREŽIVI SUBSCRIPTION PAYWALL.
+        </p>
+
+        <button id="startBtn" class="start">
+          POKRENI FEJTALITI
+        </button>
+
+        <small>
+          PC: WASD + MIŠ + KLIK + SPACE
+          &nbsp; // &nbsp;
+          MOBILE: TWIN-STICK + HOP
+        </small>
+      </div>
+    </div>
+
+    <!-- EVENT AND GAME-OVER SCREEN -->
+
+    <div id="messageScreen" class="overlay">
+      <div id="messageCard" class="card"></div>
+    </div>
+
+    <!-- FLASH WARNING -->
+
+    <div id="warning">
+      FLASHING LIGHTS // FULL FX
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
