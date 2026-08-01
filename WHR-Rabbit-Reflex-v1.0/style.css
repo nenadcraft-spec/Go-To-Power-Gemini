@@ -2467,3 +2467,426 @@ button {
   60% { transform: translate(-6px, 2px) skewX(18deg) scale(0.72); }
   100% { transform: translate(0) scale(0.02); opacity: 0; filter: brightness(4); }
 }
+
+/* =========================================
+   WHR SYSTEM v1.2 — WHITE HACKER UPDATE
+   ========================================= */
+
+/* BELI HAKER — ANTI-CHEAT */
+
+.target--hero {
+  --target-color: #f8ffff;
+  z-index: 7;
+  isolation: isolate;
+  filter:
+    drop-shadow(0 0 8px #ffffff)
+    drop-shadow(-5px 0 14px rgba(75, 255, 171, 0.92))
+    drop-shadow(5px 0 15px rgba(53, 143, 255, 0.88));
+}
+
+.target--hero::before {
+  inset: -14%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 10%,
+    #4bffab 11% 15%,
+    transparent 16% 36%,
+    #ffffff 37% 40%,
+    transparent 41% 68%,
+    #358fff 69% 74%,
+    transparent 75% 100%
+  );
+  box-shadow:
+    inset 0 0 22px rgba(75, 255, 171, 0.22),
+    0 0 18px rgba(255, 255, 255, 0.72);
+  animation: whitehat-ring 2.4s linear infinite;
+}
+
+.target--hero::after {
+  inset: -24%;
+  border: 0;
+  background: repeating-conic-gradient(
+    rgba(75, 255, 171, 0.4) 0 1.5deg,
+    transparent 1.5deg 18deg
+  );
+  opacity: 0.65;
+  animation: whitehat-ring 6s linear infinite reverse;
+}
+
+.target--hero .target__ring {
+  border: 3px solid #ffffff;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.18),
+    rgba(75, 255, 171, 0.08) 45%,
+    transparent 70%
+  );
+  box-shadow:
+    0 0 9px #ffffff,
+    0 0 20px rgba(75, 255, 171, 0.88),
+    inset 0 0 18px rgba(53, 143, 255, 0.46);
+  animation: whitehat-breathe 0.7s ease-in-out infinite alternate;
+}
+
+.target--hero .target__ring::before {
+  border-color: #4bffab;
+  border-style: dashed;
+  box-shadow: inset 0 0 10px rgba(53, 143, 255, 0.72);
+}
+
+.target--hero .target__timer {
+  color: #ffffff;
+  filter: drop-shadow(0 0 6px #4bffab);
+}
+
+.target--hero .target__rabbit {
+  z-index: 5;
+  inset: 18%;
+  filter: drop-shadow(0 0 7px #fff) drop-shadow(0 0 13px #4bffab);
+  animation: whitehat-float 0.66s ease-in-out infinite alternate;
+}
+
+.target--hero .target__rabbit-head,
+.target--hero .target__rabbit-ear {
+  display: block;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffffff 0 24%, #dce8ef 25% 54%, #8496a3 76%, #25303a 100%);
+  box-shadow:
+    inset 4px 4px 7px rgba(255, 255, 255, 0.95),
+    inset -5px -6px 9px rgba(8, 20, 26, 0.55),
+    0 0 10px #ffffff;
+}
+
+.target--hero .target__rabbit-ear {
+  border-radius: 80% 80% 28% 28%;
+}
+
+.target--hero .target__rabbit-eye {
+  right: 17%;
+  bottom: 34%;
+  width: 17%;
+  height: 8%;
+  border-radius: 2px;
+  background: #4bffab;
+  box-shadow: 0 0 5px #fff, 0 0 12px #4bffab;
+  animation: whitehat-eye 1.2s steps(2) infinite;
+}
+
+.target--hero .target__core {
+  background: radial-gradient(circle, #fff 0 8%, #4bffab 9% 25%, #358fff 28% 43%, rgba(255,255,255,.18) 48%, transparent 70%);
+  opacity: 0.78;
+  animation: whitehat-core 0.6s ease-in-out infinite alternate;
+}
+
+.target__whitehat-hat {
+  position: absolute;
+  z-index: 9;
+  left: 50%;
+  top: -8%;
+  width: 43%;
+  height: 19%;
+  border: 2px solid #ffffff;
+  border-radius: 50% 50% 18% 18%;
+  background: linear-gradient(150deg, #fff, #d9e4ea 58%, #566570);
+  box-shadow: 0 0 8px #fff, 0 0 14px #4bffab;
+  transform: translateX(-50%) rotate(-5deg);
+  pointer-events: none;
+}
+
+.target__whitehat-hat::after {
+  content: "";
+  position: absolute;
+  left: -22%;
+  right: -22%;
+  bottom: -5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 7px #4bffab;
+}
+
+.target__whitehat-visor {
+  position: absolute;
+  z-index: 8;
+  left: 35%;
+  top: 43%;
+  width: 31%;
+  height: 8%;
+  border: 1px solid #fff;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #358fff, #ffffff 48%, #4bffab);
+  box-shadow: 0 0 8px #4bffab;
+  transform: skewX(-12deg);
+  animation: whitehat-visor-scan 0.95s steps(4) infinite;
+  pointer-events: none;
+}
+
+.target__whitehat-circuit {
+  position: absolute;
+  z-index: 7;
+  inset: 24%;
+  border: 1px solid transparent;
+  border-top-color: #17242a;
+  border-right-color: #4bffab;
+  transform: rotate(32deg);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.target__whitehat-shield {
+  position: absolute;
+  z-index: 9;
+  left: 50%;
+  bottom: -4%;
+  width: 26px;
+  height: 30px;
+  border: 2px solid #ffffff;
+  border-radius: 46% 46% 60% 60% / 34% 34% 76% 76%;
+  background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(75,255,171,.7) 49%, rgba(53,143,255,.85) 50%);
+  box-shadow: 0 0 8px #fff, 0 0 15px #4bffab;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.target__whitehat-shield::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #fff;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* DEEPFAKE — JASNA KOPIJA I ZAMKA */
+
+.target--decoy {
+  --target-color: #ff3d8f;
+  z-index: 3;
+  filter: drop-shadow(-6px 0 8px rgba(255, 50, 95, .8)) drop-shadow(6px 0 9px rgba(168, 85, 247, .88));
+}
+
+.target--decoy .target__ring {
+  border: 2px dashed #ff325f;
+  border-right-color: transparent;
+  border-bottom-color: #a855f7;
+  box-shadow: 0 0 12px rgba(255,50,95,.75), inset 0 0 14px rgba(168,85,247,.32);
+  animation: deepfake-ring 1.6s steps(8) infinite;
+}
+
+.target--decoy .target__rabbit {
+  inset: 22%;
+  opacity: .78;
+  filter: drop-shadow(-4px 0 #ff325f) drop-shadow(4px 0 #a855f7);
+  animation: deepfake-main .42s steps(3) infinite;
+}
+
+.target--decoy .target__rabbit-head,
+.target--decoy .target__rabbit-ear {
+  display: block;
+  border: 2px solid rgba(255,255,255,.75);
+  background: linear-gradient(145deg, rgba(255,255,255,.9), rgba(136,150,166,.68));
+  box-shadow: inset 0 0 8px rgba(255,50,95,.3);
+}
+
+.target--decoy .target__rabbit-head {
+  border-radius: 50%;
+  transform: none;
+}
+
+.target--decoy .target__rabbit-ear {
+  border-radius: 80% 80% 28% 28%;
+}
+
+.target--decoy .target__rabbit-eye {
+  left: auto;
+  right: 18%;
+  top: auto;
+  bottom: 34%;
+  width: 14%;
+  height: 8%;
+  background: #ff325f;
+  box-shadow: 0 0 8px #a855f7;
+}
+
+.target__decoy-ghost {
+  position: absolute;
+  z-index: 6;
+  inset: 19%;
+  opacity: .46;
+  transform: translate(8px, -5px);
+  animation: deepfake-ghost .5s steps(2) infinite alternate;
+  pointer-events: none;
+}
+
+.target__decoy-ghost-head,
+.target__decoy-ghost-ear {
+  position: absolute;
+  border: 2px solid #a855f7;
+  background: rgba(255,50,95,.12);
+  box-shadow: 0 0 7px #a855f7;
+}
+
+.target__decoy-ghost-head {
+  left: 20%;
+  bottom: 3%;
+  width: 58%;
+  height: 54%;
+  border-radius: 50%;
+}
+
+.target__decoy-ghost-ear {
+  top: 0;
+  width: 20%;
+  height: 55%;
+  border-radius: 80% 80% 26% 26%;
+}
+
+.target__decoy-ghost-ear--left { left: 24%; transform: rotate(-13deg); }
+.target__decoy-ghost-ear--right { right: 21%; transform: rotate(14deg); }
+
+.target__decoy-split {
+  position: absolute;
+  z-index: 10;
+  right: 10%;
+  left: 8%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ff325f, #fff, #a855f7, transparent);
+  box-shadow: 0 0 6px #ff325f;
+  pointer-events: none;
+  animation: deepfake-split .58s steps(4) infinite;
+}
+
+.target__decoy-split--one { top: 34%; }
+.target__decoy-split--two { top: 66%; animation-delay: -.29s; }
+
+/* CRNA RUPA — HACKER VOID PORTAL */
+
+.target--blackhole {
+  --target-color: #ffffff;
+  z-index: 5;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  filter: drop-shadow(0 0 10px #000) drop-shadow(0 0 16px rgba(157, 71, 255, .85));
+  overflow: visible;
+}
+
+.target--blackhole .target__timer {
+  color: #ffffff;
+  filter: drop-shadow(0 0 5px #a855f7);
+}
+
+.target__blackhole-shadow {
+  position: absolute;
+  z-index: 3;
+  inset: 25%;
+  border: 2px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  background: radial-gradient(circle, #000 0 48%, #030007 49% 68%, rgba(0,0,0,.4) 69%);
+  box-shadow: inset 0 0 14px #000, 0 0 13px #a855f7;
+  animation: blackhole-heart .65s ease-in-out infinite alternate;
+}
+
+.target__blackhole-disc {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: 96%;
+  height: 34%;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: conic-gradient(from 90deg, #fff, #ff5a36, #a855f7, #24104f, #fff);
+  box-shadow: 0 0 8px #fff, 0 0 18px #a855f7, 0 0 28px rgba(255,75,45,.48);
+  transform: translate(-50%, -50%) rotate(-14deg);
+  animation: blackhole-disc 1.1s linear infinite;
+}
+
+.target__blackhole-lens {
+  position: absolute;
+  z-index: 1;
+  inset: 5%;
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255,255,255,.35) 0 1deg, transparent 1deg 18deg);
+  opacity: .72;
+  animation: blackhole-lens 3.4s linear infinite reverse;
+}
+
+.target__blackhole-eyes {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 48%;
+  width: 24%;
+  height: 5%;
+  border-radius: 50%;
+  background: #ff38c7;
+  box-shadow: -8px 0 5px #00f5ff, 8px 0 5px #ff38c7;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: blackhole-hacker-eyes 1.2s ease-out forwards;
+}
+
+.target--blackhole.is-portal-spent .target__blackhole-eyes {
+  opacity: 0;
+  animation: none;
+}
+
+.target.is-gravity-pulled {
+  transition: left .18s linear, top .18s linear;
+  filter: saturate(1.2) drop-shadow(0 0 7px rgba(168,85,247,.7));
+}
+
+/* ANTI-CHEAT PULSE — BEZ NATPISA */
+
+.anti-cheat-wave {
+  position: absolute;
+  z-index: 28;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 7%, #4bffab 18%, #358fff 38%, transparent 68%);
+  box-shadow: 0 0 12px #fff, 0 0 26px #4bffab, 0 0 40px #358fff;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(.12);
+  animation: anti-cheat-expand .76s cubic-bezier(.1,.8,.2,1) forwards;
+}
+
+.game-stage.is-anti-cheat {
+  animation: anti-cheat-stage .72s ease-out;
+}
+
+.target.is-anti-cheat-deleted {
+  pointer-events: none;
+  animation: anti-cheat-delete .48s cubic-bezier(.2,.72,.22,1) forwards;
+}
+
+.target--hacker.is-anti-cheat-deleted,
+.target--blackhole.is-anti-cheat-deleted {
+  animation: anti-cheat-hacker-delete .58s steps(6,end) forwards;
+}
+
+@keyframes whitehat-ring { to { transform: rotate(360deg); } }
+@keyframes whitehat-breathe { from { transform: scale(.96); opacity:.84; } to { transform: scale(1.04); opacity:1; } }
+@keyframes whitehat-float { from { transform: translateY(2px); } to { transform: translateY(-3px); } }
+@keyframes whitehat-eye { 0%,70%,100% { opacity:1; } 72%,82% { opacity:.25; } }
+@keyframes whitehat-core { from { transform:scale(.88); opacity:.58; } to { transform:scale(1.14); opacity:.9; } }
+@keyframes whitehat-visor-scan { 0% { filter:hue-rotate(0deg); transform:translateX(-2px) skewX(-12deg); } 100% { filter:hue-rotate(45deg); transform:translateX(2px) skewX(-12deg); } }
+@keyframes deepfake-ring { to { transform:rotate(360deg); } }
+@keyframes deepfake-main { 0%,100% { transform:translate(0); } 35% { transform:translate(-2px,1px); } 68% { transform:translate(2px,-1px); } }
+@keyframes deepfake-ghost { from { transform:translate(6px,-4px); opacity:.28; } to { transform:translate(11px,3px); opacity:.62; } }
+@keyframes deepfake-split { 0% { transform:translateX(-8px) scaleX(.7); opacity:.2; } 50% { transform:translateX(7px) scaleX(1.1); opacity:.9; } 100% { transform:translateX(-3px) scaleX(.8); opacity:.35; } }
+@keyframes blackhole-heart { from { transform:scale(.88); } to { transform:scale(1.08); } }
+@keyframes blackhole-disc { to { transform:translate(-50%,-50%) rotate(346deg); } }
+@keyframes blackhole-lens { to { transform:rotate(360deg); } }
+@keyframes blackhole-hacker-eyes { 0%,58% { opacity:0; transform:translate(-50%,-50%) scale(.2); } 76%,92% { opacity:1; transform:translate(-50%,-50%) scale(1.2); } 100% { opacity:0; transform:translate(-50%,-50%) scale(1.8); } }
+@keyframes anti-cheat-expand { 0% { transform:translate(-50%,-50%) scale(.12); opacity:1; } 60% { opacity:.94; } 100% { transform:translate(-50%,-50%) scale(48); opacity:0; } }
+@keyframes anti-cheat-stage { 0% { box-shadow:inset 0 0 0 rgba(75,255,171,0); } 28% { box-shadow:inset 0 0 70px rgba(255,255,255,.58), inset 0 0 115px rgba(75,255,171,.34); } 100% { box-shadow:inset 0 0 0 rgba(53,143,255,0); } }
+@keyframes anti-cheat-delete { 0% { transform:scale(1); opacity:1; } 35% { transform:scale(1.14); filter:brightness(3) saturate(0); } 100% { transform:scale(.04) rotate(100deg); opacity:0; filter:brightness(4); } }
+@keyframes anti-cheat-hacker-delete { 0% { transform:translate(0) scale(1); opacity:1; } 20% { transform:translate(-9px,3px) skewX(13deg); } 40% { transform:translate(11px,-4px) skewX(-16deg); filter:invert(1); } 65% { transform:translate(-5px,2px) scale(.68); } 100% { transform:scale(.02); opacity:0; filter:brightness(4); } }
