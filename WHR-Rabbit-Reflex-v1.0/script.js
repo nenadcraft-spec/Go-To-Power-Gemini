@@ -1314,6 +1314,24 @@ class Game {
         button.insertAdjacentHTML(
           "beforeend",
           `
+            <span class="target__hero-sun"></span>
+
+            <span
+              class="target__hero-orbit target__hero-orbit--outer"
+            ></span>
+
+            <span
+              class="target__hero-orbit target__hero-orbit--inner"
+            ></span>
+
+            <span
+              class="target__hero-satellite target__hero-satellite--one"
+            ></span>
+
+            <span
+              class="target__hero-satellite target__hero-satellite--two"
+            ></span>
+
             <span
               class="target__hero-wing target__hero-wing--left"
             ></span>
@@ -1323,12 +1341,10 @@ class Game {
             ></span>
 
             <span class="target__hero-shield">
-              H
+              <span class="target__hero-shield-core"></span>
             </span>
 
-            <span class="target__hero-crown">
-              ✦
-            </span>
+            <span class="target__hero-crown"></span>
           `
         );
       }
@@ -1595,35 +1611,24 @@ class Game {
       this.hits++;
       this.applyHeroTime();
 
-      this.flash(
-        "HERO RABBIT ACTIVATED!",
-        "HERO TIME // 3 SECONDS",
-        "#ffd34d"
-      );
-
-      this.setStatus(
-        "TIME IS ON YOUR SIDE",
-        "normal"
-      );
-
       this.particles.burst(
         x,
         y,
-        "#ffffff",
+        "#fff4dc",
         24
       );
 
       this.particles.burst(
         x,
         y,
-        "#ffd34d",
+        "#ff7a00",
         28
       );
 
       this.particles.burst(
         x,
         y,
-        "#00f5ff",
+        "#246bff",
         20
       );
     } else {
@@ -1915,14 +1920,6 @@ class Game {
           "is-hero-time"
         );
 
-        if (
-          this.state === "playing"
-        ) {
-          this.setStatus(
-            "HERO TIME COMPLETE",
-            "normal"
-          );
-        }
       }, duration);
   }
 
