@@ -1,773 +1,424 @@
 "use strict";
 
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => [...document.querySelectorAll(selector)];
-
-const formatMoney = (number) => {
-  return Math.round(number).toLocaleString("sr-RS") + " €";
+const CONFIG = {
+  startingBudget: 20000,
+  maxAiMessages: 50,
+  refillCost: 2500,
+  refillAmount: 50,
+  soundKey: "whr-sim-sound-enabled"
 };
 
-/* =========================================================
-   EQUIPMENT
-========================================================= */
-
-const equipment = [
-  {
-    id: "pc",
-    name: "DEV PC",
-    price: 2600,
-    description: "Otključava razvojne stanice."
-  },
-  {
-    id: "monitor",
-    name: "DRUGI MONITOR",
-    price: 320,
-    description: "+15% brzina rada."
-  },
-  {
-    id: "nas",
-    name: "NAS BACKUP",
-    price: 1100,
-    description: "Smanjuje štetu kritičnih bagova."
-  },
-  {
-    id: "ups",
-    name: "UPS ZAŠTITA",
-    price: 260,
-    description: "Štiti od nestanka struje."
-  },
-  {
-    id: "audio",
-    name: "AUDIO SET",
-    price: 540,
-    description: "+8 kvaliteta pri objavi."
-  },
-  {
-    id: "test",
-    name: "TEST UREĐAJI",
-    price: 750,
-    description: "Testiranje uklanja više bagova."
-  },
-  {
-    id: "assets",
-    name: "ASSET PAKET",
-    price: 890,
-    description: "+12 kvaliteta pri objavi."
-  }
-];
-
-/* =========================================================
-   AI MUSKETEERS
-========================================================= */
-
-const aiSeed = [
-  {
-    id: "gpt",
-    name: "CHATGPT",
-    role: "CODE MUSKETAR",
-    messages: 8,
-    maxMessages: 8
-  },
-  {
-    id: "claude",
-    name: "CLAUDE",
-    role: "DESIGN MUSKETAR",
-    messages: 7,
-    maxMessages: 7
-  },
-  {
-    id: "gemini",
-    name: "GEMINI",
-    role: "RESEARCH MUSKETAR",
-    messages: 9,
-    maxMessages: 9
-  }
-];
-
-/* =========================================================
-   GAME STATE
-========================================================= */
-
-const state = {
-  money: 20000,
-  time: 900,
-  reputation: 0,
-
-  ownedEquipment: new Set(),
-
-  gameActive: false,
-  projectActive: false,
-
-  progress: 0,
-  quality: 0,
-  bugs: 0,
-
-  ai: [],
-  selectedAI: "gpt",
-
-  timer: null
+const PROJECTS = {
+  indie: { name: "INDIE CYBER RUNNER", cost: 5000, requiredBuild: 100, basePrice: 15000 },
+  rpg: { name: "CYBERPUNK ACTION RPG", cost: 12000, requiredBuild: 250, basePrice: 45000 },
+  aaa: { name: "AAA UNREAL SCI-FI SIM", cost: 18000, requiredBuild: 500, basePrice: 90000 }
 };
 
-/* =========================================================
-   BASIC HELPERS
-========================================================= */
+const $ = id => {
+  const el = document.getElementById(id);
+  if (!el) throw new Error(`Missing #${id}`);
+  return el;
+};
 
-function resetGame() {
-  state.money = 20000;
-  state.time = 900;
-  state.reputation = 0;
-
-  state.ownedEquipment = new Set();
-
-  state.gameActive = true;
-  state.projectActive = false;
-
-  state.progress = 0;
-  state.quality = 0;
-  state.bugs = 0;
-
-  state.ai = aiSeed.map((ai) => ({
-    ...ai
-  }));
-
-  state.selectedAI = "gpt";
-
-  renderAll();
+class AudioFX {
+  constructor() {
+    this.ctx = null;
+    this.enabled = localStorage.getItem(CONFIG.soundKey) !== "false";
+  }
+  init() {
+    if (this.ctx) return;
+    const C = window.AudioContext || window.webkitAudioContext;
+    if (C) this.ctx = new C();
+  }
+  tone(f = 440, d = .08, type = "sine", end = f) {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain(), t = this.ctx.currentTime;
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    o.frequency.exponentialRampToValueAtTime(Math.max(20, end), t + d);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.15, t + .015);
+    g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t); o.stop(t + d + .02);
+  }
+  click() { this.tone(520, .06, "sine", 750); }
+  work() { this.tone(300, .08, "triangle", 450); }
+  warn() { this.tone(180, .2, "sawtooth", 80); }
+  success() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, .12, "sine", f * 1.05), i * 50)); }
+  toggle() {
+    this.enabled = !this.enabled;
+    localStorage.setItem(CONFIG.soundKey, String(this.enabled));
+    if (this.enabled) this.click();
+    return this.enabled;
+  }
 }
 
-function showToast(message) {
-  const toast = $("#toast");
+class StudioSim {
+  constructor() {
+    this.elements = {
+      budget: $("budgetDisplay"),
+      messages: $("messagesDisplay"),
+      build: $("buildDisplay"),
+      bugs: $("bugsDisplay"),
+      staff: $("staffDisplay"),
+      console: $("consoleLog"),
+      soundBtn: $("soundBtn"),
+      soundIcon: $("soundIcon"),
+      hireModalBtn: $("hireModalBtn"),
+      upgradeModalBtn: $("upgradeModalBtn"),
+      aiSubscribeBtn: $("aiSubscribeBtn"),
+      btnNewProject: $("btnNewProject"),
+      btnCompileBuild: $("btnCompileBuild"),
+      btnPublishGame: $("btnPublishGame"),
+      modalLimit: $("modalLimit"),
+      modalProject: $("modalProject"),
+      modalHire: $("modalHire"),
+      modalUpgrade: $("modalUpgrade"),
+      btnBuyMessages: $("btnBuyMessages"),
+      btnCloseProjectModal: $("btnCloseProjectModal"),
+      btnCloseHireModal: $("btnCloseHireModal"),
+      btnCloseUpgradeModal: $("btnCloseUpgradeModal"),
+      workersContainer: $("workersContainer")
+    };
 
-  toast.textContent = message;
-  toast.classList.add("show");
+    this.audio = new AudioFX();
+    this.budget = CONFIG.startingBudget;
+    this.maxAiMessages = CONFIG.maxAiMessages;
+    this.aiMessages = this.maxAiMessages;
+    this.buildProgress = 0;
+    this.bugs = 0;
+    this.staffCount = 3;
+    this.currentProject = null;
 
-  clearTimeout(toast.hideTimer);
+    // Upgrades & Perks
+    this.perks = {
+      seniorDev: false,
+      promptEng: false,
+      qaTester: false,
+      gpuCluster: false,
+      quantumServer: false,
+      cyberDesks: false
+    };
 
-  toast.hideTimer = setTimeout(() => {
-    toast.classList.remove("show");
-  }, 2600);
-}
+    this.bindEvents();
+    this.startWorkerAI();
+    this.startAutoQaTimer();
+    this.updateUI();
+  }
 
-function updateTicker(message) {
-  $("#ticker").textContent = message;
-}
+  bindEvents() {
+    this.elements.soundBtn.onclick = () => {
+      this.audio.toggle();
+      this.elements.soundIcon.textContent = this.audio.enabled ? "◉" : "○";
+    };
 
-/* =========================================================
-   SHOP
-========================================================= */
+    this.elements.aiSubscribeBtn.onclick = () => this.showModal("modalLimit", true);
+    this.elements.btnBuyMessages.onclick = () => this.buyAiMessages();
 
-function renderShop() {
-  const shopList = $("#shopList");
+    this.elements.btnNewProject.onclick = () => this.showModal("modalProject", true);
+    this.elements.btnCloseProjectModal.onclick = () => this.showModal("modalProject", false);
 
-  shopList.innerHTML = equipment
-    .map((item) => {
-      const owned = state.ownedEquipment.has(item.id);
-      const cannotAfford = state.money < item.price;
+    // Modali za Hire i Upgrade
+    this.elements.hireModalBtn.onclick = () => this.showModal("modalHire", true);
+    this.elements.btnCloseHireModal.onclick = () => this.showModal("modalHire", false);
 
-      return `
-        <div class="shop-item ${owned ? "owned" : ""}">
-          <b>${item.name}</b>
+    this.elements.upgradeModalBtn.onclick = () => this.showModal("modalUpgrade", true);
+    this.elements.btnCloseUpgradeModal.onclick = () => this.showModal("modalUpgrade", false);
 
-          <small>${item.description}</small>
+    // Zaposljavanje Radnika
+    $("hireSeniorDev").onclick = () => this.hireWorker("seniorDev", 3500, "SENIOR DEV");
+    $("hirePromptEng").onclick = () => this.hireWorker("promptEng", 2800, "PROMPT ENGINEER");
+    $("hireQaTester").onclick = () => this.hireWorker("qaTester", 2000, "QA TESTER");
 
-          <button
-            data-buy="${item.id}"
-            ${owned || cannotAfford ? "disabled" : ""}
-          >
-            ${owned ? "KUPLJENO" : formatMoney(item.price)}
-          </button>
-        </div>
-      `;
-    })
-    .join("");
+    // Upgrade Opreme
+    $("upgGpu").onclick = () => this.buyUpgrade("gpuCluster", 5000, "RTX 5090 GPU CLUSTER");
+    $("upgServer").onclick = () => this.buyUpgrade("quantumServer", 7500, "QUANTUM AI SERVER");
+    $("upgDesks").onclick = () => this.buyUpgrade("cyberDesks", 3000, "ERGONOMIC CYBER DESKS");
 
-  $$("[data-buy]").forEach((button) => {
-    button.addEventListener("click", () => {
-      buyEquipment(button.dataset.buy);
+    document.querySelectorAll(".project-card[data-genre]").forEach(card => {
+      card.onclick = () => {
+        const genre = card.dataset.genre;
+        this.selectProject(genre);
+      };
     });
-  });
-}
 
-function buyEquipment(id) {
-  const item = equipment.find((equipmentItem) => {
-    return equipmentItem.id === id;
-  });
-
-  if (!item) {
-    return;
-  }
-
-  if (state.ownedEquipment.has(item.id)) {
-    return;
-  }
-
-  if (state.money < item.price) {
-    showToast("Nemaš dovoljno novca.");
-    return;
-  }
-
-  state.money -= item.price;
-  state.ownedEquipment.add(item.id);
-
-  showToast(`${item.name} instaliran.`);
-  updateTicker(`STUDIO UPGRADE // ${item.name}`);
-
-  renderAll();
-}
-
-/* =========================================================
-   AI TERMINALS
-========================================================= */
-
-function renderAI() {
-  const aiList = $("#aiList");
-
-  aiList.innerHTML = state.ai
-    .map((ai) => {
-      const offline = ai.messages <= 0;
-      const selected = state.selectedAI === ai.id;
-      const charge = (ai.messages / ai.maxMessages) * 100;
-
-      return `
-        <div
-          class="ai-card ${offline ? "offline" : ""}"
-          data-ai="${ai.id}"
-          style="outline: ${
-            selected ? "1px solid var(--cyan)" : "none"
-          };"
-        >
-          <b>${ai.name}</b>
-
-          <small>
-            ${ai.role}<br>
-            PORUKE: ${ai.messages}/${ai.maxMessages}
-          </small>
-
-          <div class="charge">
-            <i style="--charge: ${charge}%;"></i>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
-
-  $$("[data-ai]").forEach((card) => {
-    card.addEventListener("click", () => {
-      state.selectedAI = card.dataset.ai;
-
-      renderAI();
-
-      const selectedName = card.querySelector("b").textContent;
-
-      showToast(`${selectedName} izabran.`);
+    document.querySelectorAll(".station-node").forEach(station => {
+      station.onclick = () => {
+        const stationType = station.dataset.station;
+        this.workOnStation(stationType, station);
+      };
     });
-  });
 
-  const hasOfflineAI = state.ai.some((ai) => {
-    return ai.messages <= 0;
-  });
-
-  $("#subscribeBtn").disabled =
-    !hasOfflineAI || state.money < 299;
-}
-
-/* =========================================================
-   MAIN RENDER
-========================================================= */
-
-function renderAll() {
-  $("#money").textContent = formatMoney(state.money);
-
-  const minutes = String(
-    Math.floor(state.time / 60)
-  ).padStart(2, "0");
-
-  const seconds = String(
-    state.time % 60
-  ).padStart(2, "0");
-
-  $("#time").textContent = `${minutes}:${seconds}`;
-
-  $("#rep").textContent = state.reputation;
-  $("#progress").textContent =
-    Math.floor(state.progress) + "%";
-
-  $("#quality").textContent =
-    Math.floor(state.quality);
-
-  $("#qualityBar").value =
-    state.quality;
-
-  $("#bugs").textContent =
-    Math.floor(state.bugs);
-
-  $("#bugBar").value =
-    state.bugs;
-
-  $("#publishBtn").disabled =
-    !state.projectActive || state.progress < 100;
-
-  renderShop();
-  renderAI();
-
-  $$(".station").forEach((station) => {
-    const locked =
-      !state.ownedEquipment.has("pc") ||
-      !state.projectActive;
-
-    station.classList.toggle("locked", locked);
-  });
-
-  if (!state.projectActive) {
-    $("#buildStatus").textContent = "OFFLINE";
-    $("#buildStatus").style.color = "var(--red)";
-  } else if (state.progress >= 100) {
-    $("#buildStatus").textContent = "READY";
-    $("#buildStatus").style.color = "var(--lime)";
-  } else {
-    $("#buildStatus").textContent = "PROJECT LIVE";
-    $("#buildStatus").style.color = "var(--lime)";
-  }
-}
-
-/* =========================================================
-   PROJECT CREATION
-========================================================= */
-
-function startProject() {
-  if (!state.ownedEquipment.has("pc")) {
-    showToast("Prvo kupi DEV PC.");
-    return;
+    this.elements.btnCompileBuild.onclick = () => this.compileBuild();
+    this.elements.btnPublishGame.onclick = () => this.publishGame();
   }
 
-  if (state.projectActive) {
-    showToast("Projekat je već aktivan.");
-    return;
+  log(msg, type = "system") {
+    const p = document.createElement("p");
+    p.className = `log-entry ${type}`;
+    p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    this.elements.console.appendChild(p);
+    this.elements.console.scrollTop = this.elements.console.scrollHeight;
   }
 
-  const gameName = $("#gameName").value.trim();
-  const genre = $("#genre").value;
-
-  if (!gameName) {
-    showToast("Unesi naziv igre.");
-    return;
+  showModal(id, visible) {
+    $(id).classList.toggle("is-visible", visible);
+    if (visible) this.audio.click();
   }
 
-  state.projectActive = true;
-  state.progress = 0;
-  state.quality = 5;
-  state.bugs = 4;
-
-  updateTicker(
-    `${gameName.toUpperCase()} // ${genre} // RAZVOJ POČINJE`
-  );
-
-  renderAll();
-}
-
-/* =========================================================
-   WORK STATIONS
-========================================================= */
-
-function useStation(type, stationElement) {
-  if (!state.projectActive) {
-    return;
-  }
-
-  if (stationElement.classList.contains("locked")) {
-    return;
-  }
-
-  const selectedAI = state.ai.find((ai) => {
-    return ai.id === state.selectedAI;
-  });
-
-  if (!selectedAI || selectedAI.messages <= 0) {
-    showPaywall(selectedAI);
-    return;
-  }
-
-  selectedAI.messages -= 1;
-
-  stationElement.classList.add("working");
-
-  setTimeout(() => {
-    stationElement.classList.remove("working");
-  }, 500);
-
-  const speedBonus =
-    state.ownedEquipment.has("monitor")
-      ? 1.15
-      : 1;
-
-  const correctAI =
-    (type === "code" && selectedAI.id === "gpt") ||
-    (type === "design" && selectedAI.id === "claude") ||
-    (type === "art" && selectedAI.id === "gemini");
-
-  if (type === "test") {
-    const testPower =
-      state.ownedEquipment.has("test")
-        ? 14
-        : 8;
-
-    const removedBugs =
-      testPower + Math.random() * 5;
-
-    state.bugs = Math.max(
-      0,
-      state.bugs - removedBugs
-    );
-
-    state.progress = Math.min(
-      100,
-      state.progress + 5 * speedBonus
-    );
-
-    showToast("TEST: uklonjeni bagovi.");
-  } else {
-    const progressGain =
-      correctAI ? 14 : 9;
-
-    const qualityGain =
-      correctAI ? 6 : 3;
-
-    state.progress = Math.min(
-      100,
-      state.progress + progressGain * speedBonus
-    );
-
-    state.quality = Math.min(
-      100,
-      state.quality + qualityGain
-    );
-
-    if (Math.random() < 0.28) {
-      const bugRisk =
-        state.ownedEquipment.has("nas")
-          ? 3
-          : 7;
-
-      state.bugs = Math.min(
-        100,
-        state.bugs + bugRisk
-      );
-
-      showToast(
-        "CONSOLE: pojavio se novi bag!"
-      );
+  hireWorker(perkKey, cost, name) {
+    if (this.perks[perkKey]) {
+      this.log(`${name} je već zaposlen u tvom timu!`, "warning");
+      return;
     }
+    if (this.budget < cost) {
+      this.log(`Nemate dovoljno budžeta za zapošljavanje: ${name} (${cost} €)!`, "error");
+      this.audio.warn();
+      return;
+    }
+
+    this.budget -= cost;
+    this.perks[perkKey] = true;
+    this.staffCount++;
+
+    // Dodaj novog radnika vizuelno na mapu
+    const w = document.createElement("div");
+    w.className = "worker-avatar worker--hired";
+    w.textContent = name.split(" ")[0];
+    w.style.top = "50%";
+    w.style.left = "50%";
+    this.elements.workersContainer.appendChild(w);
+
+    this.log(`USPEŠNO ZAPOŠLJAVANJE! ${name} je stigao u kancelariju.`, "success");
+    this.audio.success();
+    this.updateUI();
   }
 
-  if (selectedAI.messages === 0) {
-    setTimeout(() => {
-      showPaywall(selectedAI);
-    }, 450);
+  buyUpgrade(perkKey, cost, name) {
+    if (this.perks[perkKey]) {
+      this.log(`${name} je već instaliran u kancelariji!`, "warning");
+      return;
+    }
+    if (this.budget < cost) {
+      this.log(`Nemate dovoljno novca za upgrade: ${name} (${cost} €)!`, "error");
+      this.audio.warn();
+      return;
+    }
+
+    this.budget -= cost;
+    this.perks[perkKey] = true;
+
+    if (perkKey === "quantumServer") {
+      this.maxAiMessages = 100;
+      this.aiMessages = 100;
+      this.log("QUANTUM AI SERVER instaliran! Maksimalan AI limit je povećan na 100 poruka!", "success");
+    } else {
+      this.log(`UPGRADE INSTALIRAN: ${name}! Ova oprema permanentno ubrazava studio.`, "success");
+    }
+
+    this.audio.success();
+    this.updateUI();
   }
 
-  renderAll();
+  buyAiMessages() {
+    if (this.budget < CONFIG.refillCost) {
+      this.log("Nemaš dovoljno novca za obnovu AI paketa!", "error");
+      this.audio.warn();
+      return;
+    }
+    this.budget -= CONFIG.refillCost;
+    this.aiMessages = this.maxAiMessages;
+    this.log(`Kupljen PRO AI Pack! Restorano na ${this.maxAiMessages} AI poruka.`, "success");
+    this.audio.success();
+    this.showModal("modalLimit", false);
+    this.updateUI();
+  }
+
+  selectProject(genre) {
+    const proj = PROJECTS[genre];
+    if (this.budget < proj.cost) {
+      this.log(`Nemate dovoljno budžeta za ${proj.name}! Potrebno: ${proj.cost} €`, "error");
+      this.audio.warn();
+      return;
+    }
+
+    this.budget -= proj.cost;
+    this.currentProject = proj;
+    this.buildProgress = 0;
+    this.bugs = 0;
+
+    this.log(`Započet novi projekat: ${proj.name}. Budžet ulaže ${proj.cost} €!`, "success");
+    this.audio.success();
+    this.showModal("modalProject", false);
+    this.updateUI();
+  }
+
+  workOnStation(type, element) {
+    if (!this.currentProject) {
+      this.log("Morate najpre izabrati Novi Projekat!", "warning");
+      this.audio.warn();
+      return;
+    }
+
+    if (this.aiMessages <= 0) {
+      this.log("YOU ARE OUT OF FREE MESSAGES! Obnovite limit preko REFILL dugmeta.", "error");
+      this.audio.warn();
+      this.showModal("modalLimit", true);
+      return;
+    }
+
+    // Prompt Engineer Perk: 30% šanse da ne potroši poruku
+    if (!this.perks.promptEng || Math.random() > 0.3) {
+      this.aiMessages--;
+    } else {
+      this.log("[PERK: PROMPT ENGINEER] Sačuvana besplatna AI poruka pri radu!", "success");
+    }
+
+    this.audio.work();
+    element.classList.add("is-working");
+    setTimeout(() => element.classList.remove("is-working"), 600);
+
+    let mult = this.perks.cyberDesks ? 1.25 : 1.0;
+    let progressGain = 0;
+    let newBugs = 0;
+
+    switch (type) {
+      case "dev":
+        progressGain = (Math.floor(Math.random() * 8) + 5) * mult;
+        if (this.perks.seniorDev) progressGain *= 1.5;
+        newBugs = this.perks.seniorDev ? Math.floor(Math.random() * 2) : Math.floor(Math.random() * 3);
+        this.log(`[DEVELOPMENT] Kodiranje u toku... Build +${Math.round(progressGain)}%, nastalo bagova: ${newBugs}`, "system");
+        break;
+
+      case "design":
+        progressGain = (Math.floor(Math.random() * 5) + 3) * mult;
+        this.log(`[GAME DESIGN] Balans mehanika spreman. Build +${Math.round(progressGain)}%`, "system");
+        break;
+
+      case "art":
+        progressGain = (Math.floor(Math.random() * 6) + 4) * mult;
+        this.log(`[ART] Cyberpunk 3D asseti izrenderovani! Build +${Math.round(progressGain)}%`, "system");
+        break;
+
+      case "audio":
+        progressGain = (Math.floor(Math.random() * 4) + 2) * mult;
+        this.log(`[AUDIO] Neonski sintetizatori compozovani. Build +${Math.round(progressGain)}%`, "system");
+        break;
+
+      case "qa":
+        if (this.bugs > 0) {
+          const fixed = Math.min(this.bugs, Math.floor(Math.random() * 4) + 2);
+          this.bugs -= fixed;
+          this.log(`[QA TESTING] Očišćeno ${fixed} bagova iz koda!`, "success");
+        } else {
+          this.log("[QA TESTING] Kod je čist! Nema bagova.", "system");
+        }
+        break;
+
+      case "unreal":
+        progressGain = (Math.floor(Math.random() * 10) + 8) * mult;
+        if (this.perks.gpuCluster) progressGain += 10;
+        newBugs = Math.floor(Math.random() * 3);
+        this.log(`[UNREAL ENGINE] Pokrenuto kompajliranje Shadera... Build +${Math.round(progressGain)}%, bagova: ${newBugs}`, "warning");
+        break;
+
+      case "ai":
+        progressGain = 5 * mult;
+        this.log("[AI TERMINAL] AI Agenti optimizuju kod i strukturu projekta.", "system");
+        break;
+
+      case "server":
+        this.log("[SERVER] Backup uspešan. Podaci osigurani na cloud-u.", "system");
+        break;
+    }
+
+    this.buildProgress = Math.min(100, Math.round(this.buildProgress + progressGain));
+    this.bugs += newBugs;
+    this.updateUI();
+  }
+
+  startAutoQaTimer() {
+    // Automatsko čišćenje bagova ako je zaposlen QA Tester
+    setInterval(() => {
+      if (this.perks.qaTester && this.bugs > 0) {
+        this.bugs--;
+        this.log("[AUTO QA] QA Tester je u pozadini očistio 1 bag!", "success");
+        this.updateUI();
+      }
+    }, 5000);
+  }
+
+  compileBuild() {
+    if (this.buildProgress < 100) {
+      this.log("Build mora dostignuti 100% pre nego što se sočini završni paket!", "warning");
+      this.audio.warn();
+      return;
+    }
+
+    if (this.bugs > 5) {
+      this.log(`Igra ima previše bagova (${this.bugs})! Očistite ih u Testing (QA) stanici pre objavljivanja!`, "error");
+      this.audio.warn();
+      return;
+    }
+
+    this.log("[UNREAL ENGINE BUILD] Završna verzija je uspešno kompajlirana i spremljena za izdavanje!", "success");
+    this.audio.success();
+    this.elements.btnPublishGame.disabled = false;
+  }
+
+  publishGame() {
+    if (!this.currentProject) return;
+
+    let totalEarned = this.currentProject.basePrice;
+    
+    if (this.bugs > 0) {
+      const penalty = this.bugs * 800;
+      totalEarned = Math.max(2000, totalEarned - penalty);
+      this.log(`Igra objavljena sa ${this.bugs} bagova! Ocene su smanjene. Zarada: ${totalEarned} €`, "warning");
+    } else {
+      totalEarned += 5000;
+      this.log(`SAVRŠENO IZDANJE! Igra pobrala ocene 10/10! Zarada: ${totalEarned} €`, "success");
+    }
+
+    this.budget += totalEarned;
+    this.currentProject = null;
+    this.buildProgress = 0;
+    this.bugs = 0;
+    this.elements.btnPublishGame.disabled = true;
+
+    this.audio.success();
+    this.updateUI();
+  }
+
+  startWorkerAI() {
+    setInterval(() => {
+      document.querySelectorAll(".worker-avatar").forEach(worker => {
+        const top = Math.floor(Math.random() * 60) + 20;
+        const left = Math.floor(Math.random() * 70) + 15;
+        worker.style.top = `${top}%`;
+        worker.style.left = `${left}%`;
+      });
+    }, 4000);
+  }
+
+  updateUI() {
+    this.elements.budget.textContent = `${this.budget.toLocaleString()} €`;
+    this.elements.messages.textContent = `${this.aiMessages} / ${this.maxAiMessages}`;
+    this.elements.build.textContent = `${this.buildProgress}%`;
+    this.elements.bugs.textContent = `${this.bugs}`;
+    this.elements.staff.textContent = `${this.staffCount}`;
+
+    this.elements.btnCompileBuild.disabled = this.buildProgress < 100;
+  }
 }
 
-/* =========================================================
-   PAYWALL
-========================================================= */
-
-function showPaywall(ai) {
-  const aiName = ai ? ai.name : "AI ALAT";
-
-  $("#eventCard").innerHTML = `
-    <p class="eyebrow">
-      AI TERMINAL INTERRUPT
-    </p>
-
-    <h2>
-      YOU ARE OUT OF FREE MESSAGES
-    </h2>
-
-    <p>
-      ${aiName} je zaključan.<br>
-      Sačekaj obnovu ili plati da nastaviš.
-    </p>
-
-    <div class="choice-grid">
-      <button id="waitChoice">
-        SAČEKAJ +20s
-      </button>
-
-      <button
-        id="payChoice"
-        class="danger"
-        ${state.money < 299 ? "disabled" : ""}
-      >
-        MORATE DA PLATITE<br>
-        299 €
-      </button>
-    </div>
-  `;
-
-  $("#eventModal").classList.add("active");
-
-  $("#waitChoice").addEventListener("click", () => {
-    $("#eventModal").classList.remove("active");
-
-    state.time = Math.max(
-      0,
-      state.time - 20
-    );
-
-    showToast(
-      "Vreme prolazi… drugi AI još rade."
-    );
-
-    renderAll();
-  });
-
-  $("#payChoice").addEventListener("click", () => {
-    subscribe(ai ? ai.id : null);
-
-    $("#eventModal").classList.remove("active");
-  });
-}
-
-function subscribe(aiId = null) {
-  if (state.money < 299) {
-    showToast("Nemaš dovoljno novca.");
-    return;
+window.addEventListener("DOMContentLoaded", () => {
+  try {
+    new StudioSim();
+  } catch (err) {
+    console.error(err);
+    alert("Greška pri pokretanju simulacije v0.2.");
   }
-
-  const targets = aiId
-    ? state.ai.filter((ai) => ai.id === aiId)
-    : state.ai.filter((ai) => ai.messages <= 0);
-
-  if (targets.length === 0) {
-    return;
-  }
-
-  state.money -= 299;
-
-  targets.forEach((ai) => {
-    ai.messages = ai.maxMessages;
-  });
-
-  showToast(
-    "TURBO SUBSCRIPTION AKTIVAN."
-  );
-
-  renderAll();
-}
-
-/* =========================================================
-   BUILD AND PUBLISH
-========================================================= */
-
-function publishGame() {
-  const gameName =
-    $("#gameName").value.trim();
-
-  const genre =
-    $("#genre").value;
-
-  const audioBonus =
-    state.ownedEquipment.has("audio")
-      ? 8
-      : 0;
-
-  const assetBonus =
-    state.ownedEquipment.has("assets")
-      ? 12
-      : 0;
-
-  const finalScore = Math.max(
-    5,
-    Math.min(
-      100,
-      state.quality +
-      audioBonus +
-      assetBonus -
-      state.bugs * 1.2
-    )
-  );
-
-  const genreDemand = {
-    "Pucačina": 1.2,
-    "Vožnja": 1.12,
-    "Sport": 1,
-    "Strategija": 1.08,
-    "Avantura": 1.05,
-    "Logička": 0.95,
-    "Slagalica": 0.9,
-    "Dečija": 1.1,
-    "18+ zreo sadržaj": 0.82
-  };
-
-  const demand =
-    genreDemand[genre] || 1;
-
-  const sales = Math.floor(
-    (180 + Math.random() * 620) *
-    demand *
-    (0.45 + finalScore / 100)
-  );
-
-  const price = 4.99;
-
-  const revenue = Math.floor(
-    sales * price * 0.7
-  );
-
-  state.money += revenue;
-
-  state.reputation += Math.floor(
-    finalScore / 10
-  );
-
-  state.projectActive = false;
-
-  $("#eventCard").innerHTML = `
-    <p class="eyebrow">
-      BUILD SUCCESSFUL
-    </p>
-
-    <h2>${gameName}</h2>
-
-    <p>
-      Žanr: <b>${genre}</b><br>
-      Ocena korisnika:
-      <b>${Math.floor(finalScore)}%</b><br>
-      Prodato:
-      <b>${sales}</b><br>
-      Neto prihod:
-      <b>${formatMoney(revenue)}</b>
-    </p>
-
-    <button
-      id="continueBtn"
-      class="primary"
-    >
-      SLEDEĆA IGRA
-    </button>
-  `;
-
-  $("#eventModal").classList.add("active");
-
-  $("#continueBtn").addEventListener("click", () => {
-    $("#eventModal").classList.remove("active");
-    renderAll();
-  });
-
-  renderAll();
-}
-
-/* =========================================================
-   END GAME
-========================================================= */
-
-function endGame() {
-  clearInterval(state.timer);
-
-  state.gameActive = false;
-
-  const studioResult =
-    state.money > 20000
-      ? "STUDIO PREŽIVEO"
-      : "BUDŽET U OPASNOSTI";
-
-  $("#eventCard").innerHTML = `
-    <p class="eyebrow">
-      SHIFT COMPLETE
-    </p>
-
-    <h2>${studioResult}</h2>
-
-    <p>
-      Budžet:
-      <b>${formatMoney(state.money)}</b><br>
-
-      Reputacija:
-      <b>${state.reputation}</b>
-    </p>
-
-    <button
-      id="restartBtn"
-      class="primary"
-    >
-      NOVA PARTIJA
-    </button>
-  `;
-
-  $("#eventModal").classList.add("active");
-
-  $("#restartBtn").addEventListener("click", () => {
-    window.location.reload();
-  });
-}
-
-/* =========================================================
-   GAME TIMER
-========================================================= */
-
-function gameTick() {
-  if (!state.gameActive) {
-    return;
-  }
-
-  state.time -= 1;
-
-  if (
-    state.projectActive &&
-    Math.random() < 0.025
-  ) {
-    state.bugs = Math.min(
-      100,
-      state.bugs + 1
-    );
-  }
-
-  if (state.time <= 0) {
-    state.time = 0;
-    renderAll();
-    endGame();
-    return;
-  }
-
-  renderAll();
-}
-
-/* =========================================================
-   EVENT LISTENERS
-========================================================= */
-
-$("#startBtn").addEventListener("click", () => {
-  $("#boot").classList.remove("active");
-
-  resetGame();
-
-  state.timer = setInterval(
-    gameTick,
-    1000
-  );
-});
-
-$("#newProjectBtn").addEventListener(
-  "click",
-  startProject
-);
-
-$("#publishBtn").addEventListener(
-  "click",
-  publishGame
-);
-
-$("#subscribeBtn").addEventListener(
-  "click",
-  () => subscribe()
-);
-
-$$(".station").forEach((station) => {
-  station.addEventListener("click", () => {
-    useStation(
-      station.dataset.station,
-      station
-    );
-  });
 });
