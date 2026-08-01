@@ -39,13 +39,14 @@ const CONFIG = {
   hackerLife: 1800,
   hackerPenaltyPoints: 2000,
   hackerVirusDuration: 3000,
+  hackerCloneDelay: 700,
+  hackerMaxOnBoard: 2,
 
   heroStartLevel: 4,
   heroMinDelay: 12000,
   heroMaxDelay: 16000,
   heroLife: 2100,
-  heroDuration: 3000,
-  heroSlowFactor: 0.35,
+  heroPurgeDuration: 780,
 
   maxCombo: 25,
 
@@ -392,7 +393,6 @@ class Game {
       shell: $("appShell"),
       layer: $("targetLayer"),
       virus: $("virusLayer"),
-      hero: $("heroLayer"),
       canvas: $("particleCanvas"),
       cross: $("crosshair"),
 
@@ -603,7 +603,8 @@ class Game {
     this.e.stage.classList.remove(
       "is-frozen",
       "is-virus",
-      "is-hero-time"
+      "is-hero-time",
+      "is-hero-purge"
     );
 
     this.e.shell.classList.remove(
@@ -1004,7 +1005,6 @@ class Game {
           this.state === "playing" &&
           this.level >=
             CONFIG.heroStartLevel &&
-          !this.isHeroTime &&
           this.countGroup("hero") === 0
         ) {
           this.spawn(
@@ -1188,7 +1188,11 @@ class Game {
     return fallback;
   }
 
-  spawn(type, group) {
+  spawn(
+    type,
+    group,
+    options = {}
+  ) {
     if (this.state !== "playing") {
       return;
     }
@@ -1231,6 +1235,15 @@ class Game {
 
     button.className =
       `target target--${type}`;
+
+    if (
+      type === "hacker" &&
+      options.isClone
+    ) {
+      button.classList.add(
+        "is-hacker-clone"
+      );
+    }
 
     button.type = "button";
 
@@ -1390,15 +1403,35 @@ class Game {
       maxLife: life,
       spawnAt,
       timerId,
+      isClone: Boolean(
+        options.isClone
+      ),
+      cloneTimerId: null,
     };
 
     this.targets.set(id, target);
 
     if (
-      this.isHeroTime &&
-      type !== "hero"
+      type === "hacker" &&
+      !target.isClone
     ) {
-      this.slowTarget(id, target);
+      target.cloneTimerId =
+        setTimeout(() => {
+          target.cloneTimerId = null;
+
+          if (
+            this.state === "playing" &&
+            this.targets.has(id) &&
+            this.countGroup("hacker") <
+              CONFIG.hackerMaxOnBoard
+          ) {
+            this.spawn(
+              "hacker",
+              "hacker",
+              { isClone: true }
+            );
+          }
+        }, CONFIG.hackerCloneDelay);
     }
   }
 
@@ -1414,6 +1447,7 @@ class Game {
       this.targets.get(id);
 
     clearTimeout(target.timerId);
+    clearTimeout(target.cloneTimerId);
     this.targets.delete(id);
 
     this.taps++;
@@ -1609,7 +1643,11 @@ class Game {
       );
     } else if (type === "hero") {
       this.hits++;
-      this.applyHeroTime();
+      this.applyHeroPurge(
+        button,
+        x,
+        y
+      );
 
       this.particles.burst(
         x,
@@ -1814,6 +1852,139 @@ class Game {
       }, duration);
   }
 
+  applyHeroPurge(
+    heroButton,
+    fallbackX,
+    fallbackY
+  ) {
+    const stageRect =
+      this.e.stage.getBoundingClientRect();
+
+    const heroRect =
+      heroButton.getBoundingClientRect();
+
+    const originX =
+      heroRect.width
+        ? heroRect.left -
+          stageRect.left +
+          heroRect.width / 2
+        : fallbackX;
+
+    const originY =
+      heroRect.height
+        ? heroRect.top -
+          stageRect.top +
+          heroRect.height / 2
+        : fallbackY;
+
+    const wave =
+      document.createElement("span");
+
+    wave.className =
+      "hero-purge-wave";
+
+    wave.style.left = `${originX}px`;
+    wave.style.top = `${originY}px`;
+
+    this.e.stage.appendChild(wave);
+
+    this.e.stage.classList.remove(
+      "is-hero-purge"
+    );
+
+    requestAnimationFrame(() => {
+      this.e.stage.classList.add(
+        "is-hero-purge"
+      );
+    });
+
+    clearTimeout(this.virusTimer);
+    this.isVirusActive = false;
+    this.virusExpiresAt = 0;
+    this.virusRemaining = 0;
+
+    this.e.stage.classList.remove(
+      "is-virus"
+    );
+
+    this.e.shell.classList.remove(
+      "is-panic-impact"
+    );
+
+    const dangerousTypes =
+      new Set([
+        "decoy",
+        "redrabbit",
+        "net",
+        "hacker",
+      ]);
+
+    for (
+      const [id, target]
+      of [...this.targets.entries()]
+    ) {
+      if (
+        !dangerousTypes.has(
+          target.type
+        )
+      ) {
+        continue;
+      }
+
+      clearTimeout(target.timerId);
+      clearTimeout(target.cloneTimerId);
+      this.targets.delete(id);
+
+      target.element.classList.add(
+        "is-hero-purged"
+      );
+
+      const targetRect =
+        target.element
+          .getBoundingClientRect();
+
+      const particleX =
+        targetRect.left -
+        stageRect.left +
+        targetRect.width / 2;
+
+      const particleY =
+        targetRect.top -
+        stageRect.top +
+        targetRect.height / 2;
+
+      const color =
+        target.type === "hacker"
+          ? "#ff38c7"
+          : target.type === "redrabbit"
+            ? "#ff0033"
+            : target.type === "net"
+              ? "#a855f7"
+              : "#ff325f";
+
+      this.particles.burst(
+        particleX,
+        particleY,
+        color,
+        target.type === "hacker"
+          ? 32
+          : 22
+      );
+
+      setTimeout(() => {
+        target.element.remove();
+      }, 580);
+    }
+
+    setTimeout(() => {
+      wave.remove();
+
+      this.e.stage.classList.remove(
+        "is-hero-purge"
+      );
+    }, CONFIG.heroPurgeDuration);
+  }
+
   slowTarget(
     id,
     target,
@@ -1935,6 +2106,7 @@ class Game {
       this.targets.get(id);
 
     this.targets.delete(id);
+    clearTimeout(target.cloneTimerId);
 
     target.element.classList.add(
       "is-expiring"
@@ -2039,6 +2211,7 @@ class Game {
       of this.targets.values()
     ) {
       clearTimeout(target.timerId);
+      clearTimeout(target.cloneTimerId);
       target.element.remove();
     }
 
@@ -2107,6 +2280,7 @@ class Game {
       of this.targets.values()
     ) {
       clearTimeout(target.timerId);
+      clearTimeout(target.cloneTimerId);
 
       target.remaining = Math.max(
         1,
@@ -2375,7 +2549,8 @@ class Game {
 
     this.e.stage.classList.remove(
       "is-virus",
-      "is-hero-time"
+      "is-hero-time",
+      "is-hero-purge"
     );
 
     this.e.shell.classList.remove(
