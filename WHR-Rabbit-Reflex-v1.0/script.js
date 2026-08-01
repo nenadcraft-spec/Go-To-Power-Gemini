@@ -1,6 +1,6 @@
 "use strict";
 
-/* WHR Rabbit Reflex v1.2 — WHITE HACKER ANTI-CHEAT */
+/* WHR Rabbit Reflex v1.2 - WHITE HACKER ANTI-CHEAT */
 const CONFIG = {
   time: 60,
   lives: 3,
@@ -41,19 +41,21 @@ const CONFIG = {
   hackerPenaltyPoints: 2000,
   hackerVirusDuration: 3000,
   hackerCloneDelay: 700,
-  hackerMaxOnBoard: 3,
+  hackerMaxOnBoard: 2,
 
   heroStartLevel: 4,
   heroMinDelay: 12000,
   heroMaxDelay: 16000,
-  heroLife: 2100,
+  // White Hacker is a tactical Anti-Cheat trinket, not a reflex target.
+  // It remains available long enough for the player to choose the right moment.
+  heroLife: 7000,
   antiCheatDuration: 780,
 
   blackHoleStartLevel: 8,
   blackHoleMinDelay: 14000,
   blackHoleMaxDelay: 19000,
   blackHoleLife: 5000,
-  blackHolePenaltyTime: 5,
+  blackHolePenaltyTime: 3,
   blackHoleHackerDelay: 1200,
   blackHoleGravityRate: 180,
   blackHoleGravityRadius: 180,
@@ -672,7 +674,7 @@ class Game {
         document.createElement("span");
 
       life.className = "life life--lost";
-      life.textContent = "◆";
+      life.textContent = "\u25c6";
 
       this.e.lives.appendChild(life);
     }
@@ -2346,6 +2348,8 @@ class Game {
       "redrabbit",
       "net",
       "life",
+      "golden",
+      "freeze",
       "hacker",
       "hero",
       "blackhole",
