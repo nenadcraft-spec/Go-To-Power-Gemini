@@ -91,7 +91,10 @@
                 <article class="hud-card hud-card--score">
                     <span class="hud-card__label">SCORE</span>
 
-                    <strong class="hud-card__value" id="scoreValue">
+                    <strong
+                        class="hud-card__value"
+                        id="scoreValue"
+                    >
                         000000
                     </strong>
 
@@ -101,7 +104,10 @@
                 <article class="hud-card">
                     <span class="hud-card__label">BEST SCORE</span>
 
-                    <strong class="hud-card__value" id="bestScoreValue">
+                    <strong
+                        class="hud-card__value"
+                        id="bestScoreValue"
+                    >
                         000000
                     </strong>
                 </article>
@@ -120,7 +126,10 @@
                 <article class="hud-card hud-card--level">
                     <span class="hud-card__label">LEVEL</span>
 
-                    <strong class="hud-card__value" id="levelValue">
+                    <strong
+                        class="hud-card__value"
+                        id="levelValue"
+                    >
                         01
                     </strong>
                 </article>
@@ -181,6 +190,7 @@
                     aria-label="Polje za igru"
                 ></div>
 
+                <!-- CRNI ZEC HAKER — PANIC MODE -->
                 <div
                     class="virus-layer"
                     id="virusLayer"
@@ -203,6 +213,32 @@
                     <div class="virus-layer__warning">
                         <strong>PANIC MODE</strong>
                         <span>SYSTEM INFECTED</span>
+                    </div>
+                </div>
+
+                <!-- HERO RABBIT — HERO TIME -->
+                <div
+                    class="hero-layer"
+                    id="heroLayer"
+                    aria-hidden="true"
+                >
+                    <span class="hero-layer__halo"></span>
+
+                    <span
+                        class="hero-layer__ray hero-layer__ray--one"
+                    ></span>
+
+                    <span
+                        class="hero-layer__ray hero-layer__ray--two"
+                    ></span>
+
+                    <span
+                        class="hero-layer__ray hero-layer__ray--three"
+                    ></span>
+
+                    <div class="hero-layer__message">
+                        <strong>HERO TIME</strong>
+                        <span>TIME IS ON YOUR SIDE</span>
                     </div>
                 </div>
 
@@ -340,7 +376,10 @@
                     class="stage-overlay"
                     id="countdownOverlay"
                 >
-                    <div class="countdown" id="countdownValue">
+                    <div
+                        class="countdown"
+                        id="countdownValue"
+                    >
                         3
                     </div>
                 </div>
@@ -395,6 +434,7 @@
                         <div class="result-grid">
                             <div class="result-item">
                                 <span>SCORE</span>
+
                                 <strong id="finalScoreValue">
                                     000000
                                 </strong>
@@ -402,6 +442,7 @@
 
                             <div class="result-item">
                                 <span>BEST</span>
+
                                 <strong id="finalBestValue">
                                     000000
                                 </strong>
@@ -409,6 +450,7 @@
 
                             <div class="result-item">
                                 <span>MAX COMBO</span>
+
                                 <strong id="finalComboValue">
                                     ×1
                                 </strong>
@@ -416,6 +458,7 @@
 
                             <div class="result-item">
                                 <span>ACCURACY</span>
+
                                 <strong id="finalAccuracyValue">
                                     0%
                                 </strong>
