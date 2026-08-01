@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="sr">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#030711">
+
+  <title>WHR: Out of Free Messages — RTS Rebuild</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- START SCREEN -->
+
+  <div id="startScreen" class="overlay active">
+    <div class="modal hero">
+      <p class="tag">
+        WHITE HAT RABBIT OFFICE // KIKINDA
+      </p>
+
+      <h1>
+        OUT OF<br>
+        <span>FREE MESSAGES</span>
+      </h1>
+
+      <h2>RTS REBUILD v0.2</h2>
+
+      <p>
+        Komanduj timom. Razvij igru. Preživi paywall.
+      </p>
+
+      <button id="startBtn" class="cyan">
+        POKRENI STUDIO
+      </button>
+
+      <small>
+        WTF = WHAT THE FLOWER 🌸
+      </small>
+    </div>
+  </div>
+
+  <!-- GAME -->
+
+  <main id="game">
+    <!-- TOP HUD -->
+
+    <header>
+      <div class="brand">
+        WHR <b>// RTS GAME STUDIO</b>
+      </div>
+
+      <div class="resource">
+        <span>BUDŽET</span>
+        <b id="money">20.000 €</b>
+      </div>
+
+      <div class="resource">
+        <span>DAN / VREME</span>
+
+        <b>
+          <i id="day">1</i>
+          /
+          <i id="clock">08:00</i>
+        </b>
+      </div>
+
+      <div class="resource">
+        <span>REPUTACIJA</span>
+        <b id="reputation">0</b>
+      </div>
+
+      <div class="speed">
+        <button data-speed="0" aria-label="Pauza">
+          Ⅱ
+        </button>
+
+        <button
+          data-speed="1"
+          class="on"
+          aria-label="Normalna brzina"
+        >
+          ▶
+        </button>
+
+        <button
+          data-speed="2"
+          aria-label="Dvostruka brzina"
+        >
+          ▶▶
+        </button>
+
+        <button
+          data-speed="4"
+          aria-label="Turbo brzina"
+        >
+          ▶▶▶
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN RTS LAYOUT -->
+
+    <section class="layout">
+      <!-- LEFT PANEL -->
+
+      <aside class="panel left-panel">
+        <h3>TIM</h3>
+
+        <div id="workerList"></div>
+
+        <h3>AI MUSKETARI</h3>
+
+        <div id="aiList"></div>
+      </aside>
+
+      <!-- OFFICE MAP -->
+
+      <section class="world-wrap">
+        <div id="world">
+          <div class="floor"></div>
+
+          <!-- GAME DESIGN STATION -->
+
+          <div
+            class="station"
+            data-station="design"
+            style="--x: 8; --y: 14;"
+          >
+            <i>✦</i>
+            <b>DESIGN DESK</b>
+            <small>Game Design</small>
+            <em></em>
+          </div>
+
+          <!-- DEVELOPMENT STATION -->
+
+          <div
+            class="station"
+            data-station="code"
+            style="--x: 62; --y: 12;"
+          >
+            <i>&lt;/&gt;</i>
+            <b>DEV PC</b>
+            <small>Blueprint / Code</small>
+            <em></em>
+          </div>
+
+          <!-- ART STATION -->
+
+          <div
+            class="station"
+            data-station="art"
+            style="--x: 8; --y: 67;"
+          >
+            <i>◈</i>
+            <b>ART STATION</b>
+            <small>UI / Assets</small>
+            <em></em>
+          </div>
+
+          <!-- TESTING STATION -->
+
+          <div
+            class="station"
+            data-station="test"
+            style="--x: 62; --y: 66;"
+          >
+            <i>⚠</i>
+            <b>QA LAB</b>
+            <small>Testing</small>
+            <em></em>
+          </div>
+
+          <!-- BUILD CORE -->
+
+          <div
+            class="station build"
+            data-station="build"
+            style="--x: 39; --y: 39;"
+          >
+            <i>◎</i>
+            <b>BUILD CORE</b>
+            <small>Offline</small>
+            <em></em>
+          </div>
+
+          <!-- WORKER UNITS -->
+
+          <div id="workersLayer"></div>
+        </div>
+
+        <!-- COMMAND LOG -->
+
+        <div class="orders">
+          <b>COMMAND LOG</b>
+
+          <span id="ticker">
+            Izaberi radnika, zatim izaberi dostupan zadatak.
+          </span>
+        </div>
+      </section>
+
+      <!-- RIGHT PROJECT PANEL -->
+
+      <aside class="panel right-panel">
+        <h3>PROJEKAT</h3>
+
+        <label>
+          NAZIV
+
+          <input
+            id="projectName"
+            type="text"
+            value="Rabbit Protocol"
+          >
+        </label>
+
+        <label>
+          ŽANR
+
+          <select id="genre">
+            <option>Pucačina</option>
+            <option>Vožnja</option>
+            <option>Strategija</option>
+            <option>Avantura</option>
+            <option>Logička</option>
+            <option>Dečija</option>
+            <option>18+ zreo sadržaj</option>
+          </select>
+        </label>
+
+        <button id="projectBtn" class="cyan">
+          POČNI PROJEKAT
+        </button>
+
+        <div class="project-stats">
+          <span>
+            ZAVRŠENO
+            <b id="doneCount">0/0</b>
+          </span>
+
+          <span>
+            KVALITET
+            <b id="quality">0</b>
+          </span>
+
+          <span>
+            BAGOVI
+            <b id="bugs">0</b>
+          </span>
+        </div>
+
+        <h3>TASK QUEUE</h3>
+
+        <div id="taskList" class="task-list">
+          <p class="empty">
+            Pokreni projekat.
+          </p>
+        </div>
+
+        <button
+          id="publishBtn"
+          class="green"
+          disabled
+        >
+          PACKAGE &amp; OBJAVI
+        </button>
+      </aside>
+    </section>
+
+    <!-- BOTTOM COMMAND BAR -->
+
+    <footer>
+      <span>
+        SELEKTOVAN:
+        <b id="selectedName">NIKO</b>
+      </span>
+
+      <span>
+        STATUS:
+        <b id="selectedStatus">—</b>
+      </span>
+
+      <span>
+        ENERGIJA:
+        <b id="selectedEnergy">—</b>
+      </span>
+
+      <button id="restBtn" disabled>
+        POŠALJI NA ODMOR
+      </button>
+
+      <span class="hint">
+        Komanda: radnik → zadatak. Više radnika radi istovremeno.
+      </span>
+    </footer>
+  </main>
+
+  <!-- EVENT MODAL -->
+
+  <div id="eventModal" class="overlay">
+    <div id="eventCard" class="modal"></div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+
+  <div id="toast" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
