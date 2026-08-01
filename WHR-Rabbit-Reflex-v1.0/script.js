@@ -1,108 +1,142 @@
 "use strict";
 
+/* WHR Rabbit Reflex v1.1 — independent rabbit/hazard spawning */
 const CONFIG = {
   time: 60,
   lives: 3,
   maxLives: 5,
   hitsPerLevel: 10,
   maxLevel: 99,
+
   rabbitPoints: 250,
   goldenPoints: 1200,
-  goldenBonus: 5.0,
+  goldenBonus: 5,
   freezePoints: 500,
   redPenaltyPoints: 500,
-  redPenaltyTime: 3.0,
+  redPenaltyTime: 3,
   decoyPenalty: 300,
   extraLifeChance: 0.03,
   extraLifeStartLevel: 5,
   extraLifeFullPoints: 1500,
-  baseLife: 1450,
-  minLife: 350,
-  lifeStep: 45,
-  baseDelay: 760,
-  minDelay: 200,
-  delayStep: 30,
-  comboReset: 1800,
+
+  targetLife: 1450,
+  hazardLife: 1800,
+  netLife: 2300,
+
+  goodBaseDelay: 780,
+  goodMinDelay: 260,
+  goodDelayStep: 28,
+  hazardBaseDelay: 2400,
+  hazardMinDelay: 900,
+  hazardDelayStep: 55,
+  hazardStartLevel: 2,
+
   maxCombo: 25,
   bestKey: "whr-rabbit-reflex-best-score",
   soundKey: "whr-rabbit-reflex-sound-enabled",
 };
 
 const $ = (id) => {
-  const el = document.getElementById(id);
-  if (!el) throw new Error(`Missing #${id}`);
-  return el;
+  const element = document.getElementById(id);
+  if (!element) throw new Error(`Missing #${id}`);
+  return element;
 };
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const pad = (n) => String(Math.max(0, Math.floor(n))).padStart(8, "0");
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const pad = (value) =>
+  String(Math.max(0, Math.floor(value))).padStart(8, "0");
 
 class AudioFX {
   constructor() {
     this.ctx = null;
     this.enabled = localStorage.getItem(CONFIG.soundKey) !== "false";
   }
+
   init() {
     if (this.ctx) return;
-    const C = window.AudioContext || window.webkitAudioContext;
-    if (C) this.ctx = new C();
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) this.ctx = new AudioContextClass();
   }
-  tone(f = 440, d = 0.08, type = "sine", end = f) {
+
+  tone(frequency = 440, duration = 0.08, type = "sine", end = frequency) {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
     if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
-    const o = this.ctx.createOscillator(),
-      g = this.ctx.createGain(),
-      t = this.ctx.currentTime;
-    o.type = type;
-    o.frequency.setValueAtTime(f, t);
-    o.frequency.exponentialRampToValueAtTime(Math.max(20, end), t + d);
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.16, t + 0.015);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-    o.connect(g);
-    g.connect(this.ctx.destination);
-    o.start(t);
-    o.stop(t + d + 0.02);
+
+    const oscillator = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const now = this.ctx.currentTime;
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(
+      Math.max(20, end),
+      now + duration
+    );
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.16, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    oscillator.connect(gain);
+    gain.connect(this.ctx.destination);
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.02);
   }
-  hit(c) {
-    this.tone(480 + c * 24, 0.09, "sine", 820 + c * 24);
+
+  hit(combo) {
+    this.tone(480 + combo * 24, 0.09, "sine", 820 + combo * 24);
   }
   gold() {
-    [660, 880, 1100].forEach((f, i) =>
-      setTimeout(() => this.tone(f, 0.13, "triangle", f * 1.1), i * 45)
+    [660, 880, 1100].forEach((frequency, index) =>
+      setTimeout(
+        () => this.tone(frequency, 0.13, "triangle", frequency * 1.1),
+        index * 45
+      )
     );
   }
   freeze() {
-    [900, 700, 500].forEach((f, i) =>
-      setTimeout(() => this.tone(f, 0.15, "sine", f * 0.8), i * 50)
+    [900, 700, 500].forEach((frequency, index) =>
+      setTimeout(
+        () => this.tone(frequency, 0.15, "sine", frequency * 0.8),
+        index * 50
+      )
     );
   }
   red() {
-    [200, 150, 100].forEach((f, i) =>
-      setTimeout(() => this.tone(f, 0.18, "sawtooth", f * 0.6), i * 60)
+    [200, 150, 100].forEach((frequency, index) =>
+      setTimeout(
+        () => this.tone(frequency, 0.18, "sawtooth", frequency * 0.6),
+        index * 60
+      )
     );
   }
   life() {
-    [520, 660, 880, 1040].forEach((f, i) =>
-      setTimeout(() => this.tone(f, 0.14, "triangle", f * 1.12), i * 45)
+    [520, 660, 880, 1040].forEach((frequency, index) =>
+      setTimeout(
+        () => this.tone(frequency, 0.14, "triangle", frequency * 1.12),
+        index * 45
+      )
     );
   }
   bad() {
     this.tone(190, 0.24, "sawtooth", 55);
   }
   level() {
-    [440, 554, 659, 880].forEach((f, i) =>
-      setTimeout(() => this.tone(f, 0.16, "sine", f * 1.05), i * 65)
+    [440, 554, 659, 880].forEach((frequency, index) =>
+      setTimeout(
+        () => this.tone(frequency, 0.16, "sine", frequency * 1.05),
+        index * 65
+      )
     );
   }
   click() {
     this.tone(500, 0.07, "sine", 720);
   }
   over() {
-    [420, 320, 230, 150].forEach((f, i) =>
-      setTimeout(() => this.tone(f, 0.2, "sawtooth", f * 0.7), i * 90)
+    [420, 320, 230, 150].forEach((frequency, index) =>
+      setTimeout(
+        () => this.tone(frequency, 0.2, "sawtooth", frequency * 0.7),
+        index * 90
+      )
     );
   }
   toggle() {
@@ -115,62 +149,65 @@ class AudioFX {
 
 class Particles {
   constructor(canvas) {
-    this.c = canvas;
-    this.x = canvas.getContext("2d");
-    this.p = [];
+    this.canvas = canvas;
+    this.context = canvas.getContext("2d");
+    this.items = [];
     this.last = 0;
     this.resize = () => {
-      const r = canvas.getBoundingClientRect(),
-        d = Math.min(devicePixelRatio || 1, 2);
-      canvas.width = r.width * d;
-      canvas.height = r.height * d;
-      this.x.resetTransform?.() || this.x.setTransform(1, 0, 0, 1, 0, 0);
-      this.x.scale(d, d);
+      const rect = canvas.getBoundingClientRect();
+      const density = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = rect.width * density;
+      canvas.height = rect.height * density;
+      if (this.context.resetTransform) this.context.resetTransform();
+      else this.context.setTransform(1, 0, 0, 1, 0, 0);
+      this.context.scale(density, density);
     };
     addEventListener("resize", this.resize);
     this.resize();
-    requestAnimationFrame((t) => this.loop(t));
+    requestAnimationFrame((time) => this.loop(time));
   }
+
   burst(x, y, color, count = 18) {
-    for (let i = 0; i < count; i++) {
-      const a = (Math.PI * 2 * i) / count + Math.random() * 0.4,
-        s = 2 + Math.random() * 4,
-        l = 350 + Math.random() * 350;
-      this.p.push({
+    for (let index = 0; index < count; index++) {
+      const angle = (Math.PI * 2 * index) / count + Math.random() * 0.4;
+      const speed = 2 + Math.random() * 4;
+      const life = 350 + Math.random() * 350;
+      this.items.push({
         x,
         y,
-        vx: Math.cos(a) * s,
-        vy: Math.sin(a) * s,
-        l,
-        m: l,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life,
+        maxLife: life,
         color,
         size: 1 + Math.random() * 3,
       });
     }
   }
-  loop(t) {
-    const dt = Math.min(32, t - (this.last || t));
-    this.last = t;
-    const r = this.c.getBoundingClientRect();
-    this.x.clearRect(0, 0, r.width, r.height);
-    this.p = this.p.filter((p) => {
-      p.l -= dt;
-      if (p.l <= 0) return false;
-      p.x += (p.vx * dt) / 16.7;
-      p.y += (p.vy * dt) / 16.7;
-      p.vy += (0.06 * dt) / 16.7;
-      this.x.save();
-      this.x.globalAlpha = p.l / p.m;
-      this.x.fillStyle = p.color;
-      this.x.shadowColor = p.color;
-      this.x.shadowBlur = 8;
-      this.x.beginPath();
-      this.x.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      this.x.fill();
-      this.x.restore();
+
+  loop(time) {
+    const delta = Math.min(32, time - (this.last || time));
+    this.last = time;
+    const rect = this.canvas.getBoundingClientRect();
+    this.context.clearRect(0, 0, rect.width, rect.height);
+    this.items = this.items.filter((particle) => {
+      particle.life -= delta;
+      if (particle.life <= 0) return false;
+      particle.x += (particle.vx * delta) / 16.7;
+      particle.y += (particle.vy * delta) / 16.7;
+      particle.vy += (0.06 * delta) / 16.7;
+      this.context.save();
+      this.context.globalAlpha = particle.life / particle.maxLife;
+      this.context.fillStyle = particle.color;
+      this.context.shadowColor = particle.color;
+      this.context.shadowBlur = 8;
+      this.context.beginPath();
+      this.context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      this.context.fill();
+      this.context.restore();
       return true;
     });
-    requestAnimationFrame((n) => this.loop(n));
+    requestAnimationFrame((nextTime) => this.loop(nextTime));
   }
 }
 
@@ -212,18 +249,21 @@ class Game {
       rank: $("resultRank"),
       record: $("newRecordMessage"),
     };
+
     this.audio = new AudioFX();
     this.particles = new Particles(this.e.canvas);
     this.best = Number(localStorage.getItem(CONFIG.bestKey)) || 0;
+    this.targets = new Map();
     this.state = "ready";
     this.starting = false;
-    this.targets = new Map();
     this.isFrozen = false;
+    this.goodSpawnTimer = null;
+    this.hazardSpawnTimer = null;
     this.freezeTimer = null;
-    this.spawnDueAt = 0;
-    this.spawnRemaining = 0;
-    this.comboExpiresAt = 0;
-    this.comboRemaining = 0;
+    this.goodDueAt = 0;
+    this.hazardDueAt = 0;
+    this.goodRemaining = 0;
+    this.hazardRemaining = 0;
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
     this.bind();
@@ -243,33 +283,30 @@ class Game {
       this.updateSound();
     };
 
-    this.e.stage.addEventListener("pointermove", (ev) => {
-      const r = this.e.stage.getBoundingClientRect();
-      this.e.cross.style.left = `${ev.clientX - r.left}px`;
-      this.e.cross.style.top = `${ev.clientY - r.top}px`;
+    this.e.stage.addEventListener("pointermove", (event) => {
+      const rect = this.e.stage.getBoundingClientRect();
+      this.e.cross.style.left = `${event.clientX - rect.left}px`;
+      this.e.cross.style.top = `${event.clientY - rect.top}px`;
       this.e.cross.style.opacity = "1";
     });
-
-    this.e.stage.addEventListener(
-      "pointerleave",
-      () => (this.e.cross.style.opacity = "0")
-    );
-
-    this.e.stage.addEventListener("pointerdown", (ev) => {
-      if (this.state !== "playing") return;
-      if (!ev.target.closest(".target")) this.emptyTap();
+    this.e.stage.addEventListener("pointerleave", () => {
+      this.e.cross.style.opacity = "0";
+    });
+    this.e.stage.addEventListener("pointerdown", (event) => {
+      if (this.state === "playing" && !event.target.closest(".target")) {
+        this.emptyTap();
+      }
     });
 
-    document.addEventListener("keydown", (ev) => {
-      if (ev.code === "Space") {
-        ev.preventDefault();
+    document.addEventListener("keydown", (event) => {
+      if (event.code === "Space") {
+        event.preventDefault();
         if (this.state === "ready" || this.state === "gameover") this.start();
         else if (this.state === "playing") this.pause();
         else if (this.state === "paused") this.resume();
       }
-      if (ev.code === "Escape" && this.state === "playing") this.pause();
+      if (event.code === "Escape" && this.state === "playing") this.pause();
     });
-
     document.addEventListener("visibilitychange", () => {
       if (document.hidden && this.state === "playing") this.pause();
     });
@@ -277,8 +314,8 @@ class Game {
 
   reset() {
     if (this.raf) cancelAnimationFrame(this.raf);
-    clearTimeout(this.spawnTimer);
-    clearTimeout(this.comboTimer);
+    clearTimeout(this.goodSpawnTimer);
+    clearTimeout(this.hazardSpawnTimer);
     clearTimeout(this.freezeTimer);
     this.removeAllTargets();
     this.isFrozen = false;
@@ -295,17 +332,17 @@ class Game {
     this.attempts = 0;
     this.taps = 0;
     this.last = 0;
-    this.spawnDueAt = 0;
-    this.spawnRemaining = 0;
-    this.comboExpiresAt = 0;
-    this.comboRemaining = 0;
+    this.goodDueAt = 0;
+    this.hazardDueAt = 0;
+    this.goodRemaining = 0;
+    this.hazardRemaining = 0;
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
     this.update();
   }
 
-  show(el, on) {
-    el.classList.toggle("stage-overlay--visible", on);
+  show(element, visible) {
+    element.classList.toggle("stage-overlay--visible", visible);
   }
 
   ensureLifeSlots() {
@@ -328,19 +365,19 @@ class Game {
     this.show(this.e.countO, true);
     this.audio.click();
 
-    for (const v of ["3", "2", "1", "GO"]) {
+    for (const value of ["3", "2", "1", "GO"]) {
       if (this.state !== "countdown") {
         this.starting = false;
         return;
       }
-      this.e.count.textContent = v;
+      this.e.count.textContent = value;
       this.audio.tone(
-        v === "GO" ? 760 : 300 + Number(v) * 60,
+        value === "GO" ? 760 : 300 + Number(value) * 60,
         0.12,
         "square",
-        v === "GO" ? 1100 : 500
+        value === "GO" ? 1100 : 500
       );
-      await sleep(v === "GO" ? 500 : 700);
+      await sleep(value === "GO" ? 500 : 700);
     }
 
     this.show(this.e.countO, false);
@@ -348,173 +385,202 @@ class Game {
     this.e.pause.disabled = false;
     this.setStatus("TARGET ACQUISITION", "normal");
     this.last = performance.now();
-    this.raf = requestAnimationFrame((t) => this.loop(t));
-    this.schedule(250);
+    this.raf = requestAnimationFrame((time) => this.loop(time));
+    this.scheduleGood(250);
+    this.scheduleHazard(1500);
     this.starting = false;
   }
 
-  loop(t) {
+  loop(time) {
     if (this.state !== "playing") return;
-    let dt = Math.min(0.1, (t - (this.last || t)) / 1000);
-    this.last = t;
-
-    if (this.isFrozen) dt *= 0.5;
-
-    if (!Number.isFinite(this.timeLeft)) this.timeLeft = CONFIG.time;
-
-    this.timeLeft = Math.max(0, this.timeLeft - dt);
+    let delta = Math.min(0.1, (time - (this.last || time)) / 1000);
+    this.last = time;
+    if (this.isFrozen) delta *= 0.5;
+    this.timeLeft = Math.max(0, this.timeLeft - delta);
     this.e.time.textContent = this.timeLeft.toFixed(1);
-
     document
       .querySelector(".timer-display")
       ?.classList.toggle("is-critical", this.timeLeft <= 8);
 
     const now = performance.now();
-    for (const [id, targetData] of this.targets.entries()) {
-      const p = clamp(1 - (now - targetData.spawnAt) / targetData.life, 0, 1);
-      targetData.element.style.setProperty("--life-progress", p);
+    for (const target of this.targets.values()) {
+      const progress = clamp(1 - (now - target.spawnAt) / target.life, 0, 1);
+      target.element.style.setProperty("--life-progress", progress);
     }
 
-    if (this.timeLeft <= 0) {
-      this.finish();
-      return;
-    }
-    this.raf = requestAnimationFrame((n) => this.loop(n));
+    if (this.timeLeft <= 0) return this.finish();
+    this.raf = requestAnimationFrame((nextTime) => this.loop(nextTime));
   }
 
-  getMaxSimultaneousTargets() {
-    return 1;
-  }
-
-  schedule(delay = this.spawnDelay()) {
-    clearTimeout(this.spawnTimer);
-    this.spawnDueAt = performance.now() + delay;
-    this.spawnTimer = setTimeout(() => {
-      this.spawnDueAt = 0;
-      const maxTargets = this.getMaxSimultaneousTargets();
-      if (this.targets.size < maxTargets) {
-        this.spawn();
-      }
-      this.schedule();
-    }, delay);
-  }
-
-  spawnDelay() {
-    let delay = Math.max(
-      CONFIG.minDelay,
-      CONFIG.baseDelay - (this.level - 1) * CONFIG.delayStep
+  goodDelay() {
+    const delay = Math.max(
+      CONFIG.goodMinDelay,
+      CONFIG.goodBaseDelay - (this.level - 1) * CONFIG.goodDelayStep
     );
     return this.isFrozen ? delay * 1.8 : delay;
   }
 
-  lifetime() {
-    const life = CONFIG.baseLife;
+  hazardDelay() {
+    const delay = Math.max(
+      CONFIG.hazardMinDelay,
+      CONFIG.hazardBaseDelay -
+        (this.level - CONFIG.hazardStartLevel) * CONFIG.hazardDelayStep
+    );
+    const variation = 0.8 + Math.random() * 0.45;
+    return (this.isFrozen ? delay * 1.8 : delay) * variation;
+  }
+
+  maxGoodTargets() {
+    if (this.level >= 12) return 3;
+    if (this.level >= 5) return 2;
+    return 1;
+  }
+
+  maxHazards() {
+    return this.level >= 10 ? 2 : 1;
+  }
+
+  countGroup(group) {
+    return [...this.targets.values()].filter((target) => target.group === group)
+      .length;
+  }
+
+  scheduleGood(delay = this.goodDelay()) {
+    clearTimeout(this.goodSpawnTimer);
+    this.goodDueAt = performance.now() + delay;
+    this.goodSpawnTimer = setTimeout(() => {
+      this.goodDueAt = 0;
+      if (
+        this.state === "playing" &&
+        this.countGroup("good") < this.maxGoodTargets()
+      ) {
+        this.spawn(this.pickGoodType(), "good");
+      }
+      if (this.state === "playing") this.scheduleGood();
+    }, delay);
+  }
+
+  scheduleHazard(delay = this.hazardDelay()) {
+    clearTimeout(this.hazardSpawnTimer);
+    this.hazardDueAt = performance.now() + delay;
+    this.hazardSpawnTimer = setTimeout(() => {
+      this.hazardDueAt = 0;
+      if (
+        this.state === "playing" &&
+        this.level >= CONFIG.hazardStartLevel &&
+        this.countGroup("hazard") < this.maxHazards()
+      ) {
+        this.spawn(this.pickHazardType(), "hazard");
+      }
+      if (this.state === "playing") this.scheduleHazard();
+    }, delay);
+  }
+
+  pickGoodType() {
+    const roll = Math.random();
+    const lifeChance =
+      this.level >= CONFIG.extraLifeStartLevel ? CONFIG.extraLifeChance : 0;
+    const goldenChance = Math.min(0.07 + (this.level - 1) * 0.003, 0.13);
+    const freezeChance = Math.min(0.035 + (this.level - 1) * 0.003, 0.075);
+    if (roll < lifeChance) return "life";
+    if (roll < lifeChance + goldenChance) return "golden";
+    if (roll < lifeChance + goldenChance + freezeChance) return "freeze";
+    return "rabbit";
+  }
+
+  pickHazardType() {
+    const roll = Math.random();
+    const netChance = this.level >= 3 ? Math.min(0.22 + this.level * 0.01, 0.36) : 0;
+    const decoyChance = Math.min(0.28 + this.level * 0.006, 0.38);
+    if (roll < netChance) return "net";
+    if (roll < netChance + decoyChance) return "decoy";
+    return "redrabbit";
+  }
+
+  targetLife(type) {
+    let life = CONFIG.targetLife;
+    if (type === "net") life = CONFIG.netLife;
+    else if (["redrabbit", "decoy"].includes(type)) life = CONFIG.hazardLife;
     return this.isFrozen ? life * 1.8 : life;
   }
 
   findSpawnPosition(size, rect) {
     const margin = size / 2 + 18;
     let fallback = { x: rect.width / 2, y: rect.height / 2 };
-
-    for (let attempt = 0; attempt < 40; attempt++) {
+    for (let attempt = 0; attempt < 50; attempt++) {
       const point = {
         x: margin + Math.random() * Math.max(1, rect.width - margin * 2),
         y: margin + Math.random() * Math.max(1, rect.height - margin * 2),
       };
       fallback = point;
-
-      const overlaps = [...this.targets.values()].some((targetData) => {
-        const other = targetData.element;
-        const otherSize = parseFloat(other.style.getPropertyValue("--target-size")) || size;
-        const dx = point.x - parseFloat(other.style.left);
-        const dy = point.y - parseFloat(other.style.top);
-        const safeDistance = (size + otherSize) / 2 + 10;
-        return Math.hypot(dx, dy) < safeDistance;
+      const overlaps = [...this.targets.values()].some((target) => {
+        const otherSize =
+          parseFloat(target.element.style.getPropertyValue("--target-size")) ||
+          size;
+        return (
+          Math.hypot(
+            point.x - parseFloat(target.element.style.left),
+            point.y - parseFloat(target.element.style.top)
+          ) <
+          (size + otherSize) / 2 + 14
+        );
       });
-
       if (!overlaps) return point;
     }
-
     return fallback;
   }
 
-  spawn() {
+  spawn(type, group) {
     if (this.state !== "playing") return;
-
-    const roll = Math.random();
-    const decoyProb = Math.min(0.12 + (this.level - 1) * 0.012, 0.28);
-    const goldProb = Math.min(0.08 + (this.level - 1) * 0.004, 0.15);
-    const freezeProb = Math.min(0.08, 0.04 + (this.level - 1) * 0.005);
-    const redProb = Math.min(0.18, 0.06 + (this.level - 1) * 0.012); // CRVENI ZEC
-    const netProb =
-      this.level >= 3 ? Math.min(0.12, 0.03 + (this.level - 3) * 0.01) : 0;
-    const lifeProb =
-      this.level >= CONFIG.extraLifeStartLevel ? CONFIG.extraLifeChance : 0;
-
-    let type = "rabbit";
-    if (roll < lifeProb) type = "life";
-    else if (roll < lifeProb + goldProb) type = "golden";
-    else if (roll < lifeProb + goldProb + freezeProb) type = "freeze";
-    else if (roll < lifeProb + goldProb + freezeProb + redProb)
-      type = "redrabbit"; // CRVENI ZEC (OPASAN)
-    else if (roll < lifeProb + goldProb + freezeProb + redProb + netProb) type = "net";
-    else if (roll < lifeProb + goldProb + freezeProb + redProb + netProb + decoyProb)
-      type = "decoy";
-
     const size = Math.max(
       58,
-      (innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.8
+      (innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.4
     );
-
-    const r = this.e.stage.getBoundingClientRect();
-    const position = this.findSpawnPosition(size, r);
-    const { x, y } = position;
-
-    const b = document.createElement("button");
-    b.className = `target target--${type}`;
-    b.type = "button";
-    b.setAttribute("aria-label", type);
-    b.style.setProperty("--target-size", `${size}px`);
-    b.style.left = `${x}px`;
-    b.style.top = `${y}px`;
+    const rect = this.e.stage.getBoundingClientRect();
+    const { x, y } = this.findSpawnPosition(size, rect);
+    const button = document.createElement("button");
+    button.className = `target target--${type}`;
+    button.type = "button";
+    button.setAttribute("aria-label", type);
+    button.style.setProperty("--target-size", `${size}px`);
+    button.style.left = `${x}px`;
+    button.style.top = `${y}px`;
 
     if (type === "net") {
-      b.innerHTML =
+      button.innerHTML =
         '<span class="target__timer"></span><div class="target__net-grid"></div><span class="target__net-warning">CYBER NET</span>';
     } else {
-      b.innerHTML =
+      button.innerHTML =
         '<span class="target__timer"></span><span class="target__ring"></span><span class="target__core"></span><span class="target__rabbit"><span class="target__rabbit-ear target__rabbit-ear--left"></span><span class="target__rabbit-ear target__rabbit-ear--right"></span><span class="target__rabbit-head"></span><span class="target__rabbit-eye"></span></span>';
       if (type === "life") {
-        b.insertAdjacentHTML("beforeend", '<span class="target__life-plus">+1</span>');
+        button.insertAdjacentHTML(
+          "beforeend",
+          '<span class="target__life-plus">+1</span>'
+        );
       }
     }
 
     const id = Symbol();
-    const life = this.lifetime();
+    const life = this.targetLife(type);
     const spawnAt = performance.now();
-
     const timerId = setTimeout(() => this.miss(id), life);
-
-    b.addEventListener("pointerdown", (ev) => {
-      ev.stopPropagation();
-      this.hit(id, type, b, x, y);
+    button.addEventListener("pointerdown", (event) => {
+      event.stopPropagation();
+      this.hit(id, type, button, x, y);
     });
-
-    this.e.layer.appendChild(b);
-    requestAnimationFrame(() => b.classList.add("is-spawned"));
-
-    this.targets.set(id, { element: b, type, life, spawnAt, timerId });
+    this.e.layer.appendChild(button);
+    requestAnimationFrame(() => button.classList.add("is-spawned"));
+    this.targets.set(id, { element: button, type, group, life, spawnAt, timerId });
   }
 
-  hit(id, type, b, x, y) {
+  hit(id, type, button, x, y) {
     if (this.state !== "playing" || !this.targets.has(id)) return;
-    const targetData = this.targets.get(id);
-    clearTimeout(targetData.timerId);
+    const target = this.targets.get(id);
+    clearTimeout(target.timerId);
     this.targets.delete(id);
-
     this.taps++;
     this.attempts++;
-    b.classList.add("is-hit");
+    button.classList.add("is-hit");
 
     if (type === "life") {
       this.hits++;
@@ -523,18 +589,22 @@ class Game {
         this.flash("EXTRA LIFE!", "LIFE +1", "#55ff88");
       } else {
         this.score += CONFIG.extraLifeFullPoints;
-        this.flash("LIFE BANK FULL", `+${CONFIG.extraLifeFullPoints} PTS`, "#55ff88");
+        this.flash(
+          "LIFE BANK FULL",
+          `+${CONFIG.extraLifeFullPoints} PTS`,
+          "#55ff88"
+        );
       }
       this.audio.life();
       this.effect("is-hit");
       this.setStatus("LIFE RESTORED", "normal");
       this.particles.burst(x, y, "#55ff88", 36);
     } else if (type === "decoy") {
-      this.score = Math.max(0, this.score - (CONFIG.decoyPenalty || 300));
+      this.score = Math.max(0, this.score - CONFIG.decoyPenalty);
       this.lives--;
       this.breakCombo();
       this.audio.bad();
-      this.flash("DECOY HIT", `-${CONFIG.decoyPenalty || 300}`, "#ff325f");
+      this.flash("DECOY HIT", `-${CONFIG.decoyPenalty}`, "#ff325f");
       this.effect("is-damaged");
       this.setStatus("SYSTEM DAMAGE", "danger");
       this.particles.burst(x, y, "#ff325f", 24);
@@ -543,17 +613,13 @@ class Game {
         return;
       }
     } else if (type === "redrabbit") {
-      // CRVENI ZEC: SKIDA POENE I VREME!
-      const penaltyPts = CONFIG.redPenaltyPoints || 500;
-      const penaltyTime = CONFIG.redPenaltyTime || 3.0;
-
-      this.score = Math.max(0, this.score - penaltyPts);
-      this.timeLeft = Math.max(0, this.timeLeft - penaltyTime);
+      this.score = Math.max(0, this.score - CONFIG.redPenaltyPoints);
+      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.redPenaltyTime);
       this.breakCombo();
       this.audio.red();
       this.flash(
         "RED RABBIT HIT!",
-        `-${penaltyPts} PTS / -${penaltyTime}s`,
+        `-${CONFIG.redPenaltyPoints} PTS / -${CONFIG.redPenaltyTime}s`,
         "#ff0033"
       );
       this.effect("is-damaged");
@@ -570,18 +636,14 @@ class Game {
     } else {
       this.hits++;
       this.comboCount++;
-      this.mult = Math.min(
-        CONFIG.maxCombo,
-        1 + Math.floor(this.comboCount / 3)
-      );
+      this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
       this.maxCombo = Math.max(this.maxCombo, this.mult);
 
-      let pts = CONFIG.rabbitPoints;
-      if (type === "golden") pts = CONFIG.goldenPoints;
-      else if (type === "freeze") pts = CONFIG.freezePoints;
-
-      pts *= this.mult;
-      this.score += pts;
+      let points = CONFIG.rabbitPoints;
+      if (type === "golden") points = CONFIG.goldenPoints;
+      else if (type === "freeze") points = CONFIG.freezePoints;
+      points *= this.mult;
+      this.score += points;
       this.levelHits++;
 
       if (type === "golden") {
@@ -589,35 +651,26 @@ class Game {
         this.audio.gold();
         this.flash(
           "GOLDEN RABBIT",
-          `+${pts} / +${CONFIG.goldenBonus.toFixed(1)}s`,
+          `+${points} / +${CONFIG.goldenBonus.toFixed(1)}s`,
           "#ffd34d"
         );
         this.particles.burst(x, y, "#ffd34d", 30);
       } else if (type === "freeze") {
         this.applyFreeze();
         this.audio.freeze();
-        this.flash("FREEZE RABBIT", `TIME SLOWED! +${pts}`, "#00f5ff");
+        this.flash("FREEZE RABBIT", `TIME SLOWED! +${points}`, "#00f5ff");
         this.particles.burst(x, y, "#00f5ff", 30);
       } else {
         this.audio.hit(this.mult);
-        this.flash("DIRECT HIT", `+${pts}`, "#00f5ff");
+        this.flash("DIRECT HIT", `+${points}`, "#00f5ff");
         this.particles.burst(x, y, "#00f5ff", 20);
       }
-
       this.effect("is-hit");
       this.setStatus("TARGET CONFIRMED", "normal");
-
-      clearTimeout(this.comboTimer);
-      this.comboExpiresAt = performance.now() + CONFIG.comboReset;
-      this.comboTimer = setTimeout(() => {
-        this.breakCombo();
-        this.update();
-      }, CONFIG.comboReset);
-
       if (this.levelHits >= CONFIG.hitsPerLevel) this.levelUp();
     }
 
-    setTimeout(() => b.remove(), 230);
+    setTimeout(() => button.remove(), 230);
     this.update();
   }
 
@@ -635,19 +688,15 @@ class Game {
 
   miss(id) {
     if (!this.targets.has(id) || this.state !== "playing") return;
-    const targetData = this.targets.get(id);
-    const isBadType =
-      targetData.type === "decoy" ||
-      targetData.type === "redrabbit" ||
-      targetData.type === "net" ||
-      targetData.type === "life";
-    const b = targetData.element;
-
+    const target = this.targets.get(id);
     this.targets.delete(id);
-    b.classList.add("is-expiring");
-    setTimeout(() => b.remove(), 180);
+    target.element.classList.add("is-expiring");
+    setTimeout(() => target.element.remove(), 180);
 
-    if (!isBadType) {
+    const harmlessToIgnore = ["decoy", "redrabbit", "net", "life"].includes(
+      target.type
+    );
+    if (!harmlessToIgnore) {
       this.attempts++;
       this.breakCombo();
       this.lives--;
@@ -655,10 +704,7 @@ class Game {
       this.flash("TARGET ESCAPED", "LIFE -1", "#ff325f");
       this.effect("is-damaged");
       this.setStatus("TARGET ESCAPED", "warning");
-      if (this.lives <= 0) {
-        this.finish();
-        return;
-      }
+      if (this.lives <= 0) return this.finish();
     }
     this.update();
   }
@@ -678,7 +724,7 @@ class Game {
     this.effect("is-level-up");
     this.flash(
       `LEVEL ${String(this.level).padStart(2, "0")}`,
-      "SYSTEM SPEED & TARGETS UP!",
+      "RABBIT FLOW INCREASED!",
       "#ffd34d"
     );
     this.setStatus("LEVEL ADVANCED", "normal");
@@ -687,15 +733,12 @@ class Game {
   breakCombo() {
     this.comboCount = 0;
     this.mult = 1;
-    clearTimeout(this.comboTimer);
-    this.comboExpiresAt = 0;
-    this.comboRemaining = 0;
   }
 
   removeAllTargets() {
-    for (const [id, targetData] of this.targets.entries()) {
-      clearTimeout(targetData.timerId);
-      targetData.element.remove();
+    for (const target of this.targets.values()) {
+      clearTimeout(target.timerId);
+      target.element.remove();
     }
     this.targets.clear();
   }
@@ -705,33 +748,26 @@ class Game {
     const now = performance.now();
     this.state = "paused";
     if (this.raf) cancelAnimationFrame(this.raf);
+    this.goodRemaining = this.goodDueAt
+      ? Math.max(1, this.goodDueAt - now)
+      : this.goodDelay();
+    this.hazardRemaining = this.hazardDueAt
+      ? Math.max(1, this.hazardDueAt - now)
+      : this.hazardDelay();
+    clearTimeout(this.goodSpawnTimer);
+    clearTimeout(this.hazardSpawnTimer);
+    this.goodDueAt = 0;
+    this.hazardDueAt = 0;
 
-    this.spawnRemaining = this.spawnDueAt
-      ? Math.max(0, this.spawnDueAt - now)
-      : this.spawnDelay();
-    clearTimeout(this.spawnTimer);
-    this.spawnDueAt = 0;
-
-    for (const targetData of this.targets.values()) {
-      clearTimeout(targetData.timerId);
-      targetData.remaining = Math.max(
-        0,
-        targetData.life - (now - targetData.spawnAt)
-      );
+    for (const target of this.targets.values()) {
+      clearTimeout(target.timerId);
+      target.remaining = Math.max(1, target.life - (now - target.spawnAt));
     }
-
-    if (this.comboExpiresAt) {
-      this.comboRemaining = Math.max(0, this.comboExpiresAt - now);
-      clearTimeout(this.comboTimer);
-      this.comboExpiresAt = 0;
-    }
-
     if (this.isFrozen && this.freezeExpiresAt) {
-      this.freezeRemaining = Math.max(0, this.freezeExpiresAt - now);
+      this.freezeRemaining = Math.max(1, this.freezeExpiresAt - now);
       clearTimeout(this.freezeTimer);
       this.freezeExpiresAt = 0;
     }
-
     this.e.layer
       .getAnimations({ subtree: true })
       .forEach((animation) => animation.pause());
@@ -748,27 +784,15 @@ class Game {
     this.e.pause.disabled = false;
     this.last = now;
 
-    for (const [id, targetData] of this.targets.entries()) {
-      const remaining = Math.max(1, targetData.remaining ?? targetData.life);
-      targetData.spawnAt = now - (targetData.life - remaining);
-      targetData.timerId = setTimeout(() => this.miss(id), remaining);
-      delete targetData.remaining;
+    for (const [id, target] of this.targets.entries()) {
+      const remaining = Math.max(1, target.remaining ?? target.life);
+      target.spawnAt = now - (target.life - remaining);
+      target.timerId = setTimeout(() => this.miss(id), remaining);
+      delete target.remaining;
     }
-
     this.e.layer
       .getAnimations({ subtree: true })
       .forEach((animation) => animation.play());
-
-    if (this.comboRemaining > 0) {
-      const remaining = this.comboRemaining;
-      this.comboRemaining = 0;
-      this.comboExpiresAt = now + remaining;
-      this.comboTimer = setTimeout(() => {
-        this.breakCombo();
-        this.update();
-      }, remaining);
-    }
-
     if (this.isFrozen && this.freezeRemaining > 0) {
       const remaining = this.freezeRemaining;
       this.freezeRemaining = 0;
@@ -779,26 +803,28 @@ class Game {
         this.e.stage.classList.remove("is-frozen");
       }, remaining);
     }
-
-    this.raf = requestAnimationFrame((t) => this.loop(t));
-    this.schedule(Math.max(1, this.spawnRemaining || this.spawnDelay()));
-    this.spawnRemaining = 0;
+    this.raf = requestAnimationFrame((time) => this.loop(time));
+    this.scheduleGood(Math.max(1, this.goodRemaining || this.goodDelay()));
+    this.scheduleHazard(
+      Math.max(1, this.hazardRemaining || this.hazardDelay())
+    );
+    this.goodRemaining = 0;
+    this.hazardRemaining = 0;
     this.setStatus("TARGET ACQUISITION", "normal");
     this.audio.click();
   }
 
   togglePause() {
-    this.state === "playing"
-      ? this.pause()
-      : this.state === "paused" && this.resume();
+    if (this.state === "playing") this.pause();
+    else if (this.state === "paused") this.resume();
   }
 
   finish() {
     if (this.state === "gameover") return;
     this.state = "gameover";
     if (this.raf) cancelAnimationFrame(this.raf);
-    clearTimeout(this.spawnTimer);
-    clearTimeout(this.comboTimer);
+    clearTimeout(this.goodSpawnTimer);
+    clearTimeout(this.hazardSpawnTimer);
     clearTimeout(this.freezeTimer);
     this.removeAllTargets();
     this.e.pause.disabled = true;
@@ -808,17 +834,15 @@ class Game {
       this.best = this.score;
       localStorage.setItem(CONFIG.bestKey, String(this.best));
     }
-
-    const acc = this.attempts
+    const accuracy = this.attempts
       ? Math.round((this.hits / this.attempts) * 100)
       : 0;
     this.e.finalScore.textContent = pad(this.score);
     this.e.finalBest.textContent = pad(this.best);
     this.e.finalCombo.textContent = `x${this.maxCombo}`;
-    this.e.finalAcc.textContent = `${acc}%`;
+    this.e.finalAcc.textContent = `${accuracy}%`;
     this.e.rank.textContent = this.rank();
     this.e.record.classList.toggle("is-visible", record);
-
     this.update();
     this.show(this.e.overO, true);
     this.setStatus("SESSION COMPLETE", "danger");
@@ -835,9 +859,9 @@ class Game {
 
   setStatus(text, type) {
     this.e.status.textContent = text;
-    const c = document.querySelector(".status-chip");
-    c?.classList.toggle("is-danger", type === "danger");
-    c?.classList.toggle("is-warning", type === "warning");
+    const chip = document.querySelector(".status-chip");
+    chip?.classList.toggle("is-danger", type === "danger");
+    chip?.classList.toggle("is-warning", type === "warning");
   }
 
   flash(main, sub, color) {
@@ -848,10 +872,10 @@ class Game {
     requestAnimationFrame(() => this.e.float.classList.add("is-visible"));
   }
 
-  effect(cls) {
-    this.e.stage.classList.remove(cls);
-    requestAnimationFrame(() => this.e.stage.classList.add(cls));
-    setTimeout(() => this.e.stage.classList.remove(cls), 700);
+  effect(className) {
+    this.e.stage.classList.remove(className);
+    requestAnimationFrame(() => this.e.stage.classList.add(className));
+    setTimeout(() => this.e.stage.classList.remove(className), 700);
   }
 
   updateSound() {
@@ -864,19 +888,15 @@ class Game {
     this.e.best.textContent = pad(this.best);
     this.e.combo.textContent = String(this.mult);
     this.e.level.textContent = String(this.level).padStart(2, "0");
-    this.e.time.textContent = (
-      Number.isFinite(this.timeLeft) ? this.timeLeft : CONFIG.time
-    ).toFixed(1);
-
+    this.e.time.textContent = this.timeLeft.toFixed(1);
     this.e.comboCard.classList.toggle("is-hot", this.mult >= 3);
     this.e.progressText.textContent = `${this.levelHits} / ${CONFIG.hitsPerLevel}`;
     this.e.progressFill.style.width = `${
       (this.levelHits / CONFIG.hitsPerLevel) * 100
     }%`;
-
-    [...this.e.lives.children].forEach((el, i) => {
-      el.classList.toggle("life--active", i < this.lives);
-      el.classList.toggle("life--lost", i >= this.lives);
+    [...this.e.lives.children].forEach((element, index) => {
+      element.classList.toggle("life--active", index < this.lives);
+      element.classList.toggle("life--lost", index >= this.lives);
     });
   }
 }
@@ -884,8 +904,8 @@ class Game {
 addEventListener("DOMContentLoaded", () => {
   try {
     new Game();
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     alert(
       "Igra nije mogla da se pokrene. Proveri da li su index.html, style.css i script.js u istom folderu."
     );
