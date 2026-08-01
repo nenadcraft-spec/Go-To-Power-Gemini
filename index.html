@@ -275,7 +275,7 @@
         .timeline-container { position: relative; padding-left: 20px; border-left: 2px solid var(--accent-green); margin-top: 15px; }
         .timeline-item { position: relative; margin-bottom: 20px; background: #030508; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; cursor: pointer; transition: border-color 0.2s; }
         .timeline-item:hover { border-color: var(--accent-green); }
-        .timeline-dot { position: absolute; left: -27px; top: 15px; width: 10px; height: 10px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green); }
+        .timeline-dot { position: absolute; left: -27px; top: 15px; width: 100px; height: 10px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 8px var(--accent-green); }
         .timeline-date { font-size: 10px; color: var(--accent-blue); font-weight: bold; font-family: monospace; }
         .timeline-title { font-size: 13px; font-weight: bold; color: #fff; margin: 2px 0 5px 0; }
 
@@ -1525,6 +1525,13 @@
 
     <!-- JAVASCRIPT KÔD -->
     <script>
+        // STANJE OTKLJUČANIH / OTVORENIH SOBA
+        var openedRooms = {
+            claude: false,
+            gaming: false,
+            codex: false
+        };
+
         // WHR BOOT SEQUENCE
         function runWhrBoot() {
             var progressBar = document.getElementById('bootProgressBar');
@@ -1569,6 +1576,30 @@
             }
             if (evt && evt.currentTarget) {
                 evt.currentTarget.classList.add("active");
+            }
+
+            // Provera i održavanje stanja sobe ako je već otključana
+            if (tabId === 'tab-claude-office' && openedRooms.claude) {
+                var shell = document.getElementById('claudeOfficeShell');
+                var doors = document.getElementById('claudeDoorFrame');
+                if (shell && doors) {
+                    doors.classList.add('opening');
+                    shell.classList.add('office-open');
+                }
+            } else if (tabId === 'tab-gaming' && openedRooms.gaming) {
+                var shell = document.getElementById('gamingOfficeShell');
+                var doors = document.getElementById('gamingDoorFrame');
+                if (shell && doors) {
+                    doors.classList.add('opening');
+                    shell.classList.add('office-open');
+                }
+            } else if (tabId === 'tab-codex' && openedRooms.codex) {
+                var shell = document.getElementById('codexOfficeShell');
+                var doors = document.getElementById('codexDoorFrame');
+                if (shell && doors) {
+                    doors.classList.add('opening');
+                    shell.classList.add('office-open');
+                }
             }
         }
 
@@ -1764,6 +1795,7 @@
             var shell = document.getElementById('claudeOfficeShell');
             var doors = document.getElementById('claudeDoorFrame');
             if (!shell || !doors) return;
+            openedRooms.claude = true;
             doors.classList.add('opening');
             setTimeout(function() { 
                 shell.classList.add('office-open'); 
@@ -1774,6 +1806,7 @@
             var shell = document.getElementById('claudeOfficeShell');
             var doors = document.getElementById('claudeDoorFrame');
             if (!shell || !doors) return;
+            openedRooms.claude = false;
             shell.classList.remove('office-open');
             setTimeout(function() { 
                 doors.classList.remove('opening'); 
@@ -1785,6 +1818,7 @@
             var shell = document.getElementById('gamingOfficeShell');
             var doors = document.getElementById('gamingDoorFrame');
             if (!shell || !doors) return;
+            openedRooms.gaming = true;
             doors.classList.add('opening');
             setTimeout(function() { 
                 shell.classList.add('office-open'); 
@@ -1795,6 +1829,7 @@
             var shell = document.getElementById('gamingOfficeShell');
             var doors = document.getElementById('gamingDoorFrame');
             if (!shell || !doors) return;
+            openedRooms.gaming = false;
             shell.classList.remove('office-open');
             setTimeout(function() { 
                 doors.classList.remove('opening'); 
@@ -1806,6 +1841,7 @@
             var shell = document.getElementById('codexOfficeShell');
             var doors = document.getElementById('codexDoorFrame');
             if (!shell || !doors) return;
+            openedRooms.codex = true;
             doors.classList.add('opening');
             setTimeout(function() { 
                 shell.classList.add('office-open'); 
@@ -1816,6 +1852,7 @@
             var shell = document.getElementById('codexOfficeShell');
             var doors = document.getElementById('codexDoorFrame');
             if (!shell || !doors) return;
+            openedRooms.codex = false;
             shell.classList.remove('office-open');
             setTimeout(function() { 
                 doors.classList.remove('opening'); 
