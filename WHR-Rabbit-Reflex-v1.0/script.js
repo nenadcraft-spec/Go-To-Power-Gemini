@@ -1,6 +1,6 @@
 "use strict";
 
-/* WHR Rabbit Reflex v1.1 — HERO vs HACKER */
+/* WHR Rabbit Reflex v1.2 — WHITE HACKER ANTI-CHEAT */
 const CONFIG = {
   time: 60,
   lives: 3,
@@ -22,7 +22,8 @@ const CONFIG = {
 
   targetLife: 1450,
   hazardLife: 1800,
-  netLife: 2300,
+  decoyLife: 5000,
+  netLife: 5000,
 
   goodBaseDelay: 780,
   goodMinDelay: 260,
@@ -40,13 +41,23 @@ const CONFIG = {
   hackerPenaltyPoints: 2000,
   hackerVirusDuration: 3000,
   hackerCloneDelay: 700,
-  hackerMaxOnBoard: 2,
+  hackerMaxOnBoard: 3,
 
   heroStartLevel: 4,
   heroMinDelay: 12000,
   heroMaxDelay: 16000,
   heroLife: 2100,
-  heroPurgeDuration: 780,
+  antiCheatDuration: 780,
+
+  blackHoleStartLevel: 8,
+  blackHoleMinDelay: 14000,
+  blackHoleMaxDelay: 19000,
+  blackHoleLife: 5000,
+  blackHolePenaltyTime: 5,
+  blackHoleHackerDelay: 1200,
+  blackHoleGravityRate: 180,
+  blackHoleGravityRadius: 180,
+  blackHoleGravityStep: 5.5,
 
   maxCombo: 25,
 
@@ -451,35 +462,33 @@ class Game {
 
     this.isFrozen = false;
     this.isVirusActive = false;
-    this.isHeroTime = false;
 
     this.goodSpawnTimer = null;
     this.hazardSpawnTimer = null;
     this.hackerSpawnTimer = null;
     this.heroSpawnTimer = null;
+    this.blackHoleSpawnTimer = null;
 
     this.freezeTimer = null;
     this.virusTimer = null;
-    this.heroTimer = null;
 
     this.goodDueAt = 0;
     this.hazardDueAt = 0;
     this.hackerDueAt = 0;
     this.heroDueAt = 0;
+    this.blackHoleDueAt = 0;
 
     this.goodRemaining = 0;
     this.hazardRemaining = 0;
     this.hackerRemaining = 0;
     this.heroRemaining = 0;
+    this.blackHoleRemaining = 0;
 
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
 
     this.virusExpiresAt = 0;
     this.virusRemaining = 0;
-
-    this.heroExpiresAt = 0;
-    this.heroEffectRemaining = 0;
 
     this.bind();
     this.ensureLifeSlots();
@@ -589,22 +598,20 @@ class Game {
     clearTimeout(this.hazardSpawnTimer);
     clearTimeout(this.hackerSpawnTimer);
     clearTimeout(this.heroSpawnTimer);
+    clearTimeout(this.blackHoleSpawnTimer);
 
     clearTimeout(this.freezeTimer);
     clearTimeout(this.virusTimer);
-    clearTimeout(this.heroTimer);
 
     this.removeAllTargets();
 
     this.isFrozen = false;
     this.isVirusActive = false;
-    this.isHeroTime = false;
 
     this.e.stage.classList.remove(
       "is-frozen",
       "is-virus",
-      "is-hero-time",
-      "is-hero-purge"
+      "is-anti-cheat"
     );
 
     this.e.shell.classList.remove(
@@ -632,20 +639,19 @@ class Game {
     this.hazardDueAt = 0;
     this.hackerDueAt = 0;
     this.heroDueAt = 0;
+    this.blackHoleDueAt = 0;
 
     this.goodRemaining = 0;
     this.hazardRemaining = 0;
     this.hackerRemaining = 0;
     this.heroRemaining = 0;
+    this.blackHoleRemaining = 0;
 
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
 
     this.virusExpiresAt = 0;
     this.virusRemaining = 0;
-
-    this.heroExpiresAt = 0;
-    this.heroEffectRemaining = 0;
 
     this.update();
   }
@@ -737,6 +743,10 @@ class Game {
       CONFIG.heroMaxDelay
     );
 
+    this.scheduleBlackHole(
+      CONFIG.blackHoleMaxDelay
+    );
+
     this.starting = false;
   }
 
@@ -752,10 +762,6 @@ class Game {
 
     if (this.isFrozen) {
       delta *= 0.5;
-    }
-
-    if (this.isHeroTime) {
-      delta *= CONFIG.heroSlowFactor;
     }
 
     this.timeLeft = Math.max(
@@ -855,22 +861,21 @@ class Game {
     );
   }
 
+  blackHoleDelay() {
+    return (
+      CONFIG.blackHoleMinDelay +
+      Math.random() *
+        (
+          CONFIG.blackHoleMaxDelay -
+          CONFIG.blackHoleMinDelay
+        )
+    );
+  }
+
   targetRemaining(
     target,
     now = performance.now()
   ) {
-    if (target.heroStartedAt) {
-      return Math.max(
-        0,
-        target.heroBaseRemaining -
-          (
-            now -
-            target.heroStartedAt
-          ) *
-            CONFIG.heroSlowFactor
-      );
-    }
-
     return Math.max(
       0,
       target.life -
@@ -894,6 +899,15 @@ class Game {
       .filter(
         (target) =>
           target.group === group
+      )
+      .length;
+  }
+
+  countType(type) {
+    return [...this.targets.values()]
+      .filter(
+        (target) =>
+          target.type === type
       )
       .length;
   }
@@ -946,10 +960,22 @@ class Game {
           this.countGroup("hazard") <
             this.maxHazards()
         ) {
-          this.spawn(
-            this.pickHazardType(),
-            "hazard"
-          );
+          const type =
+            this.pickHazardType();
+
+          const persistentTrap =
+            ["decoy", "net"]
+              .includes(type);
+
+          if (
+            !persistentTrap ||
+            this.countType(type) === 0
+          ) {
+            this.spawn(
+              type,
+              "hazard"
+            );
+          }
         }
 
         if (this.state === "playing") {
@@ -1015,6 +1041,38 @@ class Game {
 
         if (this.state === "playing") {
           this.scheduleHero();
+        }
+      }, delay);
+  }
+
+  scheduleBlackHole(
+    delay = this.blackHoleDelay()
+  ) {
+    clearTimeout(
+      this.blackHoleSpawnTimer
+    );
+
+    this.blackHoleDueAt =
+      performance.now() + delay;
+
+    this.blackHoleSpawnTimer =
+      setTimeout(() => {
+        this.blackHoleDueAt = 0;
+
+        if (
+          this.state === "playing" &&
+          this.level >=
+            CONFIG.blackHoleStartLevel &&
+          this.countGroup("blackhole") === 0
+        ) {
+          this.spawn(
+            "blackhole",
+            "blackhole"
+          );
+        }
+
+        if (this.state === "playing") {
+          this.scheduleBlackHole();
         }
       }, delay);
   }
@@ -1104,12 +1162,18 @@ class Game {
       return CONFIG.heroLife;
     }
 
+    if (type === "blackhole") {
+      return CONFIG.blackHoleLife;
+    }
+
     let life = CONFIG.targetLife;
 
     if (type === "net") {
       life = CONFIG.netLife;
+    } else if (type === "decoy") {
+      life = CONFIG.decoyLife;
     } else if (
-      ["redrabbit", "decoy"].includes(type)
+      type === "redrabbit"
     ) {
       life = CONFIG.hazardLife;
     }
@@ -1221,14 +1285,38 @@ class Game {
       );
     }
 
+    if (type === "blackhole") {
+      size = Math.max(
+        82,
+        size * 1.26
+      );
+    }
+
     const rect =
       this.e.stage.getBoundingClientRect();
 
-    const { x, y } =
+    let { x, y } =
       this.findSpawnPosition(
         size,
         rect
       );
+
+    if (options.spawnAt) {
+      const margin =
+        size / 2 + 12;
+
+      x = clamp(
+        options.spawnAt.x,
+        margin,
+        rect.width - margin
+      );
+
+      y = clamp(
+        options.spawnAt.y,
+        margin,
+        rect.height - margin
+      );
+    }
 
     const button =
       document.createElement("button");
@@ -1260,7 +1348,15 @@ class Game {
     button.style.left = `${x}px`;
     button.style.top = `${y}px`;
 
-    if (type === "net") {
+    if (type === "blackhole") {
+      button.innerHTML = `
+        <span class="target__timer"></span>
+        <span class="target__blackhole-lens"></span>
+        <span class="target__blackhole-disc"></span>
+        <span class="target__blackhole-shadow"></span>
+        <span class="target__blackhole-eyes"></span>
+      `;
+    } else if (type === "net") {
       button.innerHTML = `
         <span class="target__timer"></span>
         <div class="target__net-grid"></div>
@@ -1302,6 +1398,20 @@ class Game {
             </span>
           `
         );
+      } else if (type === "decoy") {
+        button.insertAdjacentHTML(
+          "beforeend",
+          `
+            <span class="target__decoy-ghost">
+              <span class="target__decoy-ghost-ear target__decoy-ghost-ear--left"></span>
+              <span class="target__decoy-ghost-ear target__decoy-ghost-ear--right"></span>
+              <span class="target__decoy-ghost-head"></span>
+            </span>
+
+            <span class="target__decoy-split target__decoy-split--one"></span>
+            <span class="target__decoy-split target__decoy-split--two"></span>
+          `
+        );
       } else if (type === "hacker") {
         button.insertAdjacentHTML(
           "beforeend",
@@ -1327,37 +1437,10 @@ class Game {
         button.insertAdjacentHTML(
           "beforeend",
           `
-            <span class="target__hero-sun"></span>
-
-            <span
-              class="target__hero-orbit target__hero-orbit--outer"
-            ></span>
-
-            <span
-              class="target__hero-orbit target__hero-orbit--inner"
-            ></span>
-
-            <span
-              class="target__hero-satellite target__hero-satellite--one"
-            ></span>
-
-            <span
-              class="target__hero-satellite target__hero-satellite--two"
-            ></span>
-
-            <span
-              class="target__hero-wing target__hero-wing--left"
-            ></span>
-
-            <span
-              class="target__hero-wing target__hero-wing--right"
-            ></span>
-
-            <span class="target__hero-shield">
-              <span class="target__hero-shield-core"></span>
-            </span>
-
-            <span class="target__hero-crown"></span>
+            <span class="target__whitehat-hat"></span>
+            <span class="target__whitehat-visor"></span>
+            <span class="target__whitehat-circuit"></span>
+            <span class="target__whitehat-shield"></span>
           `
         );
       }
@@ -1403,10 +1486,22 @@ class Game {
       maxLife: life,
       spawnAt,
       timerId,
+      x,
+      y,
       isClone: Boolean(
         options.isClone
       ),
       cloneTimerId: null,
+      cloneDueAt: 0,
+      cloneRemaining: 0,
+      cloneSpent: Boolean(
+        options.isClone
+      ),
+      portalTimerId: null,
+      portalDueAt: 0,
+      portalRemaining: 0,
+      portalSpent: false,
+      gravityTimerId: null,
     };
 
     this.targets.set(id, target);
@@ -1415,23 +1510,211 @@ class Game {
       type === "hacker" &&
       !target.isClone
     ) {
-      target.cloneTimerId =
-        setTimeout(() => {
-          target.cloneTimerId = null;
+      this.startHackerCloneTimer(
+        id,
+        target,
+        CONFIG.hackerCloneDelay
+      );
+    }
 
-          if (
-            this.state === "playing" &&
-            this.targets.has(id) &&
-            this.countGroup("hacker") <
-              CONFIG.hackerMaxOnBoard
-          ) {
-            this.spawn(
-              "hacker",
-              "hacker",
-              { isClone: true }
-            );
-          }
-        }, CONFIG.hackerCloneDelay);
+    if (type === "blackhole") {
+      this.startBlackHoleSystems(
+        id,
+        target,
+        CONFIG.blackHoleHackerDelay
+      );
+    }
+  }
+
+  startHackerCloneTimer(
+    id,
+    target,
+    delay
+  ) {
+    clearTimeout(target.cloneTimerId);
+
+    target.cloneDueAt =
+      performance.now() + delay;
+
+    target.cloneTimerId =
+      setTimeout(() => {
+        target.cloneTimerId = null;
+        target.cloneDueAt = 0;
+        target.cloneSpent = true;
+
+        if (
+          this.state === "playing" &&
+          this.targets.has(id) &&
+          this.countGroup("hacker") <
+            CONFIG.hackerMaxOnBoard
+        ) {
+          this.spawn(
+            "hacker",
+            "hacker",
+            { isClone: true }
+          );
+        }
+      }, delay);
+  }
+
+  startBlackHoleSystems(
+    id,
+    target,
+    hackerDelay
+  ) {
+    clearTimeout(target.portalTimerId);
+    clearInterval(target.gravityTimerId);
+
+    target.portalDueAt =
+      performance.now() + hackerDelay;
+
+    target.portalTimerId =
+      setTimeout(() => {
+        target.portalTimerId = null;
+        target.portalDueAt = 0;
+
+        if (
+          this.state !== "playing" ||
+          !this.targets.has(id)
+        ) {
+          return;
+        }
+
+        target.element.classList.add(
+          "is-portal-spent"
+        );
+
+        target.portalSpent = true;
+
+        if (
+          this.countGroup("hacker") <
+            CONFIG.hackerMaxOnBoard
+        ) {
+          this.spawn(
+            "hacker",
+            "hacker",
+            {
+              isClone: true,
+              spawnAt: {
+                x: target.x + 24,
+                y: target.y - 10,
+              },
+            }
+          );
+        }
+      }, hackerDelay);
+
+    target.gravityTimerId =
+      setInterval(() => {
+        this.applyBlackHoleGravity(
+          id,
+          target
+        );
+      }, CONFIG.blackHoleGravityRate);
+  }
+
+  applyBlackHoleGravity(
+    blackHoleId,
+    blackHole
+  ) {
+    if (
+      this.state !== "playing" ||
+      !this.targets.has(blackHoleId)
+    ) {
+      return;
+    }
+
+    for (
+      const [id, target]
+      of this.targets.entries()
+    ) {
+      if (
+        id === blackHoleId ||
+        target.type === "blackhole"
+      ) {
+        continue;
+      }
+
+      const dx =
+        blackHole.x - target.x;
+
+      const dy =
+        blackHole.y - target.y;
+
+      const distance =
+        Math.hypot(dx, dy);
+
+      if (
+        distance <= 1 ||
+        distance >
+          CONFIG.blackHoleGravityRadius
+      ) {
+        target.element.classList.remove(
+          "is-gravity-pulled"
+        );
+
+        continue;
+      }
+
+      if (distance < 30) {
+        clearTimeout(target.timerId);
+        clearTimeout(target.cloneTimerId);
+        clearTimeout(target.portalTimerId);
+        clearInterval(target.gravityTimerId);
+
+        this.targets.delete(id);
+
+        target.element.classList.add(
+          "is-expiring"
+        );
+
+        this.particles.burst(
+          blackHole.x,
+          blackHole.y,
+          "#a855f7",
+          12
+        );
+
+        setTimeout(() => {
+          target.element.remove();
+        }, 180);
+
+        continue;
+      }
+
+      const strength =
+        CONFIG.blackHoleGravityStep *
+        (1 -
+          distance /
+            CONFIG.blackHoleGravityRadius +
+          0.25);
+
+      target.x +=
+        (dx / distance) * strength;
+
+      target.y +=
+        (dy / distance) * strength;
+
+      target.element.style.left =
+        `${target.x}px`;
+
+      target.element.style.top =
+        `${target.y}px`;
+
+      target.element.classList.add(
+        "is-gravity-pulled"
+      );
+    }
+  }
+
+  clearGravityMarks() {
+    for (
+      const target
+      of this.targets.values()
+    ) {
+      target.element.classList.remove(
+        "is-gravity-pulled"
+      );
     }
   }
 
@@ -1448,7 +1731,13 @@ class Game {
 
     clearTimeout(target.timerId);
     clearTimeout(target.cloneTimerId);
+    clearTimeout(target.portalTimerId);
+    clearInterval(target.gravityTimerId);
     this.targets.delete(id);
+
+    if (type === "blackhole") {
+      this.clearGravityMarks();
+    }
 
     this.taps++;
     this.attempts++;
@@ -1599,6 +1888,37 @@ class Game {
         20
       );
     } else if (
+      type === "blackhole"
+    ) {
+      this.timeLeft = Math.max(
+        0,
+        this.timeLeft -
+          CONFIG.blackHolePenaltyTime
+      );
+
+      this.breakCombo();
+      this.audio.bad();
+      this.effect("is-damaged");
+
+      this.setStatus(
+        "GRAVITY BREACH",
+        "danger"
+      );
+
+      this.particles.burst(
+        target.x,
+        target.y,
+        "#a855f7",
+        34
+      );
+
+      this.particles.burst(
+        target.x,
+        target.y,
+        "#ffffff",
+        18
+      );
+    } else if (
       type === "hacker"
     ) {
       this.score = Math.max(
@@ -1643,7 +1963,7 @@ class Game {
       );
     } else if (type === "hero") {
       this.hits++;
-      this.applyHeroPurge(
+      this.applyAntiCheat(
         button,
         x,
         y
@@ -1852,7 +2172,7 @@ class Game {
       }, duration);
   }
 
-  applyHeroPurge(
+  applyAntiCheat(
     heroButton,
     fallbackX,
     fallbackY
@@ -1881,7 +2201,7 @@ class Game {
       document.createElement("span");
 
     wave.className =
-      "hero-purge-wave";
+      "anti-cheat-wave";
 
     wave.style.left = `${originX}px`;
     wave.style.top = `${originY}px`;
@@ -1889,12 +2209,12 @@ class Game {
     this.e.stage.appendChild(wave);
 
     this.e.stage.classList.remove(
-      "is-hero-purge"
+      "is-anti-cheat"
     );
 
     requestAnimationFrame(() => {
       this.e.stage.classList.add(
-        "is-hero-purge"
+        "is-anti-cheat"
       );
     });
 
@@ -1917,6 +2237,7 @@ class Game {
         "redrabbit",
         "net",
         "hacker",
+        "blackhole",
       ]);
 
     for (
@@ -1933,10 +2254,12 @@ class Game {
 
       clearTimeout(target.timerId);
       clearTimeout(target.cloneTimerId);
+      clearTimeout(target.portalTimerId);
+      clearInterval(target.gravityTimerId);
       this.targets.delete(id);
 
       target.element.classList.add(
-        "is-hero-purged"
+        "is-anti-cheat-deleted"
       );
 
       const targetRect =
@@ -1956,6 +2279,8 @@ class Game {
       const color =
         target.type === "hacker"
           ? "#ff38c7"
+          : target.type === "blackhole"
+            ? "#ffffff"
           : target.type === "redrabbit"
             ? "#ff0033"
             : target.type === "net"
@@ -1966,7 +2291,8 @@ class Game {
         particleX,
         particleY,
         color,
-        target.type === "hacker"
+        ["hacker", "blackhole"]
+          .includes(target.type)
           ? 32
           : 22
       );
@@ -1976,122 +2302,15 @@ class Game {
       }, 580);
     }
 
+    this.clearGravityMarks();
+
     setTimeout(() => {
       wave.remove();
 
       this.e.stage.classList.remove(
-        "is-hero-purge"
+        "is-anti-cheat"
       );
-    }, CONFIG.heroPurgeDuration);
-  }
-
-  slowTarget(
-    id,
-    target,
-    now = performance.now()
-  ) {
-    if (target.heroStartedAt) {
-      return;
-    }
-
-    const remaining =
-      this.targetRemaining(
-        target,
-        now
-      );
-
-    clearTimeout(target.timerId);
-
-    target.heroBaseRemaining =
-      remaining;
-
-    target.heroStartedAt = now;
-
-    target.timerId = setTimeout(
-      () => this.miss(id),
-      remaining /
-        CONFIG.heroSlowFactor
-    );
-  }
-
-  releaseHeroTargets() {
-    const now = performance.now();
-
-    for (
-      const [id, target]
-      of this.targets.entries()
-    ) {
-      if (!target.heroStartedAt) {
-        continue;
-      }
-
-      const remaining =
-        this.targetRemaining(
-          target,
-          now
-        );
-
-      clearTimeout(target.timerId);
-
-      target.life = Math.max(
-        1,
-        remaining
-      );
-
-      target.spawnAt = now;
-
-      delete target.heroBaseRemaining;
-      delete target.heroStartedAt;
-
-      target.timerId = setTimeout(
-        () => this.miss(id),
-        target.life
-      );
-    }
-  }
-
-  applyHeroTime(
-    duration = CONFIG.heroDuration,
-    resuming = false
-  ) {
-    this.isHeroTime = true;
-
-    this.e.stage.classList.add(
-      "is-hero-time"
-    );
-
-    if (!resuming) {
-      const now = performance.now();
-
-      for (
-        const [id, target]
-        of this.targets.entries()
-      ) {
-        this.slowTarget(
-          id,
-          target,
-          now
-        );
-      }
-    }
-
-    clearTimeout(this.heroTimer);
-
-    this.heroExpiresAt =
-      performance.now() + duration;
-
-    this.heroTimer =
-      setTimeout(() => {
-        this.releaseHeroTargets();
-
-        this.isHeroTime = false;
-        this.heroExpiresAt = 0;
-
-        this.e.stage.classList.remove(
-          "is-hero-time"
-        );
-
-      }, duration);
+    }, CONFIG.antiCheatDuration);
   }
 
   miss(id) {
@@ -2107,6 +2326,12 @@ class Game {
 
     this.targets.delete(id);
     clearTimeout(target.cloneTimerId);
+    clearTimeout(target.portalTimerId);
+    clearInterval(target.gravityTimerId);
+
+    if (target.type === "blackhole") {
+      this.clearGravityMarks();
+    }
 
     target.element.classList.add(
       "is-expiring"
@@ -2123,6 +2348,7 @@ class Game {
       "life",
       "hacker",
       "hero",
+      "blackhole",
     ].includes(target.type);
 
     if (!harmlessToIgnore) {
@@ -2212,6 +2438,8 @@ class Game {
     ) {
       clearTimeout(target.timerId);
       clearTimeout(target.cloneTimerId);
+      clearTimeout(target.portalTimerId);
+      clearInterval(target.gravityTimerId);
       target.element.remove();
     }
 
@@ -2265,22 +2493,61 @@ class Game {
           )
         : this.heroDelay();
 
+    this.blackHoleRemaining =
+      this.blackHoleDueAt
+        ? Math.max(
+            1,
+            this.blackHoleDueAt - now
+          )
+        : this.blackHoleDelay();
+
     clearTimeout(this.goodSpawnTimer);
     clearTimeout(this.hazardSpawnTimer);
     clearTimeout(this.hackerSpawnTimer);
     clearTimeout(this.heroSpawnTimer);
+    clearTimeout(this.blackHoleSpawnTimer);
 
     this.goodDueAt = 0;
     this.hazardDueAt = 0;
     this.hackerDueAt = 0;
     this.heroDueAt = 0;
+    this.blackHoleDueAt = 0;
 
     for (
       const target
       of this.targets.values()
     ) {
+      if (
+        target.type === "hacker" &&
+        !target.cloneSpent &&
+        target.cloneDueAt
+      ) {
+        target.cloneRemaining =
+          Math.max(
+            1,
+            target.cloneDueAt - now
+          );
+
+        target.cloneDueAt = 0;
+      }
+
       clearTimeout(target.timerId);
       clearTimeout(target.cloneTimerId);
+      clearTimeout(target.portalTimerId);
+      clearInterval(target.gravityTimerId);
+
+      if (
+        target.type === "blackhole" &&
+        target.portalDueAt
+      ) {
+        target.portalRemaining =
+          Math.max(
+            1,
+            target.portalDueAt - now
+          );
+
+        target.portalDueAt = 0;
+      }
 
       target.remaining = Math.max(
         1,
@@ -2317,20 +2584,6 @@ class Game {
 
       clearTimeout(this.virusTimer);
       this.virusExpiresAt = 0;
-    }
-
-    if (
-      this.isHeroTime &&
-      this.heroExpiresAt
-    ) {
-      this.heroEffectRemaining =
-        Math.max(
-          1,
-          this.heroExpiresAt - now
-        );
-
-      clearTimeout(this.heroTimer);
-      this.heroExpiresAt = 0;
     }
 
     this.e.layer
@@ -2379,24 +2632,54 @@ class Game {
           target.life
       );
 
-      delete target.heroBaseRemaining;
-      delete target.heroStartedAt;
-
       target.life = remaining;
       target.spawnAt = now;
 
-      if (this.isHeroTime) {
-        this.slowTarget(
+      target.timerId =
+        setTimeout(
+          () => this.miss(id),
+          remaining
+        );
+
+      if (
+        target.type === "hacker" &&
+        !target.cloneSpent
+      ) {
+        this.startHackerCloneTimer(
           id,
           target,
-          now
+          Math.max(
+            1,
+            target.cloneRemaining ||
+              CONFIG.hackerCloneDelay
+          )
         );
-      } else {
-        target.timerId =
-          setTimeout(
-            () => this.miss(id),
-            remaining
+
+        target.cloneRemaining = 0;
+      }
+
+      if (target.type === "blackhole") {
+        if (!target.portalSpent) {
+          this.startBlackHoleSystems(
+            id,
+            target,
+            Math.max(
+              1,
+              target.portalRemaining ||
+                CONFIG.blackHoleHackerDelay
+            )
           );
+        } else {
+          target.gravityTimerId =
+            setInterval(() => {
+              this.applyBlackHoleGravity(
+                id,
+                target
+              );
+            }, CONFIG.blackHoleGravityRate);
+        }
+
+        target.portalRemaining = 0;
       }
 
       delete target.remaining;
@@ -2447,21 +2730,6 @@ class Game {
       );
     }
 
-    if (
-      this.isHeroTime &&
-      this.heroEffectRemaining > 0
-    ) {
-      const remaining =
-        this.heroEffectRemaining;
-
-      this.heroEffectRemaining = 0;
-
-      this.applyHeroTime(
-        remaining,
-        true
-      );
-    }
-
     this.raf =
       requestAnimationFrame(
         (time) => this.loop(time)
@@ -2499,10 +2767,19 @@ class Game {
       )
     );
 
+    this.scheduleBlackHole(
+      Math.max(
+        1,
+        this.blackHoleRemaining ||
+          this.blackHoleDelay()
+      )
+    );
+
     this.goodRemaining = 0;
     this.hazardRemaining = 0;
     this.hackerRemaining = 0;
     this.heroRemaining = 0;
+    this.blackHoleRemaining = 0;
 
     this.setStatus(
       "TARGET ACQUISITION",
@@ -2539,18 +2816,16 @@ class Game {
     clearTimeout(this.hazardSpawnTimer);
     clearTimeout(this.hackerSpawnTimer);
     clearTimeout(this.heroSpawnTimer);
+    clearTimeout(this.blackHoleSpawnTimer);
 
     clearTimeout(this.freezeTimer);
     clearTimeout(this.virusTimer);
-    clearTimeout(this.heroTimer);
 
     this.isVirusActive = false;
-    this.isHeroTime = false;
 
     this.e.stage.classList.remove(
       "is-virus",
-      "is-hero-time",
-      "is-hero-purge"
+      "is-anti-cheat"
     );
 
     this.e.shell.classList.remove(
