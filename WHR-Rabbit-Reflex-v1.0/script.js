@@ -4,7 +4,7 @@
 const CONFIG = {
   time: 60,
   lives: 3,
-  maxLives: 5,
+  maxLives: 10,
   hitsPerLevel: 10,
   maxLevel: 99,
 
@@ -15,7 +15,7 @@ const CONFIG = {
   redPenaltyPoints: 500,
   redPenaltyTime: 3,
   decoyPenalty: 300,
-  extraLifeChance: 0.045,
+  extraLifeChance: 0.08,
   extraLifeStartLevel: 5,
   extraLifeFullPoints: 1500,
 
@@ -30,6 +30,13 @@ const CONFIG = {
   hazardMinDelay: 900,
   hazardDelayStep: 55,
   hazardStartLevel: 2,
+
+  hackerStartLevel: 4,
+  hackerMinDelay: 7000,
+  hackerMaxDelay: 9000,
+  hackerLife: 1800,
+  hackerPenaltyPoints: 2000,
+  hackerVirusDuration: 3000,
 
   maxCombo: 25,
   bestKey: "whr-rabbit-reflex-best-score",
@@ -215,7 +222,9 @@ class Game {
   constructor() {
     this.e = {
       stage: $("gameStage"),
+      shell: $("appShell"),
       layer: $("targetLayer"),
+      virus: $("virusLayer"),
       canvas: $("particleCanvas"),
       cross: $("crosshair"),
       startO: $("startOverlay"),
@@ -259,13 +268,20 @@ class Game {
     this.isFrozen = false;
     this.goodSpawnTimer = null;
     this.hazardSpawnTimer = null;
+    this.hackerSpawnTimer = null;
     this.freezeTimer = null;
+    this.virusTimer = null;
     this.goodDueAt = 0;
     this.hazardDueAt = 0;
+    this.hackerDueAt = 0;
     this.goodRemaining = 0;
     this.hazardRemaining = 0;
+    this.hackerRemaining = 0;
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
+    this.virusExpiresAt = 0;
+    this.virusRemaining = 0;
+    this.isVirusActive = false;
     this.bind();
     this.ensureLifeSlots();
     this.reset();
@@ -316,10 +332,15 @@ class Game {
     if (this.raf) cancelAnimationFrame(this.raf);
     clearTimeout(this.goodSpawnTimer);
     clearTimeout(this.hazardSpawnTimer);
+    clearTimeout(this.hackerSpawnTimer);
     clearTimeout(this.freezeTimer);
+    clearTimeout(this.virusTimer);
     this.removeAllTargets();
     this.isFrozen = false;
     this.e.stage.classList.remove("is-frozen");
+    this.isVirusActive = false;
+    this.e.stage.classList.remove("is-virus");
+    this.e.shell.classList.remove("is-panic-impact");
     this.score = 0;
     this.level = 1;
     this.levelHits = 0;
@@ -334,10 +355,14 @@ class Game {
     this.last = 0;
     this.goodDueAt = 0;
     this.hazardDueAt = 0;
+    this.hackerDueAt = 0;
     this.goodRemaining = 0;
     this.hazardRemaining = 0;
+    this.hackerRemaining = 0;
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
+    this.virusExpiresAt = 0;
+    this.virusRemaining = 0;
     this.update();
   }
 
@@ -388,6 +413,7 @@ class Game {
     this.raf = requestAnimationFrame((time) => this.loop(time));
     this.scheduleGood(250);
     this.scheduleHazard(1500);
+    this.scheduleHacker(CONFIG.hackerMaxDelay);
     this.starting = false;
   }
 
@@ -428,6 +454,13 @@ class Game {
     );
     const variation = 0.8 + Math.random() * 0.45;
     return (this.isFrozen ? delay * 1.8 : delay) * variation;
+  }
+
+  hackerDelay() {
+    return (
+      CONFIG.hackerMinDelay +
+      Math.random() * (CONFIG.hackerMaxDelay - CONFIG.hackerMinDelay)
+    );
   }
 
   maxGoodTargets() {
@@ -476,6 +509,23 @@ class Game {
     }, delay);
   }
 
+  scheduleHacker(delay = this.hackerDelay()) {
+    clearTimeout(this.hackerSpawnTimer);
+    this.hackerDueAt = performance.now() + delay;
+    this.hackerSpawnTimer = setTimeout(() => {
+      this.hackerDueAt = 0;
+      if (
+        this.state === "playing" &&
+        this.level >= CONFIG.hackerStartLevel &&
+        !this.isVirusActive &&
+        this.countGroup("hacker") === 0
+      ) {
+        this.spawn("hacker", "hacker");
+      }
+      if (this.state === "playing") this.scheduleHacker();
+    }, delay);
+  }
+
   pickGoodType() {
     const roll = Math.random();
     const lifeChance =
@@ -498,6 +548,7 @@ class Game {
   }
 
   targetLife(type) {
+    if (type === "hacker") return CONFIG.hackerLife;
     let life = CONFIG.targetLife;
     if (type === "net") life = CONFIG.netLife;
     else if (["redrabbit", "decoy"].includes(type)) life = CONFIG.hazardLife;
@@ -532,10 +583,11 @@ class Game {
 
   spawn(type, group) {
     if (this.state !== "playing") return;
-    const size = Math.max(
+    let size = Math.max(
       58,
       (innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.4
     );
+    if (type === "hacker") size = Math.max(76, size * 1.18);
     const rect = this.e.stage.getBoundingClientRect();
     const { x, y } = this.findSpawnPosition(size, rect);
     const button = document.createElement("button");
@@ -556,6 +608,11 @@ class Game {
         button.insertAdjacentHTML(
           "beforeend",
           '<span class="target__life-plus">+1</span>'
+        );
+      } else if (type === "hacker") {
+        button.insertAdjacentHTML(
+          "beforeend",
+          '<span class="target__hacker-code">0xBAD</span><span class="target__hacker-mask"></span><span class="target__hacker-glitch target__hacker-glitch--one"></span><span class="target__hacker-glitch target__hacker-glitch--two"></span>'
         );
       }
     }
@@ -633,6 +690,19 @@ class Game {
       this.effect("is-damaged");
       this.setStatus("NETWORK BLOCKED!", "warning");
       this.particles.burst(x, y, "#a855f7", 20);
+    } else if (type === "hacker") {
+      this.score = Math.max(0, this.score - CONFIG.hackerPenaltyPoints);
+      this.breakCombo();
+      this.applyHackerVirus();
+      this.flash(
+        "HACKER RABBIT HIT!",
+        `-${CONFIG.hackerPenaltyPoints} PTS // VIRUS UPLOADED`,
+        "#ff38c7"
+      );
+      this.setStatus("SYSTEM INFECTED", "danger");
+      this.particles.burst(x, y, "#00f5ff", 22);
+      this.particles.burst(x, y, "#ff38c7", 22);
+      this.particles.burst(x, y, "#a855f7", 18);
     } else {
       this.hits++;
       this.comboCount++;
@@ -686,6 +756,25 @@ class Game {
     }, 4000);
   }
 
+  applyHackerVirus(duration = CONFIG.hackerVirusDuration) {
+    this.isVirusActive = true;
+    this.e.stage.classList.add("is-virus");
+    this.e.shell.classList.remove("is-panic-impact");
+    requestAnimationFrame(() => this.e.shell.classList.add("is-panic-impact"));
+    setTimeout(() => this.e.shell.classList.remove("is-panic-impact"), 650);
+
+    clearTimeout(this.virusTimer);
+    this.virusExpiresAt = performance.now() + duration;
+    this.virusTimer = setTimeout(() => {
+      this.isVirusActive = false;
+      this.virusExpiresAt = 0;
+      this.e.stage.classList.remove("is-virus");
+      if (this.state === "playing") {
+        this.setStatus("VIRUS PURGED", "normal");
+      }
+    }, duration);
+  }
+
   miss(id) {
     if (!this.targets.has(id) || this.state !== "playing") return;
     const target = this.targets.get(id);
@@ -693,7 +782,13 @@ class Game {
     target.element.classList.add("is-expiring");
     setTimeout(() => target.element.remove(), 180);
 
-    const harmlessToIgnore = ["decoy", "redrabbit", "net", "life"].includes(
+    const harmlessToIgnore = [
+      "decoy",
+      "redrabbit",
+      "net",
+      "life",
+      "hacker",
+    ].includes(
       target.type
     );
     if (!harmlessToIgnore) {
@@ -754,10 +849,15 @@ class Game {
     this.hazardRemaining = this.hazardDueAt
       ? Math.max(1, this.hazardDueAt - now)
       : this.hazardDelay();
+    this.hackerRemaining = this.hackerDueAt
+      ? Math.max(1, this.hackerDueAt - now)
+      : this.hackerDelay();
     clearTimeout(this.goodSpawnTimer);
     clearTimeout(this.hazardSpawnTimer);
+    clearTimeout(this.hackerSpawnTimer);
     this.goodDueAt = 0;
     this.hazardDueAt = 0;
+    this.hackerDueAt = 0;
 
     for (const target of this.targets.values()) {
       clearTimeout(target.timerId);
@@ -767,6 +867,11 @@ class Game {
       this.freezeRemaining = Math.max(1, this.freezeExpiresAt - now);
       clearTimeout(this.freezeTimer);
       this.freezeExpiresAt = 0;
+    }
+    if (this.isVirusActive && this.virusExpiresAt) {
+      this.virusRemaining = Math.max(1, this.virusExpiresAt - now);
+      clearTimeout(this.virusTimer);
+      this.virusExpiresAt = 0;
     }
     this.e.layer
       .getAnimations({ subtree: true })
@@ -803,13 +908,22 @@ class Game {
         this.e.stage.classList.remove("is-frozen");
       }, remaining);
     }
+    if (this.isVirusActive && this.virusRemaining > 0) {
+      const remaining = this.virusRemaining;
+      this.virusRemaining = 0;
+      this.applyHackerVirus(remaining);
+    }
     this.raf = requestAnimationFrame((time) => this.loop(time));
     this.scheduleGood(Math.max(1, this.goodRemaining || this.goodDelay()));
     this.scheduleHazard(
       Math.max(1, this.hazardRemaining || this.hazardDelay())
     );
+    this.scheduleHacker(
+      Math.max(1, this.hackerRemaining || this.hackerDelay())
+    );
     this.goodRemaining = 0;
     this.hazardRemaining = 0;
+    this.hackerRemaining = 0;
     this.setStatus("TARGET ACQUISITION", "normal");
     this.audio.click();
   }
@@ -825,7 +939,12 @@ class Game {
     if (this.raf) cancelAnimationFrame(this.raf);
     clearTimeout(this.goodSpawnTimer);
     clearTimeout(this.hazardSpawnTimer);
+    clearTimeout(this.hackerSpawnTimer);
     clearTimeout(this.freezeTimer);
+    clearTimeout(this.virusTimer);
+    this.isVirusActive = false;
+    this.e.stage.classList.remove("is-virus");
+    this.e.shell.classList.remove("is-panic-impact");
     this.removeAllTargets();
     this.e.pause.disabled = true;
 
