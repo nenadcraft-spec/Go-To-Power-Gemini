@@ -91,10 +91,7 @@
                 <article class="hud-card hud-card--score">
                     <span class="hud-card__label">SCORE</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="scoreValue"
-                    >
+                    <strong class="hud-card__value" id="scoreValue">
                         000000
                     </strong>
 
@@ -104,10 +101,7 @@
                 <article class="hud-card">
                     <span class="hud-card__label">BEST SCORE</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="bestScoreValue"
-                    >
+                    <strong class="hud-card__value" id="bestScoreValue">
                         000000
                     </strong>
                 </article>
@@ -126,10 +120,7 @@
                 <article class="hud-card hud-card--level">
                     <span class="hud-card__label">LEVEL</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="levelValue"
-                    >
+                    <strong class="hud-card__value" id="levelValue">
                         01
                     </strong>
                 </article>
@@ -189,6 +180,31 @@
                     id="targetLayer"
                     aria-label="Polje za igru"
                 ></div>
+
+                <div
+                    class="virus-layer"
+                    id="virusLayer"
+                    aria-hidden="true"
+                >
+                    <span class="virus-layer__noise"></span>
+
+                    <span
+                        class="virus-layer__tear virus-layer__tear--one"
+                    ></span>
+
+                    <span
+                        class="virus-layer__tear virus-layer__tear--two"
+                    ></span>
+
+                    <span
+                        class="virus-layer__tear virus-layer__tear--three"
+                    ></span>
+
+                    <div class="virus-layer__warning">
+                        <strong>PANIC MODE</strong>
+                        <span>SYSTEM INFECTED</span>
+                    </div>
+                </div>
 
                 <div
                     class="crosshair"
@@ -251,7 +267,7 @@
 
                         <p class="start-panel__description">
                             Pogodi svetlećeg Belog Zeca pre nego što nestane.
-                            Izbegavaj crvene mamce, održavaj combo i preživi
+                            Izbegavaj opasne mete, održavaj combo i preživi
                             sve brži sistem.
                         </p>
 
@@ -277,8 +293,8 @@
                                 </span>
 
                                 <div>
-                                    <strong>CRVENI MAMAC</strong>
-                                    <small>Ne dodiruj ga</small>
+                                    <strong>OPASNE METE</strong>
+                                    <small>Ne dodiruj ih</small>
                                 </div>
                             </div>
 
@@ -324,10 +340,7 @@
                     class="stage-overlay"
                     id="countdownOverlay"
                 >
-                    <div
-                        class="countdown"
-                        id="countdownValue"
-                    >
+                    <div class="countdown" id="countdownValue">
                         3
                     </div>
                 </div>
