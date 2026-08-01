@@ -383,15 +383,6 @@ class Game {
   }
 
   getMaxSimultaneousTargets() {
-    const cap = innerWidth < 700 ? 6 : 8;
-    if (this.level < 5) return 1;
-    if (this.level < 10) return 4;
-    return cap;
-  }
-
-  getSpawnBatchSize() {
-    if (this.level >= 10) return 3;
-    if (this.level >= 5) return 2;
     return 1;
   }
 
@@ -401,13 +392,8 @@ class Game {
     this.spawnTimer = setTimeout(() => {
       this.spawnDueAt = 0;
       const maxTargets = this.getMaxSimultaneousTargets();
-      const batchSize = this.getSpawnBatchSize();
-      const availableSlots = maxTargets - this.targets.size;
-
-      if (availableSlots >= batchSize) {
-        for (let i = 0; i < batchSize; i++) {
-          this.spawn();
-        }
+      if (this.targets.size < maxTargets) {
+        this.spawn();
       }
       this.schedule();
     }, delay);
@@ -422,10 +408,7 @@ class Game {
   }
 
   lifetime() {
-    let life = Math.max(
-      CONFIG.minLife,
-      CONFIG.baseLife - (this.level - 1) * CONFIG.lifeStep
-    );
+    const life = CONFIG.baseLife;
     return this.isFrozen ? life * 1.8 : life;
   }
 
