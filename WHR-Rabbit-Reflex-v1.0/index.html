@@ -10,7 +10,7 @@
 
     <meta
         name="description"
-        content="WHR Rabbit Reflex v1.0 â€” cyberpunk reflex mini-game by White Hat Rabbit Studios."
+        content="WHR Rabbit Reflex v1.2 - cyberpunk reflex mini-game by White Hat Rabbit Studios."
     >
 
     <meta name="theme-color" content="#050714">
@@ -22,7 +22,7 @@
 
 <body>
     <noscript class="noscript-message">
-        Ova igra zahteva ukljuÄen JavaScript.
+        Ova igra zahteva ukljucen JavaScript.
     </noscript>
 
     <div class="app-shell" id="appShell">
@@ -66,7 +66,7 @@
                     class="icon-button"
                     id="soundButton"
                     type="button"
-                    aria-label="UkljuÄi ili iskljuÄi zvuk"
+                    aria-label="Ukljuci ili iskljuci zvuk"
                     aria-pressed="true"
                 >
                     <span class="icon-button__icon" id="soundIcon">ON</span>
@@ -80,7 +80,7 @@
                     aria-label="Pauziraj igru"
                     disabled
                 >
-                    <span class="icon-button__icon">â…¡</span>
+                    <span class="icon-button__icon">&#8545;</span>
                     <span class="icon-button__label">PAUSE</span>
                 </button>
             </div>
@@ -119,7 +119,7 @@
                     <span class="hud-card__label">COMBO</span>
 
                     <strong class="hud-card__value">
-                        Ã—<span id="comboValue">1</span>
+                        &times;<span id="comboValue">1</span>
                     </strong>
                 </article>
 
@@ -144,11 +144,11 @@
                 <div
                     class="lives"
                     id="livesContainer"
-                    aria-label="Preostali Å¾ivoti"
+                    aria-label="Preostali zivoti"
                 >
-                    <span class="life life--active">â—†</span>
-                    <span class="life life--active">â—†</span>
-                    <span class="life life--active">â—†</span>
+                    <span class="life life--active">&#9670;</span>
+                    <span class="life life--active">&#9670;</span>
+                    <span class="life life--active">&#9670;</span>
                 </div>
 
                 <div class="timer-display">
@@ -190,7 +190,7 @@
                     aria-label="Polje za igru"
                 ></div>
 
-                <!-- CRNI ZEC HAKER â€” PANIC MODE -->
+                <!-- CRNI ZEC HAKER - PANIC MODE -->
                 <div
                     class="virus-layer"
                     id="virusLayer"
@@ -235,7 +235,7 @@
                     <span class="floating-message__sub"></span>
                 </div>
 
-                <!-- POÄŒETNI EKRAN -->
+                <!-- POCETNI EKRAN -->
                 <div
                     class="stage-overlay stage-overlay--visible"
                     id="startOverlay"
@@ -260,79 +260,79 @@
                         </header>
 
                         <p class="start-panel__description">
-                            Pogodi mete, gradi combo i preÅ¾ivi sistem. Boja
-                            otkriva nameru â€” ne veruj svakoj kopiji.
+                            Pogodi mete, gradi combo i prezivi sistem. Boja
+                            otkriva nameru - ne veruj svakoj kopiji.
                         </p>
 
                         <section class="briefing-objective" aria-label="Glavni cilj">
-                            <span class="briefing-objective__icon" aria-hidden="true">â—‡</span>
+                            <span class="briefing-objective__icon" aria-hidden="true">&#9671;</span>
                             <div>
                                 <strong>PRIMARNI CILJ: BELI ZEC</strong>
-                                <small>Pogodi ga pre nestanka. PromaÅ¡aj oduzima Å¾ivot.</small>
+                                <small>Pogodi ga pre nestanka. Promasaj oduzima zivot.</small>
                             </div>
                             <span class="briefing-objective__tag">SCORE</span>
                         </section>
 
                         <div class="briefing-rulebar" aria-label="Brza pravila">
                             <span><b>60s</b> SESIJA</span>
-                            <span><b>10</b> MAX Å½IVOTA</span>
-                            <span><b>COMBO</b> = VIÅ E POENA</span>
+                            <span><b>10</b> MAX ZIVOTA</span>
+                            <span><b>COMBO</b> = VISE POENA</span>
                         </div>
 
                         <div class="briefing-sections">
                             <section class="briefing-group briefing-group--boost">
-                                <h3><span>+</span> POJAÄŒANJA</h3>
+                                <h3><span>+</span> POJACANJA</h3>
 
                                 <div class="briefing-items">
                                     <article class="briefing-item briefing-item--gold">
-                                        <i aria-hidden="true">â˜…</i>
+                                        <i aria-hidden="true">&#9733;</i>
                                         <div><strong>ZLATNI ZEC</strong><small>Bonus poeni i vreme</small></div>
                                     </article>
 
                                     <article class="briefing-item briefing-item--freeze">
-                                        <i aria-hidden="true">â„</i>
+                                        <i aria-hidden="true">&#10052;</i>
                                         <div><strong>PLAVI ZEC</strong><small>Freeze usporava sistem</small></div>
                                     </article>
 
                                     <article class="briefing-item briefing-item--life">
-                                        <i aria-hidden="true">â™¥</i>
-                                        <div><strong>EXTRA LIFE</strong><small>VraÄ‡a jedan Å¾ivot</small></div>
+                                        <i aria-hidden="true">&#9829;</i>
+                                        <div><strong>EXTRA LIFE</strong><small>Vraca jedan zivot</small></div>
                                     </article>
 
                                     <article class="briefing-item briefing-item--white-hacker">
-                                        <i aria-hidden="true">â™¢</i>
-                                        <div><strong>BELI HAKER</strong><small>ÄŒeka 7s â€” Äisti sve pretnje</small></div>
+                                        <i aria-hidden="true">&#9826;</i>
+                                        <div><strong>BELI HAKER</strong><small>Ceka 7s - cisti sve pretnje</small></div>
                                     </article>
                                 </div>
                             </section>
 
                             <section class="briefing-group briefing-group--danger">
-                                <h3><span>!</span> PRETNJE â€” NE DODIRUJ</h3>
+                                <h3><span>!</span> PRETNJE - NE DODIRUJ</h3>
 
                                 <div class="briefing-items">
                                     <article class="briefing-item briefing-item--red">
-                                        <i aria-hidden="true">Ã—</i>
-                                        <div><strong>CRVENI ZEC</strong><small>Mamac ruÅ¡i Å¾ivot i combo</small></div>
+                                        <i aria-hidden="true">&times;</i>
+                                        <div><strong>CRVENI ZEC</strong><small>Mamac rusi zivot i combo</small></div>
                                     </article>
 
                                     <article class="briefing-item briefing-item--decoy">
-                                        <i aria-hidden="true">â‰‹</i>
-                                        <div><strong>DEEPFAKE</strong><small>LaÅ¾na glitch kopija</small></div>
+                                        <i aria-hidden="true">&#8779;</i>
+                                        <div><strong>DEEPFAKE</strong><small>Lazna glitch kopija</small></div>
                                     </article>
 
                                     <article class="briefing-item briefing-item--net">
-                                        <i aria-hidden="true">â–¦</i>
-                                        <div><strong>CYBER MREÅ½A</strong><small>Zamka ostaje duÅ¾e</small></div>
+                                        <i aria-hidden="true">&#9638;</i>
+                                        <div><strong>CYBER MREZA</strong><small>Zamka ostaje duze</small></div>
                                     </article>
 
                                     <article class="briefing-item briefing-item--black-hacker">
-                                        <i aria-hidden="true">â—†</i>
-                                        <div><strong>CRNI HAKER</strong><small>Virus napad â€” pravi kopiju</small></div>
+                                        <i aria-hidden="true">&#9670;</i>
+                                        <div><strong>CRNI HAKER</strong><small>Virus napad - pravi kopiju</small></div>
                                     </article>
 
                                     <article class="briefing-item briefing-item--black-hole">
-                                        <i aria-hidden="true">â—</i>
-                                        <div><strong>CRNA RUPA</strong><small>âˆ’3s i izbacuje Hakera</small></div>
+                                        <i aria-hidden="true">&#9679;</i>
+                                        <div><strong>CRNA RUPA</strong><small>-3s i izbacuje Hakera</small></div>
                                     </article>
                                 </div>
                             </section>
@@ -446,7 +446,7 @@
                                 <span>MAX COMBO</span>
 
                                 <strong id="finalComboValue">
-                                    Ã—1
+                                    &times;1
                                 </strong>
                             </div>
 
