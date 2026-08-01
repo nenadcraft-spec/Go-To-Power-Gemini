@@ -280,7 +280,7 @@ button {
 }
 
 /* ==============================
-   GLAVNI SADRÃ…Â½AJ I HUD
+   GLAVNI SADRZAJ I HUD
    ============================== */
 
 .game-main {
@@ -346,7 +346,7 @@ button {
 }
 
 /* ==============================
-   STATUS, Ã…Â½IVOTI I VREME
+   STATUS, ZIVOTI I VREME
    ============================== */
 
 .status-row {
@@ -706,7 +706,7 @@ button {
 }
 
 /* ==============================
-   CRVENI ZEC Ã¢â‚¬â€ OPASNA META
+   CRVENI ZEC - OPASNA META
    ============================== */
 
 .target--redrabbit {
@@ -757,7 +757,7 @@ button {
 }
 
 /* ==============================
-   CRNI ZEC HAKER â€” GLAVNI ZLIKOVAC
+   CRNI ZEC HAKER - GLAVNI ZLIKOVAC
    ============================== */
 
 .target--hacker {
@@ -932,7 +932,7 @@ button {
 }
 
 /* ==============================
-   HERO RABBIT â€” SOLAR GUARDIAN
+   HERO RABBIT - SOLAR GUARDIAN
    ============================== */
 
 .target--hero {
@@ -1189,7 +1189,7 @@ button {
 }
 
 /* ==============================
-   PLAVI ZEC â€” NEON FREEZE
+   PLAVI ZEC - NEON FREEZE
    ============================== */
 
 .target--freeze {
@@ -1366,7 +1366,7 @@ button {
 }
 
 /* ==============================
-   NIÃ… AN I PORUKE
+   NISAN I PORUKE
    ============================== */
 
 .crosshair {
@@ -1501,7 +1501,7 @@ button {
 }
 
 /* ==============================
-   VELIKI ZEC NA POÃ„Å’ETNOM EKRANU
+   VELIKI ZEC NA POCETNOM EKRANU
    ============================== */
 
 .start-panel__rabbit {
@@ -1616,7 +1616,7 @@ button {
 }
 
 /* ==============================
-   MISSION BRIEFING â€” START EKRAN
+   MISSION BRIEFING - START EKRAN
    ============================== */
 
 .mission-briefing {
@@ -2001,7 +2001,7 @@ button {
 }
 
 /* ==============================
-   PODNOÃ…Â½JE
+   PODNOZJE
    ============================== */
 
 .game-footer {
@@ -2275,7 +2275,7 @@ button {
   }
 }
 
-/* KraÃ„â€¡i mobilni ekrani */
+/* Kraci mobilni ekrani */
 
 @media (max-height: 740px) {
   .game-stage {
@@ -2590,7 +2590,7 @@ button {
   to { transform: rotate(360deg); }
 }
 
-/* Smanjene animacije za korisnike koji ih ne Ã…Â¾ele */
+/* Smanjene animacije za korisnike koji ih ne zele */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -2604,7 +2604,7 @@ button {
 }
 
 /* ==============================
-   HAKER VIRUS â€” PANIC MODE
+   HAKER VIRUS - PANIC MODE
    ============================== */
 
 .virus-layer {
@@ -2717,7 +2717,7 @@ button {
 }
 
 /* ==============================
-   HERO PURGE â€” BEZ TEKSTA
+   HERO PURGE - BEZ TEKSTA
    ============================== */
 
 .hero-purge-wave {
@@ -2791,10 +2791,10 @@ button {
 }
 
 /* =========================================
-   WHR SYSTEM v1.2 â€” WHITE HACKER UPDATE
+   WHR SYSTEM v1.2 - WHITE HACKER UPDATE
    ========================================= */
 
-/* BELI HAKER â€” ANTI-CHEAT */
+/* BELI HAKER - ANTI-CHEAT */
 
 .target--hero {
   --target-color: #f8ffff;
@@ -2983,7 +2983,7 @@ button {
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
-/* DEEPFAKE â€” JASNA KOPIJA I ZAMKA */
+/* DEEPFAKE - JASNA KOPIJA I ZAMKA */
 
 .target--decoy {
   --target-color: #ff3d8f;
@@ -3085,7 +3085,7 @@ button {
 .target__decoy-split--one { top: 34%; }
 .target__decoy-split--two { top: 66%; animation-delay: -.29s; }
 
-/* CRNA RUPA â€” HACKER VOID PORTAL */
+/* CRNA RUPA - HACKER VOID PORTAL */
 
 .target--blackhole {
   --target-color: #ffffff;
@@ -3164,7 +3164,7 @@ button {
   filter: saturate(1.2) drop-shadow(0 0 7px rgba(168,85,247,.7));
 }
 
-/* ANTI-CHEAT PULSE â€” BEZ NATPISA */
+/* ANTI-CHEAT PULSE - BEZ NATPISA */
 
 .anti-cheat-wave {
   position: absolute;
