@@ -1,198 +1,216 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="description" content="WHR: OUT OF FREE MESSAGES — Cyberpunk Game Dev Studio RTS Simulator by White Hat Rabbit Studios.">
-    <meta name="theme-color" content="#04050d">
-    <title>WHR: OUT OF FREE MESSAGES v0.1</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050812">
+
+  <title>WHR: Out of Free Messages</title>
+
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <noscript class="noscript-message">
-        Ova igra zahteva uključen JavaScript.
-    </noscript>
+  <div id="boot" class="overlay active">
+    <div class="modal hero">
+      <p class="eyebrow">WHITE HAT RABBIT OFFICE // KIKINDA</p>
 
-    <div class="app-shell" id="appShell">
-        <!-- Pozadinski Sci-Fi FX -->
-        <div class="background-system" aria-hidden="true">
-            <div class="background-system__grid"></div>
-            <div class="background-system__scanlines"></div>
-            <div class="background-system__noise"></div>
-            <div class="background-system__glow background-system__glow--one"></div>
-            <div class="background-system__glow background-system__glow--two"></div>
-        </div>
+      <h1>
+        OUT OF<br>
+        <span>FREE MESSAGES</span>
+      </h1>
 
-        <!-- RTS Top Bar Dashboard -->
-        <header class="studio-header">
-            <div class="brand">
-                <div class="brand__mark">
-                    <span class="brand__ear brand__ear--left"></span>
-                    <span class="brand__ear brand__ear--right"></span>
-                    <span class="brand__head"></span>
-                    <span class="brand__eye"></span>
-                </div>
-                <div class="brand__copy">
-                    <p class="brand__eyebrow">WHITE HAT RABBIT STUDIOS</p>
-                    <h1 class="brand__title">WHR <span>SIMULATOR</span></h1>
-                </div>
-            </div>
+      <p>Izgradi studio. Napravi igru. Preživi paywall.</p>
 
-            <div class="stats-bar">
-                <div class="stat-card stat-card--budget">
-                    <span class="stat-card__label">BUDŽET</span>
-                    <strong class="stat-card__value" id="budgetDisplay">20.000 €</strong>
-                </div>
+      <button id="startBtn" class="primary">
+        POKRENI STUDIO
+      </button>
 
-                <div class="stat-card stat-card--ai">
-                    <span class="stat-card__label">AI PORUKE</span>
-                    <strong class="stat-card__value" id="messagesDisplay">50 / 50</strong>
-                </div>
-
-                <div class="stat-card stat-card--progress">
-                    <span class="stat-card__label">PROJECT BUILD</span>
-                    <strong class="stat-card__value" id="buildDisplay">0%</strong>
-                </div>
-
-                <div class="stat-card stat-card--bugs">
-                    <span class="stat-card__label">BAGOVI</span>
-                    <strong class="stat-card__value" id="bugsDisplay">0</strong>
-                </div>
-            </div>
-
-            <div class="header-controls">
-                <button class="icon-button" id="soundBtn" type="button" title="Zvuk">
-                    <span class="icon-button__icon" id="soundIcon">◉</span>
-                    <span class="icon-button__label">SOUND</span>
-                </button>
-                <button class="icon-button" id="aiSubscribeBtn" type="button" title="Kupi AI Poruke">
-                    <span class="icon-button__icon">⚡</span>
-                    <span class="icon-button__label">REFILL</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- RTS Main Studio Office (Gledano odozgo / Top-down Layout) -->
-        <main class="studio-main">
-            <div class="office-container" id="officeStage">
-                <div class="office-grid-bg"></div>
-                
-                <!-- KANCELARIJSKE RADNE STANICE -->
-                
-                <!-- 1. Development Station -->
-                <div class="station-node station--dev" id="stationDev" data-station="dev">
-                    <div class="station-node__screen"></div>
-                    <div class="station-node__label">DEVELOPMENT</div>
-                    <div class="station-node__status">READY</div>
-                </div>
-
-                <!-- 2. Game Design Station -->
-                <div class="station-node station--design" id="stationDesign" data-station="design">
-                    <div class="station-node__screen"></div>
-                    <div class="station-node__label">GAME DESIGN</div>
-                    <div class="station-node__status">READY</div>
-                </div>
-
-                <!-- 3. Art & Visuals Station -->
-                <div class="station-node station--art" id="stationArt" data-station="art">
-                    <div class="station-node__screen"></div>
-                    <div class="station-node__label">ART & GRAPHICS</div>
-                    <div class="station-node__status">READY</div>
-                </div>
-
-                <!-- 4. Audio Station -->
-                <div class="station-node station--audio" id="stationAudio" data-station="audio">
-                    <div class="station-node__screen"></div>
-                    <div class="station-node__label">AUDIO & FX</div>
-                    <div class="station-node__status">READY</div>
-                </div>
-
-                <!-- 5. QA & Testing Station -->
-                <div class="station-node station--qa" id="stationQA" data-station="qa">
-                    <div class="station-node__screen"></div>
-                    <div class="station-node__label">TESTING (QA)</div>
-                    <div class="station-node__status">READY</div>
-                </div>
-
-                <!-- 6. Unreal Engine Build Station -->
-                <div class="station-node station--unreal" id="stationUnreal" data-station="unreal">
-                    <div class="station-node__screen"></div>
-                    <div class="station-node__label">UNREAL ENGINE BUILD</div>
-                    <div class="station-node__status">IDLE</div>
-                </div>
-
-                <!-- 7. AI Terminal -->
-                <div class="station-node station--ai" id="stationAI" data-station="ai">
-                    <div class="station-node__screen"></div>
-                    <div class="station-node__label">AI TERMINAL (GPT/CLAUDE/GEMINI)</div>
-                    <div class="station-node__status">ONLINE</div>
-                </div>
-
-                <!-- 8. Server & Backup -->
-                <div class="station-node station--server" id="stationServer" data-station="server">
-                    <div class="station-node__screen"></div>
-                    <div class="station-node__label">SERVER & BACKUP</div>
-                    <div class="station-node__status">STABLE</div>
-                </div>
-
-                <!-- Interaktivni AI Radnici koji se kreću kroz kancelariju -->
-                <div class="worker-avatar worker--chatgpt" id="workerChatGPT" style="top: 30%; left: 45%;">GPT</div>
-                <div class="worker-avatar worker--claude" id="workerClaude" style="top: 60%; left: 25%;">CLAUDE</div>
-                <div class="worker-avatar worker--gemini" id="workerGemini" style="top: 50%; left: 70%;">GEMINI</div>
-            </div>
-        </main>
-
-        <!-- Kontrolna Konzola i Log Poruka na dnu -->
-        <footer class="studio-footer">
-            <div class="console-box" id="consoleLog">
-                <p class="log-entry system">[SYSTEM] White Hat Rabbit Studio operativan. Budžet: 20.000 €. Izaberi radnu stanicu za početak.</p>
-            </div>
-            
-            <div class="action-bar">
-                <button class="primary-button" id="btnNewProject">NOVI PROJEKAT</button>
-                <button class="primary-button primary-button--gold" id="btnCompileBuild" disabled>SOČINI BUILD</button>
-                <button class="primary-button primary-button--pink" id="btnPublishGame" disabled>OBJAVI I IZDUPIRAJ</button>
-            </div>
-        </footer>
-
-        <!-- MODAL ZA AI LIMIT: OUT OF FREE MESSAGES -->
-        <div class="modal-overlay" id="modalLimit">
-            <div class="modal-panel modal-panel--warning">
-                <h2>YOU ARE OUT OF FREE MESSAGES!</h2>
-                <p>Iscrpljen je besplatni AI limit (ChatGPT, Claude, Gemini). Rad na stanicama je blokiran!</p>
-                <div class="pricing-card">
-                    <span class="pricing-card__title">PRO AI SUBSCRIBER PACK</span>
-                    <strong class="pricing-card__price">2.500 €</strong>
-                    <small>Obnavlja +50 AI poruka za rad na build-u.</small>
-                </div>
-                <button class="primary-button" id="btnBuyMessages">SUBSCRIBE NOW (2.500 €)</button>
-            </div>
-        </div>
-
-        <!-- MODAL ZA NOVI PROJEKAT -->
-        <div class="modal-overlay" id="modalProject">
-            <div class="modal-panel">
-                <h2>IZBOR NOVOG PROJEKTA</h2>
-                <p>Izaberi žanr i obim igre za razvoj u Unreal Engine okruženju:</p>
-                <div class="project-options">
-                    <button class="project-card" data-genre="indie">
-                        <strong>INDIE CYBER RUNNER</strong>
-                        <small>Trošak: 5.000 € | Težina: Niska</small>
-                    </button>
-                    <button class="project-card" data-genre="rpg">
-                        <strong>CYBERPUNK ACTION RPG</strong>
-                        <small>Trošak: 12.000 € | Težina: Srednja</small>
-                    </button>
-                    <button class="project-card" data-genre="aaa">
-                        <strong>AAA UNREAL SCI-FI SIM</strong>
-                        <small>Trošak: 18.000 € | Težina: Visoka</small>
-                    </button>
-                </div>
-                <button class="primary-button primary-button--compact" id="btnCloseProjectModal" style="margin-top:15px;">ODUSTANI</button>
-            </div>
-        </div>
+      <small>WTF = WHAT THE FLOWER 🌸</small>
     </div>
+  </div>
 
-    <script src="script.js"></script>
+  <main id="game">
+    <header>
+      <div class="brand">
+        WHR <b>// GAME STUDIO</b>
+      </div>
+
+      <div class="stats">
+        <div>
+          <span>BUDŽET</span>
+          <strong id="money">20.000 €</strong>
+        </div>
+
+        <div>
+          <span>VREME</span>
+          <strong id="time">15:00</strong>
+        </div>
+
+        <div>
+          <span>REPUTACIJA</span>
+          <strong id="rep">0</strong>
+        </div>
+
+        <div>
+          <span>PROJEKAT</span>
+          <strong id="progress">0%</strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="panel shop">
+        <div class="panel-title">OPREMA I SOFTVER</div>
+        <div id="shopList"></div>
+      </aside>
+
+      <section class="office-wrap">
+        <div class="office" id="office">
+          <div class="grid-floor"></div>
+
+          <div
+            class="station locked"
+            data-station="design"
+            style="--x:8%; --y:12%;"
+          >
+            <i>✦</i>
+            <b>GAME DESIGN</b>
+            <small>PLAN + IDEJE</small>
+          </div>
+
+          <div
+            class="station locked"
+            data-station="code"
+            style="--x:56%; --y:9%;"
+          >
+            <i>&lt;/&gt;</i>
+            <b>DEVELOPMENT</b>
+            <small>BLUEPRINT + CODE</small>
+          </div>
+
+          <div
+            class="station locked"
+            data-station="art"
+            style="--x:12%; --y:58%;"
+          >
+            <i>◈</i>
+            <b>ART STATION</b>
+            <small>UI + ASSETI</small>
+          </div>
+
+          <div
+            class="station locked"
+            data-station="test"
+            style="--x:58%; --y:56%;"
+          >
+            <i>⚠</i>
+            <b>TESTING</b>
+            <small>BUG CONTROL</small>
+          </div>
+
+          <div class="core">
+            <div class="core-ring"></div>
+
+            <b>
+              UNREAL<br>
+              BUILD CORE
+            </b>
+
+            <small id="buildStatus">OFFLINE</small>
+          </div>
+        </div>
+
+        <div class="ticker">
+          <span id="ticker">
+            Kupi DEV PC da pokreneš studio.
+          </span>
+        </div>
+      </section>
+
+      <aside class="panel ai-panel">
+        <div class="panel-title">AI MUSKETARI</div>
+
+        <div id="aiList"></div>
+
+        <button id="subscribeBtn" class="danger" disabled>
+          SUBSCRIBE // 299 €
+        </button>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="project-controls">
+        <label>
+          ŽANR
+
+          <select id="genre">
+            <option>Pucačina</option>
+            <option>Vožnja</option>
+            <option>Sport</option>
+            <option>Strategija</option>
+            <option>Avantura</option>
+            <option>Logička</option>
+            <option>Slagalica</option>
+            <option>Dečija</option>
+            <option>18+ zreo sadržaj</option>
+          </select>
+        </label>
+
+        <label>
+          NAZIV IGRE
+
+          <input
+            id="gameName"
+            type="text"
+            value="Rabbit Protocol"
+          >
+        </label>
+
+        <button id="newProjectBtn" class="primary">
+          ZAPOČNI PROJEKAT
+        </button>
+      </div>
+
+      <div class="meters">
+        <label>
+          KVALITET
+
+          <progress
+            id="qualityBar"
+            max="100"
+            value="0"
+          ></progress>
+
+          <b id="quality">0</b>
+        </label>
+
+        <label>
+          BAGOVI
+
+          <progress
+            id="bugBar"
+            class="bugs"
+            max="100"
+            value="0"
+          ></progress>
+
+          <b id="bugs">0</b>
+        </label>
+      </div>
+
+      <button id="publishBtn" class="publish" disabled>
+        BUILD &amp; OBJAVI
+      </button>
+    </footer>
+  </main>
+
+  <div id="eventModal" class="overlay">
+    <div class="modal" id="eventCard"></div>
+  </div>
+
+  <div id="toast" aria-live="polite"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
