@@ -2009,11 +2009,15 @@ function draw() {
   );
 
   drawScene();
-  drawPowerups();
-  drawBullets();
-  drawEnemies();
+drawPowerups();
+drawBullets();
+drawEnemies();
+
+if (game.player) {
   drawPlayer();
-  drawEffects();
+}
+
+drawEffects();
 
   ctx.restore();
 
