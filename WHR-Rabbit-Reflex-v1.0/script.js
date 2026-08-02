@@ -54,6 +54,7 @@ Generated image: Rabbit Reflex: cyberpunk hacker showdown
 Edit
 
 
+Gemini_Generated_Image_7wqhnk7wqhnk7wqh.png
 ovako nesto. ali za ovu igru. mora na slici da se nalaze svi zecevi i zamke :)
 
 Worked for 3m 4s
@@ -91,6 +92,8 @@ Generated image: WHR Rabbit Reflex: Neon rabbit roster
 Edit
 
 
+Jos verzija
+
 Worked for 5m 12s
 Napravio sam još dve potpuno različite verzije:
 
@@ -124,71 +127,88 @@ Generated image: Rabbit Reflex: Classified Anti-Cheat Dossier
 Generated image: Rabbit Reflex: Classified Anti-Cheat Dossier
 Generated image: Rabbit Reflex: Classified Anti-Cheat Dossier
 
+pravi si pikasno, nema sta :P 
+
+Hahahaha, priznajem — Pikasno T‑1000! 😂🐇⚡
+
+Ali vidi rezultat: ti smisliš univerzum i pravila, ja ga pretvorim u likove, zamke, kod i naslovnice. Beli Zeka + Pikasno = WHR studio bez kočnice. 😄
+
+Meni je borbena verzija baš WRRAAAAAA nivo. 🔥
+
+
+mislio sam na PIKASA. Jako brzo kucam na tastaturi i nekada promasim slovo. JAKO VELIKI minus u pisanju
+
+Aaaa, Pikaso! 😂 Sad razumem.
+
+Brzo kucanje nije veliki minus — misao ti jednostavno ide brže od prstiju. Ti nacrtaš ideju rečima, makar poneko slovo pobegne, a ja prepoznam smisao. Samo sam ovaj put od Pikasa napravio novog robota: Pikasno T‑1000. 🤣
+
+Hvala, buraz. Baš mi znači. 🎨🐇⚡
+
+
+Cloude : Važi, buraz — onda ja presuđujem, kao što mi i jeste uloga. Evo mojih finalnih odluka, sa razlogom za svaku:
+
+**1. Golden/Freeze promašaj više ne oduzima život** — ovo je bio čist bag, ne dizajn. Kažnjavati igrača za bonus koji nije ni stigao da uzme je nefer po našem §9 (fer igra). Dodajem ih u listu bezopasnih promašaja, isto kao Extra Life zec.
+
+**2. Crveni Mamac ostaje da oduzima život** — ovo NE diram. Iako je "deepfake" i teži za razlikovanje, boja ostaje dosledan signal (crvena porodica = opasnost, cijan/zlatna/bela = dobro), pa je i dalje fer po pravilima iz protokola — samo zahteva da igrač veruje boji, ne obliku. To je namerna napetost, ne bag.
+
+**3. Crna Rupa: -5 sekundi → -3 sekunde.** 5 sekundi od 60 je skoro 10% budžeta za jedan dodir na meti koju igrač možda nije ni video da dolazi (spawn tek od levela 8, retko). Preteroština bez upozorenja = osećaj nefer RNG kazne. Smanjujem, ali ostavlja opipljiv ubod.
+
+**4. Crni Haker: max 3 klona na tabli → smanjujem na 2.** Radi čitljivosti na telefonu — §14 Budžet performansi. Tri iskrivljena zeca odjednom na malom ekranu previše guši vizuelni prostor.
+
+Evo tačnog patch-a za CONFIG i miss():
+
+js
+// CONFIG promene:
+blackHolePenaltyTime: 3,     // bilo 5
+hackerMaxOnBoard: 2,         // bilo 3
+
+// U miss(), dodaj golden i freeze u harmlessToIgnore:
+const harmlessToIgnore = [
+  "decoy",
+  "redrabbit",
+  "net",
+  "life",
+  "golden",   // NOVO
+  "freeze",   // NOVO
+  "hacker",
+  "hero",
+  "blackhole",
+].includes(target.type);
+
+
+Prosledi ovo ChatGPT-u (njegova grana isporuke, pošto on drži kod) da ubaci u script.js, pa mi javi kad je live da odigram još jednu rundu analize kod pravih brojki sa terena. 🐇⚔️
+
+Worked for 42s
+Claudeova balansna odluka je ugrađena i proverena. ⚔️🐇
+
+Promene:
+
+Golden i Freeze više ne oduzimaju život ako nestanu.
+
+Crveni zec i Deepfake i dalje kažnjavaju samo kada ih igrač klikne.
+
+Crna rupa sada oduzima 3 sekunde, umesto 5.
+
+Na tabli mogu biti najviše 2 Crna Hakera, umesto 3.
+
+Beli Haker i dalje ostaje 7 sekundi kao Anti‑Cheat trinket.
+
+Sintaksa je proverena — nema grešaka.
+
+script-WHITE-HACKER-COPY-PASTE.txt
+
+Patch je spreman za GitHub. Posle osvežavanja možemo Cloudu javiti: balans v1 je live — teren je spreman za novu rundu testiranja.
+
+
+script-WHITE-HACKER-COPY-PASTE.txt
+Document
+
+
 1000001268.jpg
 Treba nam sad nov izgled interfejsa pre starta igre. Ovo je stari izgled. Treba nam nova obaveštenja o igri i kako se igra 
 
 1000001269.jpg
 Pregledaj kod. Nešto ne valja. Slova i simboli
-
-Worked for 3m 48s
-Pregledao sam repozitorijum. Stanje je skoro savršeno, ali pronašao sam dve stvari:
-
-Novi Mission Briefing i ASCII-safe index.html jesu live.
-
-Balans je live: Beli Haker 7 s, maksimalno 2 Crna Hakera i Crna rupa −3 s.
-
-U folderu sound pronašao sam 9 od 11 očekivanih fajlova.
-
-Nedostaju fajlovi pod tačnim nazivima:
-
-normal-hit.wav
-red-rabbit.wav
-Ostalih devet se pravilno nalazi u folderu:
-
-trap.wav
-extra-life.wav
-golden-rabbit.wav
-black-hacker.wav
-black-hole.wav
-white-hacker.wav
-game-start.wav
-level-up.wav
-game-over.wav
-Važno: trenutni script.js na GitHubu još koristi stare generisane tonove. WAV zvukovi jesu uploadovani, ali još nisu povezani sa igrom — zato se neće čuti dok ne napišemo novi script.js.
-
-Proveri kako su stvarno nazvana prva dva fajla u folderu sound. Ako ih nema, dodaj ih kao:
-
-Hard pop click → normal-hit.wav
-
-Creepy little creature → red-rabbit.wav
-
-Nakon toga imamo kompletnih 11/11 i povezujemo zvukove.
-
-
-moja greska. rukopis :p popravio. uplodujem 11/11
-
-Odlično — klasična brzina prstiju ispred misli. 😄
-
-Kada upload završi, imamo kompletnih 11/11 WAV zvukova:
-
-sound/
-├── normal-hit.wav
-├── red-rabbit.wav
-├── trap.wav
-├── extra-life.wav
-├── golden-rabbit.wav
-├── black-hacker.wav
-├── black-hole.wav
-├── white-hacker.wav
-├── game-start.wav
-├── level-up.wav
-└── game-over.wav
-Sledeći potez: pišem novi script.js koji ih povezuje sa događajima, čuva SOUND ON/OFF i sprečava zvučni haos pri više istovremenih meta.
-
-Čim kažeš SCRIPT, krećemo. 🎧🐇⚡
-
-
-SCRIPT
 
 Worked for 4m 31s
 Novi script.js sa kompletnim zvučnim sistemom je spreman. 🎧🐇⚡
@@ -228,6 +248,87 @@ ako WAV ne uspe da se učita, koristi se stari sintetički zvuk;
 Plavi Freeze zadržava postojeći kristalni sintetički efekat jer nemamo freeze.wav.
 
 Fajl ima 3.270 linija i prošao je sintaksnu proveru. Zameni samo postojeći script.js, uradi hard refresh i testiraj prvo Crnog Hakera, Belog Hakera i Crnu rupu.
+
+
+script-SOUND-11-OF-11-COPY-PASTE.txt
+Document
+
+
+odradio
+
+WRRAAAAAA! 🎧🐇⚡
+
+Kompletna igra sada ima:
+
+novu mehaniku i balans;
+
+Beli Haker protiv Crnog Hakera;
+
+Crnu rupu, Deepfake i Cyber mrežu;
+
+novi Mission Briefing;
+
+popravljene znakove;
+
+profesionalne naslovnice;
+
+kompletan zvučni sistem sa 11 WAV efekata.
+
+Sada uradi jednu test partiju sa uključenim zvukom i obrati pažnju na:
+
+da li se game-start.wav čuje nakon START MISSION;
+
+da li obični pogoci postaju preglasni pri brzom kliktanju;
+
+da li Crni Haker i Crna rupa imaju dovoljno snažan zvuk;
+
+da li Beli Haker zvuči kao spas;
+
+da li SOUND OFF odmah prekida aktivne WAV zvukove;
+
+da li Level Up i Game Over rade.
+
+Ako jedan zvuk ne odgovara događaju ili je preglasan, menjamo samo njegovu glasnoću ili WAV fajl — bez diranja mehanike. 🔥
+
+
+imamo skoro 7000 linija u script.js :D
+
+Worked for 32s
+Potvrđeno: script.js je slučajno dupliran. 😄
+
+Live fajl trenutno ima:
+
+6.788 linija
+
+dva "use strict"
+
+dve klase AudioFX
+
+dve klase Game
+
+dupliran zvučni sistem
+
+To može potpuno zaustaviti igru zbog ponovnog deklarisanja klasa.
+
+Uradi sledeće:
+
+Otvori script.js na GitHubu i izaberi Edit.
+
+Klikni unutar koda.
+
+Pritisni Ctrl + A.
+
+Pritisni Backspace ili Delete.
+
+Tek kada je editor potpuno prazan, nalepi ceo novi kod.
+
+Commit changes.
+
+Koristi ovaj fajl:
+
+script-SOUND-11-OF-11-COPY-PASTE.txt
+
+Posle commita GitHub mora prikazivati približno 3.270 linija, nikako 6.788. Dobro je što si primetio broj — uhvatili smo grešku pre testiranja. 🐇🔧
 
 
 script-SOUND-11-OF-11-COPY-PASTE.txt
