@@ -1,9 +1,9 @@
 "use strict";
 
 /* =========================================================
-   WHR MUSIC ENGINE â€” "NEON STATIC" (by Claude & WHR Crew)
+   WHR MUSIC ENGINE - "NEON STATIC" (by Claude & WHR Crew)
    Originalna WHR univerzum tema, 100% proceduralna,
-   komponovana i generisana Äistim Web Audio API-jem.
+   komponovana i generisana cistim Web Audio API-jem.
    ========================================================= */
 
 const NOTE_INDEX = {
@@ -1895,7 +1895,7 @@ class Game {
       this.level++;
     }
 
-    // Pozivanje otkljuÄavanja slojeva po nivoima!
+    // Pozivanje otkljucavanja slojeva po nivoima!
     if (this.music) {
       this.music.setIntensity(this.level);
     }
