@@ -329,20 +329,75 @@ button {
   color: var(--cyan);
 }
 
-.hud-card--combo .hud-card__value {
-  color: var(--pink);
+.hud-card--time,
+.hud-card--lives {
+  min-height: 76px;
 }
 
-.hud-card--level .hud-card__value {
-  color: var(--gold);
+.hud-card--time {
+  border-color: rgba(0, 245, 255, 0.4);
+  box-shadow: inset 0 0 20px rgba(0, 245, 255, 0.04);
+}
+
+.hud-card--time .hud-card__value {
+  color: var(--cyan);
+  font-size: clamp(1.55rem, 7vw, 2.35rem);
+  line-height: 1.05;
+  text-shadow: 0 0 14px rgba(0, 245, 255, 0.5);
+}
+
+.hud-card--lives {
+  border-color: rgba(255, 50, 95, 0.38);
+  background:
+    linear-gradient(135deg, rgba(255, 50, 95, 0.1), transparent),
+    var(--panel);
+}
+
+.hud-card--lives .hud-card__value {
+  color: var(--red);
+  font-size: clamp(1.55rem, 7vw, 2.35rem);
+  line-height: 1.05;
+  text-shadow: 0 0 14px rgba(255, 50, 95, 0.45);
+}
+
+.hud-card__unit {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  color: rgba(143, 163, 184, 0.72);
+  font: 600 0.39rem var(--display);
+  letter-spacing: 0.12em;
 }
 
 .hud-card.is-updated {
   animation: flash 0.28s ease;
 }
 
-.hud-card--combo.is-hot {
+.status-metric--combo.is-hot {
   box-shadow: 0 0 18px rgba(255, 56, 199, 0.35);
+}
+
+.hud-card--time.is-critical {
+  border-color: rgba(255, 50, 95, 0.8);
+  background:
+    linear-gradient(135deg, rgba(255, 50, 95, 0.17), transparent),
+    var(--panel);
+  animation: vital-alert 0.58s infinite alternate;
+}
+
+.hud-card--time.is-critical .hud-card__value {
+  color: var(--red);
+  text-shadow: 0 0 16px var(--red);
+}
+
+.hud-card--lives.is-critical {
+  border-color: rgba(255, 50, 95, 0.9);
+  animation: vital-alert 0.58s infinite alternate;
+}
+
+@keyframes vital-alert {
+  from { box-shadow: inset 0 0 10px rgba(255, 50, 95, 0.08); }
+  to { box-shadow: inset 0 0 25px rgba(255, 50, 95, 0.2), 0 0 14px rgba(255, 50, 95, 0.28); }
 }
 
 /* ==============================
@@ -385,24 +440,7 @@ button {
   box-shadow: 0 0 10px var(--gold);
 }
 
-.lives {
-  display: flex;
-  gap: 5px;
-  color: var(--red);
-}
-
-.life {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.life--lost {
-  opacity: 0.2;
-  transform: scale(0.7);
-}
-
-.timer-display {
+.status-metric {
   display: flex;
   align-items: baseline;
   gap: 5px;
@@ -410,22 +448,24 @@ button {
   border-left: 1px solid rgba(0, 245, 255, 0.18);
 }
 
-.timer-display__label {
+.status-metric__label {
   font: 700 0.48rem var(--display);
   color: var(--muted);
 }
 
-.timer-display strong {
-  min-width: 48px;
+.status-metric strong {
+  min-width: 34px;
   text-align: right;
-  font: 700 1rem var(--display);
+  font: 800 0.92rem var(--display);
   font-variant-numeric: tabular-nums;
 }
 
-.timer-display.is-critical strong {
-  color: var(--red);
-  text-shadow: 0 0 10px var(--red);
-  animation: pulse-red 0.6s infinite alternate;
+.status-metric--level strong {
+  color: var(--gold);
+}
+
+.status-metric--combo strong {
+  color: var(--pink);
 }
 
 /* ==============================
@@ -2134,28 +2174,34 @@ button {
     gap: 5px;
   }
 
-  .lives {
-    display: grid;
-    grid-template-columns: repeat(5, auto);
-    gap: 1px 3px;
-    justify-content: end;
-    font-size: 0.72rem;
-    line-height: 0.8;
+  .status-metric {
+    gap: 3px;
+    padding-left: 6px;
+  }
+
+  .status-metric__label {
+    font-size: 0.42rem;
+  }
+
+  .status-metric strong {
+    min-width: 28px;
+    font-size: 0.78rem;
+  }
+
+  .hud-card--time,
+  .hud-card--lives {
+    min-height: 67px;
+  }
+
+  .hud-card__unit {
+    right: 8px;
+    bottom: 6px;
+    font-size: 0.32rem;
   }
 
   .status-chip {
     font-size: 0.5rem;
     letter-spacing: 0.04em;
-  }
-
-  .timer-display {
-    gap: 3px;
-    padding-left: 6px;
-  }
-
-  .timer-display strong {
-    min-width: 43px;
-    font-size: 0.88rem;
   }
 
   .game-stage {
@@ -3164,44 +3210,7 @@ button {
   filter: saturate(1.2) drop-shadow(0 0 7px rgba(168,85,247,.7));
 }
 
-/* =========================================
-   WHR ARENA WALLPAPER
-   ========================================= */
-
-.game-stage {
-  background-color: #02050e;
-
-  background-image:
-    linear-gradient(
-      180deg,
-      rgba(1, 5, 14, 0.08) 0%,
-      rgba(1, 5, 14, 0.18) 48%,
-      rgba(1, 5, 14, 0.12) 100%
-    ),
-    url("./images/arena-wallpaper.png");
-
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
-
-  box-shadow:
-    inset 0 0 55px rgba(0, 0, 0, 0.58),
-    inset 18px 0 35px rgba(0, 245, 255, 0.08),
-    inset -18px 0 35px rgba(255, 56, 199, 0.08),
-    0 20px 60px rgba(0, 0, 0, 0.45);
-}
-
-/* Postojeca proceduralna mreza ostaje preko wallpapera */
-.stage-grid {
-  z-index: 2;
-  opacity: 0.48;
-  mix-blend-mode: screen;
-}
-
-/* Mete i dalje ostaju potpuno iznad pozadine */
-.target-layer {
-  z-index: 10;
-}/* ANTI-CHEAT PULSE - BEZ NATPISA */
+/* ANTI-CHEAT PULSE - BEZ NATPISA */
 
 .anti-cheat-wave {
   position: absolute;
