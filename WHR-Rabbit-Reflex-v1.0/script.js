@@ -1,6 +1,400 @@
 "use strict";
 
-/* WHR Rabbit Reflex v1.2 - WHITE HACKER ANTI-CHEAT */
+/* =========================================================
+   WHR MUSIC ENGINE â€” "NEON STATIC" (by Claude & WHR Crew)
+   Originalna WHR univerzum tema, 100% proceduralna,
+   komponovana i generisana Äistim Web Audio API-jem.
+   ========================================================= */
+
+const NOTE_INDEX = {
+  C: 0, "C#": 1, D: 2, "D#": 3, E: 4, F: 5,
+  "F#": 6, G: 7, "G#": 8, A: 9, "A#": 10, B: 11,
+};
+
+function noteFreq(note) {
+  const match = note.match(/^([A-G]#?)(\d)$/);
+  if (!match) return 0;
+  const [, name, octaveStr] = match;
+  const octave = Number(octaveStr);
+  const semitoneFromA4 = NOTE_INDEX[name] + (octave - 4) * 12 - 9;
+  return 440 * Math.pow(2, semitoneFromA4 / 12);
+}
+
+class MusicEngine {
+  constructor(audioFX) {
+    this.audioFX = audioFX || null;
+    this.ctx = (audioFX && audioFX.ctx) || null;
+    // SOUND dugme je jedini autoritet za SFX i muziku.
+    this.enabled = audioFX
+      ? audioFX.enabled
+      : localStorage.getItem(MusicEngine.KEY) !== "false";
+    this.playing = false;
+
+    this.tempo = 132;
+    this.stepSeconds = 60 / this.tempo / 4; // 16th note
+    this.stepsPerBar = 16;
+    this.currentStep = 0;
+    this.nextStepTime = 0;
+    this.lookaheadMs = 25;
+    this.scheduleAheadSec = 0.12;
+    this.timerId = null;
+    this.introTimerId = null;
+    this.introSources = new Set();
+
+    this.intensity = 1;
+    this.master = null;
+
+    this.bass = [
+      "A2", null, null, null, "E2", null, null, null,
+      "F2", null, null, null, "G2", null, null, null,
+      "A2", null, null, null, "E2", null, null, null,
+      "D2", null, null, null, "G2", null, null, null,
+      "A2", null, "A2", null, "E2", null, "A2", null,
+      "F2", null, "F2", null, "G2", null, "E2", null,
+      "A2", null, "A2", null, "E2", null, "A2", null,
+      "D2", null, "F2", null, "G2", null, "G2", null,
+      "D2", null, "D2", null, "A2", null, "D2", null,
+      "F2", null, "G2", null, "A2", null, "A2", null,
+      "D2", null, "D2", null, "A2", null, "D2", null,
+      "C2", null, "E2", null, "F2", null, "G2", null,
+      "A2", null, "A2", "A2", "E2", null, "E2", "E2",
+      "F2", null, "F2", "F2", "G2", "G2", "A2", "A2",
+      "G2", null, "F2", null, "E2", null, "D2", null,
+      "C2", null, "D2", null, "E2", null, "A2", null,
+    ];
+
+    this.arp = [
+      null, "C5", null, "E4", null, "C5", null, "A4",
+      null, "A4", null, "F4", null, "A4", null, "C5",
+      null, "E5", null, "C5", null, "A4", null, "C5",
+      null, "F4", null, "A4", null, "D5", null, "B4",
+      "A4", "C5", "E4", "C5", "A4", "C5", "E4", "G4",
+      "F4", "A4", "C5", "A4", "G4", "B4", "D5", "E4",
+      "A4", "E5", "C5", "E5", "A4", "C5", "E4", "A4",
+      "D4", "F4", "A4", "F4", "G4", "D5", "B4", "G4",
+      "D4", "F4", "A4", "F4", "D4", "F4", "A4", "C5",
+      "F4", "A4", "C5", "A4", "A4", "C5", "E5", "D5",
+      "D4", "A4", "F4", "A4", "D4", "F4", "A4", "D5",
+      "C4", "E4", "G4", "E4", "F4", "A4", "C5", "D5",
+      "A4", "C5", "E5", "C5", "A4", "E4", "C5", "A4",
+      "F4", "A4", "D5", "C5", "G4", "B4", "D5", "E5",
+      "C4", "E4", "G4", "C5", "E5", "G5", "A5", "G5",
+      "E5", "C5", "A4", "G4", "E4", "C4", "E4", "A4",
+    ];
+
+    this.lead = [
+      null, null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null, null,
+      "E5", null, null, "C5", null, "A4", null, null,
+      "D5", null, "C5", null, "A4", null, "G4", null,
+      "E5", null, null, "G5", null, "E5", null, null,
+      "D5", null, "B4", null, "D5", null, "A4", null,
+      "A5", null, null, "F5", null, "D5", null, null,
+      "G5", null, "F5", null, "D5", null, "C5", null,
+      "A5", null, null, "C6", null, "A5", null, null,
+      "G5", null, "E5", null, "G5", null, "D5", null,
+      "C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5",
+      "B4", "A4", null, null, "E5", null, "A4", null,
+      "G4", null, "A4", null, "C5", null, "D5", null,
+      "E5", null, null, null, null, null, null, null,
+    ];
+
+    this.hi = [
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      1, 0, 1, 0, 1, 0, 1, 1,
+      1, 0, 1, 0, 1, 0, 1, 1,
+      1, 0, 1, 0, 1, 0, 1, 1,
+      1, 0, 1, 1, 1, 0, 1, 1,
+      1, 1, 1, 0, 1, 1, 1, 0,
+      1, 1, 1, 0, 1, 1, 1, 0,
+      1, 1, 1, 0, 1, 1, 1, 0,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1,
+    ];
+  }
+
+  init() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!this.ctx) {
+      if (!AudioContextClass) return;
+      this.ctx = (this.audioFX && this.audioFX.ctx) || new AudioContextClass();
+      if (this.audioFX && !this.audioFX.ctx) {
+        this.audioFX.ctx = this.ctx;
+      }
+    }
+    if (!this.master) {
+      this.master = this.ctx.createGain();
+      this.master.gain.value = 0.11;
+      this.master.connect(this.ctx.destination);
+    }
+  }
+
+  start({ restart = false } = {}) {
+    if (this.playing || !this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
+
+    this.playing = true;
+    if (restart) {
+      this.currentStep = 0;
+    }
+    this.nextStepTime = this.ctx.currentTime + 0.05;
+    this.scheduler();
+  }
+
+  playIntro(onComplete) {
+    if (!this.enabled) {
+      if (onComplete) onComplete();
+      return;
+    }
+
+    this.init();
+    if (!this.ctx) {
+      if (onComplete) onComplete();
+      return;
+    }
+
+    if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
+
+    this.stopIntro();
+
+    const ctx = this.ctx;
+    const now = ctx.currentTime + 0.03;
+    const introGain = ctx.createGain();
+    introGain.gain.value = 0.16;
+    introGain.connect(this.master || ctx.destination);
+
+    const beepFreqs = [620, 980, 1400];
+    let t = now;
+    beepFreqs.forEach((freq) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.14, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+      osc.connect(g);
+      g.connect(introGain);
+      this.introSources.add(osc);
+      osc.start(t);
+      osc.stop(t + 0.18);
+      t += 0.19;
+    });
+
+    const sweepStart = t + 0.05;
+    const sweep = ctx.createOscillator();
+    const sweepGain = ctx.createGain();
+    sweep.type = "sawtooth";
+    sweep.frequency.setValueAtTime(300, sweepStart);
+    sweep.frequency.exponentialRampToValueAtTime(2400, sweepStart + 0.55);
+    sweepGain.gain.setValueAtTime(0.0001, sweepStart);
+    sweepGain.gain.exponentialRampToValueAtTime(0.1, sweepStart + 0.05);
+    sweepGain.gain.exponentialRampToValueAtTime(0.0001, sweepStart + 0.6);
+    sweep.connect(sweepGain);
+    sweepGain.connect(introGain);
+    this.introSources.add(sweep);
+    sweep.start(sweepStart);
+    sweep.stop(sweepStart + 0.62);
+
+    const noiseStart = sweepStart;
+    const noiseDur = 0.7;
+    const bufferSize = Math.floor(ctx.sampleRate * noiseDur);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = "bandpass";
+    noiseFilter.frequency.setValueAtTime(1800, noiseStart);
+    noiseFilter.Q.value = 0.6;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.05, noiseStart);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, noiseStart + noiseDur);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(introGain);
+    this.introSources.add(noise);
+    noise.start(noiseStart);
+    noise.stop(noiseStart + noiseDur);
+
+    const chordStart = sweepStart + 0.66;
+    ["A3", "E4", "A4"].forEach((note) => {
+      const freq = noteFreq(note);
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, chordStart);
+      g.gain.setValueAtTime(0.0001, chordStart);
+      g.gain.exponentialRampToValueAtTime(0.1, chordStart + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, chordStart + 0.5);
+      osc.connect(g);
+      g.connect(introGain);
+      this.introSources.add(osc);
+      osc.start(chordStart);
+      osc.stop(chordStart + 0.52);
+    });
+
+    const totalDurationMs = (chordStart + 0.55 - now) * 1000;
+    this.introTimerId = setTimeout(() => {
+      this.introTimerId = null;
+      this.introSources.clear();
+      if (onComplete) onComplete();
+    }, Math.max(0, totalDurationMs));
+  }
+
+  stopIntro() {
+    clearTimeout(this.introTimerId);
+    this.introTimerId = null;
+
+    for (const source of this.introSources) {
+      try {
+        source.stop();
+      } catch {
+        // Izvor je vec zavrsen.
+      }
+    }
+
+    this.introSources.clear();
+  }
+
+  stop() {
+    this.playing = false;
+    clearTimeout(this.timerId);
+  }
+
+  setEnabled(enabled) {
+    this.enabled = Boolean(enabled);
+    localStorage.setItem(MusicEngine.KEY, String(this.enabled));
+
+    if (!this.enabled) {
+      this.stopIntro();
+      this.stop();
+    }
+
+    return this.enabled;
+  }
+
+  toggle() {
+    return this.setEnabled(!this.enabled);
+  }
+
+  setIntensity(level) {
+    if (level >= 10) this.intensity = 4;
+    else if (level >= 6) this.intensity = 3;
+    else if (level >= 3) this.intensity = 2;
+    else this.intensity = 1;
+  }
+
+  scheduler() {
+    if (!this.playing) return;
+    while (this.nextStepTime < this.ctx.currentTime + this.scheduleAheadSec) {
+      this.scheduleStep(this.currentStep, this.nextStepTime);
+      this.nextStepTime += this.stepSeconds;
+      this.currentStep = (this.currentStep + 1) % this.bass.length;
+    }
+    this.timerId = setTimeout(() => this.scheduler(), this.lookaheadMs);
+  }
+
+  scheduleStep(step, time) {
+    const bassNote = this.bass[step];
+    if (bassNote) {
+      this.pluck(bassNote, time, 0.34, "sawtooth", 0.22, 420);
+    }
+
+    if (this.intensity >= 2) {
+      const arpNote = this.arp[step];
+      if (arpNote) {
+        this.pluck(arpNote, time, 0.16, "square", 0.09, 1800);
+      }
+    }
+
+    if (this.intensity >= 3) {
+      const leadNote = this.lead[step];
+      if (leadNote) {
+        this.pluck(leadNote, time, 0.42, "triangle", 0.13, 2600);
+      }
+    }
+
+    if (this.intensity >= 4 && this.hi[step]) {
+      this.hihat(time);
+    }
+  }
+
+  pluck(note, time, duration, type, gainPeak, filterFreq) {
+    const freq = noteFreq(note);
+    if (!freq || !this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, time);
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(filterFreq, time);
+    filter.Q.value = 0.8;
+
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(gainPeak, time + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.master);
+
+    osc.start(time);
+    osc.stop(time + duration + 0.02);
+  }
+
+  hihat(time) {
+    if (!this.ctx) return;
+    const bufferSize = this.ctx.sampleRate * 0.05;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "highpass";
+    filter.frequency.value = 6500;
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.05, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.master);
+
+    noise.start(time);
+    noise.stop(time + 0.06);
+  }
+}
+
+MusicEngine.KEY = "whr-rabbit-reflex-music-enabled";
+
+/* =========================================================
+   CONFIG & UTILS
+   ========================================================= */
+
 const CONFIG = {
   time: 60,
   lives: 3,
@@ -46,8 +440,6 @@ const CONFIG = {
   heroStartLevel: 4,
   heroMinDelay: 12000,
   heroMaxDelay: 16000,
-  // White Hacker is a tactical Anti-Cheat trinket, not a reflex target.
-  // It remains available long enough for the player to choose the right moment.
   heroLife: 7000,
   antiCheatDuration: 780,
 
@@ -69,22 +461,15 @@ const CONFIG = {
 
 const $ = (id) => {
   const element = document.getElementById(id);
-
   if (!element) {
     throw new Error(`Missing #${id}`);
   }
-
   return element;
 };
 
-const sleep = (ms) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
-const clamp = (value, min, max) =>
-  Math.max(min, Math.min(max, value));
-
-const pad = (value) =>
-  String(Math.max(0, Math.floor(value))).padStart(8, "0");
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const pad = (value) => String(Math.max(0, Math.floor(value))).padStart(8, "0");
 
 /* =========================================
    WHR SAMPLE AUDIO + SYNTH FALLBACK
@@ -93,77 +478,20 @@ const pad = (value) =>
 class AudioFX {
   constructor() {
     this.ctx = null;
-    this.enabled =
-      localStorage.getItem(CONFIG.soundKey) !== "false";
+    this.enabled = localStorage.getItem(CONFIG.soundKey) !== "false";
 
     this.sampleConfig = {
-      normalHit: {
-        src: "./sound/normal-hit.wav",
-        volume: 0.28,
-        cooldown: 35,
-        voices: 4,
-      },
-      redRabbit: {
-        src: "./sound/red-rabbit.wav",
-        volume: 0.5,
-        cooldown: 120,
-        voices: 2,
-      },
-      trap: {
-        src: "./sound/trap.wav",
-        volume: 0.38,
-        cooldown: 110,
-        voices: 2,
-      },
-      extraLife: {
-        src: "./sound/extra-life.wav",
-        volume: 0.5,
-        cooldown: 200,
-        voices: 1,
-      },
-      goldenRabbit: {
-        src: "./sound/golden-rabbit.wav",
-        volume: 0.46,
-        cooldown: 160,
-        voices: 2,
-      },
-      blackHacker: {
-        src: "./sound/black-hacker.wav",
-        volume: 0.56,
-        cooldown: 250,
-        voices: 1,
-      },
-      blackHole: {
-        src: "./sound/black-hole.wav",
-        volume: 0.5,
-        cooldown: 350,
-        voices: 1,
-      },
-      whiteHacker: {
-        src: "./sound/white-hacker.wav",
-        volume: 0.52,
-        cooldown: 300,
-        voices: 1,
-      },
-      gameStart: {
-        src: "./sound/game-start.wav",
-        volume: 0.36,
-        cooldown: 1000,
-        voices: 1,
-        maxDuration: 3000,
-      },
-      levelUp: {
-        src: "./sound/level-up.wav",
-        volume: 0.42,
-        cooldown: 500,
-        voices: 1,
-      },
-      gameOver: {
-        src: "./sound/game-over.wav",
-        volume: 0.5,
-        cooldown: 1000,
-        voices: 1,
-      },
+      normalHit: { src: "./sound/normal-hit.wav", volume: 0.28, cooldown: 35, voices: 4 },
+      redRabbit: { src: "./sound/red-rabbit.wav", volume: 0.5, cooldown: 120, voices: 2 },
+      trap: { src: "./sound/trap.wav", volume: 0.38, cooldown: 110, voices: 2 },
+      extraLife: { src: "./sound/extra-life.wav", volume: 0.5, cooldown: 200, voices: 1 },
+      goldenRabbit: { src: "./sound/golden-rabbit.wav", volume: 0.46, cooldown: 160, voices: 2 },
+      blackHacker: { src: "./sound/black-hacker.wav", volume: 0.56, cooldown: 250, voices: 1 },
+      blackHole: { src: "./sound/black-hole.wav", volume: 0.5, cooldown: 350, voices: 1 },
+      whiteHacker: { src: "./sound/white-hacker.wav", volume: 0.52, cooldown: 300, voices: 1 },
+      gameStart: { src: "./sound/game-start.wav", volume: 0.36, cooldown: 1000, voices: 1, maxDuration: 3000 },
+      levelUp: { src: "./sound/level-up.wav", volume: 0.42, cooldown: 500, voices: 1 },
+      gameOver: { src: "./sound/game-over.wav", volume: 0.5, cooldown: 1000, voices: 1 },
     };
 
     this.samplePools = new Map();
@@ -176,27 +504,18 @@ class AudioFX {
   prepareSamples() {
     if (typeof Audio === "undefined") return;
 
-    Object.entries(this.sampleConfig).forEach(
-      ([name, config]) => {
-        const pool = [];
-
-        for (
-          let index = 0;
-          index < config.voices;
-          index++
-        ) {
-          const sample = new Audio(config.src);
-
-          sample.preload = "auto";
-          sample.volume = config.volume;
-          sample.setAttribute("playsinline", "");
-          pool.push(sample);
-        }
-
-        this.samplePools.set(name, pool);
-        this.sampleCursor.set(name, 0);
+    Object.entries(this.sampleConfig).forEach(([name, config]) => {
+      const pool = [];
+      for (let index = 0; index < config.voices; index++) {
+        const sample = new Audio(config.src);
+        sample.preload = "auto";
+        sample.volume = config.volume;
+        sample.setAttribute("playsinline", "");
+        pool.push(sample);
       }
-    );
+      this.samplePools.set(name, pool);
+      this.sampleCursor.set(name, 0);
+    });
   }
 
   playSample(name, fallback) {
@@ -219,22 +538,16 @@ class AudioFX {
 
     this.lastSampleAt.set(name, now);
 
-    const cursor =
-      this.sampleCursor.get(name) || 0;
+    const cursor = this.sampleCursor.get(name) || 0;
     const sample = pool[cursor];
 
-    this.sampleCursor.set(
-      name,
-      (cursor + 1) % pool.length
-    );
+    this.sampleCursor.set(name, (cursor + 1) % pool.length);
 
     sample.pause();
     sample.currentTime = 0;
     sample.volume = config.volume;
 
-    sample._whrPlayId =
-      (sample._whrPlayId || 0) + 1;
-
+    sample._whrPlayId = (sample._whrPlayId || 0) + 1;
     const playId = sample._whrPlayId;
     let result;
 
@@ -247,10 +560,7 @@ class AudioFX {
 
     if (result?.catch) {
       result.catch(() => {
-        if (
-          this.enabled &&
-          sample._whrPlayId === playId
-        ) {
+        if (this.enabled && sample._whrPlayId === playId) {
           fallback?.();
         }
       });
@@ -259,7 +569,6 @@ class AudioFX {
     if (config.maxDuration) {
       setTimeout(() => {
         if (sample._whrPlayId !== playId) return;
-
         sample.pause();
         sample.currentTime = 0;
       }, config.maxDuration);
@@ -271,8 +580,7 @@ class AudioFX {
   stopSamples() {
     for (const pool of this.samplePools.values()) {
       for (const sample of pool) {
-        sample._whrPlayId =
-          (sample._whrPlayId || 0) + 1;
+        sample._whrPlayId = (sample._whrPlayId || 0) + 1;
         sample.pause();
         sample.currentTime = 0;
       }
@@ -281,27 +589,16 @@ class AudioFX {
 
   init() {
     if (this.ctx) return;
-
-    const AudioContextClass =
-      window.AudioContext || window.webkitAudioContext;
-
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (AudioContextClass) {
       this.ctx = new AudioContextClass();
     }
   }
 
-  tone(
-    frequency = 440,
-    duration = 0.08,
-    type = "sine",
-    end = frequency
-  ) {
+  tone(frequency = 440, duration = 0.08, type = "sine", end = frequency) {
     if (!this.enabled) return;
-
     this.init();
-
     if (!this.ctx) return;
-
     if (this.ctx.state === "suspended") {
       this.ctx.resume().catch(() => {});
     }
@@ -312,21 +609,11 @@ class AudioFX {
 
     oscillator.type = type;
     oscillator.frequency.setValueAtTime(frequency, now);
-
-    oscillator.frequency.exponentialRampToValueAtTime(
-      Math.max(20, end),
-      now + duration
-    );
+    oscillator.frequency.exponentialRampToValueAtTime(Math.max(20, end), now + duration);
 
     gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(
-      0.16,
-      now + 0.015
-    );
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001,
-      now + duration
-    );
+    gain.gain.exponentialRampToValueAtTime(0.16, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
     oscillator.connect(gain);
     gain.connect(this.ctx.destination);
@@ -337,12 +624,7 @@ class AudioFX {
 
   hit(combo) {
     this.playSample("normalHit", () => {
-      this.tone(
-        480 + combo * 24,
-        0.09,
-        "sine",
-        820 + combo * 24
-      );
+      this.tone(480 + combo * 24, 0.09, "sine", 820 + combo * 24);
     });
   }
 
@@ -350,12 +632,7 @@ class AudioFX {
     this.playSample("goldenRabbit", () => {
       [660, 880, 1100].forEach((frequency, index) => {
         setTimeout(() => {
-          this.tone(
-            frequency,
-            0.13,
-            "triangle",
-            frequency * 1.1
-          );
+          this.tone(frequency, 0.13, "triangle", frequency * 1.1);
         }, index * 45);
       });
     });
@@ -364,12 +641,7 @@ class AudioFX {
   freeze() {
     [900, 700, 500].forEach((frequency, index) => {
       setTimeout(() => {
-        this.tone(
-          frequency,
-          0.15,
-          "sine",
-          frequency * 0.8
-        );
+        this.tone(frequency, 0.15, "sine", frequency * 0.8);
       }, index * 50);
     });
   }
@@ -378,12 +650,7 @@ class AudioFX {
     this.playSample("redRabbit", () => {
       [200, 150, 100].forEach((frequency, index) => {
         setTimeout(() => {
-          this.tone(
-            frequency,
-            0.18,
-            "sawtooth",
-            frequency * 0.6
-          );
+          this.tone(frequency, 0.18, "sawtooth", frequency * 0.6);
         }, index * 60);
       });
     });
@@ -391,18 +658,11 @@ class AudioFX {
 
   life() {
     this.playSample("extraLife", () => {
-      [520, 660, 880, 1040].forEach(
-        (frequency, index) => {
-          setTimeout(() => {
-            this.tone(
-              frequency,
-              0.14,
-              "triangle",
-              frequency * 1.12
-            );
-          }, index * 45);
-        }
-      );
+      [520, 660, 880, 1040].forEach((frequency, index) => {
+        setTimeout(() => {
+          this.tone(frequency, 0.14, "triangle", frequency * 1.12);
+        }, index * 45);
+      });
     });
   }
 
@@ -414,18 +674,11 @@ class AudioFX {
 
   level() {
     this.playSample("levelUp", () => {
-      [440, 554, 659, 880].forEach(
-        (frequency, index) => {
-          setTimeout(() => {
-            this.tone(
-              frequency,
-              0.16,
-              "sine",
-              frequency * 1.05
-            );
-          }, index * 65);
-        }
-      );
+      [440, 554, 659, 880].forEach((frequency, index) => {
+        setTimeout(() => {
+          this.tone(frequency, 0.16, "sine", frequency * 1.05);
+        }, index * 65);
+      });
     });
   }
 
@@ -435,18 +688,11 @@ class AudioFX {
 
   over() {
     this.playSample("gameOver", () => {
-      [420, 320, 230, 150].forEach(
-        (frequency, index) => {
-          setTimeout(() => {
-            this.tone(
-              frequency,
-              0.2,
-              "sawtooth",
-              frequency * 0.7
-            );
-          }, index * 90);
-        }
-      );
+      [420, 320, 230, 150].forEach((frequency, index) => {
+        setTimeout(() => {
+          this.tone(frequency, 0.2, "sawtooth", frequency * 0.7);
+        }, index * 90);
+      });
     });
   }
 
@@ -476,18 +722,12 @@ class AudioFX {
 
   toggle() {
     this.enabled = !this.enabled;
-
-    localStorage.setItem(
-      CONFIG.soundKey,
-      String(this.enabled)
-    );
-
+    localStorage.setItem(CONFIG.soundKey, String(this.enabled));
     if (this.enabled) {
       this.click();
     } else {
       this.stopSamples();
     }
-
     return this.enabled;
   }
 }
@@ -505,11 +745,7 @@ class Particles {
 
     this.resize = () => {
       const rect = canvas.getBoundingClientRect();
-      const density = Math.min(
-        window.devicePixelRatio || 1,
-        2
-      );
-
+      const density = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = rect.width * density;
       canvas.height = rect.height * density;
 
@@ -518,12 +754,10 @@ class Particles {
       } else {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
       }
-
       this.context.scale(density, density);
     };
 
     window.addEventListener("resize", this.resize);
-
     this.resize();
 
     requestAnimationFrame((time) => {
@@ -533,10 +767,7 @@ class Particles {
 
   burst(x, y, color, count = 18) {
     for (let index = 0; index < count; index++) {
-      const angle =
-        (Math.PI * 2 * index) / count +
-        Math.random() * 0.4;
-
+      const angle = (Math.PI * 2 * index) / count + Math.random() * 0.4;
       const speed = 2 + Math.random() * 4;
       const life = 350 + Math.random() * 350;
 
@@ -554,57 +785,28 @@ class Particles {
   }
 
   loop(time) {
-    const delta = Math.min(
-      32,
-      time - (this.last || time)
-    );
-
+    const delta = Math.min(32, time - (this.last || time));
     this.last = time;
-
     const rect = this.canvas.getBoundingClientRect();
 
-    this.context.clearRect(
-      0,
-      0,
-      rect.width,
-      rect.height
-    );
+    this.context.clearRect(0, 0, rect.width, rect.height);
 
     this.items = this.items.filter((particle) => {
       particle.life -= delta;
+      if (particle.life <= 0) return false;
 
-      if (particle.life <= 0) {
-        return false;
-      }
-
-      particle.x +=
-        (particle.vx * delta) / 16.7;
-
-      particle.y +=
-        (particle.vy * delta) / 16.7;
-
-      particle.vy +=
-        (0.06 * delta) / 16.7;
+      particle.x += (particle.vx * delta) / 16.7;
+      particle.y += (particle.vy * delta) / 16.7;
+      particle.vy += (0.06 * delta) / 16.7;
 
       this.context.save();
-
-      this.context.globalAlpha =
-        particle.life / particle.maxLife;
-
+      this.context.globalAlpha = particle.life / particle.maxLife;
       this.context.fillStyle = particle.color;
       this.context.shadowColor = particle.color;
       this.context.shadowBlur = 8;
 
       this.context.beginPath();
-
-      this.context.arc(
-        particle.x,
-        particle.y,
-        particle.size,
-        0,
-        Math.PI * 2
-      );
-
+      this.context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
       this.context.fill();
       this.context.restore();
 
@@ -618,7 +820,7 @@ class Particles {
 }
 
 /* =========================================
-   GAME
+   GAME ENGINE & INTEGRATION WITH MUSIC
    ========================================= */
 
 class Game {
@@ -656,14 +858,8 @@ class Game {
       progressFill: $("progressFill"),
 
       float: $("floatingMessage"),
-
-      floatMain: document.querySelector(
-        ".floating-message__main"
-      ),
-
-      floatSub: document.querySelector(
-        ".floating-message__sub"
-      ),
+      floatMain: document.querySelector(".floating-message__main"),
+      floatSub: document.querySelector(".floating-message__sub"),
 
       finalScore: $("finalScoreValue"),
       finalBest: $("finalBestValue"),
@@ -674,11 +870,10 @@ class Game {
     };
 
     this.audio = new AudioFX();
+    this.music = new MusicEngine(this.audio); // Povezivanje Claude Music Engine-a
     this.particles = new Particles(this.e.canvas);
 
-    this.best =
-      Number(localStorage.getItem(CONFIG.bestKey)) || 0;
-
+    this.best = Number(localStorage.getItem(CONFIG.bestKey)) || 0;
     this.targets = new Map();
 
     this.state = "ready";
@@ -725,92 +920,65 @@ class Game {
     this.e.start.onclick = () => this.start();
     this.e.restart.onclick = () => this.start();
 
-    this.e.pause.onclick = () => {
-      this.togglePause();
-    };
-
-    this.e.resume.onclick = () => {
-      this.resume();
-    };
+    this.e.pause.onclick = () => this.togglePause();
+    this.e.resume.onclick = () => this.resume();
 
     this.e.sound.onclick = () => {
       this.audio.toggle();
+
+      if (this.music) {
+        this.music.setEnabled(this.audio.enabled);
+
+        if (
+          this.audio.enabled &&
+          this.state === "playing"
+        ) {
+          this.music.start();
+        }
+      }
+
       this.updateSound();
     };
 
-    this.e.stage.addEventListener(
-      "pointermove",
-      (event) => {
-        const rect =
-          this.e.stage.getBoundingClientRect();
+    this.e.stage.addEventListener("pointermove", (event) => {
+      const rect = this.e.stage.getBoundingClientRect();
+      this.e.cross.style.left = `${event.clientX - rect.left}px`;
+      this.e.cross.style.top = `${event.clientY - rect.top}px`;
+      this.e.cross.style.opacity = "1";
+    });
 
-        this.e.cross.style.left =
-          `${event.clientX - rect.left}px`;
+    this.e.stage.addEventListener("pointerleave", () => {
+      this.e.cross.style.opacity = "0";
+    });
 
-        this.e.cross.style.top =
-          `${event.clientY - rect.top}px`;
-
-        this.e.cross.style.opacity = "1";
+    this.e.stage.addEventListener("pointerdown", (event) => {
+      if (this.state === "playing" && !event.target.closest(".target")) {
+        this.emptyTap();
       }
-    );
+    });
 
-    this.e.stage.addEventListener(
-      "pointerleave",
-      () => {
-        this.e.cross.style.opacity = "0";
-      }
-    );
-
-    this.e.stage.addEventListener(
-      "pointerdown",
-      (event) => {
-        if (
-          this.state === "playing" &&
-          !event.target.closest(".target")
-        ) {
-          this.emptyTap();
-        }
-      }
-    );
-
-    document.addEventListener(
-      "keydown",
-      (event) => {
-        if (event.code === "Space") {
-          event.preventDefault();
-
-          if (
-            this.state === "ready" ||
-            this.state === "gameover"
-          ) {
-            this.start();
-          } else if (this.state === "playing") {
-            this.pause();
-          } else if (this.state === "paused") {
-            this.resume();
-          }
-        }
-
-        if (
-          event.code === "Escape" &&
-          this.state === "playing"
-        ) {
+    document.addEventListener("keydown", (event) => {
+      if (event.code === "Space") {
+        event.preventDefault();
+        if (this.state === "ready" || this.state === "gameover") {
+          this.start();
+        } else if (this.state === "playing") {
           this.pause();
+        } else if (this.state === "paused") {
+          this.resume();
         }
       }
-    );
 
-    document.addEventListener(
-      "visibilitychange",
-      () => {
-        if (
-          document.hidden &&
-          this.state === "playing"
-        ) {
-          this.pause();
-        }
+      if (event.code === "Escape" && this.state === "playing") {
+        this.pause();
       }
-    );
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && this.state === "playing") {
+        this.pause();
+      }
+    });
   }
 
   reset() {
@@ -827,20 +995,20 @@ class Game {
     clearTimeout(this.freezeTimer);
     clearTimeout(this.virusTimer);
 
+    if (this.music) {
+      this.music.stopIntro();
+      this.music.stop();
+      this.music.currentStep = 0;
+      this.music.setIntensity(1);
+    }
+
     this.removeAllTargets();
 
     this.isFrozen = false;
     this.isVirusActive = false;
 
-    this.e.stage.classList.remove(
-      "is-frozen",
-      "is-virus",
-      "is-anti-cheat"
-    );
-
-    this.e.shell.classList.remove(
-      "is-panic-impact"
-    );
+    this.e.stage.classList.remove("is-frozen", "is-virus", "is-anti-cheat");
+    this.e.shell.classList.remove("is-panic-impact");
 
     this.score = 0;
     this.level = 1;
@@ -881,23 +1049,14 @@ class Game {
   }
 
   show(element, visible) {
-    element.classList.toggle(
-      "stage-overlay--visible",
-      visible
-    );
+    element.classList.toggle("stage-overlay--visible", visible);
   }
 
   ensureLifeSlots() {
-    while (
-      this.e.lives.children.length <
-      CONFIG.maxLives
-    ) {
-      const life =
-        document.createElement("span");
-
+    while (this.e.lives.children.length < CONFIG.maxLives) {
+      const life = document.createElement("span");
       life.className = "life life--lost";
       life.textContent = "\u25c6";
-
       this.e.lives.appendChild(life);
     }
   }
@@ -906,7 +1065,6 @@ class Game {
     if (this.starting) return;
 
     this.starting = true;
-
     this.reset();
 
     this.state = "countdown";
@@ -919,6 +1077,11 @@ class Game {
     this.audio.stopSamples();
     this.audio.start();
 
+    // Dial-up svira tokom countdown-a. Tema krece tek kada igra zaista pocne.
+    if (this.music) {
+      this.music.playIntro();
+    }
+
     for (const value of ["3", "2", "1", "GO"]) {
       if (this.state !== "countdown") {
         this.starting = false;
@@ -928,17 +1091,13 @@ class Game {
       this.e.count.textContent = value;
 
       this.audio.tone(
-        value === "GO"
-          ? 760
-          : 300 + Number(value) * 60,
+        value === "GO" ? 760 : 300 + Number(value) * 60,
         0.12,
         "square",
         value === "GO" ? 1100 : 500
       );
 
-      await sleep(
-        value === "GO" ? 500 : 700
-      );
+      await sleep(value === "GO" ? 500 : 700);
     }
 
     this.show(this.e.countO, false);
@@ -946,31 +1105,20 @@ class Game {
     this.state = "playing";
     this.e.pause.disabled = false;
 
-    this.setStatus(
-      "TARGET ACQUISITION",
-      "normal"
-    );
+    if (this.music) {
+      this.music.start({ restart: true });
+    }
+
+    this.setStatus("TARGET ACQUISITION", "normal");
 
     this.last = performance.now();
-
-    this.raf = requestAnimationFrame(
-      (time) => this.loop(time)
-    );
+    this.raf = requestAnimationFrame((time) => this.loop(time));
 
     this.scheduleGood(250);
     this.scheduleHazard(1500);
-
-    this.scheduleHacker(
-      CONFIG.hackerMaxDelay
-    );
-
-    this.scheduleHero(
-      CONFIG.heroMaxDelay
-    );
-
-    this.scheduleBlackHole(
-      CONFIG.blackHoleMaxDelay
-    );
+    this.scheduleHacker(CONFIG.hackerMaxDelay);
+    this.scheduleHero(CONFIG.heroMaxDelay);
+    this.scheduleBlackHole(CONFIG.blackHoleMaxDelay);
 
     this.starting = false;
   }
@@ -978,46 +1126,23 @@ class Game {
   loop(time) {
     if (this.state !== "playing") return;
 
-    let delta = Math.min(
-      0.1,
-      (time - (this.last || time)) / 1000
-    );
-
+    let delta = Math.min(0.1, (time - (this.last || time)) / 1000);
     this.last = time;
 
     if (this.isFrozen) {
       delta *= 0.5;
     }
 
-    this.timeLeft = Math.max(
-      0,
-      this.timeLeft - delta
-    );
+    this.timeLeft = Math.max(0, this.timeLeft - delta);
+    this.e.time.textContent = this.timeLeft.toFixed(1);
 
-    this.e.time.textContent =
-      this.timeLeft.toFixed(1);
-
-    document
-      .querySelector(".timer-display")
-      ?.classList.toggle(
-        "is-critical",
-        this.timeLeft <= 8
-      );
+    document.querySelector(".timer-display")?.classList.toggle("is-critical", this.timeLeft <= 8);
 
     const now = performance.now();
 
     for (const target of this.targets.values()) {
-      const progress = clamp(
-        this.targetRemaining(target, now) /
-          target.maxLife,
-        0,
-        1
-      );
-
-      target.element.style.setProperty(
-        "--life-progress",
-        progress
-      );
+      const progress = clamp(this.targetRemaining(target, now) / target.maxLife, 0, 1);
+      target.element.style.setProperty("--life-progress", progress);
     }
 
     if (this.timeLeft <= 0) {
@@ -1025,93 +1150,45 @@ class Game {
       return;
     }
 
-    this.raf = requestAnimationFrame(
-      (nextTime) => this.loop(nextTime)
-    );
+    this.raf = requestAnimationFrame((nextTime) => this.loop(nextTime));
   }
 
   goodDelay() {
     const delay = Math.max(
       CONFIG.goodMinDelay,
-      CONFIG.goodBaseDelay -
-        (this.level - 1) *
-          CONFIG.goodDelayStep
+      CONFIG.goodBaseDelay - (this.level - 1) * CONFIG.goodDelayStep
     );
-
-    return this.isFrozen
-      ? delay * 1.8
-      : delay;
+    return this.isFrozen ? delay * 1.8 : delay;
   }
 
   hazardDelay() {
     const delay = Math.max(
       CONFIG.hazardMinDelay,
-      CONFIG.hazardBaseDelay -
-        (
-          this.level -
-          CONFIG.hazardStartLevel
-        ) *
-          CONFIG.hazardDelayStep
+      CONFIG.hazardBaseDelay - (this.level - CONFIG.hazardStartLevel) * CONFIG.hazardDelayStep
     );
-
-    const variation =
-      0.8 + Math.random() * 0.45;
-
-    return (
-      (this.isFrozen
-        ? delay * 1.8
-        : delay) * variation
-    );
+    const variation = 0.8 + Math.random() * 0.45;
+    return (this.isFrozen ? delay * 1.8 : delay) * variation;
   }
 
   hackerDelay() {
-    return (
-      CONFIG.hackerMinDelay +
-      Math.random() *
-        (
-          CONFIG.hackerMaxDelay -
-          CONFIG.hackerMinDelay
-        )
-    );
+    return CONFIG.hackerMinDelay + Math.random() * (CONFIG.hackerMaxDelay - CONFIG.hackerMinDelay);
   }
 
   heroDelay() {
-    return (
-      CONFIG.heroMinDelay +
-      Math.random() *
-        (
-          CONFIG.heroMaxDelay -
-          CONFIG.heroMinDelay
-        )
-    );
+    return CONFIG.heroMinDelay + Math.random() * (CONFIG.heroMaxDelay - CONFIG.heroMinDelay);
   }
 
   blackHoleDelay() {
-    return (
-      CONFIG.blackHoleMinDelay +
-      Math.random() *
-        (
-          CONFIG.blackHoleMaxDelay -
-          CONFIG.blackHoleMinDelay
-        )
-    );
+    return CONFIG.blackHoleMinDelay + Math.random() * (CONFIG.blackHoleMaxDelay - CONFIG.blackHoleMinDelay);
   }
 
-  targetRemaining(
-    target,
-    now = performance.now()
-  ) {
-    return Math.max(
-      0,
-      target.life -
-        (now - target.spawnAt)
-    );
+  targetRemaining(target, now = performance.now()) {
+    return Math.max(0, target.life - (now - target.spawnAt));
   }
 
   maxGoodTargets() {
     if (this.level >= 12) return 3;
     if (this.level >= 5) return 2;
-
     return 1;
   }
 
@@ -1120,456 +1197,201 @@ class Game {
   }
 
   countGroup(group) {
-    return [...this.targets.values()]
-      .filter(
-        (target) =>
-          target.group === group
-      )
-      .length;
+    return [...this.targets.values()].filter((target) => target.group === group).length;
   }
 
   countType(type) {
-    return [...this.targets.values()]
-      .filter(
-        (target) =>
-          target.type === type
-      )
-      .length;
+    return [...this.targets.values()].filter((target) => target.type === type).length;
   }
 
-  scheduleGood(
-    delay = this.goodDelay()
-  ) {
+  scheduleGood(delay = this.goodDelay()) {
     clearTimeout(this.goodSpawnTimer);
+    this.goodDueAt = performance.now() + delay;
 
-    this.goodDueAt =
-      performance.now() + delay;
-
-    this.goodSpawnTimer =
-      setTimeout(() => {
-        this.goodDueAt = 0;
-
-        if (
-          this.state === "playing" &&
-          this.countGroup("good") <
-            this.maxGoodTargets()
-        ) {
-          this.spawn(
-            this.pickGoodType(),
-            "good"
-          );
-        }
-
-        if (this.state === "playing") {
-          this.scheduleGood();
-        }
-      }, delay);
+    this.goodSpawnTimer = setTimeout(() => {
+      this.goodDueAt = 0;
+      if (this.state === "playing" && this.countGroup("good") < this.maxGoodTargets()) {
+        this.spawn(this.pickGoodType(), "good");
+      }
+      if (this.state === "playing") {
+        this.scheduleGood();
+      }
+    }, delay);
   }
 
-  scheduleHazard(
-    delay = this.hazardDelay()
-  ) {
+  scheduleHazard(delay = this.hazardDelay()) {
     clearTimeout(this.hazardSpawnTimer);
+    this.hazardDueAt = performance.now() + delay;
 
-    this.hazardDueAt =
-      performance.now() + delay;
-
-    this.hazardSpawnTimer =
-      setTimeout(() => {
-        this.hazardDueAt = 0;
-
-        if (
-          this.state === "playing" &&
-          this.level >=
-            CONFIG.hazardStartLevel &&
-          this.countGroup("hazard") <
-            this.maxHazards()
-        ) {
-          const type =
-            this.pickHazardType();
-
-          const persistentTrap =
-            ["decoy", "net"]
-              .includes(type);
-
-          if (
-            !persistentTrap ||
-            this.countType(type) === 0
-          ) {
-            this.spawn(
-              type,
-              "hazard"
-            );
-          }
+    this.hazardSpawnTimer = setTimeout(() => {
+      this.hazardDueAt = 0;
+      if (
+        this.state === "playing" &&
+        this.level >= CONFIG.hazardStartLevel &&
+        this.countGroup("hazard") < this.maxHazards()
+      ) {
+        const type = this.pickHazardType();
+        const persistentTrap = ["decoy", "net"].includes(type);
+        if (!persistentTrap || this.countType(type) === 0) {
+          this.spawn(type, "hazard");
         }
-
-        if (this.state === "playing") {
-          this.scheduleHazard();
-        }
-      }, delay);
+      }
+      if (this.state === "playing") {
+        this.scheduleHazard();
+      }
+    }, delay);
   }
 
-  scheduleHacker(
-    delay = this.hackerDelay()
-  ) {
+  scheduleHacker(delay = this.hackerDelay()) {
     clearTimeout(this.hackerSpawnTimer);
+    this.hackerDueAt = performance.now() + delay;
 
-    this.hackerDueAt =
-      performance.now() + delay;
-
-    this.hackerSpawnTimer =
-      setTimeout(() => {
-        this.hackerDueAt = 0;
-
-        if (
-          this.state === "playing" &&
-          this.level >=
-            CONFIG.hackerStartLevel &&
-          !this.isVirusActive &&
-          this.countGroup("hacker") === 0
-        ) {
-          this.spawn(
-            "hacker",
-            "hacker"
-          );
-        }
-
-        if (this.state === "playing") {
-          this.scheduleHacker();
-        }
-      }, delay);
+    this.hackerSpawnTimer = setTimeout(() => {
+      this.hackerDueAt = 0;
+      if (
+        this.state === "playing" &&
+        this.level >= CONFIG.hackerStartLevel &&
+        !this.isVirusActive &&
+        this.countGroup("hacker") === 0
+      ) {
+        this.spawn("hacker", "hacker");
+      }
+      if (this.state === "playing") {
+        this.scheduleHacker();
+      }
+    }, delay);
   }
 
-  scheduleHero(
-    delay = this.heroDelay()
-  ) {
+  scheduleHero(delay = this.heroDelay()) {
     clearTimeout(this.heroSpawnTimer);
+    this.heroDueAt = performance.now() + delay;
 
-    this.heroDueAt =
-      performance.now() + delay;
-
-    this.heroSpawnTimer =
-      setTimeout(() => {
-        this.heroDueAt = 0;
-
-        if (
-          this.state === "playing" &&
-          this.level >=
-            CONFIG.heroStartLevel &&
-          this.countGroup("hero") === 0
-        ) {
-          this.spawn(
-            "hero",
-            "hero"
-          );
-        }
-
-        if (this.state === "playing") {
-          this.scheduleHero();
-        }
-      }, delay);
+    this.heroSpawnTimer = setTimeout(() => {
+      this.heroDueAt = 0;
+      if (
+        this.state === "playing" &&
+        this.level >= CONFIG.heroStartLevel &&
+        this.countGroup("hero") === 0
+      ) {
+        this.spawn("hero", "hero");
+      }
+      if (this.state === "playing") {
+        this.scheduleHero();
+      }
+    }, delay);
   }
 
-  scheduleBlackHole(
-    delay = this.blackHoleDelay()
-  ) {
-    clearTimeout(
-      this.blackHoleSpawnTimer
-    );
+  scheduleBlackHole(delay = this.blackHoleDelay()) {
+    clearTimeout(this.blackHoleSpawnTimer);
+    this.blackHoleDueAt = performance.now() + delay;
 
-    this.blackHoleDueAt =
-      performance.now() + delay;
-
-    this.blackHoleSpawnTimer =
-      setTimeout(() => {
-        this.blackHoleDueAt = 0;
-
-        if (
-          this.state === "playing" &&
-          this.level >=
-            CONFIG.blackHoleStartLevel &&
-          this.countGroup("blackhole") === 0
-        ) {
-          this.spawn(
-            "blackhole",
-            "blackhole"
-          );
-        }
-
-        if (this.state === "playing") {
-          this.scheduleBlackHole();
-        }
-      }, delay);
+    this.blackHoleSpawnTimer = setTimeout(() => {
+      this.blackHoleDueAt = 0;
+      if (
+        this.state === "playing" &&
+        this.level >= CONFIG.blackHoleStartLevel &&
+        this.countGroup("blackhole") === 0
+      ) {
+        this.spawn("blackhole", "blackhole");
+      }
+      if (this.state === "playing") {
+        this.scheduleBlackHole();
+      }
+    }, delay);
   }
 
   pickGoodType() {
     const roll = Math.random();
+    const lifeChance = this.level >= CONFIG.extraLifeStartLevel ? CONFIG.extraLifeChance : 0;
+    const goldenChance = Math.min(0.07 + (this.level - 1) * 0.003, 0.13);
+    const freezeChance = Math.min(0.035 + (this.level - 1) * 0.003, 0.075);
 
-    const lifeChance =
-      this.level >=
-      CONFIG.extraLifeStartLevel
-        ? CONFIG.extraLifeChance
-        : 0;
-
-    const goldenChance = Math.min(
-      0.07 +
-        (this.level - 1) * 0.003,
-      0.13
-    );
-
-    const freezeChance = Math.min(
-      0.035 +
-        (this.level - 1) * 0.003,
-      0.075
-    );
-
-    if (roll < lifeChance) {
-      return "life";
-    }
-
-    if (
-      roll <
-      lifeChance + goldenChance
-    ) {
-      return "golden";
-    }
-
-    if (
-      roll <
-      lifeChance +
-        goldenChance +
-        freezeChance
-    ) {
-      return "freeze";
-    }
+    if (roll < lifeChance) return "life";
+    if (roll < lifeChance + goldenChance) return "golden";
+    if (roll < lifeChance + goldenChance + freezeChance) return "freeze";
 
     return "rabbit";
   }
 
   pickHazardType() {
     const roll = Math.random();
+    const netChance = this.level >= 3 ? Math.min(0.22 + this.level * 0.01, 0.36) : 0;
+    const decoyChance = Math.min(0.28 + this.level * 0.006, 0.38);
 
-    const netChance =
-      this.level >= 3
-        ? Math.min(
-            0.22 +
-              this.level * 0.01,
-            0.36
-          )
-        : 0;
-
-    const decoyChance = Math.min(
-      0.28 +
-        this.level * 0.006,
-      0.38
-    );
-
-    if (roll < netChance) {
-      return "net";
-    }
-
-    if (
-      roll <
-      netChance + decoyChance
-    ) {
-      return "decoy";
-    }
+    if (roll < netChance) return "net";
+    if (roll < netChance + decoyChance) return "decoy";
 
     return "redrabbit";
   }
 
   targetLife(type) {
-    if (type === "hacker") {
-      return CONFIG.hackerLife;
-    }
-
-    if (type === "hero") {
-      return CONFIG.heroLife;
-    }
-
-    if (type === "blackhole") {
-      return CONFIG.blackHoleLife;
-    }
+    if (type === "hacker") return CONFIG.hackerLife;
+    if (type === "hero") return CONFIG.heroLife;
+    if (type === "blackhole") return CONFIG.blackHoleLife;
 
     let life = CONFIG.targetLife;
+    if (type === "net") life = CONFIG.netLife;
+    else if (type === "decoy") life = CONFIG.decoyLife;
+    else if (type === "redrabbit") life = CONFIG.hazardLife;
 
-    if (type === "net") {
-      life = CONFIG.netLife;
-    } else if (type === "decoy") {
-      life = CONFIG.decoyLife;
-    } else if (
-      type === "redrabbit"
-    ) {
-      life = CONFIG.hazardLife;
-    }
-
-    return this.isFrozen
-      ? life * 1.8
-      : life;
+    return this.isFrozen ? life * 1.8 : life;
   }
 
   findSpawnPosition(size, rect) {
     const margin = size / 2 + 18;
+    let fallback = { x: rect.width / 2, y: rect.height / 2 };
 
-    let fallback = {
-      x: rect.width / 2,
-      y: rect.height / 2,
-    };
-
-    for (
-      let attempt = 0;
-      attempt < 50;
-      attempt++
-    ) {
+    for (let attempt = 0; attempt < 50; attempt++) {
       const point = {
-        x:
-          margin +
-          Math.random() *
-            Math.max(
-              1,
-              rect.width - margin * 2
-            ),
-
-        y:
-          margin +
-          Math.random() *
-            Math.max(
-              1,
-              rect.height - margin * 2
-            ),
+        x: margin + Math.random() * Math.max(1, rect.width - margin * 2),
+        y: margin + Math.random() * Math.max(1, rect.height - margin * 2),
       };
-
       fallback = point;
 
-      const overlaps = [
-        ...this.targets.values(),
-      ].some((target) => {
-        const otherSize =
-          parseFloat(
-            target.element.style.getPropertyValue(
-              "--target-size"
-            )
-          ) || size;
-
+      const overlaps = [...this.targets.values()].some((target) => {
+        const otherSize = parseFloat(target.element.style.getPropertyValue("--target-size")) || size;
         const distance = Math.hypot(
-          point.x -
-            parseFloat(
-              target.element.style.left
-            ),
-
-          point.y -
-            parseFloat(
-              target.element.style.top
-            )
+          point.x - parseFloat(target.element.style.left),
+          point.y - parseFloat(target.element.style.top)
         );
-
-        return (
-          distance <
-          (size + otherSize) / 2 + 14
-        );
+        return distance < (size + otherSize) / 2 + 14;
       });
 
-      if (!overlaps) {
-        return point;
-      }
+      if (!overlaps) return point;
     }
-
     return fallback;
   }
 
-  spawn(
-    type,
-    group,
-    options = {}
-  ) {
-    if (this.state !== "playing") {
-      return;
-    }
+  spawn(type, group, options = {}) {
+    if (this.state !== "playing") return;
 
     let size = Math.max(
       58,
-      (
-        window.innerWidth < 700
-          ? 82
-          : 94
-      ) -
-        (this.level - 1) * 1.4
+      (window.innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.4
     );
 
-    if (type === "hacker") {
-      size = Math.max(
-        76,
-        size * 1.18
-      );
-    }
+    if (type === "hacker") size = Math.max(76, size * 1.18);
+    if (type === "hero") size = Math.max(74, size * 1.14);
+    if (type === "blackhole") size = Math.max(82, size * 1.26);
 
-    if (type === "hero") {
-      size = Math.max(
-        74,
-        size * 1.14
-      );
-    }
-
-    if (type === "blackhole") {
-      size = Math.max(
-        82,
-        size * 1.26
-      );
-    }
-
-    const rect =
-      this.e.stage.getBoundingClientRect();
-
-    let { x, y } =
-      this.findSpawnPosition(
-        size,
-        rect
-      );
+    const rect = this.e.stage.getBoundingClientRect();
+    let { x, y } = this.findSpawnPosition(size, rect);
 
     if (options.spawnAt) {
-      const margin =
-        size / 2 + 12;
-
-      x = clamp(
-        options.spawnAt.x,
-        margin,
-        rect.width - margin
-      );
-
-      y = clamp(
-        options.spawnAt.y,
-        margin,
-        rect.height - margin
-      );
+      const margin = size / 2 + 12;
+      x = clamp(options.spawnAt.x, margin, rect.width - margin);
+      y = clamp(options.spawnAt.y, margin, rect.height - margin);
     }
 
-    const button =
-      document.createElement("button");
-
-    button.className =
-      `target target--${type}`;
-
-    if (
-      type === "hacker" &&
-      options.isClone
-    ) {
-      button.classList.add(
-        "is-hacker-clone"
-      );
+    const button = document.createElement("button");
+    button.className = `target target--${type}`;
+    if (type === "hacker" && options.isClone) {
+      button.classList.add("is-hacker-clone");
     }
 
     button.type = "button";
-
-    button.setAttribute(
-      "aria-label",
-      type
-    );
-
-    button.style.setProperty(
-      "--target-size",
-      `${size}px`
-    );
-
+    button.setAttribute("aria-label", type);
+    button.style.setProperty("--target-size", `${size}px`);
     button.style.left = `${x}px`;
     button.style.top = `${y}px`;
 
@@ -1585,89 +1407,47 @@ class Game {
       button.innerHTML = `
         <span class="target__timer"></span>
         <div class="target__net-grid"></div>
-        <span class="target__net-warning">
-          CYBER NET
-        </span>
+        <span class="target__net-warning">CYBER NET</span>
       `;
     } else {
       button.innerHTML = `
         <span class="target__timer"></span>
         <span class="target__ring"></span>
         <span class="target__core"></span>
-
         <span class="target__rabbit">
-          <span
-            class="target__rabbit-ear target__rabbit-ear--left"
-          ></span>
-
-          <span
-            class="target__rabbit-ear target__rabbit-ear--right"
-          ></span>
-
-          <span
-            class="target__rabbit-head"
-          ></span>
-
-          <span
-            class="target__rabbit-eye"
-          ></span>
+          <span class="target__rabbit-ear target__rabbit-ear--left"></span>
+          <span class="target__rabbit-ear target__rabbit-ear--right"></span>
+          <span class="target__rabbit-head"></span>
+          <span class="target__rabbit-eye"></span>
         </span>
       `;
 
       if (type === "life") {
-        button.insertAdjacentHTML(
-          "beforeend",
-          `
-            <span class="target__life-plus">
-              +1
-            </span>
-          `
-        );
+        button.insertAdjacentHTML("beforeend", `<span class="target__life-plus">+1</span>`);
       } else if (type === "decoy") {
-        button.insertAdjacentHTML(
-          "beforeend",
-          `
-            <span class="target__decoy-ghost">
-              <span class="target__decoy-ghost-ear target__decoy-ghost-ear--left"></span>
-              <span class="target__decoy-ghost-ear target__decoy-ghost-ear--right"></span>
-              <span class="target__decoy-ghost-head"></span>
-            </span>
-
-            <span class="target__decoy-split target__decoy-split--one"></span>
-            <span class="target__decoy-split target__decoy-split--two"></span>
-          `
-        );
+        button.insertAdjacentHTML("beforeend", `
+          <span class="target__decoy-ghost">
+            <span class="target__decoy-ghost-ear target__decoy-ghost-ear--left"></span>
+            <span class="target__decoy-ghost-ear target__decoy-ghost-ear--right"></span>
+            <span class="target__decoy-ghost-head"></span>
+          </span>
+          <span class="target__decoy-split target__decoy-split--one"></span>
+          <span class="target__decoy-split target__decoy-split--two"></span>
+        `);
       } else if (type === "hacker") {
-        button.insertAdjacentHTML(
-          "beforeend",
-          `
-            <span class="target__hacker-code">
-              0xBAD
-            </span>
-
-            <span
-              class="target__hacker-mask"
-            ></span>
-
-            <span
-              class="target__hacker-glitch target__hacker-glitch--one"
-            ></span>
-
-            <span
-              class="target__hacker-glitch target__hacker-glitch--two"
-            ></span>
-          `
-        );
+        button.insertAdjacentHTML("beforeend", `
+          <span class="target__hacker-code">0xBAD</span>
+          <span class="target__hacker-mask"></span>
+          <span class="target__hacker-glitch target__hacker-glitch--one"></span>
+          <span class="target__hacker-glitch target__hacker-glitch--two"></span>
+        `);
       } else if (type === "hero") {
-        button.insertAdjacentHTML(
-          "beforeend",
-          `
-            <span class="target__whitehat-hat"></span>
-            <span class="target__whitehat-visor"></span>
-            <span class="target__whitehat-circuit"></span>
-            <span class="target__whitehat-shield"></span>
-          `
-        );
+        button.insertAdjacentHTML("beforeend", `
+          <span class="target__whitehat-hat"></span>
+          <span class="target__whitehat-visor"></span>
+          <span class="target__whitehat-circuit"></span>
+          <span class="target__whitehat-shield"></span>
+        `);
       }
     }
 
@@ -1675,32 +1455,17 @@ class Game {
     const life = this.targetLife(type);
     const spawnAt = performance.now();
 
-    const timerId = setTimeout(
-      () => this.miss(id),
-      life
-    );
+    const timerId = setTimeout(() => this.miss(id), life);
 
-    button.addEventListener(
-      "pointerdown",
-      (event) => {
-        event.stopPropagation();
-
-        this.hit(
-          id,
-          type,
-          button,
-          x,
-          y
-        );
-      }
-    );
+    button.addEventListener("pointerdown", (event) => {
+      event.stopPropagation();
+      this.hit(id, type, button, x, y);
+    });
 
     this.e.layer.appendChild(button);
 
     requestAnimationFrame(() => {
-      button.classList.add(
-        "is-spawned"
-      );
+      button.classList.add("is-spawned");
     });
 
     const target = {
@@ -1713,15 +1478,11 @@ class Game {
       timerId,
       x,
       y,
-      isClone: Boolean(
-        options.isClone
-      ),
+      isClone: Boolean(options.isClone),
       cloneTimerId: null,
       cloneDueAt: 0,
       cloneRemaining: 0,
-      cloneSpent: Boolean(
-        options.isClone
-      ),
+      cloneSpent: Boolean(options.isClone),
       portalTimerId: null,
       portalDueAt: 0,
       portalRemaining: 0,
@@ -1731,153 +1492,74 @@ class Game {
 
     this.targets.set(id, target);
 
-    if (
-      type === "hacker" &&
-      !target.isClone
-    ) {
-      this.startHackerCloneTimer(
-        id,
-        target,
-        CONFIG.hackerCloneDelay
-      );
+    if (type === "hacker" && !target.isClone) {
+      this.startHackerCloneTimer(id, target, CONFIG.hackerCloneDelay);
     }
 
     if (type === "blackhole") {
-      this.startBlackHoleSystems(
-        id,
-        target,
-        CONFIG.blackHoleHackerDelay
-      );
+      this.startBlackHoleSystems(id, target, CONFIG.blackHoleHackerDelay);
     }
   }
 
-  startHackerCloneTimer(
-    id,
-    target,
-    delay
-  ) {
+  startHackerCloneTimer(id, target, delay) {
     clearTimeout(target.cloneTimerId);
+    target.cloneDueAt = performance.now() + delay;
 
-    target.cloneDueAt =
-      performance.now() + delay;
+    target.cloneTimerId = setTimeout(() => {
+      target.cloneTimerId = null;
+      target.cloneDueAt = 0;
+      target.cloneSpent = true;
 
-    target.cloneTimerId =
-      setTimeout(() => {
-        target.cloneTimerId = null;
-        target.cloneDueAt = 0;
-        target.cloneSpent = true;
-
-        if (
-          this.state === "playing" &&
-          this.targets.has(id) &&
-          this.countGroup("hacker") <
-            CONFIG.hackerMaxOnBoard
-        ) {
-          this.spawn(
-            "hacker",
-            "hacker",
-            { isClone: true }
-          );
-        }
-      }, delay);
+      if (
+        this.state === "playing" &&
+        this.targets.has(id) &&
+        this.countGroup("hacker") < CONFIG.hackerMaxOnBoard
+      ) {
+        this.spawn("hacker", "hacker", { isClone: true });
+      }
+    }, delay);
   }
 
-  startBlackHoleSystems(
-    id,
-    target,
-    hackerDelay
-  ) {
+  startBlackHoleSystems(id, target, hackerDelay) {
     clearTimeout(target.portalTimerId);
     clearInterval(target.gravityTimerId);
 
-    target.portalDueAt =
-      performance.now() + hackerDelay;
+    target.portalDueAt = performance.now() + hackerDelay;
 
-    target.portalTimerId =
-      setTimeout(() => {
-        target.portalTimerId = null;
-        target.portalDueAt = 0;
+    target.portalTimerId = setTimeout(() => {
+      target.portalTimerId = null;
+      target.portalDueAt = 0;
 
-        if (
-          this.state !== "playing" ||
-          !this.targets.has(id)
-        ) {
-          return;
-        }
+      if (this.state !== "playing" || !this.targets.has(id)) return;
 
-        target.element.classList.add(
-          "is-portal-spent"
-        );
+      target.element.classList.add("is-portal-spent");
+      target.portalSpent = true;
 
-        target.portalSpent = true;
+      if (this.countGroup("hacker") < CONFIG.hackerMaxOnBoard) {
+        this.spawn("hacker", "hacker", {
+          isClone: true,
+          spawnAt: { x: target.x + 24, y: target.y - 10 },
+        });
+      }
+    }, hackerDelay);
 
-        if (
-          this.countGroup("hacker") <
-            CONFIG.hackerMaxOnBoard
-        ) {
-          this.spawn(
-            "hacker",
-            "hacker",
-            {
-              isClone: true,
-              spawnAt: {
-                x: target.x + 24,
-                y: target.y - 10,
-              },
-            }
-          );
-        }
-      }, hackerDelay);
-
-    target.gravityTimerId =
-      setInterval(() => {
-        this.applyBlackHoleGravity(
-          id,
-          target
-        );
-      }, CONFIG.blackHoleGravityRate);
+    target.gravityTimerId = setInterval(() => {
+      this.applyBlackHoleGravity(id, target);
+    }, CONFIG.blackHoleGravityRate);
   }
 
-  applyBlackHoleGravity(
-    blackHoleId,
-    blackHole
-  ) {
-    if (
-      this.state !== "playing" ||
-      !this.targets.has(blackHoleId)
-    ) {
-      return;
-    }
+  applyBlackHoleGravity(blackHoleId, blackHole) {
+    if (this.state !== "playing" || !this.targets.has(blackHoleId)) return;
 
-    for (
-      const [id, target]
-      of this.targets.entries()
-    ) {
-      if (
-        id === blackHoleId ||
-        target.type === "blackhole"
-      ) {
-        continue;
-      }
+    for (const [id, target] of this.targets.entries()) {
+      if (id === blackHoleId || target.type === "blackhole") continue;
 
-      const dx =
-        blackHole.x - target.x;
+      const dx = blackHole.x - target.x;
+      const dy = blackHole.y - target.y;
+      const distance = Math.hypot(dx, dy);
 
-      const dy =
-        blackHole.y - target.y;
-
-      const distance =
-        Math.hypot(dx, dy);
-
-      if (
-        distance <= 1 ||
-        distance >
-          CONFIG.blackHoleGravityRadius
-      ) {
-        target.element.classList.remove(
-          "is-gravity-pulled"
-        );
-
+      if (distance <= 1 || distance > CONFIG.blackHoleGravityRadius) {
+        target.element.classList.remove("is-gravity-pulled");
         continue;
       }
 
@@ -1888,17 +1570,9 @@ class Game {
         clearInterval(target.gravityTimerId);
 
         this.targets.delete(id);
+        target.element.classList.add("is-expiring");
 
-        target.element.classList.add(
-          "is-expiring"
-        );
-
-        this.particles.burst(
-          blackHole.x,
-          blackHole.y,
-          "#a855f7",
-          12
-        );
+        this.particles.burst(blackHole.x, blackHole.y, "#a855f7", 12);
 
         setTimeout(() => {
           target.element.remove();
@@ -1909,50 +1583,27 @@ class Game {
 
       const strength =
         CONFIG.blackHoleGravityStep *
-        (1 -
-          distance /
-            CONFIG.blackHoleGravityRadius +
-          0.25);
+        (1 - distance / CONFIG.blackHoleGravityRadius + 0.25);
 
-      target.x +=
-        (dx / distance) * strength;
+      target.x += (dx / distance) * strength;
+      target.y += (dy / distance) * strength;
 
-      target.y +=
-        (dy / distance) * strength;
-
-      target.element.style.left =
-        `${target.x}px`;
-
-      target.element.style.top =
-        `${target.y}px`;
-
-      target.element.classList.add(
-        "is-gravity-pulled"
-      );
+      target.element.style.left = `${target.x}px`;
+      target.element.style.top = `${target.y}px`;
+      target.element.classList.add("is-gravity-pulled");
     }
   }
 
   clearGravityMarks() {
-    for (
-      const target
-      of this.targets.values()
-    ) {
-      target.element.classList.remove(
-        "is-gravity-pulled"
-      );
+    for (const target of this.targets.values()) {
+      target.element.classList.remove("is-gravity-pulled");
     }
   }
 
   hit(id, type, button, x, y) {
-    if (
-      this.state !== "playing" ||
-      !this.targets.has(id)
-    ) {
-      return;
-    }
+    if (this.state !== "playing" || !this.targets.has(id)) return;
 
-    const target =
-      this.targets.get(id);
+    const target = this.targets.get(id);
 
     clearTimeout(target.timerId);
     clearTimeout(target.cloneTimerId);
@@ -1971,350 +1622,103 @@ class Game {
 
     if (type === "life") {
       this.hits++;
-
-      if (
-        this.lives <
-        CONFIG.maxLives
-      ) {
+      if (this.lives < CONFIG.maxLives) {
         this.lives++;
-
-        this.flash(
-          "EXTRA LIFE!",
-          "LIFE +1",
-          "#55ff88"
-        );
+        this.flash("EXTRA LIFE!", "LIFE +1", "#55ff88");
       } else {
-        this.score +=
-          CONFIG.extraLifeFullPoints;
-
-        this.flash(
-          "LIFE BANK FULL",
-          `+${CONFIG.extraLifeFullPoints} PTS`,
-          "#55ff88"
-        );
+        this.score += CONFIG.extraLifeFullPoints;
+        this.flash("LIFE BANK FULL", `+${CONFIG.extraLifeFullPoints} PTS`, "#55ff88");
       }
-
       this.audio.life();
       this.effect("is-hit");
-
-      this.setStatus(
-        "LIFE RESTORED",
-        "normal"
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#55ff88",
-        36
-      );
+      this.setStatus("LIFE RESTORED", "normal");
+      this.particles.burst(x, y, "#55ff88", 36);
     } else if (type === "decoy") {
-      this.score = Math.max(
-        0,
-        this.score -
-          CONFIG.decoyPenalty
-      );
-
+      this.score = Math.max(0, this.score - CONFIG.decoyPenalty);
       this.lives--;
       this.audio.bad();
-
-      this.flash(
-        "DECOY HIT",
-        `-${CONFIG.decoyPenalty}`,
-        "#ff325f"
-      );
-
+      this.flash("DECOY HIT", `-${CONFIG.decoyPenalty}`, "#ff325f");
       this.effect("is-damaged");
-
-      this.setStatus(
-        "SYSTEM DAMAGE",
-        "danger"
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#ff325f",
-        24
-      );
+      this.setStatus("SYSTEM DAMAGE", "danger");
+      this.particles.burst(x, y, "#ff325f", 24);
 
       if (this.lives <= 0) {
-        setTimeout(
-          () => this.finish(),
-          180
-        );
-
+        setTimeout(() => this.finish(), 180);
         return;
       }
-    } else if (
-      type === "redrabbit"
-    ) {
-      this.score = Math.max(
-        0,
-        this.score -
-          CONFIG.redPenaltyPoints
-      );
-
-      this.timeLeft = Math.max(
-        0,
-        this.timeLeft -
-          CONFIG.redPenaltyTime
-      );
-
+    } else if (type === "redrabbit") {
+      this.score = Math.max(0, this.score - CONFIG.redPenaltyPoints);
+      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.redPenaltyTime);
       this.audio.red();
-
-      this.flash(
-        "RED RABBIT HIT!",
-        `-${CONFIG.redPenaltyPoints} PTS / -${CONFIG.redPenaltyTime}s`,
-        "#ff0033"
-      );
-
+      this.flash("RED RABBIT HIT!", `-${CONFIG.redPenaltyPoints} PTS / -${CONFIG.redPenaltyTime}s`, "#ff0033");
       this.effect("is-damaged");
-
-      this.setStatus(
-        "CRITICAL ERROR!",
-        "danger"
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#ff0033",
-        35
-      );
+      this.setStatus("CRITICAL ERROR!", "danger");
+      this.particles.burst(x, y, "#ff0033", 35);
     } else if (type === "net") {
-      this.timeLeft = Math.max(
-        0,
-        this.timeLeft - 1.5
-      );
-
+      this.timeLeft = Math.max(0, this.timeLeft - 1.5);
       this.audio.bad();
-
-      this.flash(
-        "NET TRAP!",
-        "-1.5s",
-        "#a855f7"
-      );
-
+      this.flash("NET TRAP!", "-1.5s", "#a855f7");
       this.effect("is-damaged");
-
-      this.setStatus(
-        "NETWORK BLOCKED!",
-        "warning"
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#a855f7",
-        20
-      );
-    } else if (
-      type === "blackhole"
-    ) {
-      this.timeLeft = Math.max(
-        0,
-        this.timeLeft -
-          CONFIG.blackHolePenaltyTime
-      );
-
+      this.setStatus("NETWORK BLOCKED!", "warning");
+      this.particles.burst(x, y, "#a855f7", 20);
+    } else if (type === "blackhole") {
+      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.blackHolePenaltyTime);
       this.audio.blackHole();
       this.effect("is-damaged");
-
-      this.flash(
-        "GRAVITY BREACH",
-        `-${CONFIG.blackHolePenaltyTime}s`,
-        "#a855f7"
-      );
-
-      this.setStatus(
-        "GRAVITY BREACH",
-        "danger"
-      );
-
-      this.particles.burst(
-        target.x,
-        target.y,
-        "#a855f7",
-        34
-      );
-
-      this.particles.burst(
-        target.x,
-        target.y,
-        "#ffffff",
-        18
-      );
-    } else if (
-      type === "hacker"
-    ) {
-      this.score = Math.max(
-        0,
-        this.score -
-          CONFIG.hackerPenaltyPoints
-      );
-
+      this.flash("GRAVITY BREACH", `-${CONFIG.blackHolePenaltyTime}s`, "#a855f7");
+      this.setStatus("GRAVITY BREACH", "danger");
+      this.particles.burst(target.x, target.y, "#a855f7", 34);
+      this.particles.burst(target.x, target.y, "#ffffff", 18);
+    } else if (type === "hacker") {
+      this.score = Math.max(0, this.score - CONFIG.hackerPenaltyPoints);
       this.audio.blackHacker();
       this.applyHackerVirus();
-
-      this.flash(
-        "HACKER RABBIT HIT!",
-        `-${CONFIG.hackerPenaltyPoints} PTS // VIRUS UPLOADED`,
-        "#ff38c7"
-      );
-
-      this.setStatus(
-        "SYSTEM INFECTED",
-        "danger"
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#00f5ff",
-        22
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#ff38c7",
-        22
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#a855f7",
-        18
-      );
+      this.flash("HACKER RABBIT HIT!", `-${CONFIG.hackerPenaltyPoints} PTS // VIRUS UPLOADED`, "#ff38c7");
+      this.setStatus("SYSTEM INFECTED", "danger");
+      this.particles.burst(x, y, "#00f5ff", 22);
+      this.particles.burst(x, y, "#ff38c7", 22);
+      this.particles.burst(x, y, "#a855f7", 18);
     } else if (type === "hero") {
       this.hits++;
       this.audio.whiteHacker();
-      this.applyAntiCheat(
-        button,
-        x,
-        y
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#fff4dc",
-        24
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#ff7a00",
-        28
-      );
-
-      this.particles.burst(
-        x,
-        y,
-        "#246bff",
-        20
-      );
+      this.applyAntiCheat(button, x, y);
+      this.particles.burst(x, y, "#fff4dc", 24);
+      this.particles.burst(x, y, "#ff7a00", 28);
+      this.particles.burst(x, y, "#246bff", 20);
     } else {
       this.hits++;
       this.comboCount++;
+      this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
+      this.maxCombo = Math.max(this.maxCombo, this.mult);
 
-      this.mult = Math.min(
-        CONFIG.maxCombo,
-        1 +
-          Math.floor(
-            this.comboCount / 3
-          )
-      );
-
-      this.maxCombo = Math.max(
-        this.maxCombo,
-        this.mult
-      );
-
-      let points =
-        CONFIG.rabbitPoints;
-
-      if (type === "golden") {
-        points =
-          CONFIG.goldenPoints;
-      } else if (
-        type === "freeze"
-      ) {
-        points =
-          CONFIG.freezePoints;
-      }
+      let points = CONFIG.rabbitPoints;
+      if (type === "golden") points = CONFIG.goldenPoints;
+      else if (type === "freeze") points = CONFIG.freezePoints;
 
       points *= this.mult;
       this.score += points;
       this.levelHits++;
 
       if (type === "golden") {
-        this.timeLeft +=
-          CONFIG.goldenBonus;
-
+        this.timeLeft += CONFIG.goldenBonus;
         this.audio.gold();
-
-        this.flash(
-          "GOLDEN RABBIT",
-          `+${points} / +${CONFIG.goldenBonus.toFixed(1)}s`,
-          "#ffd34d"
-        );
-
-        this.particles.burst(
-          x,
-          y,
-          "#ffd34d",
-          30
-        );
-      } else if (
-        type === "freeze"
-      ) {
+        this.flash("GOLDEN RABBIT", `+${points} / +${CONFIG.goldenBonus.toFixed(1)}s`, "#ffd34d");
+        this.particles.burst(x, y, "#ffd34d", 30);
+      } else if (type === "freeze") {
         this.applyFreeze();
         this.audio.freeze();
-
-        this.flash(
-          "FREEZE RABBIT",
-          `TIME SLOWED! +${points}`,
-          "#00f5ff"
-        );
-
-        this.particles.burst(
-          x,
-          y,
-          "#00f5ff",
-          30
-        );
+        this.flash("FREEZE RABBIT", `TIME SLOWED! +${points}`, "#00f5ff");
+        this.particles.burst(x, y, "#00f5ff", 30);
       } else {
         this.audio.hit(this.mult);
-
-        this.flash(
-          "DIRECT HIT",
-          `+${points}`,
-          "#00f5ff"
-        );
-
-        this.particles.burst(
-          x,
-          y,
-          "#00f5ff",
-          20
-        );
+        this.flash("DIRECT HIT", `+${points}`, "#00f5ff");
+        this.particles.burst(x, y, "#00f5ff", 20);
       }
 
       this.effect("is-hit");
+      this.setStatus("TARGET CONFIRMED", "normal");
 
-      this.setStatus(
-        "TARGET CONFIRMED",
-        "normal"
-      );
-
-      if (
-        this.levelHits >=
-        CONFIG.hitsPerLevel
-      ) {
+      if (this.levelHits >= CONFIG.hitsPerLevel) {
         this.levelUp();
       }
     }
@@ -2328,122 +1732,60 @@ class Game {
 
   applyFreeze() {
     this.isFrozen = true;
-
-    this.e.stage.classList.add(
-      "is-frozen"
-    );
-
+    this.e.stage.classList.add("is-frozen");
     clearTimeout(this.freezeTimer);
+    this.freezeExpiresAt = performance.now() + 4000;
 
-    this.freezeExpiresAt =
-      performance.now() + 4000;
-
-    this.freezeTimer =
-      setTimeout(() => {
-        this.isFrozen = false;
-        this.freezeExpiresAt = 0;
-
-        this.e.stage.classList.remove(
-          "is-frozen"
-        );
-      }, 4000);
+    this.freezeTimer = setTimeout(() => {
+      this.isFrozen = false;
+      this.freezeExpiresAt = 0;
+      this.e.stage.classList.remove("is-frozen");
+    }, 4000);
   }
 
-  applyHackerVirus(
-    duration =
-      CONFIG.hackerVirusDuration
-  ) {
+  applyHackerVirus(duration = CONFIG.hackerVirusDuration) {
     this.isVirusActive = true;
-
-    this.e.stage.classList.add(
-      "is-virus"
-    );
-
-    this.e.shell.classList.remove(
-      "is-panic-impact"
-    );
+    this.e.stage.classList.add("is-virus");
+    this.e.shell.classList.remove("is-panic-impact");
 
     requestAnimationFrame(() => {
-      this.e.shell.classList.add(
-        "is-panic-impact"
-      );
+      this.e.shell.classList.add("is-panic-impact");
     });
 
     setTimeout(() => {
-      this.e.shell.classList.remove(
-        "is-panic-impact"
-      );
+      this.e.shell.classList.remove("is-panic-impact");
     }, 650);
 
     clearTimeout(this.virusTimer);
+    this.virusExpiresAt = performance.now() + duration;
 
-    this.virusExpiresAt =
-      performance.now() + duration;
-
-    this.virusTimer =
-      setTimeout(() => {
-        this.isVirusActive = false;
-        this.virusExpiresAt = 0;
-
-        this.e.stage.classList.remove(
-          "is-virus"
-        );
-
-        if (
-          this.state === "playing"
-        ) {
-          this.setStatus(
-            "VIRUS PURGED",
-            "normal"
-          );
-        }
-      }, duration);
+    this.virusTimer = setTimeout(() => {
+      this.isVirusActive = false;
+      this.virusExpiresAt = 0;
+      this.e.stage.classList.remove("is-virus");
+      if (this.state === "playing") {
+        this.setStatus("VIRUS PURGED", "normal");
+      }
+    }, duration);
   }
 
-  applyAntiCheat(
-    heroButton,
-    fallbackX,
-    fallbackY
-  ) {
-    const stageRect =
-      this.e.stage.getBoundingClientRect();
+  applyAntiCheat(heroButton, fallbackX, fallbackY) {
+    const stageRect = this.e.stage.getBoundingClientRect();
+    const heroRect = heroButton.getBoundingClientRect();
 
-    const heroRect =
-      heroButton.getBoundingClientRect();
+    const originX = heroRect.width ? heroRect.left - stageRect.left + heroRect.width / 2 : fallbackX;
+    const originY = heroRect.height ? heroRect.top - stageRect.top + heroRect.height / 2 : fallbackY;
 
-    const originX =
-      heroRect.width
-        ? heroRect.left -
-          stageRect.left +
-          heroRect.width / 2
-        : fallbackX;
-
-    const originY =
-      heroRect.height
-        ? heroRect.top -
-          stageRect.top +
-          heroRect.height / 2
-        : fallbackY;
-
-    const wave =
-      document.createElement("span");
-
-    wave.className =
-      "anti-cheat-wave";
-
+    const wave = document.createElement("span");
+    wave.className = "anti-cheat-wave";
     wave.style.left = `${originX}px`;
     wave.style.top = `${originY}px`;
 
     this.e.stage.appendChild(wave);
-
-    this.e.stage.classList.remove(
-      "is-anti-cheat"
-    );
+    this.e.stage.classList.remove("is-anti-cheat");
 
     requestAnimationFrame(() => {
-      this.e.stage.classList.add(
-        "is-anti-cheat"
-      );
+      this.e.stage.classList.add("is-anti-cheat");
     });
 
     clearTimeout(this.virusTimer);
@@ -2451,34 +1793,13 @@ class Game {
     this.virusExpiresAt = 0;
     this.virusRemaining = 0;
 
-    this.e.stage.classList.remove(
-      "is-virus"
-    );
+    this.e.stage.classList.remove("is-virus");
+    this.e.shell.classList.remove("is-panic-impact");
 
-    this.e.shell.classList.remove(
-      "is-panic-impact"
-    );
+    const dangerousTypes = new Set(["decoy", "redrabbit", "net", "hacker", "blackhole"]);
 
-    const dangerousTypes =
-      new Set([
-        "decoy",
-        "redrabbit",
-        "net",
-        "hacker",
-        "blackhole",
-      ]);
-
-    for (
-      const [id, target]
-      of [...this.targets.entries()]
-    ) {
-      if (
-        !dangerousTypes.has(
-          target.type
-        )
-      ) {
-        continue;
-      }
+    for (const [id, target] of [...this.targets.entries()]) {
+      if (!dangerousTypes.has(target.type)) continue;
 
       clearTimeout(target.timerId);
       clearTimeout(target.cloneTimerId);
@@ -2486,44 +1807,24 @@ class Game {
       clearInterval(target.gravityTimerId);
       this.targets.delete(id);
 
-      target.element.classList.add(
-        "is-anti-cheat-deleted"
-      );
+      target.element.classList.add("is-anti-cheat-deleted");
 
-      const targetRect =
-        target.element
-          .getBoundingClientRect();
-
-      const particleX =
-        targetRect.left -
-        stageRect.left +
-        targetRect.width / 2;
-
-      const particleY =
-        targetRect.top -
-        stageRect.top +
-        targetRect.height / 2;
+      const targetRect = target.element.getBoundingClientRect();
+      const particleX = targetRect.left - stageRect.left + targetRect.width / 2;
+      const particleY = targetRect.top - stageRect.top + targetRect.height / 2;
 
       const color =
         target.type === "hacker"
           ? "#ff38c7"
           : target.type === "blackhole"
-            ? "#ffffff"
+          ? "#ffffff"
           : target.type === "redrabbit"
-            ? "#ff0033"
-            : target.type === "net"
-              ? "#a855f7"
-              : "#ff325f";
+          ? "#ff0033"
+          : target.type === "net"
+          ? "#a855f7"
+          : "#ff325f";
 
-      this.particles.burst(
-        particleX,
-        particleY,
-        color,
-        ["hacker", "blackhole"]
-          .includes(target.type)
-          ? 32
-          : 22
-      );
+      this.particles.burst(particleX, particleY, color, ["hacker", "blackhole"].includes(target.type) ? 32 : 22);
 
       setTimeout(() => {
         target.element.remove();
@@ -2534,24 +1835,14 @@ class Game {
 
     setTimeout(() => {
       wave.remove();
-
-      this.e.stage.classList.remove(
-        "is-anti-cheat"
-      );
+      this.e.stage.classList.remove("is-anti-cheat");
     }, CONFIG.antiCheatDuration);
   }
 
   miss(id) {
-    if (
-      !this.targets.has(id) ||
-      this.state !== "playing"
-    ) {
-      return;
-    }
+    if (!this.targets.has(id) || this.state !== "playing") return;
 
-    const target =
-      this.targets.get(id);
-
+    const target = this.targets.get(id);
     this.targets.delete(id);
     clearTimeout(target.cloneTimerId);
     clearTimeout(target.portalTimerId);
@@ -2561,24 +1852,14 @@ class Game {
       this.clearGravityMarks();
     }
 
-    target.element.classList.add(
-      "is-expiring"
-    );
+    target.element.classList.add("is-expiring");
 
     setTimeout(() => {
       target.element.remove();
     }, 180);
 
     const harmlessToIgnore = [
-      "decoy",
-      "redrabbit",
-      "net",
-      "life",
-      "golden",
-      "freeze",
-      "hacker",
-      "hero",
-      "blackhole",
+      "decoy", "redrabbit", "net", "life", "golden", "freeze", "hacker", "hero", "blackhole"
     ].includes(target.type);
 
     if (!harmlessToIgnore) {
@@ -2586,19 +1867,9 @@ class Game {
       this.breakCombo();
       this.lives--;
       this.audio.bad();
-
-      this.flash(
-        "TARGET ESCAPED",
-        "LIFE -1",
-        "#ff325f"
-      );
-
+      this.flash("TARGET ESCAPED", "LIFE -1", "#ff325f");
       this.effect("is-damaged");
-
-      this.setStatus(
-        "TARGET ESCAPED",
-        "warning"
-      );
+      this.setStatus("TARGET ESCAPED", "warning");
 
       if (this.lives <= 0) {
         this.finish();
@@ -2612,43 +1883,27 @@ class Game {
   emptyTap() {
     this.taps++;
     this.breakCombo();
-
     this.audio.bad();
-
-    this.flash(
-      "MISS",
-      "COMBO RESET",
-      "#8fa3b8"
-    );
-
+    this.flash("MISS", "COMBO RESET", "#8fa3b8");
     this.update();
   }
 
   levelUp() {
     this.levelHits = 0;
 
-    if (
-      this.level <
-      CONFIG.maxLevel
-    ) {
+    if (this.level < CONFIG.maxLevel) {
       this.level++;
+    }
+
+    // Pozivanje otkljuÄavanja slojeva po nivoima!
+    if (this.music) {
+      this.music.setIntensity(this.level);
     }
 
     this.audio.level();
     this.effect("is-level-up");
-
-    this.flash(
-      `LEVEL ${String(
-        this.level
-      ).padStart(2, "0")}`,
-      "RABBIT FLOW INCREASED!",
-      "#ffd34d"
-    );
-
-    this.setStatus(
-      "LEVEL ADVANCED",
-      "normal"
-    );
+    this.flash(`LEVEL ${String(this.level).padStart(2, "0")}`, "RABBIT FLOW INCREASED!", "#ffd34d");
+    this.setStatus("LEVEL ADVANCED", "normal");
   }
 
   breakCombo() {
@@ -2657,74 +1912,36 @@ class Game {
   }
 
   removeAllTargets() {
-    for (
-      const target
-      of this.targets.values()
-    ) {
+    for (const target of this.targets.values()) {
       clearTimeout(target.timerId);
       clearTimeout(target.cloneTimerId);
       clearTimeout(target.portalTimerId);
       clearInterval(target.gravityTimerId);
       target.element.remove();
     }
-
     this.targets.clear();
   }
 
   pause() {
-    if (
-      this.state !== "playing"
-    ) {
-      return;
-    }
+    if (this.state !== "playing") return;
 
     const now = performance.now();
-
     this.state = "paused";
 
     if (this.raf) {
       cancelAnimationFrame(this.raf);
     }
 
-    this.goodRemaining =
-      this.goodDueAt
-        ? Math.max(
-            1,
-            this.goodDueAt - now
-          )
-        : this.goodDelay();
+    if (this.music) {
+      this.music.stopIntro();
+      this.music.stop();
+    }
 
-    this.hazardRemaining =
-      this.hazardDueAt
-        ? Math.max(
-            1,
-            this.hazardDueAt - now
-          )
-        : this.hazardDelay();
-
-    this.hackerRemaining =
-      this.hackerDueAt
-        ? Math.max(
-            1,
-            this.hackerDueAt - now
-          )
-        : this.hackerDelay();
-
-    this.heroRemaining =
-      this.heroDueAt
-        ? Math.max(
-            1,
-            this.heroDueAt - now
-          )
-        : this.heroDelay();
-
-    this.blackHoleRemaining =
-      this.blackHoleDueAt
-        ? Math.max(
-            1,
-            this.blackHoleDueAt - now
-          )
-        : this.blackHoleDelay();
+    this.goodRemaining = this.goodDueAt ? Math.max(1, this.goodDueAt - now) : this.goodDelay();
+    this.hazardRemaining = this.hazardDueAt ? Math.max(1, this.hazardDueAt - now) : this.hazardDelay();
+    this.hackerRemaining = this.hackerDueAt ? Math.max(1, this.hackerDueAt - now) : this.hackerDelay();
+    this.heroRemaining = this.heroDueAt ? Math.max(1, this.heroDueAt - now) : this.heroDelay();
+    this.blackHoleRemaining = this.blackHoleDueAt ? Math.max(1, this.blackHoleDueAt - now) : this.blackHoleDelay();
 
     clearTimeout(this.goodSpawnTimer);
     clearTimeout(this.hazardSpawnTimer);
@@ -2738,21 +1955,9 @@ class Game {
     this.heroDueAt = 0;
     this.blackHoleDueAt = 0;
 
-    for (
-      const target
-      of this.targets.values()
-    ) {
-      if (
-        target.type === "hacker" &&
-        !target.cloneSpent &&
-        target.cloneDueAt
-      ) {
-        target.cloneRemaining =
-          Math.max(
-            1,
-            target.cloneDueAt - now
-          );
-
+    for (const target of this.targets.values()) {
+      if (target.type === "hacker" && !target.cloneSpent && target.cloneDueAt) {
+        target.cloneRemaining = Math.max(1, target.cloneDueAt - now);
         target.cloneDueAt = 0;
       }
 
@@ -2761,245 +1966,99 @@ class Game {
       clearTimeout(target.portalTimerId);
       clearInterval(target.gravityTimerId);
 
-      if (
-        target.type === "blackhole" &&
-        target.portalDueAt
-      ) {
-        target.portalRemaining =
-          Math.max(
-            1,
-            target.portalDueAt - now
-          );
-
+      if (target.type === "blackhole" && target.portalDueAt) {
+        target.portalRemaining = Math.max(1, target.portalDueAt - now);
         target.portalDueAt = 0;
       }
 
-      target.remaining = Math.max(
-        1,
-        this.targetRemaining(
-          target,
-          now
-        )
-      );
+      target.remaining = Math.max(1, this.targetRemaining(target, now));
     }
 
-    if (
-      this.isFrozen &&
-      this.freezeExpiresAt
-    ) {
-      this.freezeRemaining =
-        Math.max(
-          1,
-          this.freezeExpiresAt - now
-        );
-
+    if (this.isFrozen && this.freezeExpiresAt) {
+      this.freezeRemaining = Math.max(1, this.freezeExpiresAt - now);
       clearTimeout(this.freezeTimer);
       this.freezeExpiresAt = 0;
     }
 
-    if (
-      this.isVirusActive &&
-      this.virusExpiresAt
-    ) {
-      this.virusRemaining =
-        Math.max(
-          1,
-          this.virusExpiresAt - now
-        );
-
+    if (this.isVirusActive && this.virusExpiresAt) {
+      this.virusRemaining = Math.max(1, this.virusExpiresAt - now);
       clearTimeout(this.virusTimer);
       this.virusExpiresAt = 0;
     }
 
-    this.e.layer
-      .getAnimations({
-        subtree: true,
-      })
-      .forEach((animation) => {
-        animation.pause();
-      });
-
+    this.e.layer.getAnimations({ subtree: true }).forEach((animation) => animation.pause());
     this.show(this.e.pauseO, true);
 
     this.e.pause.disabled = true;
     this.audio.stopSamples();
-
-    this.setStatus(
-      "SYSTEM SUSPENDED",
-      "warning"
-    );
+    this.setStatus("SYSTEM SUSPENDED", "warning");
   }
 
   resume() {
-    if (
-      this.state !== "paused"
-    ) {
-      return;
-    }
+    if (this.state !== "paused") return;
 
     const now = performance.now();
 
-    this.show(
-      this.e.pauseO,
-      false
-    );
-
+    this.show(this.e.pauseO, false);
     this.state = "playing";
     this.e.pause.disabled = false;
     this.last = now;
 
-    for (
-      const [id, target]
-      of this.targets.entries()
-    ) {
-      const remaining = Math.max(
-        1,
-        target.remaining ??
-          target.life
-      );
+    if (this.music) {
+      this.music.start();
+    }
 
+    for (const [id, target] of this.targets.entries()) {
+      const remaining = Math.max(1, target.remaining ?? target.life);
       target.life = remaining;
       target.spawnAt = now;
 
-      target.timerId =
-        setTimeout(
-          () => this.miss(id),
-          remaining
-        );
+      target.timerId = setTimeout(() => this.miss(id), remaining);
 
-      if (
-        target.type === "hacker" &&
-        !target.cloneSpent
-      ) {
-        this.startHackerCloneTimer(
-          id,
-          target,
-          Math.max(
-            1,
-            target.cloneRemaining ||
-              CONFIG.hackerCloneDelay
-          )
-        );
-
+      if (target.type === "hacker" && !target.cloneSpent) {
+        this.startHackerCloneTimer(id, target, Math.max(1, target.cloneRemaining || CONFIG.hackerCloneDelay));
         target.cloneRemaining = 0;
       }
 
       if (target.type === "blackhole") {
         if (!target.portalSpent) {
-          this.startBlackHoleSystems(
-            id,
-            target,
-            Math.max(
-              1,
-              target.portalRemaining ||
-                CONFIG.blackHoleHackerDelay
-            )
-          );
+          this.startBlackHoleSystems(id, target, Math.max(1, target.portalRemaining || CONFIG.blackHoleHackerDelay));
         } else {
-          target.gravityTimerId =
-            setInterval(() => {
-              this.applyBlackHoleGravity(
-                id,
-                target
-              );
-            }, CONFIG.blackHoleGravityRate);
+          target.gravityTimerId = setInterval(() => {
+            this.applyBlackHoleGravity(id, target);
+          }, CONFIG.blackHoleGravityRate);
         }
-
         target.portalRemaining = 0;
       }
-
       delete target.remaining;
     }
 
-    this.e.layer
-      .getAnimations({
-        subtree: true,
-      })
-      .forEach((animation) => {
-        animation.play();
-      });
+    this.e.layer.getAnimations({ subtree: true }).forEach((animation) => animation.play());
 
-    if (
-      this.isFrozen &&
-      this.freezeRemaining > 0
-    ) {
-      const remaining =
-        this.freezeRemaining;
-
+    if (this.isFrozen && this.freezeRemaining > 0) {
+      const remaining = this.freezeRemaining;
       this.freezeRemaining = 0;
-
-      this.freezeExpiresAt =
-        now + remaining;
-
-      this.freezeTimer =
-        setTimeout(() => {
-          this.isFrozen = false;
-          this.freezeExpiresAt = 0;
-
-          this.e.stage.classList.remove(
-            "is-frozen"
-          );
-        }, remaining);
+      this.freezeExpiresAt = now + remaining;
+      this.freezeTimer = setTimeout(() => {
+        this.isFrozen = false;
+        this.freezeExpiresAt = 0;
+        this.e.stage.classList.remove("is-frozen");
+      }, remaining);
     }
 
-    if (
-      this.isVirusActive &&
-      this.virusRemaining > 0
-    ) {
-      const remaining =
-        this.virusRemaining;
-
+    if (this.isVirusActive && this.virusRemaining > 0) {
+      const remaining = this.virusRemaining;
       this.virusRemaining = 0;
-
-      this.applyHackerVirus(
-        remaining
-      );
+      this.applyHackerVirus(remaining);
     }
 
-    this.raf =
-      requestAnimationFrame(
-        (time) => this.loop(time)
-      );
+    this.raf = requestAnimationFrame((time) => this.loop(time));
 
-    this.scheduleGood(
-      Math.max(
-        1,
-        this.goodRemaining ||
-          this.goodDelay()
-      )
-    );
-
-    this.scheduleHazard(
-      Math.max(
-        1,
-        this.hazardRemaining ||
-          this.hazardDelay()
-      )
-    );
-
-    this.scheduleHacker(
-      Math.max(
-        1,
-        this.hackerRemaining ||
-          this.hackerDelay()
-      )
-    );
-
-    this.scheduleHero(
-      Math.max(
-        1,
-        this.heroRemaining ||
-          this.heroDelay()
-      )
-    );
-
-    this.scheduleBlackHole(
-      Math.max(
-        1,
-        this.blackHoleRemaining ||
-          this.blackHoleDelay()
-      )
-    );
+    this.scheduleGood(Math.max(1, this.goodRemaining || this.goodDelay()));
+    this.scheduleHazard(Math.max(1, this.hazardRemaining || this.hazardDelay()));
+    this.scheduleHacker(Math.max(1, this.hackerRemaining || this.hackerDelay()));
+    this.scheduleHero(Math.max(1, this.heroRemaining || this.heroDelay()));
+    this.scheduleBlackHole(Math.max(1, this.blackHoleRemaining || this.blackHoleDelay()));
 
     this.goodRemaining = 0;
     this.hazardRemaining = 0;
@@ -3007,35 +2066,30 @@ class Game {
     this.heroRemaining = 0;
     this.blackHoleRemaining = 0;
 
-    this.setStatus(
-      "TARGET ACQUISITION",
-      "normal"
-    );
-
+    this.setStatus("TARGET ACQUISITION", "normal");
     this.audio.click();
   }
 
   togglePause() {
     if (this.state === "playing") {
       this.pause();
-    } else if (
-      this.state === "paused"
-    ) {
+    } else if (this.state === "paused") {
       this.resume();
     }
   }
 
   finish() {
-    if (
-      this.state === "gameover"
-    ) {
-      return;
-    }
+    if (this.state === "gameover") return;
 
     this.state = "gameover";
 
     if (this.raf) {
       cancelAnimationFrame(this.raf);
+    }
+
+    if (this.music) {
+      this.music.stopIntro();
+      this.music.stop();
     }
 
     clearTimeout(this.goodSpawnTimer);
@@ -3048,112 +2102,49 @@ class Game {
     clearTimeout(this.virusTimer);
 
     this.isVirusActive = false;
-
-    this.e.stage.classList.remove(
-      "is-virus",
-      "is-anti-cheat"
-    );
-
-    this.e.shell.classList.remove(
-      "is-panic-impact"
-    );
+    this.e.stage.classList.remove("is-virus", "is-anti-cheat");
+    this.e.shell.classList.remove("is-panic-impact");
 
     this.removeAllTargets();
-
     this.e.pause.disabled = true;
 
-    const record =
-      this.score > this.best;
-
+    const record = this.score > this.best;
     if (record) {
       this.best = this.score;
-
-      localStorage.setItem(
-        CONFIG.bestKey,
-        String(this.best)
-      );
+      localStorage.setItem(CONFIG.bestKey, String(this.best));
     }
 
-    const accuracy =
-      this.attempts
-        ? Math.round(
-            (
-              this.hits /
-              this.attempts
-            ) * 100
-          )
-        : 0;
+    const accuracy = this.attempts ? Math.round((this.hits / this.attempts) * 100) : 0;
 
-    this.e.finalScore.textContent =
-      pad(this.score);
+    this.e.finalScore.textContent = pad(this.score);
+    this.e.finalBest.textContent = pad(this.best);
+    this.e.finalCombo.textContent = `x${this.maxCombo}`;
+    this.e.finalAcc.textContent = `${accuracy}%`;
+    this.e.rank.textContent = this.rank();
 
-    this.e.finalBest.textContent =
-      pad(this.best);
-
-    this.e.finalCombo.textContent =
-      `x${this.maxCombo}`;
-
-    this.e.finalAcc.textContent =
-      `${accuracy}%`;
-
-    this.e.rank.textContent =
-      this.rank();
-
-    this.e.record.classList.toggle(
-      "is-visible",
-      record
-    );
+    this.e.record.classList.toggle("is-visible", record);
 
     this.update();
-
     this.show(this.e.overO, true);
 
-    this.setStatus(
-      "SESSION COMPLETE",
-      "danger"
-    );
-
+    this.setStatus("SESSION COMPLETE", "danger");
     this.audio.stopSamples();
     this.audio.over();
   }
 
   rank() {
-    if (this.score >= 500000) {
-      return "WHITE HAT GODLIKE";
-    }
-
-    if (this.score >= 150000) {
-      return "CYBER HUNTER";
-    }
-
-    if (this.score >= 50000) {
-      return "REFLEX OPERATIVE";
-    }
-
-    if (this.score >= 10000) {
-      return "RABBIT TRACKER";
-    }
-
+    if (this.score >= 500000) return "WHITE HAT GODLIKE";
+    if (this.score >= 150000) return "CYBER HUNTER";
+    if (this.score >= 50000) return "REFLEX OPERATIVE";
+    if (this.score >= 10000) return "RABBIT TRACKER";
     return "REFLEX ROOKIE";
   }
 
   setStatus(text, type) {
     this.e.status.textContent = text;
-
-    const chip =
-      document.querySelector(
-        ".status-chip"
-      );
-
-    chip?.classList.toggle(
-      "is-danger",
-      type === "danger"
-    );
-
-    chip?.classList.toggle(
-      "is-warning",
-      type === "warning"
-    );
+    const chip = document.querySelector(".status-chip");
+    chip?.classList.toggle("is-danger", type === "danger");
+    chip?.classList.toggle("is-warning", type === "warning");
   }
 
   flash(main, sub, color) {
@@ -3161,111 +2152,54 @@ class Game {
     this.e.floatSub.textContent = sub;
     this.e.float.style.color = color;
 
-    this.e.float.classList.remove(
-      "is-visible"
-    );
-
+    this.e.float.classList.remove("is-visible");
     requestAnimationFrame(() => {
-      this.e.float.classList.add(
-        "is-visible"
-      );
+      this.e.float.classList.add("is-visible");
     });
   }
 
   effect(className) {
-    this.e.stage.classList.remove(
-      className
-    );
-
+    this.e.stage.classList.remove(className);
     requestAnimationFrame(() => {
-      this.e.stage.classList.add(
-        className
-      );
+      this.e.stage.classList.add(className);
     });
 
     setTimeout(() => {
-      this.e.stage.classList.remove(
-        className
-      );
+      this.e.stage.classList.remove(className);
     }, 700);
   }
 
   updateSound() {
-    this.e.sound.setAttribute(
-      "aria-pressed",
-      String(this.audio.enabled)
-    );
-
-    this.e.soundIcon.textContent =
-      this.audio.enabled
-        ? "ON"
-        : "OFF";
+    this.e.sound.setAttribute("aria-pressed", String(this.audio.enabled));
+    this.e.soundIcon.textContent = this.audio.enabled ? "ON" : "OFF";
   }
 
   update() {
-    this.e.score.textContent =
-      pad(this.score);
+    this.e.score.textContent = pad(this.score);
+    this.e.best.textContent = pad(this.best);
+    this.e.combo.textContent = String(this.mult);
+    this.e.level.textContent = String(this.level).padStart(2, "0");
+    this.e.time.textContent = this.timeLeft.toFixed(1);
 
-    this.e.best.textContent =
-      pad(this.best);
+    this.e.comboCard.classList.toggle("is-hot", this.mult >= 3);
 
-    this.e.combo.textContent =
-      String(this.mult);
+    this.e.progressText.textContent = `${this.levelHits} / ${CONFIG.hitsPerLevel}`;
+    this.e.progressFill.style.width = `${(this.levelHits / CONFIG.hitsPerLevel) * 100}%`;
 
-    this.e.level.textContent =
-      String(this.level).padStart(
-        2,
-        "0"
-      );
-
-    this.e.time.textContent =
-      this.timeLeft.toFixed(1);
-
-    this.e.comboCard.classList.toggle(
-      "is-hot",
-      this.mult >= 3
-    );
-
-    this.e.progressText.textContent =
-      `${this.levelHits} / ${CONFIG.hitsPerLevel}`;
-
-    this.e.progressFill.style.width =
-      `${
-        (
-          this.levelHits /
-          CONFIG.hitsPerLevel
-        ) * 100
-      }%`;
-
-    [
-      ...this.e.lives.children,
-    ].forEach(
-      (element, index) => {
-        element.classList.toggle(
-          "life--active",
-          index < this.lives
-        );
-
-        element.classList.toggle(
-          "life--lost",
-          index >= this.lives
-        );
-      }
-    );
+    [...this.e.lives.children].forEach((element, index) => {
+      element.classList.toggle("life--active", index < this.lives);
+      element.classList.toggle("life--lost", index >= this.lives);
+    });
   }
 }
 
-window.addEventListener(
-  "DOMContentLoaded",
-  () => {
-    try {
-      new Game();
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        "Igra nije mogla da se pokrene. Proveri da li su index.html, style.css i script.js u istom folderu."
-      );
-    }
+window.addEventListener("DOMContentLoaded", () => {
+  try {
+    new Game();
+  } catch (error) {
+    console.error(error);
+    alert(
+      "Igra nije mogla da se pokrene. Proveri da li su index.html, style.css i script.js u istom folderu."
+    );
   }
-);
+});
