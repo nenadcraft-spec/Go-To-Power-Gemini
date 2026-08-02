@@ -87,93 +87,93 @@
         </header>
 
         <main class="game-main">
-            <section class="hud" aria-label="Rezultati igre">
-                <article class="hud-card hud-card--score">
-                    <span class="hud-card__label">SCORE</span>
+           <section class="hud" aria-label="Rezultati igre">
+    <article class="hud-card hud-card--score">
+        <span class="hud-card__label">SCORE</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="scoreValue"
-                    >
-                        00000000
-                    </strong>
+        <strong
+            class="hud-card__value"
+            id="scoreValue"
+        >
+            00000000
+        </strong>
 
-                    <span class="hud-card__pulse"></span>
-                </article>
+        <span class="hud-card__pulse"></span>
+    </article>
 
-                <article class="hud-card">
-                    <span class="hud-card__label">BEST SCORE</span>
+    <article class="hud-card">
+        <span class="hud-card__label">BEST SCORE</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="bestScoreValue"
-                    >
-                        00000000
-                    </strong>
-                </article>
+        <strong
+            class="hud-card__value"
+            id="bestScoreValue"
+        >
+            00000000
+        </strong>
+    </article>
 
-                <article class="hud-card hud-card--lives">
-                    <span class="hud-card__label">LIVES</span>
+    <article class="hud-card hud-card--lives">
+        <span class="hud-card__label">LIVES</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="livesValue"
-                        aria-label="Preostali zivoti"
-                    >
-                        03/10
-                    </strong>
+        <strong
+            class="hud-card__value"
+            id="livesValue"
+            aria-label="Preostali zivoti"
+        >
+            03/10
+        </strong>
 
-                    <span class="hud-card__unit">
-                        SYSTEM INTEGRITY
-                    </span>
-                </article>
+        <span class="hud-card__unit">
+            SYSTEM INTEGRITY
+        </span>
+    </article>
 
-                <article
-                    class="hud-card hud-card--time"
-                    id="timeCard"
-                >
-                    <span class="hud-card__label">TIME</span>
+    <article
+        class="hud-card hud-card--time"
+        id="timeCard"
+    >
+        <span class="hud-card__label">TIME</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="timeValue"
-                    >
-                        60.0
-                    </strong>
+        <strong
+            class="hud-card__value"
+            id="timeValue"
+        >
+            60.0
+        </strong>
 
-                    <span class="hud-card__unit">
-                        SECONDS
-                    </span>
-                </article>
-            </section>
+        <span class="hud-card__unit">
+            SECONDS
+        </span>
+    </article>
+</section>
 
-            <section class="status-row" aria-label="Status igre">
-                <div class="status-chip">
-                    <span class="status-chip__dot"></span>
-                    <span id="statusText">SYSTEM READY</span>
-                </div>
+<section class="status-row" aria-label="Status igre">
+    <div class="status-chip">
+        <span class="status-chip__dot"></span>
+        <span id="statusText">SYSTEM READY</span>
+    </div>
 
-                <div class="status-metric status-metric--level">
-                    <span class="status-metric__label">
-                        LEVEL
-                    </span>
+    <div class="status-metric status-metric--level">
+        <span class="status-metric__label">
+            LEVEL
+        </span>
 
-                    <strong id="levelValue">01</strong>
-                </div>
+        <strong id="levelValue">01</strong>
+    </div>
 
-                <div
-                    class="status-metric status-metric--combo"
-                    id="comboCard"
-                >
-                    <span class="status-metric__label">
-                        COMBO
-                    </span>
+    <div
+        class="status-metric status-metric--combo"
+        id="comboCard"
+    >
+        <span class="status-metric__label">
+            COMBO
+        </span>
 
-                    <strong>
-                        &times;<span id="comboValue">1</span>
-                    </strong>
-                </div>
-            </section>
+        <strong>
+            &times;<span id="comboValue">1</span>
+        </strong>
+    </div>
+</section>
 
             <section class="game-stage" id="gameStage">
                 <canvas
@@ -252,6 +252,35 @@
                     <span class="floating-message__main"></span>
                     <span class="floating-message__sub"></span>
                 </div>
+
+                <!-- INTERAKTIVNI TUTORIAL HUD -->
+                <aside
+                    class="tutorial-hud"
+                    id="tutorialHud"
+                    aria-live="polite"
+                    aria-hidden="true"
+                >
+                    <div class="tutorial-hud__signal" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                    </div>
+
+                    <div class="tutorial-hud__copy">
+                        <span class="tutorial-hud__step" id="tutorialStep">
+                            TRAINING 01/10
+                        </span>
+
+                        <strong id="tutorialTitle">OBICAN ZEC</strong>
+                        <p id="tutorialText">Pogodi metu pre nestanka.</p>
+                    </div>
+
+                    <button
+                        class="tutorial-hud__exit"
+                        id="tutorialExitButton"
+                        type="button"
+                    >
+                        EXIT
+                    </button>
+                </aside>
 
                 <!-- POCETNI EKRAN -->
                 <div
@@ -469,7 +498,8 @@
                                         <div>
                                             <strong>CRNI HAKER</strong>
                                             <small>
-                                                Virus napad - pravi kopiju
+                                                Virus napad - pravi
+                                                kopiju
                                             </small>
                                         </div>
                                     </article>
@@ -494,7 +524,7 @@
 
                         <p class="briefing-note">
                             BONUS METE SMEJU DA POBEGNU //
-                            OBICAN ZEC NE SME
+                            BELI ZEC NE SME
                         </p>
 
                         <button
@@ -512,6 +542,15 @@
                             <span class="primary-button__text">
                                 START MISSION
                             </span>
+                        </button>
+
+                        <button
+                            class="tutorial-button"
+                            id="tutorialButton"
+                            type="button"
+                        >
+                            <span aria-hidden="true">&#9671;</span>
+                            INTERACTIVE TUTORIAL
                         </button>
 
                         <p class="start-panel__hint">
