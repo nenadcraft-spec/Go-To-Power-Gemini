@@ -15,7 +15,7 @@
 
     <meta name="theme-color" content="#050714">
 
-    <title>WHR Rabbit Reflex v1.0</title>
+    <title>WHR Rabbit Reflex v1.2</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -95,7 +95,7 @@
                         class="hud-card__value"
                         id="scoreValue"
                     >
-                        000000
+                        00000000
                     </strong>
 
                     <span class="hud-card__pulse"></span>
@@ -108,30 +108,40 @@
                         class="hud-card__value"
                         id="bestScoreValue"
                     >
-                        000000
+                        00000000
                     </strong>
                 </article>
 
                 <article
-                    class="hud-card hud-card--combo"
-                    id="comboCard"
+                    class="hud-card hud-card--time"
+                    id="timeCard"
                 >
-                    <span class="hud-card__label">COMBO</span>
-
-                    <strong class="hud-card__value">
-                        &times;<span id="comboValue">1</span>
-                    </strong>
-                </article>
-
-                <article class="hud-card hud-card--level">
-                    <span class="hud-card__label">LEVEL</span>
+                    <span class="hud-card__label">TIME</span>
 
                     <strong
                         class="hud-card__value"
-                        id="levelValue"
+                        id="timeValue"
                     >
-                        01
+                        60.0
                     </strong>
+
+                    <span class="hud-card__unit">SECONDS</span>
+                </article>
+
+                <article class="hud-card hud-card--lives">
+                    <span class="hud-card__label">LIVES</span>
+
+                    <strong
+                        class="hud-card__value"
+                        id="livesValue"
+                        aria-label="Preostali zivoti"
+                    >
+                        03/10
+                    </strong>
+
+                    <span class="hud-card__unit">
+                        SYSTEM INTEGRITY
+                    </span>
                 </article>
             </section>
 
@@ -141,19 +151,25 @@
                     <span id="statusText">SYSTEM READY</span>
                 </div>
 
-                <div
-                    class="lives"
-                    id="livesContainer"
-                    aria-label="Preostali zivoti"
-                >
-                    <span class="life life--active">&#9670;</span>
-                    <span class="life life--active">&#9670;</span>
-                    <span class="life life--active">&#9670;</span>
+                <div class="status-metric status-metric--level">
+                    <span class="status-metric__label">
+                        LEVEL
+                    </span>
+
+                    <strong id="levelValue">01</strong>
                 </div>
 
-                <div class="timer-display">
-                    <span class="timer-display__label">TIME</span>
-                    <strong id="timeValue">60.0</strong>
+                <div
+                    class="status-metric status-metric--combo"
+                    id="comboCard"
+                >
+                    <span class="status-metric__label">
+                        COMBO
+                    </span>
+
+                    <strong>
+                        &times;<span id="comboValue">1</span>
+                    </strong>
                 </div>
             </section>
 
@@ -190,7 +206,7 @@
                     aria-label="Polje za igru"
                 ></div>
 
-                <!-- CRNI ZEC HAKER - PANIC MODE -->
+                <!-- CRNI HAKER - PANIC MODE -->
                 <div
                     class="virus-layer"
                     id="virusLayer"
@@ -242,8 +258,13 @@
                 >
                     <div class="start-panel mission-briefing">
                         <header class="briefing-header">
-                            <div class="briefing-header__signal" aria-hidden="true">
-                                <span></span><span></span><span></span>
+                            <div
+                                class="briefing-header__signal"
+                                aria-hidden="true"
+                            >
+                                <span></span>
+                                <span></span>
+                                <span></span>
                             </div>
 
                             <div>
@@ -256,90 +277,224 @@
                                 </h2>
                             </div>
 
-                            <span class="briefing-header__status">READY</span>
+                            <span class="briefing-header__status">
+                                READY
+                            </span>
                         </header>
 
                         <p class="start-panel__description">
-                            Pogodi mete, gradi combo i prezivi sistem. Boja
-                            otkriva nameru - ne veruj svakoj kopiji.
+                            Pogodi mete, gradi combo i prezivi sistem.
+                            Boja otkriva nameru - ne veruj svakoj
+                            kopiji.
                         </p>
 
-                        <section class="briefing-objective" aria-label="Glavni cilj">
-                            <span class="briefing-objective__icon" aria-hidden="true">&#9671;</span>
+                        <section
+                            class="briefing-objective"
+                            aria-label="Glavni cilj"
+                        >
+                            <span
+                                class="briefing-objective__icon"
+                                aria-hidden="true"
+                            >
+                                &#9671;
+                            </span>
+
                             <div>
-                                <strong>PRIMARNI CILJ: BELI ZEC</strong>
-                                <small>Pogodi ga pre nestanka. Promasaj oduzima zivot.</small>
+                                <strong>
+                                    PRIMARNI CILJ: BELI ZEC
+                                </strong>
+
+                                <small>
+                                    Pogodi ga pre nestanka. Promasaj
+                                    oduzima zivot.
+                                </small>
                             </div>
-                            <span class="briefing-objective__tag">SCORE</span>
+
+                            <span class="briefing-objective__tag">
+                                SCORE
+                            </span>
                         </section>
 
-                        <div class="briefing-rulebar" aria-label="Brza pravila">
-                            <span><b>60s</b> SESIJA</span>
-                            <span><b>10</b> MAX ZIVOTA</span>
-                            <span><b>COMBO</b> = VISE POENA</span>
+                        <div
+                            class="briefing-rulebar"
+                            aria-label="Brza pravila"
+                        >
+                            <span>
+                                <b>60s</b> SESIJA
+                            </span>
+
+                            <span>
+                                <b>3</b> START / <b>10</b> MAX ZIVOTA
+                            </span>
+
+                            <span>
+                                <b>COMBO</b> = VISE POENA
+                            </span>
                         </div>
 
                         <div class="briefing-sections">
-                            <section class="briefing-group briefing-group--boost">
-                                <h3><span>+</span> POJACANJA</h3>
+                            <section
+                                class="briefing-group briefing-group--boost"
+                            >
+                                <h3>
+                                    <span>+</span> POJACANJA
+                                </h3>
 
                                 <div class="briefing-items">
-                                    <article class="briefing-item briefing-item--gold">
-                                        <i aria-hidden="true">&#9733;</i>
-                                        <div><strong>ZLATNI ZEC</strong><small>Bonus poeni i vreme</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--gold"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9733;
+                                        </i>
+
+                                        <div>
+                                            <strong>ZLATNI ZEC</strong>
+                                            <small>
+                                                Bonus poeni i vreme
+                                            </small>
+                                        </div>
                                     </article>
 
-                                    <article class="briefing-item briefing-item--freeze">
-                                        <i aria-hidden="true">&#10052;</i>
-                                        <div><strong>PLAVI ZEC</strong><small>Freeze usporava sistem</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--freeze"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#10052;
+                                        </i>
+
+                                        <div>
+                                            <strong>PLAVI ZEC</strong>
+                                            <small>
+                                                Freeze usporava sistem
+                                            </small>
+                                        </div>
                                     </article>
 
-                                    <article class="briefing-item briefing-item--life">
-                                        <i aria-hidden="true">&#9829;</i>
-                                        <div><strong>EXTRA LIFE</strong><small>Vraca jedan zivot</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--life"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9829;
+                                        </i>
+
+                                        <div>
+                                            <strong>EXTRA LIFE</strong>
+                                            <small>
+                                                Vraca jedan zivot
+                                            </small>
+                                        </div>
                                     </article>
 
-                                    <article class="briefing-item briefing-item--white-hacker">
-                                        <i aria-hidden="true">&#9826;</i>
-                                        <div><strong>BELI HAKER</strong><small>Ceka 7s - cisti sve pretnje</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--white-hacker"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9826;
+                                        </i>
+
+                                        <div>
+                                            <strong>BELI HAKER</strong>
+                                            <small>
+                                                Ceka 7s - cisti sve
+                                                pretnje
+                                            </small>
+                                        </div>
                                     </article>
                                 </div>
                             </section>
 
-                            <section class="briefing-group briefing-group--danger">
-                                <h3><span>!</span> PRETNJE - NE DODIRUJ</h3>
+                            <section
+                                class="briefing-group briefing-group--danger"
+                            >
+                                <h3>
+                                    <span>!</span>
+                                    PRETNJE - NE DODIRUJ
+                                </h3>
 
                                 <div class="briefing-items">
-                                    <article class="briefing-item briefing-item--red">
-                                        <i aria-hidden="true">&times;</i>
-                                        <div><strong>CRVENI ZEC</strong><small>Mamac rusi zivot i combo</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--red"
+                                    >
+                                        <i aria-hidden="true">
+                                            &times;
+                                        </i>
+
+                                        <div>
+                                            <strong>CRVENI ZEC</strong>
+                                            <small>
+                                                Opasna crvena meta
+                                            </small>
+                                        </div>
                                     </article>
 
-                                    <article class="briefing-item briefing-item--decoy">
-                                        <i aria-hidden="true">&#8779;</i>
-                                        <div><strong>DEEPFAKE</strong><small>Lazna glitch kopija</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--decoy"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#8779;
+                                        </i>
+
+                                        <div>
+                                            <strong>DEEPFAKE</strong>
+                                            <small>
+                                                Lazna glitch kopija
+                                            </small>
+                                        </div>
                                     </article>
 
-                                    <article class="briefing-item briefing-item--net">
-                                        <i aria-hidden="true">&#9638;</i>
-                                        <div><strong>CYBER MREZA</strong><small>Zamka ostaje duze</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--net"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9638;
+                                        </i>
+
+                                        <div>
+                                            <strong>CYBER MREZA</strong>
+                                            <small>
+                                                Zamka ostaje duze
+                                            </small>
+                                        </div>
                                     </article>
 
-                                    <article class="briefing-item briefing-item--black-hacker">
-                                        <i aria-hidden="true">&#9670;</i>
-                                        <div><strong>CRNI HAKER</strong><small>Virus napad - pravi kopiju</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--black-hacker"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9670;
+                                        </i>
+
+                                        <div>
+                                            <strong>CRNI HAKER</strong>
+                                            <small>
+                                                Virus napad - pravi
+                                                kopiju
+                                            </small>
+                                        </div>
                                     </article>
 
-                                    <article class="briefing-item briefing-item--black-hole">
-                                        <i aria-hidden="true">&#9679;</i>
-                                        <div><strong>CRNA RUPA</strong><small>-3s i izbacuje Hakera</small></div>
+                                    <article
+                                        class="briefing-item briefing-item--black-hole"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9679;
+                                        </i>
+
+                                        <div>
+                                            <strong>CRNA RUPA</strong>
+                                            <small>
+                                                -3s i izbacuje Hakera
+                                            </small>
+                                        </div>
                                     </article>
                                 </div>
                             </section>
                         </div>
 
                         <p class="briefing-note">
-                            BONUS METE SMEJU DA POBEGNU // BELI ZEC NE SME
+                            BONUS METE SMEJU DA POBEGNU //
+                            BELI ZEC NE SME
                         </p>
 
                         <button
@@ -430,7 +585,7 @@
                                 <span>SCORE</span>
 
                                 <strong id="finalScoreValue">
-                                    000000
+                                    00000000
                                 </strong>
                             </div>
 
@@ -438,7 +593,7 @@
                                 <span>BEST</span>
 
                                 <strong id="finalBestValue">
-                                    000000
+                                    00000000
                                 </strong>
                             </div>
 
