@@ -43,6 +43,8 @@ class MusicEngine {
 
     this.intensity = 1;
     this.master = null;
+    this.compressor = null;
+    this.duckTimerId = null;
 
     this.bass = [
       "A2", null, null, null, "E2", null, null, null,
@@ -132,8 +134,15 @@ class MusicEngine {
     }
     if (!this.master) {
       this.master = this.ctx.createGain();
+      this.compressor = this.ctx.createDynamicsCompressor();
+      this.compressor.threshold.value = -16;
+      this.compressor.knee.value = 18;
+      this.compressor.ratio.value = 5;
+      this.compressor.attack.value = 0.003;
+      this.compressor.release.value = 0.22;
       this.master.gain.value = this.intensityVolume();
-      this.master.connect(this.ctx.destination);
+      this.master.connect(this.compressor);
+      this.compressor.connect(this.ctx.destination);
     }
   }
 
@@ -273,6 +282,7 @@ class MusicEngine {
   stop() {
     this.playing = false;
     clearTimeout(this.timerId);
+    clearTimeout(this.duckTimerId);
   }
 
   setEnabled(enabled) {
@@ -302,11 +312,24 @@ class MusicEngine {
 
   intensityVolume() {
     return {
-      1: 0.07,
-      2: 0.06,
-      3: 0.052,
-      4: 0.045,
-    }[this.intensity] || 0.06;
+      1: 0.16,
+      2: 0.145,
+      3: 0.13,
+      4: 0.118,
+    }[this.intensity] || 0.145;
+  }
+
+  duck(duration = 260, strength = 0.5) {
+    if (!this.master || !this.ctx || !this.playing) return;
+    clearTimeout(this.duckTimerId);
+    const now = this.ctx.currentTime;
+    const normal = this.intensityVolume();
+    const reduced = Math.max(0.035, normal * strength);
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.setValueAtTime(this.master.gain.value, now);
+    this.master.gain.linearRampToValueAtTime(reduced, now + 0.025);
+    this.master.gain.linearRampToValueAtTime(normal, now + duration / 1000);
+    this.duckTimerId = setTimeout(() => this.updateMasterVolume(), duration + 30);
   }
 
   updateMasterVolume(immediate = false) {
@@ -342,6 +365,22 @@ class MusicEngine {
   }
 
   scheduleStep(step, time) {
+    const barStep = step % this.stepsPerBar;
+
+    if (barStep % 4 === 0) {
+      this.kick(time, barStep === 0 ? 0.13 : 0.095);
+    }
+
+    if (this.intensity >= 2 && (barStep === 4 || barStep === 12)) {
+      this.snare(time);
+    }
+
+    if (barStep === 0) {
+      const padRoots = ["A3", "F3", "D3", "G3"];
+      const bar = Math.floor(step / this.stepsPerBar) % padRoots.length;
+      this.pad(padRoots[bar], time);
+    }
+
     const bassNote = this.bass[step];
     if (bassNote) {
       this.pluck(bassNote, time, 0.34, "sawtooth", 0.22, 420);
@@ -363,6 +402,73 @@ class MusicEngine {
 
     if (this.intensity >= 4 && this.hi[step]) {
       this.hihat(time);
+    }
+  }
+
+  kick(time, peak = 0.1) {
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(145, time);
+    osc.frequency.exponentialRampToValueAtTime(46, time + 0.11);
+    gain.gain.setValueAtTime(peak, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.14);
+    osc.connect(gain);
+    gain.connect(this.master);
+    osc.start(time);
+    osc.stop(time + 0.15);
+  }
+
+  snare(time) {
+    if (!this.ctx) return;
+    const length = Math.floor(this.ctx.sampleRate * 0.09);
+    const buffer = this.ctx.createBuffer(1, length, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let index = 0; index < length; index++) {
+      data[index] = (Math.random() * 2 - 1) * (1 - index / length);
+    }
+    const noise = this.ctx.createBufferSource();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+    noise.buffer = buffer;
+    filter.type = "bandpass";
+    filter.frequency.value = 1650;
+    filter.Q.value = 0.7;
+    gain.gain.setValueAtTime(0.055, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.09);
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.master);
+    noise.start(time);
+    noise.stop(time + 0.1);
+  }
+
+  pad(root, time) {
+    if (!this.ctx) return;
+    const chordMap = {
+      A3: ["A3", "C4", "E4"],
+      F3: ["F3", "A3", "C4"],
+      D3: ["D3", "F3", "A3"],
+      G3: ["G3", "B3", "D4"],
+    };
+    const duration = this.stepSeconds * this.stepsPerBar * 0.92;
+    for (const note of chordMap[root] || [root]) {
+      const osc = this.ctx.createOscillator();
+      const filter = this.ctx.createBiquadFilter();
+      const gain = this.ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(noteFreq(note), time);
+      filter.type = "lowpass";
+      filter.frequency.value = 720 + this.intensity * 130;
+      gain.gain.setValueAtTime(0.0001, time);
+      gain.gain.linearRampToValueAtTime(0.022, time + 0.16);
+      gain.gain.linearRampToValueAtTime(0.0001, time + duration);
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.master);
+      osc.start(time);
+      osc.stop(time + duration + 0.03);
     }
   }
 
@@ -1519,6 +1625,9 @@ class Game {
   }
 
   playSpawnSound(type) {
+    const majorWarning = ["hacker", "hero", "blackhole", "decoy", "net"].includes(type);
+    this.music?.duck(majorWarning ? 430 : 240, majorWarning ? 0.38 : 0.58);
+
     switch (type) {
       case "rabbit":
         this.audio.hit(1);
