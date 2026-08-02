@@ -132,7 +132,7 @@ class MusicEngine {
     }
     if (!this.master) {
       this.master = this.ctx.createGain();
-      this.master.gain.value = 0.11;
+      this.master.gain.value = this.intensityVolume();
       this.master.connect(this.ctx.destination);
     }
   }
@@ -296,6 +296,39 @@ class MusicEngine {
     else if (level >= 6) this.intensity = 3;
     else if (level >= 3) this.intensity = 2;
     else this.intensity = 1;
+
+    this.updateMasterVolume();
+  }
+
+  intensityVolume() {
+    return {
+      1: 0.07,
+      2: 0.06,
+      3: 0.052,
+      4: 0.045,
+    }[this.intensity] || 0.06;
+  }
+
+  updateMasterVolume(immediate = false) {
+    if (!this.master || !this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const volume = this.intensityVolume();
+
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.setValueAtTime(
+      this.master.gain.value,
+      now
+    );
+
+    if (immediate) {
+      this.master.gain.setValueAtTime(volume, now);
+    } else {
+      this.master.gain.linearRampToValueAtTime(
+        volume,
+        now + 0.25
+      );
+    }
   }
 
   scheduler() {
@@ -481,24 +514,68 @@ class AudioFX {
     this.enabled = localStorage.getItem(CONFIG.soundKey) !== "false";
 
     this.sampleConfig = {
-      normalHit: { src: "./sound/normal-hit.wav", volume: 0.28, cooldown: 35, voices: 4 },
-      redRabbit: { src: "./sound/red-rabbit.wav", volume: 0.5, cooldown: 120, voices: 2 },
-      trap: { src: "./sound/trap.wav", volume: 0.38, cooldown: 110, voices: 2 },
-      extraLife: { src: "./sound/extra-life.wav", volume: 0.5, cooldown: 200, voices: 1 },
-      goldenRabbit: { src: "./sound/golden-rabbit.wav", volume: 0.46, cooldown: 160, voices: 2 },
-      blackHacker: { src: "./sound/black-hacker.wav", volume: 0.56, cooldown: 250, voices: 1 },
-      blackHole: { src: "./sound/black-hole.wav", volume: 0.5, cooldown: 350, voices: 1 },
-      whiteHacker: { src: "./sound/white-hacker.wav", volume: 0.52, cooldown: 300, voices: 1 },
-      gameStart: { src: "./sound/game-start.wav", volume: 0.36, cooldown: 1000, voices: 1, maxDuration: 3000 },
-      levelUp: { src: "./sound/level-up.wav", volume: 0.42, cooldown: 500, voices: 1 },
-      gameOver: { src: "./sound/game-over.wav", volume: 0.5, cooldown: 1000, voices: 1 },
+      normalHit: { src: "./sound/normal-hit.wav", volume: 0.62, cooldown: 70, voices: 3 },
+      redRabbit: { src: "./sound/red-rabbit.wav", volume: 0.65, cooldown: 160, voices: 2 },
+      trap: { src: "./sound/trap.wav", volume: 0.7, cooldown: 180, voices: 2 },
+      extraLife: { src: "./sound/extra-life.wav", volume: 0.82, cooldown: 250, voices: 1 },
+      goldenRabbit: { src: "./sound/golden-rabbit.wav", volume: 0.38, cooldown: 200, voices: 2 },
+      blackHacker: { src: "./sound/black-hacker.wav", volume: 0.22, cooldown: 300, voices: 1 },
+      blackHole: { src: "./sound/black-hole.wav", volume: 0.58, cooldown: 400, voices: 1 },
+      whiteHacker: { src: "./sound/white-hacker.wav", volume: 0.72, cooldown: 350, voices: 1 },
+      gameStart: { src: "./sound/game-start.wav", volume: 0.4, cooldown: 1000, voices: 1, maxDuration: 3000 },
+      levelUp: { src: "./sound/level-up.wav", volume: 0.8, cooldown: 500, voices: 1 },
+      gameOver: { src: "./sound/game-over.wav", volume: 1, cooldown: 1000, voices: 1 },
     };
 
     this.samplePools = new Map();
     this.sampleCursor = new Map();
     this.lastSampleAt = new Map();
+    this.lobbyMusic = null;
 
     this.prepareSamples();
+    this.prepareLobbyMusic();
+  }
+
+  prepareLobbyMusic() {
+    if (typeof Audio === "undefined") return;
+
+    this.lobbyMusic = new Audio("./sound/lobby-music.wav");
+
+    this.lobbyMusic.preload = "auto";
+    this.lobbyMusic.loop = true;
+    this.lobbyMusic.volume = 0.14;
+    this.lobbyMusic.setAttribute("playsinline", "");
+  }
+
+  playLobby(volume = 0.14) {
+    if (!this.enabled || !this.lobbyMusic) {
+      return false;
+    }
+
+    this.lobbyMusic.volume = clamp(volume, 0, 1);
+
+    let result;
+    try {
+      result = this.lobbyMusic.play();
+    } catch {
+      return false;
+    }
+    result?.catch?.(() => {
+      // Browser ceka prvi korisnicki dodir.
+    });
+
+    return true;
+  }
+
+  stopLobby() {
+    if (!this.lobbyMusic) return;
+
+    this.lobbyMusic.pause();
+    try {
+      this.lobbyMusic.currentTime = 0;
+    } catch {
+      // Fajl jos nije ucitan; nema stanja koje treba resetovati.
+    }
   }
 
   prepareSamples() {
@@ -726,6 +803,7 @@ class AudioFX {
     if (this.enabled) {
       this.click();
     } else {
+      this.stopLobby();
       this.stopSamples();
     }
     return this.enabled;
@@ -890,6 +968,7 @@ class Game {
 
     this.freezeTimer = null;
     this.virusTimer = null;
+    this.lobbyTimer = null;
 
     this.goodDueAt = 0;
     this.hazardDueAt = 0;
@@ -914,6 +993,7 @@ class Game {
     this.reset();
     this.show(this.e.startO, true);
     this.updateSound();
+    this.audio.playLobby(0.14);
   }
 
   bind() {
@@ -937,8 +1017,39 @@ class Game {
         }
       }
 
+      if (
+        this.audio.enabled &&
+        ["ready", "gameover"].includes(
+          this.state
+        )
+      ) {
+        this.audio.playLobby(
+          this.state === "gameover"
+            ? 0.1
+            : 0.14
+        );
+      }
+
       this.updateSound();
     };
+
+    document.addEventListener(
+      "pointerdown",
+      () => {
+        if (
+          ["ready", "gameover"].includes(
+            this.state
+          )
+        ) {
+          this.audio.playLobby(
+            this.state === "gameover"
+              ? 0.1
+              : 0.14
+          );
+        }
+      },
+      { once: true }
+    );
 
     this.e.stage.addEventListener("pointermove", (event) => {
       const rect = this.e.stage.getBoundingClientRect();
@@ -994,6 +1105,9 @@ class Game {
 
     clearTimeout(this.freezeTimer);
     clearTimeout(this.virusTimer);
+    clearTimeout(this.lobbyTimer);
+    this.lobbyTimer = null;
+    this.audio.stopLobby();
 
     if (this.music) {
       this.music.stopIntro();
@@ -1075,6 +1189,7 @@ class Game {
     this.show(this.e.countO, true);
 
     this.audio.stopSamples();
+    this.audio.stopLobby();
     this.audio.start();
 
     // Dial-up svira tokom countdown-a. Tema krece tek kada igra zaista pocne.
@@ -2165,6 +2280,13 @@ class Game {
     this.setStatus("SESSION COMPLETE", "danger");
     this.audio.stopSamples();
     this.audio.over();
+
+    clearTimeout(this.lobbyTimer);
+    this.lobbyTimer = setTimeout(() => {
+      if (this.state === "gameover") {
+        this.audio.playLobby(0.1);
+      }
+    }, 4200);
   }
 
   rank() {
