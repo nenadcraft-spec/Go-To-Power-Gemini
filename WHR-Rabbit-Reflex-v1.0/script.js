@@ -577,17 +577,18 @@ const CONFIG = {
   soundKey: "whr-rabbit-reflex-sound-enabled",
 };
 
+// NOVI LOGICKI TUTORIJAL KORACI ZA WHR Anti-Cheat & Training
 const TUTORIAL_STEPS = [
-  { type: "rabbit", group: "good", title: "OBICAN ZEC", text: "Glavni cilj! Pogodi ga pre nego sto nestane s ekrana." },
-  { type: "golden", group: "good", title: "ZLATNI ZEC", text: "Donosi velika pojacanja i dodatne sekunde vremena." },
-  { type: "freeze", group: "good", title: "PLAVI ZEC", text: "Ubrzava sistem na kratko uz bonus poene." },
-  { type: "life", group: "good", title: "EXTRA LIFE", text: "Dodaje +1 zivot u vasem sistemu (max 10)." },
-  { type: "hero", group: "hero", title: "BELI HAKER", text: "Aktivira Anti-Cheat talas koji cisti sve pretnje s ekrana!" },
-  { type: "redrabbit", group: "hazard", title: "CRVENI ZEC", text: "OPASNOST! Oduzima poene, sekunde i ponistava combo." },
-  { type: "decoy", group: "hazard", title: "BEZBOJNI ZEC", text: "ZAMKA! Virus kopija koja oduzima zivot i kvari prikaz." },
-  { type: "net", group: "hazard", title: "CYBER MREZA", text: "Blokira mrezu i oduzima 5 sekundi ako je dodirnes!" },
-  { type: "hacker", group: "hacker", title: "CRNI HAKER", text: "Inficira sistem i pravi opasne klonove na terenu!" },
-  { type: "blackhole", group: "blackhole", title: "CRNA RUPA", text: "ULTRA BOSS! Ne klikce se — savija prostor i guta mete!" },
+  { type: "rabbit", group: "good", action: "click", title: "OBICAN ZEC", text: "KLIKNI METU! Pogodi ga pre nego sto nestane s ekrana." },
+  { type: "golden", group: "good", action: "click", title: "ZLATNI ZEC", text: "KLIKNI METU! Donosi velika pojacanja i dodatne sekunde." },
+  { type: "freeze", group: "good", action: "click", title: "PLAVI ZEC", text: "KLIKNI METU! Ubrzava sistem na kratko uz bonus poene." },
+  { type: "life", group: "good", action: "click", title: "EXTRA LIFE", text: "KLIKNI METU! Dodaje +1 zivot u vasem sistemu (max 10)." },
+  { type: "hero", group: "hero", action: "click", title: "BELI HAKER", text: "KLIKNI METU! Aktivira Anti-Cheat talas koji cisti sve pretnje!" },
+  { type: "redrabbit", group: "hazard", action: "avoid", title: "CRVENI ZEC", text: "NE DIRAJ! Izbegavaj klik i sacekaj 3 sekunde da sam nestane." },
+  { type: "decoy", group: "hazard", action: "avoid", title: "BEZBOJNI ZEC", text: "NE DIRAJ! Virus zamka — pusti ga 3s bez klika." },
+  { type: "net", group: "hazard", action: "avoid", title: "CYBER MREZA", text: "NE DIRAJ! Prepreka mreze — sacekaj da sama istece." },
+  { type: "hacker", group: "hacker", action: "avoid", title: "CRNI HAKER", text: "NE DIRAJ! Opasna pretnja — izdrzi 3 sekunde bez klika!" },
+  { type: "blackhole", group: "blackhole", action: "observe", title: "CRNA RUPA", text: "POSMATRAJ! Ultra Boss — ne klikce se, posmatraj 3.5 sekunde!" },
 ];
 
 const $ = (id) => {
@@ -1052,7 +1053,7 @@ class Game {
   }
 
   /* =========================================
-     LOGIKA INTERAKTIVNOG TUTORIJALA
+     NOVA NAPREDNA LOGIKA TUTORIJALA v1.4
      ========================================= */
 
   startTutorial() {
@@ -1079,6 +1080,8 @@ class Game {
     this.e.tutorialTitle.textContent = step.title;
     this.e.tutorialText.textContent = step.text;
 
+    this.e.tutorialHud.classList.remove("is-error", "is-success");
+
     this.spawn(step.type, step.group, {
       spawnAt: {
         x: this.e.stage.getBoundingClientRect().width / 2,
@@ -1099,7 +1102,7 @@ class Game {
 
   endTutorial() {
     this.isTutorial = false;
-    this.e.tutorialHud.classList.remove("is-visible");
+    this.e.tutorialHud.classList.remove("is-visible", "is-error", "is-success");
     this.e.tutorialHud.setAttribute("aria-hidden", "true");
     this.removeAllTargets();
     this.reset();
@@ -1364,7 +1367,14 @@ class Game {
   }
 
   targetLife(type) {
-    if (this.isTutorial) return 999999;
+    if (this.isTutorial) {
+      const step = TUTORIAL_STEPS[this.tutorialCurrentIndex];
+      if (!step) return 3000;
+      if (step.action === "click") return 999999;
+      if (step.action === "avoid") return 3000;
+      if (step.action === "observe") return 3500;
+    }
+
     if (type === "hacker") return CONFIG.hackerLife;
     if (type === "hero") return CONFIG.heroLife;
     if (type === "blackhole") return CONFIG.blackHoleLife;
@@ -1451,8 +1461,7 @@ class Game {
     button.style.top = `${y}px`;
 
     if (type === "blackhole") {
-      button.disabled = false;
-      if (!this.isTutorial) button.disabled = true;
+      button.disabled = true;
       button.innerHTML = `
         <span class="target__timer"></span>
         <span class="target__blackhole-lens"></span>
@@ -1591,9 +1600,22 @@ class Game {
 
   hit(id, type, button, x, y) {
     if (this.isTutorial) {
-      button.remove();
-      this.targets.delete(id);
-      this.nextTutorialStep();
+      const step = TUTORIAL_STEPS[this.tutorialCurrentIndex];
+      if (step && step.action === "click") {
+        button.remove();
+        this.targets.delete(id);
+        this.e.tutorialHud.classList.add("is-success");
+        this.audio.hit(1);
+        setTimeout(() => this.nextTutorialStep(), 300);
+      } else {
+        // Pogrešan klik na opasnost u tutorijalu!
+        button.remove();
+        this.targets.delete(id);
+        this.e.tutorialHud.classList.add("is-error");
+        this.audio.bad();
+        this.flash("GRESKA!", "NE SMES KLIKNUTI OVU METU!", "#ff325f");
+        setTimeout(() => this.spawnTutorialStep(), 800);
+      }
       return;
     }
 
@@ -1820,7 +1842,27 @@ class Game {
   }
 
   miss(id) {
-    if (!this.targets.has(id) || this.state !== "playing") return;
+    if (!this.targets.has(id)) return;
+
+    if (this.isTutorial) {
+      const target = this.targets.get(id);
+      this.targets.delete(id);
+      target.element.remove();
+
+      const step = TUTORIAL_STEPS[this.tutorialCurrentIndex];
+      if (step && (step.action === "avoid" || step.action === "observe")) {
+        // Uspešno izbegnut ili posmatran target u tutorijalu!
+        this.e.tutorialHud.classList.add("is-success");
+        this.audio.gold();
+        this.nextTutorialStep();
+      } else {
+        // Istekao korisni target bez klika u tutorijalu
+        this.spawnTutorialStep();
+      }
+      return;
+    }
+
+    if (this.state !== "playing") return;
 
     const target = this.targets.get(id);
     this.targets.delete(id);
