@@ -577,6 +577,7 @@ const CONFIG = {
   soundKey: "whr-rabbit-reflex-sound-enabled",
 };
 
+// NOVI LOGICKI TUTORIJAL KORACI ZA WHR Anti-Cheat & Training
 const TUTORIAL_STEPS = [
   { type: "rabbit", group: "good", action: "click", title: "OBICAN ZEC", text: "KLIKNI METU! Pogodi ga pre nego sto nestane s ekrana." },
   { type: "golden", group: "good", action: "click", title: "ZLATNI ZEC", text: "KLIKNI METU! Donosi velika pojacanja i dodatne sekunde." },
@@ -584,10 +585,10 @@ const TUTORIAL_STEPS = [
   { type: "life", group: "good", action: "click", title: "EXTRA LIFE", text: "KLIKNI METU! Dodaje +1 zivot u vasem sistemu (max 10)." },
   { type: "hero", group: "hero", action: "click", title: "BELI HAKER", text: "KLIKNI METU! Aktivira Anti-Cheat talas koji cisti sve pretnje!" },
   { type: "redrabbit", group: "hazard", action: "avoid", title: "CRVENI ZEC", text: "NE DIRAJ! Izbegavaj klik i sacekaj 3 sekunde da sam nestane." },
-  { type: "decoy", group: "hazard", action: "avoid", title: "BEZBOJNI ZEC", text: "NE DIRAJ! Virus zamka — pusti ga 3s bez klika." },
-  { type: "net", group: "hazard", action: "avoid", title: "CYBER MREZA", text: "NE DIRAJ! Prepreka mreze — sacekaj da sama istece." },
-  { type: "hacker", group: "hacker", action: "avoid", title: "CRNI HAKER", text: "NE DIRAJ! Opasna pretnja — izdrzi 3 sekunde bez klika!" },
-  { type: "blackhole", group: "blackhole", action: "observe", title: "CRNA RUPA", text: "POSMATRAJ! Ultra Boss — ne klikce se, posmatraj 3.5 sekunde!" },
+  { type: "decoy", group: "hazard", action: "avoid", title: "BEZBOJNI ZEC", text: "NE DIRAJ! Virus zamka â€” pusti ga 3s bez klika." },
+  { type: "net", group: "hazard", action: "avoid", title: "CYBER MREZA", text: "NE DIRAJ! Prepreka mreze â€” sacekaj da sama istece." },
+  { type: "hacker", group: "hacker", action: "avoid", title: "CRNI HAKER", text: "NE DIRAJ! Opasna pretnja â€” izdrzi 3 sekunde bez klika!" },
+  { type: "blackhole", group: "blackhole", action: "observe", title: "CRNA RUPA", text: "POSMATRAJ! Ultra Boss â€” ne klikce se, posmatraj 3.5 sekunde!" },
 ];
 
 const $ = (id) => {
@@ -1052,7 +1053,7 @@ class Game {
   }
 
   /* =========================================
-     LOGIKA INTERAKTIVNOG TUTORIJAL MODA
+     NOVA NAPREDNA LOGIKA TUTORIJALA v1.4
      ========================================= */
 
   startTutorial() {
@@ -1597,13 +1598,8 @@ class Game {
     }
   }
 
-  /* =========================================
-     ZAVRŠNA VAR-VERIFIKOVANA HIT METODA
-     ========================================= */
-
   hit(id, type, button, x, y) {
     if (this.isTutorial) {
-      // VAR SOBA HOTFIX: Čišćenje svih tajmera pre ugradnje nove mete
       const target = this.targets.get(id);
       clearTimeout(target?.timerId);
       clearTimeout(target?.cloneTimerId);
@@ -1618,13 +1614,11 @@ class Game {
         this.audio.hit(1);
         setTimeout(() => this.nextTutorialStep(), 300);
       } else {
-        // POGREŠAN KLIK U TUTORIJALU - FULL FX SINKRONIZOVAN PAKAO
         button.remove();
         this.targets.delete(id);
         this.e.tutorialHud.classList.add("is-error");
         this.audio.bad();
 
-        // Demonstracija specifičnih vizuelnih posledica u zavisnosti od pretnje
         if (type === "redrabbit") {
           this.effect("is-damaged");
           this.flash("GRESKA!", "CRVENI IMPACT // COMBO RESET!", "#ff325f");
@@ -1645,7 +1639,6 @@ class Game {
           this.flash("GRESKA!", "NE SMES KLIKNUTI OVU METU!", "#ff325f");
         }
 
-        // VAR SOBA HOTFIX: Spavn tek na 1650ms nakon što se FX potpuno očisti
         setTimeout(() => this.spawnTutorialStep(), 1650);
       }
       return;
@@ -1883,7 +1876,7 @@ class Game {
 
       const step = TUTORIAL_STEPS[this.tutorialCurrentIndex];
       if (step && (step.action === "avoid" || step.action === "observe")) {
-        // Uspešno izbegnut ili posmatran target u tutorijalu!
+        // UspeÅ¡no izbegnut ili posmatran target u tutorijalu!
         this.e.tutorialHud.classList.add("is-success");
         this.audio.gold();
         this.nextTutorialStep();
