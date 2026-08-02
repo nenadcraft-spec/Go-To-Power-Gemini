@@ -3210,6 +3210,41 @@ button {
   filter: saturate(1.2) drop-shadow(0 0 7px rgba(168,85,247,.7));
 }
 
+/* MOBILNI VITAL HUD */
+@media (max-width: 600px) {
+  .status-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 7px;
+  }
+
+  .status-chip {
+    grid-column: 1 / -1;
+    min-height: 17px;
+  }
+
+  .status-metric {
+    justify-content: center;
+    width: 100%;
+    min-height: 27px;
+    padding: 4px 6px;
+    border: 1px solid rgba(0, 245, 255, 0.14);
+    border-radius: 6px;
+    background: rgba(4, 10, 28, 0.48);
+  }
+
+  .status-metric--level {
+    grid-column: 1;
+  }
+
+  .status-metric--combo {
+    grid-column: 2;
+  }
+
+  .status-metric strong {
+    min-width: 0;
+    text-align: left;
+  }
+}
 /* ANTI-CHEAT PULSE - BEZ NATPISA */
 
 .anti-cheat-wave {
