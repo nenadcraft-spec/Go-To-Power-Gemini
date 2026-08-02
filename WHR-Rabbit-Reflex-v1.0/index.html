@@ -87,90 +87,93 @@
         </header>
 
         <main class="game-main">
-            <section class="hud" aria-label="Rezultati igre">
-                <article class="hud-card hud-card--score">
-                    <span class="hud-card__label">SCORE</span>
+           <section class="hud" aria-label="Rezultati igre">
+    <article class="hud-card hud-card--score">
+        <span class="hud-card__label">SCORE</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="scoreValue"
-                    >
-                        00000000
-                    </strong>
+        <strong
+            class="hud-card__value"
+            id="scoreValue"
+        >
+            00000000
+        </strong>
 
-                    <span class="hud-card__pulse"></span>
-                </article>
+        <span class="hud-card__pulse"></span>
+    </article>
 
-                <article class="hud-card">
-                    <span class="hud-card__label">BEST SCORE</span>
+    <article class="hud-card">
+        <span class="hud-card__label">BEST SCORE</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="bestScoreValue"
-                    >
-                        00000000
-                    </strong>
-                </article>
+        <strong
+            class="hud-card__value"
+            id="bestScoreValue"
+        >
+            00000000
+        </strong>
+    </article>
 
-                <article class="hud-card hud-card--lives">
-                    <span class="hud-card__label">LIVES</span>
+    <article class="hud-card hud-card--lives">
+        <span class="hud-card__label">LIVES</span>
 
-                    <strong
-                        class="hud-card__value"
-                        id="livesValue"
-                        aria-label="Preostali zivoti"
-                    >
-                        03/10
-                    </strong>
+        <strong
+            class="hud-card__value"
+            id="livesValue"
+            aria-label="Preostali zivoti"
+        >
+            03/10
+        </strong>
 
-                    <span class="hud-card__unit">
-                        SYSTEM INTEGRITY
-                    </span>
-                </article>
-            </section>
+        <span class="hud-card__unit">
+            SYSTEM INTEGRITY
+        </span>
+    </article>
 
-            <section class="status-row" aria-label="Status igre">
-                <div class="status-chip">
-                    <span class="status-chip__dot"></span>
-                    <span id="statusText">SYSTEM READY</span>
-                </div>
+    <article
+        class="hud-card hud-card--time"
+        id="timeCard"
+    >
+        <span class="hud-card__label">TIME</span>
 
-                <div class="status-metric status-metric--level">
-                    <span class="status-metric__label">
-                        LEVEL
-                    </span>
+        <strong
+            class="hud-card__value"
+            id="timeValue"
+        >
+            60.0
+        </strong>
 
-                    <strong id="levelValue">01</strong>
-                </div>
-                <article
-                    class="hud-card hud-card--time"
-                    id="timeCard"
-                >
-                    <span class="hud-card__label">TIME</span>
+        <span class="hud-card__unit">
+            SECONDS
+        </span>
+    </article>
+</section>
 
-                    <strong
-                        class="hud-card__value"
-                        id="timeValue"
-                    >
-                        60.0
-                    </strong>
+<section class="status-row" aria-label="Status igre">
+    <div class="status-chip">
+        <span class="status-chip__dot"></span>
+        <span id="statusText">SYSTEM READY</span>
+    </div>
 
-                    <span class="hud-card__unit">SECONDS</span>
-                </article>
+    <div class="status-metric status-metric--level">
+        <span class="status-metric__label">
+            LEVEL
+        </span>
 
-                <div
-                    class="status-metric status-metric--combo"
-                    id="comboCard"
-                >
-                    <span class="status-metric__label">
-                        COMBO
-                    </span>
+        <strong id="levelValue">01</strong>
+    </div>
 
-                    <strong>
-                        &times;<span id="comboValue">1</span>
-                    </strong>
-                </div>
-            </section>
+    <div
+        class="status-metric status-metric--combo"
+        id="comboCard"
+    >
+        <span class="status-metric__label">
+            COMBO
+        </span>
+
+        <strong>
+            &times;<span id="comboValue">1</span>
+        </strong>
+    </div>
+</section>
 
             <section class="game-stage" id="gameStage">
                 <canvas
