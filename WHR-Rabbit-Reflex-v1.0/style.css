@@ -3245,6 +3245,40 @@ button {
     text-align: left;
   }
 }
+/* PC I SIRI EKRANI - PORAVNANJE SA HUD KOLONAMA */
+@media (min-width: 601px) {
+  .status-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .status-chip {
+    grid-column: 1 / 3;
+  }
+
+  .status-metric {
+    justify-content: center;
+    width: 100%;
+    min-height: 29px;
+    padding: 4px 8px;
+    border: 1px solid rgba(0, 245, 255, 0.14);
+    border-radius: 6px;
+    background: rgba(4, 10, 28, 0.48);
+  }
+
+  .status-metric--level {
+    grid-column: 3;
+  }
+
+  .status-metric--combo {
+    grid-column: 4;
+  }
+
+  .status-metric strong {
+    min-width: 0;
+    text-align: left;
+  }
+}
 /* ANTI-CHEAT PULSE - BEZ NATPISA */
 
 .anti-cheat-wave {
