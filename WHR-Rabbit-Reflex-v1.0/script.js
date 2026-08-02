@@ -1362,6 +1362,50 @@ class Game {
     return fallback;
   }
 
+  playSpawnSound(type) {
+    switch (type) {
+      case "rabbit":
+        this.audio.hit(1);
+        break;
+
+      case "redrabbit":
+        this.audio.red();
+        break;
+
+      case "decoy":
+      case "net":
+        this.audio.bad();
+        break;
+
+      case "life":
+        this.audio.life();
+        break;
+
+      case "golden":
+        this.audio.gold();
+        break;
+
+      case "freeze":
+        this.audio.freeze();
+        break;
+
+      case "hacker":
+        this.audio.blackHacker();
+        break;
+
+      case "hero":
+        this.audio.whiteHacker();
+        break;
+
+      case "blackhole":
+        this.audio.blackHole();
+        break;
+
+      default:
+        break;
+    }
+  }
+
   spawn(type, group, options = {}) {
     if (this.state !== "playing") return;
 
@@ -1463,6 +1507,7 @@ class Game {
     });
 
     this.e.layer.appendChild(button);
+    this.playSpawnSound(type);
 
     requestAnimationFrame(() => {
       button.classList.add("is-spawned");
@@ -1629,14 +1674,12 @@ class Game {
         this.score += CONFIG.extraLifeFullPoints;
         this.flash("LIFE BANK FULL", `+${CONFIG.extraLifeFullPoints} PTS`, "#55ff88");
       }
-      this.audio.life();
       this.effect("is-hit");
       this.setStatus("LIFE RESTORED", "normal");
       this.particles.burst(x, y, "#55ff88", 36);
     } else if (type === "decoy") {
       this.score = Math.max(0, this.score - CONFIG.decoyPenalty);
       this.lives--;
-      this.audio.bad();
       this.flash("DECOY HIT", `-${CONFIG.decoyPenalty}`, "#ff325f");
       this.effect("is-damaged");
       this.setStatus("SYSTEM DAMAGE", "danger");
@@ -1649,21 +1692,18 @@ class Game {
     } else if (type === "redrabbit") {
       this.score = Math.max(0, this.score - CONFIG.redPenaltyPoints);
       this.timeLeft = Math.max(0, this.timeLeft - CONFIG.redPenaltyTime);
-      this.audio.red();
       this.flash("RED RABBIT HIT!", `-${CONFIG.redPenaltyPoints} PTS / -${CONFIG.redPenaltyTime}s`, "#ff0033");
       this.effect("is-damaged");
       this.setStatus("CRITICAL ERROR!", "danger");
       this.particles.burst(x, y, "#ff0033", 35);
     } else if (type === "net") {
       this.timeLeft = Math.max(0, this.timeLeft - 1.5);
-      this.audio.bad();
       this.flash("NET TRAP!", "-1.5s", "#a855f7");
       this.effect("is-damaged");
       this.setStatus("NETWORK BLOCKED!", "warning");
       this.particles.burst(x, y, "#a855f7", 20);
     } else if (type === "blackhole") {
       this.timeLeft = Math.max(0, this.timeLeft - CONFIG.blackHolePenaltyTime);
-      this.audio.blackHole();
       this.effect("is-damaged");
       this.flash("GRAVITY BREACH", `-${CONFIG.blackHolePenaltyTime}s`, "#a855f7");
       this.setStatus("GRAVITY BREACH", "danger");
@@ -1671,7 +1711,6 @@ class Game {
       this.particles.burst(target.x, target.y, "#ffffff", 18);
     } else if (type === "hacker") {
       this.score = Math.max(0, this.score - CONFIG.hackerPenaltyPoints);
-      this.audio.blackHacker();
       this.applyHackerVirus();
       this.flash("HACKER RABBIT HIT!", `-${CONFIG.hackerPenaltyPoints} PTS // VIRUS UPLOADED`, "#ff38c7");
       this.setStatus("SYSTEM INFECTED", "danger");
@@ -1680,7 +1719,6 @@ class Game {
       this.particles.burst(x, y, "#a855f7", 18);
     } else if (type === "hero") {
       this.hits++;
-      this.audio.whiteHacker();
       this.applyAntiCheat(button, x, y);
       this.particles.burst(x, y, "#fff4dc", 24);
       this.particles.burst(x, y, "#ff7a00", 28);
@@ -1701,16 +1739,13 @@ class Game {
 
       if (type === "golden") {
         this.timeLeft += CONFIG.goldenBonus;
-        this.audio.gold();
         this.flash("GOLDEN RABBIT", `+${points} / +${CONFIG.goldenBonus.toFixed(1)}s`, "#ffd34d");
         this.particles.burst(x, y, "#ffd34d", 30);
       } else if (type === "freeze") {
         this.applyFreeze();
-        this.audio.freeze();
         this.flash("FREEZE RABBIT", `TIME SLOWED! +${points}`, "#00f5ff");
         this.particles.burst(x, y, "#00f5ff", 30);
       } else {
-        this.audio.hit(this.mult);
         this.flash("DIRECT HIT", `+${points}`, "#00f5ff");
         this.particles.burst(x, y, "#00f5ff", 20);
       }
