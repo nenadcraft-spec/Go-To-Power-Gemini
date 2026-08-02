@@ -930,8 +930,9 @@ class Game {
       comboCard: $("comboCard"),
       level: $("levelValue"),
       time: $("timeValue"),
+      timeCard: $("timeCard"),
       status: $("statusText"),
-      lives: $("livesContainer"),
+      lives: $("livesValue"),
       progressText: $("progressText"),
       progressFill: $("progressFill"),
 
@@ -989,7 +990,6 @@ class Game {
     this.virusRemaining = 0;
 
     this.bind();
-    this.ensureLifeSlots();
     this.reset();
     this.show(this.e.startO, true);
     this.updateSound();
@@ -1166,15 +1166,6 @@ class Game {
     element.classList.toggle("stage-overlay--visible", visible);
   }
 
-  ensureLifeSlots() {
-    while (this.e.lives.children.length < CONFIG.maxLives) {
-      const life = document.createElement("span");
-      life.className = "life life--lost";
-      life.textContent = "\u25c6";
-      this.e.lives.appendChild(life);
-    }
-  }
-
   async start() {
     if (this.starting) return;
 
@@ -1251,7 +1242,7 @@ class Game {
     this.timeLeft = Math.max(0, this.timeLeft - delta);
     this.e.time.textContent = this.timeLeft.toFixed(1);
 
-    document.querySelector(".timer-display")?.classList.toggle("is-critical", this.timeLeft <= 8);
+    this.e.timeCard.classList.toggle("is-critical", this.timeLeft <= 8);
 
     const now = performance.now();
 
@@ -2337,16 +2328,15 @@ class Game {
     this.e.combo.textContent = String(this.mult);
     this.e.level.textContent = String(this.level).padStart(2, "0");
     this.e.time.textContent = this.timeLeft.toFixed(1);
+    this.e.lives.textContent = `${String(this.lives).padStart(2, "0")}/${String(CONFIG.maxLives).padStart(2, "0")}`;
 
     this.e.comboCard.classList.toggle("is-hot", this.mult >= 3);
+    this.e.timeCard.classList.toggle("is-critical", this.timeLeft <= 8);
+    this.e.lives.closest(".hud-card--lives")?.classList.toggle("is-critical", this.lives <= 1);
 
     this.e.progressText.textContent = `${this.levelHits} / ${CONFIG.hitsPerLevel}`;
     this.e.progressFill.style.width = `${(this.levelHits / CONFIG.hitsPerLevel) * 100}%`;
 
-    [...this.e.lives.children].forEach((element, index) => {
-      element.classList.toggle("life--active", index < this.lives);
-      element.classList.toggle("life--lost", index >= this.lives);
-    });
   }
 }
 
