@@ -2,8 +2,7 @@
 
 /* =========================================================
    WHR MUSIC ENGINE - "NEON STATIC" (by Claude & WHR Crew)
-   Originalna WHR univerzum tema, 100% proceduralna,
-   komponovana i generisana cistim Web Audio API-jem.
+   Originalna WHR univerzum tema, 100% proceduralna.
    ========================================================= */
 
 const NOTE_INDEX = {
@@ -24,14 +23,13 @@ class MusicEngine {
   constructor(audioFX) {
     this.audioFX = audioFX || null;
     this.ctx = (audioFX && audioFX.ctx) || null;
-    // SOUND dugme je jedini autoritet za SFX i muziku.
     this.enabled = audioFX
       ? audioFX.enabled
       : localStorage.getItem(MusicEngine.KEY) !== "false";
     this.playing = false;
 
     this.tempo = 132;
-    this.stepSeconds = 60 / this.tempo / 4; // 16th note
+    this.stepSeconds = 60 / this.tempo / 4;
     this.stepsPerBar = 16;
     this.currentStep = 0;
     this.nextStepTime = 0;
@@ -215,30 +213,6 @@ class MusicEngine {
     sweep.start(sweepStart);
     sweep.stop(sweepStart + 0.62);
 
-    const noiseStart = sweepStart;
-    const noiseDur = 0.7;
-    const bufferSize = Math.floor(ctx.sampleRate * noiseDur);
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const noiseFilter = ctx.createBiquadFilter();
-    noiseFilter.type = "bandpass";
-    noiseFilter.frequency.setValueAtTime(1800, noiseStart);
-    noiseFilter.Q.value = 0.6;
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.05, noiseStart);
-    noiseGain.gain.exponentialRampToValueAtTime(0.0001, noiseStart + noiseDur);
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(introGain);
-    this.introSources.add(noise);
-    noise.start(noiseStart);
-    noise.stop(noiseStart + noiseDur);
-
     const chordStart = sweepStart + 0.66;
     ["A3", "E4", "A4"].forEach((note) => {
       const freq = noteFreq(note);
@@ -272,10 +246,9 @@ class MusicEngine {
       try {
         source.stop();
       } catch {
-        // Izvor je vec zavrsen.
+        // Izvor je vec zavrsen
       }
     }
-
     this.introSources.clear();
   }
 
@@ -293,7 +266,6 @@ class MusicEngine {
       this.stopIntro();
       this.stop();
     }
-
     return this.enabled;
   }
 
@@ -334,23 +306,16 @@ class MusicEngine {
 
   updateMasterVolume(immediate = false) {
     if (!this.master || !this.ctx) return;
-
     const now = this.ctx.currentTime;
     const volume = this.intensityVolume();
 
     this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setValueAtTime(
-      this.master.gain.value,
-      now
-    );
+    this.master.gain.setValueAtTime(this.master.gain.value, now);
 
     if (immediate) {
       this.master.gain.setValueAtTime(volume, now);
     } else {
-      this.master.gain.linearRampToValueAtTime(
-        volume,
-        now + 0.25
-      );
+      this.master.gain.linearRampToValueAtTime(volume, now + 0.25);
     }
   }
 
@@ -530,9 +495,9 @@ class MusicEngine {
 
 MusicEngine.KEY = "whr-rabbit-reflex-music-enabled";
 
-/* =========================================================
+/* =========================================
    CONFIG & UTILS
-   ========================================================= */
+   ========================================= */
 
 const CONFIG = {
   time: 60,
@@ -612,6 +577,19 @@ const CONFIG = {
   soundKey: "whr-rabbit-reflex-sound-enabled",
 };
 
+const TUTORIAL_STEPS = [
+  { type: "rabbit", group: "good", title: "OBICAN ZEC", text: "Glavni cilj! Pogodi ga pre nego sto nestane s ekrana." },
+  { type: "golden", group: "good", title: "ZLATNI ZEC", text: "Donosi velika pojacanja i dodatne sekunde vremena." },
+  { type: "freeze", group: "good", title: "PLAVI ZEC", text: "Ubrzava sistem na kratko uz bonus poene." },
+  { type: "life", group: "good", title: "EXTRA LIFE", text: "Dodaje +1 zivot u vasem sistemu (max 10)." },
+  { type: "hero", group: "hero", title: "BELI HAKER", text: "Aktivira Anti-Cheat talas koji cisti sve pretnje s ekrana!" },
+  { type: "redrabbit", group: "hazard", title: "CRVENI ZEC", text: "OPASNOST! Oduzima poene, sekunde i ponistava combo." },
+  { type: "decoy", group: "hazard", title: "BEZBOJNI ZEC", text: "ZAMKA! Virus kopija koja oduzima zivot i kvari prikaz." },
+  { type: "net", group: "hazard", title: "CYBER MREZA", text: "Blokira mrezu i oduzima 5 sekundi ako je dodirnes!" },
+  { type: "hacker", group: "hacker", title: "CRNI HAKER", text: "Inficira sistem i pravi opasne klonove na terenu!" },
+  { type: "blackhole", group: "blackhole", title: "CRNA RUPA", text: "ULTRA BOSS! Ne klikce se — savija prostor i guta mete!" },
+];
+
 const $ = (id) => {
   const element = document.getElementById(id);
   if (!element) {
@@ -660,7 +638,6 @@ class AudioFX {
     if (typeof Audio === "undefined") return;
 
     this.lobbyMusic = new Audio("./sound/lobby-music.wav");
-
     this.lobbyMusic.preload = "auto";
     this.lobbyMusic.loop = true;
     this.lobbyMusic.volume = 0.14;
@@ -668,34 +645,25 @@ class AudioFX {
   }
 
   playLobby(volume = 0.14) {
-    if (!this.enabled || !this.lobbyMusic) {
-      return false;
-    }
+    if (!this.enabled || !this.lobbyMusic) return false;
 
     this.lobbyMusic.volume = clamp(volume, 0, 1);
-
     let result;
     try {
       result = this.lobbyMusic.play();
     } catch {
       return false;
     }
-    result?.catch?.(() => {
-      // Browser ceka prvi korisnicki dodir.
-    });
-
+    result?.catch?.(() => {});
     return true;
   }
 
   stopLobby() {
     if (!this.lobbyMusic) return;
-
     this.lobbyMusic.pause();
     try {
       this.lobbyMusic.currentTime = 0;
-    } catch {
-      // Fajl jos nije ucitan; nema stanja koje treba resetovati.
-    }
+    } catch {}
   }
 
   prepareSamples() {
@@ -729,15 +697,11 @@ class AudioFX {
     const now = performance.now();
     const last = this.lastSampleAt.get(name) || 0;
 
-    if (now - last < config.cooldown) {
-      return true;
-    }
+    if (now - last < config.cooldown) return true;
 
     this.lastSampleAt.set(name, now);
-
     const cursor = this.sampleCursor.get(name) || 0;
     const sample = pool[cursor];
-
     this.sampleCursor.set(name, (cursor + 1) % pool.length);
 
     sample.pause();
@@ -757,9 +721,7 @@ class AudioFX {
 
     if (result?.catch) {
       result.catch(() => {
-        if (this.enabled && sample._whrPlayId === playId) {
-          fallback?.();
-        }
+        if (this.enabled && sample._whrPlayId === playId) fallback?.();
       });
     }
 
@@ -787,18 +749,14 @@ class AudioFX {
   init() {
     if (this.ctx) return;
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (AudioContextClass) {
-      this.ctx = new AudioContextClass();
-    }
+    if (AudioContextClass) this.ctx = new AudioContextClass();
   }
 
   tone(frequency = 440, duration = 0.08, type = "sine", end = frequency) {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
-    if (this.ctx.state === "suspended") {
-      this.ctx.resume().catch(() => {});
-    }
+    if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {});
 
     const oscillator = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -819,113 +777,25 @@ class AudioFX {
     oscillator.stop(now + duration + 0.02);
   }
 
-  hit(combo) {
-    this.playSample("normalHit", () => {
-      this.tone(480 + combo * 24, 0.09, "sine", 820 + combo * 24);
-    });
-  }
-
-  gold() {
-    this.playSample("goldenRabbit", () => {
-      [660, 880, 1100].forEach((frequency, index) => {
-        setTimeout(() => {
-          this.tone(frequency, 0.13, "triangle", frequency * 1.1);
-        }, index * 45);
-      });
-    });
-  }
-
-  freeze() {
-    [900, 700, 500].forEach((frequency, index) => {
-      setTimeout(() => {
-        this.tone(frequency, 0.15, "sine", frequency * 0.8);
-      }, index * 50);
-    });
-  }
-
-  red() {
-    this.playSample("redRabbit", () => {
-      [200, 150, 100].forEach((frequency, index) => {
-        setTimeout(() => {
-          this.tone(frequency, 0.18, "sawtooth", frequency * 0.6);
-        }, index * 60);
-      });
-    });
-  }
-
-  life() {
-    this.playSample("extraLife", () => {
-      [520, 660, 880, 1040].forEach((frequency, index) => {
-        setTimeout(() => {
-          this.tone(frequency, 0.14, "triangle", frequency * 1.12);
-        }, index * 45);
-      });
-    });
-  }
-
-  bad() {
-    this.playSample("trap", () => {
-      this.tone(190, 0.24, "sawtooth", 55);
-    });
-  }
-
-  level() {
-    this.playSample("levelUp", () => {
-      [440, 554, 659, 880].forEach((frequency, index) => {
-        setTimeout(() => {
-          this.tone(frequency, 0.16, "sine", frequency * 1.05);
-        }, index * 65);
-      });
-    });
-  }
-
-  click() {
-    this.tone(500, 0.07, "sine", 720);
-  }
-
-  over() {
-    this.playSample("gameOver", () => {
-      [420, 320, 230, 150].forEach((frequency, index) => {
-        setTimeout(() => {
-          this.tone(frequency, 0.2, "sawtooth", frequency * 0.7);
-        }, index * 90);
-      });
-    });
-  }
-
-  blackHacker() {
-    this.playSample("blackHacker", () => {
-      this.tone(150, 0.3, "sawtooth", 45);
-    });
-  }
-
-  blackHole() {
-    this.playSample("blackHole", () => {
-      this.tone(90, 0.45, "sine", 28);
-    });
-  }
-
-  whiteHacker() {
-    this.playSample("whiteHacker", () => {
-      this.tone(620, 0.3, "triangle", 1250);
-    });
-  }
-
-  start() {
-    this.playSample("gameStart", () => {
-      this.tone(360, 0.28, "triangle", 900);
-    });
-  }
+  hit(combo) { this.playSample("normalHit", () => this.tone(480 + combo * 24, 0.09, "sine", 820 + combo * 24)); }
+  gold() { this.playSample("goldenRabbit", () => [660, 880, 1100].forEach((f, i) => setTimeout(() => this.tone(f, 0.13, "triangle", f * 1.1), i * 45))); }
+  freeze() { [900, 700, 500].forEach((f, i) => setTimeout(() => this.tone(f, 0.15, "sine", f * 0.8), i * 50)); }
+  red() { this.playSample("redRabbit", () => [200, 150, 100].forEach((f, i) => setTimeout(() => this.tone(f, 0.18, "sawtooth", f * 0.6), i * 60))); }
+  life() { this.playSample("extraLife", () => [520, 660, 880, 1040].forEach((f, i) => setTimeout(() => this.tone(f, 0.14, "triangle", f * 1.12), i * 45))); }
+  bad() { this.playSample("trap", () => this.tone(190, 0.24, "sawtooth", 55)); }
+  level() { this.playSample("levelUp", () => [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, 0.16, "sine", f * 1.05), i * 65))); }
+  click() { this.tone(500, 0.07, "sine", 720); }
+  over() { this.playSample("gameOver", () => [420, 320, 230, 150].forEach((f, i) => setTimeout(() => this.tone(f, 0.2, "sawtooth", f * 0.7), i * 90))); }
+  blackHacker() { this.playSample("blackHacker", () => this.tone(150, 0.3, "sawtooth", 45)); }
+  blackHole() { this.playSample("blackHole", () => this.tone(90, 0.45, "sine", 28)); }
+  whiteHacker() { this.playSample("whiteHacker", () => this.tone(620, 0.3, "triangle", 1250)); }
+  start() { this.playSample("gameStart", () => this.tone(360, 0.28, "triangle", 900)); }
 
   toggle() {
     this.enabled = !this.enabled;
     localStorage.setItem(CONFIG.soundKey, String(this.enabled));
-    if (this.enabled) {
-      this.click();
-    } else {
-      this.stopLobby();
-      this.stopSamples();
-    }
+    if (this.enabled) this.click();
+    else { this.stopLobby(); this.stopSamples(); }
     return this.enabled;
   }
 }
@@ -946,21 +816,13 @@ class Particles {
       const density = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = rect.width * density;
       canvas.height = rect.height * density;
-
-      if (this.context.resetTransform) {
-        this.context.resetTransform();
-      } else {
-        this.context.setTransform(1, 0, 0, 1, 0, 0);
-      }
+      this.context.setTransform(1, 0, 0, 1, 0, 0);
       this.context.scale(density, density);
     };
 
     window.addEventListener("resize", this.resize);
     this.resize();
-
-    requestAnimationFrame((time) => {
-      this.loop(time);
-    });
+    requestAnimationFrame((time) => this.loop(time));
   }
 
   burst(x, y, color, count = 18) {
@@ -970,14 +832,8 @@ class Particles {
       const life = 350 + Math.random() * 350;
 
       this.items.push({
-        x,
-        y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        life,
-        maxLife: life,
-        color,
-        size: 1 + Math.random() * 3,
+        x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        life, maxLife: life, color, size: 1 + Math.random() * 3,
       });
     }
   }
@@ -1002,7 +858,6 @@ class Particles {
       this.context.fillStyle = particle.color;
       this.context.shadowColor = particle.color;
       this.context.shadowBlur = 8;
-
       this.context.beginPath();
       this.context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
       this.context.fill();
@@ -1011,14 +866,12 @@ class Particles {
       return true;
     });
 
-    requestAnimationFrame((nextTime) => {
-      this.loop(nextTime);
-    });
+    requestAnimationFrame((nextTime) => this.loop(nextTime));
   }
 }
 
 /* =========================================
-   GAME ENGINE & INTEGRATION WITH MUSIC
+   GAME ENGINE & TUTORIAL INTEGRATION
    ========================================= */
 
 class Game {
@@ -1042,6 +895,14 @@ class Game {
       resume: $("resumeButton"),
       sound: $("soundButton"),
       soundIcon: $("soundIcon"),
+
+      // TUTORIAL ELEMENTS
+      tutorialBtn: $("tutorialButton"),
+      tutorialHud: $("tutorialHud"),
+      tutorialExitBtn: $("tutorialExitButton"),
+      tutorialStep: $("tutorialStep"),
+      tutorialTitle: $("tutorialTitle"),
+      tutorialText: $("tutorialText"),
 
       count: $("countdownValue"),
       score: $("scoreValue"),
@@ -1069,7 +930,7 @@ class Game {
     };
 
     this.audio = new AudioFX();
-    this.music = new MusicEngine(this.audio); // Povezivanje Claude Music Engine-a
+    this.music = new MusicEngine(this.audio);
     this.particles = new Particles(this.e.canvas);
 
     this.best = Number(localStorage.getItem(CONFIG.bestKey)) || 0;
@@ -1077,6 +938,8 @@ class Game {
 
     this.state = "ready";
     this.starting = false;
+    this.isTutorial = false;
+    this.tutorialCurrentIndex = 0;
 
     this.isFrozen = false;
     this.freezeScale = 1;
@@ -1110,17 +973,6 @@ class Game {
     this.blackHoleRemaining = 0;
     this.goodSinceGolden = 0;
 
-    this.freezeExpiresAt = 0;
-    this.freezeRemaining = 0;
-
-    this.virusExpiresAt = 0;
-    this.virusRemaining = 0;
-
-    this.monoExpiresAt = 0;
-    this.monoRemaining = 0;
-    this.netOverlayExpiresAt = 0;
-    this.netOverlayRemaining = 0;
-
     this.bind();
     this.reset();
     this.show(this.e.startO, true);
@@ -1135,53 +987,29 @@ class Game {
     this.e.pause.onclick = () => this.togglePause();
     this.e.resume.onclick = () => this.resume();
 
+    // EVENT LISTENERI ZA TUTORIJAL
+    this.e.tutorialBtn.onclick = () => this.startTutorial();
+    this.e.tutorialExitBtn.onclick = () => this.endTutorial();
+
     this.e.sound.onclick = () => {
       this.audio.toggle();
-
       if (this.music) {
         this.music.setEnabled(this.audio.enabled);
-
-        if (
-          this.audio.enabled &&
-          this.state === "playing"
-        ) {
+        if (this.audio.enabled && this.state === "playing") {
           this.music.start();
         }
       }
-
-      if (
-        this.audio.enabled &&
-        ["ready", "gameover"].includes(
-          this.state
-        )
-      ) {
-        this.audio.playLobby(
-          this.state === "gameover"
-            ? 0.1
-            : 0.14
-        );
+      if (this.audio.enabled && ["ready", "gameover"].includes(this.state)) {
+        this.audio.playLobby(this.state === "gameover" ? 0.1 : 0.14);
       }
-
       this.updateSound();
     };
 
-    document.addEventListener(
-      "pointerdown",
-      () => {
-        if (
-          ["ready", "gameover"].includes(
-            this.state
-          )
-        ) {
-          this.audio.playLobby(
-            this.state === "gameover"
-              ? 0.1
-              : 0.14
-          );
-        }
-      },
-      { once: true }
-    );
+    document.addEventListener("pointerdown", () => {
+      if (["ready", "gameover"].includes(this.state)) {
+        this.audio.playLobby(this.state === "gameover" ? 0.1 : 0.14);
+      }
+    }, { once: true });
 
     this.e.stage.addEventListener("pointermove", (event) => {
       const rect = this.e.stage.getBoundingClientRect();
@@ -1211,7 +1039,6 @@ class Game {
           this.resume();
         }
       }
-
       if (event.code === "Escape" && this.state === "playing") {
         this.pause();
       }
@@ -1224,10 +1051,64 @@ class Game {
     });
   }
 
-  reset() {
-    if (this.raf) {
-      cancelAnimationFrame(this.raf);
+  /* =========================================
+     LOGIKA INTERAKTIVNOG TUTORIJALA
+     ========================================= */
+
+  startTutorial() {
+    this.reset();
+    this.isTutorial = true;
+    this.tutorialCurrentIndex = 0;
+    this.show(this.e.startO, false);
+    this.e.tutorialHud.classList.add("is-visible");
+    this.e.tutorialHud.setAttribute("aria-hidden", "false");
+    this.state = "tutorial";
+    this.audio.click();
+    this.spawnTutorialStep();
+  }
+
+  spawnTutorialStep() {
+    this.removeAllTargets();
+    if (this.tutorialCurrentIndex >= TUTORIAL_STEPS.length) {
+      this.endTutorial();
+      return;
     }
+
+    const step = TUTORIAL_STEPS[this.tutorialCurrentIndex];
+    this.e.tutorialStep.textContent = `TRAINING ${String(this.tutorialCurrentIndex + 1).padStart(2, "0")}/${TUTORIAL_STEPS.length}`;
+    this.e.tutorialTitle.textContent = step.title;
+    this.e.tutorialText.textContent = step.text;
+
+    this.spawn(step.type, step.group, {
+      spawnAt: {
+        x: this.e.stage.getBoundingClientRect().width / 2,
+        y: this.e.stage.getBoundingClientRect().height / 2,
+      }
+    });
+  }
+
+  nextTutorialStep() {
+    this.tutorialCurrentIndex++;
+    if (this.tutorialCurrentIndex >= TUTORIAL_STEPS.length) {
+      this.flash("TRAINING COMPLETE", "ALL SYSTEMS VERIFIED!", "#55ffb8");
+      this.endTutorial();
+    } else {
+      this.spawnTutorialStep();
+    }
+  }
+
+  endTutorial() {
+    this.isTutorial = false;
+    this.e.tutorialHud.classList.remove("is-visible");
+    this.e.tutorialHud.setAttribute("aria-hidden", "true");
+    this.removeAllTargets();
+    this.reset();
+    this.show(this.e.startO, true);
+    this.state = "ready";
+  }
+
+  reset() {
+    if (this.raf) cancelAnimationFrame(this.raf);
 
     clearTimeout(this.goodSpawnTimer);
     clearTimeout(this.hazardSpawnTimer);
@@ -1278,30 +1159,6 @@ class Game {
     this.taps = 0;
 
     this.last = 0;
-
-    this.goodDueAt = 0;
-    this.hazardDueAt = 0;
-    this.hackerDueAt = 0;
-    this.heroDueAt = 0;
-    this.blackHoleDueAt = 0;
-
-    this.goodRemaining = 0;
-    this.hazardRemaining = 0;
-    this.hackerRemaining = 0;
-    this.heroRemaining = 0;
-    this.blackHoleRemaining = 0;
-    this.goodSinceGolden = 0;
-
-    this.freezeExpiresAt = 0;
-    this.freezeRemaining = 0;
-
-    this.virusExpiresAt = 0;
-    this.virusRemaining = 0;
-    this.monoExpiresAt = 0;
-    this.monoRemaining = 0;
-    this.netOverlayExpiresAt = 0;
-    this.netOverlayRemaining = 0;
-
     this.update();
   }
 
@@ -1326,7 +1183,6 @@ class Game {
     this.audio.stopLobby();
     this.audio.start();
 
-    // Dial-up svira tokom countdown-a. Tema krece tek kada igra zaista pocne.
     if (this.music) {
       this.music.playIntro();
     }
@@ -1338,14 +1194,7 @@ class Game {
       }
 
       this.e.count.textContent = value;
-
-      this.audio.tone(
-        value === "GO" ? 760 : 300 + Number(value) * 60,
-        0.12,
-        "square",
-        value === "GO" ? 1100 : 500
-      );
-
+      this.audio.tone(value === "GO" ? 760 : 300 + Number(value) * 60, 0.12, "square", value === "GO" ? 1100 : 500);
       await sleep(value === "GO" ? 500 : 700);
     }
 
@@ -1378,9 +1227,7 @@ class Game {
     let delta = Math.min(0.1, (time - (this.last || time)) / 1000);
     this.last = time;
 
-    if (this.isFrozen) {
-      delta *= this.freezeScale;
-    }
+    if (this.isFrozen) delta *= this.freezeScale;
 
     this.timeLeft = Math.max(0, this.timeLeft - delta);
     this.e.time.textContent = this.timeLeft.toFixed(1);
@@ -1403,160 +1250,93 @@ class Game {
   }
 
   goodDelay() {
-    const delay = Math.max(
-      CONFIG.goodMinDelay,
-      CONFIG.goodBaseDelay - (this.level - 1) * CONFIG.goodDelayStep
-    );
-    return delay;
+    return Math.max(CONFIG.goodMinDelay, CONFIG.goodBaseDelay - (this.level - 1) * CONFIG.goodDelayStep);
   }
 
   hazardDelay() {
-    const delay = Math.max(
-      CONFIG.hazardMinDelay,
-      CONFIG.hazardBaseDelay - (this.level - CONFIG.hazardStartLevel) * CONFIG.hazardDelayStep
-    );
-    const variation = 0.8 + Math.random() * 0.45;
-    return delay * variation;
+    return Math.max(CONFIG.hazardMinDelay, CONFIG.hazardBaseDelay - (this.level - CONFIG.hazardStartLevel) * CONFIG.hazardDelayStep) * (0.8 + Math.random() * 0.45);
   }
 
-  hackerDelay() {
-    return CONFIG.hackerMinDelay + Math.random() * (CONFIG.hackerMaxDelay - CONFIG.hackerMinDelay);
-  }
+  hackerDelay() { return CONFIG.hackerMinDelay + Math.random() * (CONFIG.hackerMaxDelay - CONFIG.hackerMinDelay); }
+  heroDelay() { return CONFIG.heroMinDelay + Math.random() * (CONFIG.heroMaxDelay - CONFIG.heroMinDelay); }
+  blackHoleDelay() { return CONFIG.blackHoleMinDelay + Math.random() * (CONFIG.blackHoleMaxDelay - CONFIG.blackHoleMinDelay); }
 
-  heroDelay() {
-    return CONFIG.heroMinDelay + Math.random() * (CONFIG.heroMaxDelay - CONFIG.heroMinDelay);
-  }
+  targetRemaining(target, now = performance.now()) { return Math.max(0, target.life - (now - target.spawnAt)); }
+  maxGoodTargets() { return this.level >= 12 ? 3 : (this.level >= 5 ? 2 : 1); }
+  maxHazards() { return this.level >= 10 ? 2 : 1; }
 
-  blackHoleDelay() {
-    return CONFIG.blackHoleMinDelay + Math.random() * (CONFIG.blackHoleMaxDelay - CONFIG.blackHoleMinDelay);
-  }
-
-  targetRemaining(target, now = performance.now()) {
-    return Math.max(0, target.life - (now - target.spawnAt));
-  }
-
-  maxGoodTargets() {
-    if (this.level >= 12) return 3;
-    if (this.level >= 5) return 2;
-    return 1;
-  }
-
-  maxHazards() {
-    return this.level >= 10 ? 2 : 1;
-  }
-
-  countGroup(group) {
-    return [...this.targets.values()].filter((target) => target.group === group).length;
-  }
-
-  countType(type) {
-    return [...this.targets.values()].filter((target) => target.type === type).length;
-  }
+  countGroup(group) { return [...this.targets.values()].filter((t) => t.group === group).length; }
+  countType(type) { return [...this.targets.values()].filter((t) => t.type === type).length; }
 
   scheduleGood(delay = this.goodDelay()) {
     clearTimeout(this.goodSpawnTimer);
     this.goodDueAt = performance.now() + delay;
-
     this.goodSpawnTimer = setTimeout(() => {
       this.goodDueAt = 0;
       if (this.state === "playing" && this.countGroup("good") < this.maxGoodTargets()) {
         this.spawn(this.pickGoodType(), "good");
       }
-      if (this.state === "playing") {
-        this.scheduleGood();
-      }
+      if (this.state === "playing") this.scheduleGood();
     }, delay);
   }
 
   scheduleHazard(delay = this.hazardDelay()) {
     clearTimeout(this.hazardSpawnTimer);
     this.hazardDueAt = performance.now() + delay;
-
     this.hazardSpawnTimer = setTimeout(() => {
       this.hazardDueAt = 0;
-      if (
-        this.state === "playing" &&
-        this.level >= CONFIG.hazardStartLevel &&
-        this.countGroup("hazard") < this.maxHazards()
-      ) {
+      if (this.state === "playing" && this.level >= CONFIG.hazardStartLevel && this.countGroup("hazard") < this.maxHazards()) {
         const type = this.pickHazardType();
-        const persistentTrap = ["decoy", "net"].includes(type);
-        if (!persistentTrap || this.countType(type) === 0) {
+        if (!["decoy", "net"].includes(type) || this.countType(type) === 0) {
           this.spawn(type, "hazard");
         }
       }
-      if (this.state === "playing") {
-        this.scheduleHazard();
-      }
+      if (this.state === "playing") this.scheduleHazard();
     }, delay);
   }
 
   scheduleHacker(delay = this.hackerDelay()) {
     clearTimeout(this.hackerSpawnTimer);
     this.hackerDueAt = performance.now() + delay;
-
     this.hackerSpawnTimer = setTimeout(() => {
       this.hackerDueAt = 0;
-      if (
-        this.state === "playing" &&
-        this.level >= CONFIG.hackerStartLevel &&
-        !this.isVirusActive &&
-        this.countGroup("hacker") === 0
-      ) {
+      if (this.state === "playing" && this.level >= CONFIG.hackerStartLevel && !this.isVirusActive && this.countGroup("hacker") === 0) {
         this.spawn("hacker", "hacker");
       }
-      if (this.state === "playing") {
-        this.scheduleHacker();
-      }
+      if (this.state === "playing") this.scheduleHacker();
     }, delay);
   }
 
   scheduleHero(delay = this.heroDelay()) {
     clearTimeout(this.heroSpawnTimer);
     this.heroDueAt = performance.now() + delay;
-
     this.heroSpawnTimer = setTimeout(() => {
       this.heroDueAt = 0;
-      if (
-        this.state === "playing" &&
-        this.level >= CONFIG.heroStartLevel &&
-        this.countGroup("hero") === 0
-      ) {
+      if (this.state === "playing" && this.level >= CONFIG.heroStartLevel && this.countGroup("hero") === 0) {
         this.spawn("hero", "hero");
       }
-      if (this.state === "playing") {
-        this.scheduleHero();
-      }
+      if (this.state === "playing") this.scheduleHero();
     }, delay);
   }
 
   scheduleBlackHole(delay = this.blackHoleDelay()) {
     clearTimeout(this.blackHoleSpawnTimer);
     this.blackHoleDueAt = performance.now() + delay;
-
     this.blackHoleSpawnTimer = setTimeout(() => {
       this.blackHoleDueAt = 0;
-      if (
-        this.state === "playing" &&
-        this.level >= CONFIG.blackHoleStartLevel &&
-        this.countGroup("blackhole") === 0
-      ) {
+      if (this.state === "playing" && this.level >= CONFIG.blackHoleStartLevel && this.countGroup("blackhole") === 0) {
         this.spawn("blackhole", "blackhole");
       }
-      if (this.state === "playing") {
-        this.scheduleBlackHole();
-      }
+      if (this.state === "playing") this.scheduleBlackHole();
     }, delay);
   }
 
   pickGoodType() {
     this.goodSinceGolden++;
-
     if (this.goodSinceGolden >= CONFIG.goldenPitySpawns) {
       this.goodSinceGolden = 0;
       return "golden";
     }
-
     const roll = Math.random();
     const lifeChance = this.level >= CONFIG.extraLifeStartLevel ? CONFIG.extraLifeChance : 0;
     const goldenChance = Math.min(0.09 + (this.level - 1) * 0.003, 0.14);
@@ -1584,6 +1364,7 @@ class Game {
   }
 
   targetLife(type) {
+    if (this.isTutorial) return 999999;
     if (type === "hacker") return CONFIG.hackerLife;
     if (type === "hero") return CONFIG.heroLife;
     if (type === "blackhole") return CONFIG.blackHoleLife;
@@ -1594,9 +1375,7 @@ class Game {
     else if (type === "life") life = CONFIG.lifeRabbitLife;
     else if (type === "redrabbit") life = CONFIG.hazardLife;
 
-    return this.isFrozen && this.freezeScale > 1
-      ? life * CONFIG.freezeTargetLifeScale
-      : life;
+    return this.isFrozen && this.freezeScale > 1 ? life * CONFIG.freezeTargetLifeScale : life;
   }
 
   findSpawnPosition(size, rect) {
@@ -1629,55 +1408,22 @@ class Game {
     this.music?.duck(majorWarning ? 430 : 240, majorWarning ? 0.38 : 0.58);
 
     switch (type) {
-      case "rabbit":
-        this.audio.hit(1);
-        break;
-
-      case "redrabbit":
-        this.audio.red();
-        break;
-
-      case "decoy":
-      case "net":
-        this.audio.bad();
-        break;
-
-      case "life":
-        this.audio.life();
-        break;
-
-      case "golden":
-        this.audio.gold();
-        break;
-
-      case "freeze":
-        this.audio.freeze();
-        break;
-
-      case "hacker":
-        this.audio.blackHacker();
-        break;
-
-      case "hero":
-        this.audio.whiteHacker();
-        break;
-
-      case "blackhole":
-        this.audio.blackHole();
-        break;
-
-      default:
-        break;
+      case "rabbit": this.audio.hit(1); break;
+      case "redrabbit": this.audio.red(); break;
+      case "decoy": case "net": this.audio.bad(); break;
+      case "life": this.audio.life(); break;
+      case "golden": this.audio.gold(); break;
+      case "freeze": this.audio.freeze(); break;
+      case "hacker": this.audio.blackHacker(); break;
+      case "hero": this.audio.whiteHacker(); break;
+      case "blackhole": this.audio.blackHole(); break;
     }
   }
 
   spawn(type, group, options = {}) {
-    if (this.state !== "playing") return;
+    if (this.state !== "playing" && this.state !== "tutorial") return;
 
-    let size = Math.max(
-      58,
-      (window.innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.4
-    );
+    let size = Math.max(58, (window.innerWidth < 700 ? 82 : 94) - (this.level - 1) * 1.4);
 
     if (type === "hacker") size = Math.max(76, size * 1.18);
     if (type === "hero") size = Math.max(74, size * 1.14);
@@ -1705,9 +1451,8 @@ class Game {
     button.style.top = `${y}px`;
 
     if (type === "blackhole") {
-      button.disabled = true;
-      button.tabIndex = -1;
-      button.setAttribute("aria-label", "Crna rupa - ne moze da se klikne");
+      button.disabled = false;
+      if (!this.isTutorial) button.disabled = true;
       button.innerHTML = `
         <span class="target__timer"></span>
         <span class="target__blackhole-lens"></span>
@@ -1734,34 +1479,10 @@ class Game {
         </span>
       `;
 
-      if (type === "life") {
-        button.insertAdjacentHTML("beforeend", `<span class="target__life-aura"></span><span class="target__life-plus">+1</span>`);
-      } else if (type === "decoy") {
-        button.insertAdjacentHTML("beforeend", `
-          <span class="target__decoy-facets"></span>
-          <span class="target__decoy-ghost">
-            <span class="target__decoy-ghost-ear target__decoy-ghost-ear--left"></span>
-            <span class="target__decoy-ghost-ear target__decoy-ghost-ear--right"></span>
-            <span class="target__decoy-ghost-head"></span>
-          </span>
-          <span class="target__decoy-split target__decoy-split--one"></span>
-          <span class="target__decoy-split target__decoy-split--two"></span>
-        `);
-      } else if (type === "hacker") {
-        button.insertAdjacentHTML("beforeend", `
-          <span class="target__hacker-code">0xBAD</span>
-          <span class="target__hacker-mask"></span>
-          <span class="target__hacker-glitch target__hacker-glitch--one"></span>
-          <span class="target__hacker-glitch target__hacker-glitch--two"></span>
-        `);
-      } else if (type === "hero") {
-        button.insertAdjacentHTML("beforeend", `
-          <span class="target__whitehat-hat"></span>
-          <span class="target__whitehat-visor"></span>
-          <span class="target__whitehat-circuit"></span>
-          <span class="target__whitehat-shield"></span>
-        `);
-      }
+      if (type === "life") button.insertAdjacentHTML("beforeend", `<span class="target__life-aura"></span><span class="target__life-plus">+1</span>`);
+      else if (type === "decoy") button.insertAdjacentHTML("beforeend", `<span class="target__decoy-facets"></span><span class="target__decoy-ghost"><span class="target__decoy-ghost-ear target__decoy-ghost-ear--left"></span><span class="target__decoy-ghost-ear target__decoy-ghost-ear--right"></span><span class="target__decoy-ghost-head"></span></span><span class="target__decoy-split target__decoy-split--one"></span><span class="target__decoy-split target__decoy-split--two"></span>`);
+      else if (type === "hacker") button.insertAdjacentHTML("beforeend", `<span class="target__hacker-code">0xBAD</span><span class="target__hacker-mask"></span><span class="target__hacker-glitch target__hacker-glitch--one"></span><span class="target__hacker-glitch target__hacker-glitch--two"></span>`);
+      else if (type === "hero") button.insertAdjacentHTML("beforeend", `<span class="target__whitehat-hat"></span><span class="target__whitehat-visor"></span><span class="target__whitehat-circuit"></span><span class="target__whitehat-shield"></span>`);
     }
 
     const id = Symbol();
@@ -1770,67 +1491,38 @@ class Game {
 
     const timerId = setTimeout(() => this.miss(id), life);
 
-    if (type !== "blackhole") {
-      button.addEventListener("pointerdown", (event) => {
-        event.stopPropagation();
-        this.hit(id, type, button, x, y);
-      });
-    }
+    button.addEventListener("pointerdown", (event) => {
+      event.stopPropagation();
+      this.hit(id, type, button, x, y);
+    });
 
     this.e.layer.appendChild(button);
     this.playSpawnSound(type);
 
-    requestAnimationFrame(() => {
-      button.classList.add("is-spawned");
-    });
+    requestAnimationFrame(() => button.classList.add("is-spawned"));
 
     const target = {
-      element: button,
-      type,
-      group,
-      life,
-      maxLife: life,
-      spawnAt,
-      timerId,
-      x,
-      y,
-      isClone: Boolean(options.isClone),
-      cloneTimerId: null,
-      cloneDueAt: 0,
-      cloneRemaining: 0,
-      cloneSpent: Boolean(options.isClone),
-      portalTimerId: null,
-      portalDueAt: 0,
-      portalRemaining: 0,
-      portalSpent: false,
-      gravityTimerId: null,
+      element: button, type, group, life, maxLife: life, spawnAt, timerId, x, y,
+      isClone: Boolean(options.isClone), cloneTimerId: null, cloneDueAt: 0, cloneRemaining: 0, cloneSpent: Boolean(options.isClone),
+      portalTimerId: null, portalDueAt: 0, portalRemaining: 0, portalSpent: false, gravityTimerId: null,
     };
 
     this.targets.set(id, target);
 
-    if (type === "hacker" && !target.isClone) {
-      this.startHackerCloneTimer(id, target, CONFIG.hackerCloneDelay);
-    }
-
-    if (type === "blackhole") {
-      this.startBlackHoleSystems(id, target, CONFIG.blackHoleCloneDelay);
+    if (!this.isTutorial) {
+      if (type === "hacker" && !target.isClone) this.startHackerCloneTimer(id, target, CONFIG.hackerCloneDelay);
+      if (type === "blackhole") this.startBlackHoleSystems(id, target, CONFIG.blackHoleCloneDelay);
     }
   }
 
   startHackerCloneTimer(id, target, delay) {
     clearTimeout(target.cloneTimerId);
     target.cloneDueAt = performance.now() + delay;
-
     target.cloneTimerId = setTimeout(() => {
       target.cloneTimerId = null;
       target.cloneDueAt = 0;
       target.cloneSpent = true;
-
-      if (
-        this.state === "playing" &&
-        this.targets.has(id) &&
-        this.countGroup("hacker") < CONFIG.hackerMaxOnBoard
-      ) {
+      if (this.state === "playing" && this.targets.has(id) && this.countGroup("hacker") < CONFIG.hackerMaxOnBoard) {
         this.spawn("hacker", "hacker", { isClone: true });
       }
     }, delay);
@@ -1839,24 +1531,18 @@ class Game {
   startBlackHoleSystems(id, target, cloneDelay) {
     clearTimeout(target.portalTimerId);
     clearInterval(target.gravityTimerId);
-
     target.portalDueAt = performance.now() + cloneDelay;
 
     target.portalTimerId = setTimeout(() => {
       target.portalTimerId = null;
       target.portalDueAt = 0;
-
       if (this.state !== "playing" || !this.targets.has(id)) return;
-
       target.element.classList.add("is-portal-spent");
       target.portalSpent = true;
-
       this.spawn("blackhole", "blackhole", { isChain: true });
     }, cloneDelay);
 
-    target.gravityTimerId = setInterval(() => {
-      this.applyBlackHoleGravity(id, target);
-    }, CONFIG.blackHoleGravityRate);
+    target.gravityTimerId = setInterval(() => this.applyBlackHoleGravity(id, target), CONFIG.blackHoleGravityRate);
   }
 
   applyBlackHoleGravity(blackHoleId, blackHole) {
@@ -1882,20 +1568,12 @@ class Game {
 
         this.targets.delete(id);
         target.element.classList.add("is-expiring");
-
         this.particles.burst(blackHole.x, blackHole.y, "#a855f7", 12);
-
-        setTimeout(() => {
-          target.element.remove();
-        }, 180);
-
+        setTimeout(() => target.element.remove(), 180);
         continue;
       }
 
-      const strength =
-        CONFIG.blackHoleGravityStep *
-        (1 - distance / CONFIG.blackHoleGravityRadius + 0.25);
-
+      const strength = CONFIG.blackHoleGravityStep * (1 - distance / CONFIG.blackHoleGravityRadius + 0.25);
       target.x += (dx / distance) * strength;
       target.y += (dy / distance) * strength;
 
@@ -1912,6 +1590,13 @@ class Game {
   }
 
   hit(id, type, button, x, y) {
+    if (this.isTutorial) {
+      button.remove();
+      this.targets.delete(id);
+      this.nextTutorialStep();
+      return;
+    }
+
     if (this.state !== "playing" || !this.targets.has(id)) return;
 
     const target = this.targets.get(id);
@@ -1924,7 +1609,6 @@ class Game {
 
     this.taps++;
     this.attempts++;
-
     button.classList.add("is-hit");
 
     if (type === "life") {
@@ -1954,11 +1638,6 @@ class Game {
         setTimeout(() => this.finish(), 180);
         return;
       }
-      setTimeout(() => {
-        if (this.state === "playing" && this.lives > 0 && this.timeLeft > 0 && this.countType("decoy") === 0) {
-          this.spawn("decoy", "hazard", { isClone: true });
-        }
-      }, 170);
     } else if (type === "redrabbit") {
       this.score = Math.max(0, this.score - CONFIG.redPenaltyPoints);
       this.timeLeft = Math.max(0, this.timeLeft - CONFIG.redPenaltyTime);
@@ -1981,14 +1660,12 @@ class Game {
       this.setStatus("SYSTEM INFECTED", "danger");
       this.particles.burst(x, y, "#00f5ff", 22);
       this.particles.burst(x, y, "#ff38c7", 22);
-      this.particles.burst(x, y, "#a855f7", 18);
     } else if (type === "hero") {
       this.hits++;
       this.advanceComboAndLevel();
       this.applyAntiCheat(button, x, y);
       this.particles.burst(x, y, "#fff4dc", 24);
       this.particles.burst(x, y, "#ff7a00", 28);
-      this.particles.burst(x, y, "#246bff", 20);
     } else {
       this.hits++;
       this.advanceComboAndLevel();
@@ -2015,13 +1692,9 @@ class Game {
 
       this.effect("is-hit");
       this.setStatus("TARGET CONFIRMED", "normal");
-
     }
 
-    setTimeout(() => {
-      button.remove();
-    }, 230);
-
+    setTimeout(() => button.remove(), 230);
     this.update();
   }
 
@@ -2100,13 +1773,8 @@ class Game {
     this.e.stage.classList.add("is-virus");
     this.e.shell.classList.remove("is-panic-impact");
 
-    requestAnimationFrame(() => {
-      this.e.shell.classList.add("is-panic-impact");
-    });
-
-    setTimeout(() => {
-      this.e.shell.classList.remove("is-panic-impact");
-    }, 650);
+    requestAnimationFrame(() => this.e.shell.classList.add("is-panic-impact"));
+    setTimeout(() => this.e.shell.classList.remove("is-panic-impact"), 650);
 
     clearTimeout(this.virusTimer);
     this.virusExpiresAt = performance.now() + duration;
@@ -2115,9 +1783,7 @@ class Game {
       this.isVirusActive = false;
       this.virusExpiresAt = 0;
       this.e.stage.classList.remove("is-virus");
-      if (this.state === "playing") {
-        this.setStatus("VIRUS PURGED", "normal");
-      }
+      if (this.state === "playing") this.setStatus("VIRUS PURGED", "normal");
     }, duration);
   }
 
@@ -2136,14 +1802,11 @@ class Game {
     this.e.stage.appendChild(wave);
     this.e.stage.classList.remove("is-anti-cheat");
 
-    requestAnimationFrame(() => {
-      this.e.stage.classList.add("is-anti-cheat");
-    });
+    requestAnimationFrame(() => this.e.stage.classList.add("is-anti-cheat"));
 
     clearTimeout(this.virusTimer);
     this.isVirusActive = false;
     this.virusExpiresAt = 0;
-    this.virusRemaining = 0;
 
     this.e.stage.classList.remove("is-virus");
     this.e.shell.classList.remove("is-panic-impact");
@@ -2170,10 +1833,7 @@ class Game {
     }
 
     target.element.classList.add("is-expiring");
-
-    setTimeout(() => {
-      target.element.remove();
-    }, 180);
+    setTimeout(() => target.element.remove(), 180);
 
     if (target.type === "rabbit") {
       this.attempts++;
@@ -2191,14 +1851,12 @@ class Game {
     } else if (target.type === "golden") {
       this.timeLeft = Math.max(0, this.timeLeft - CONFIG.goldenEscapePenalty);
       this.flash("GOLDEN SIGNAL LOST", `-${CONFIG.goldenEscapePenalty}s`, "#ffd34d");
-      this.setStatus("BONUS ESCAPED", "warning");
     } else if (target.type === "freeze") {
       this.applyTimeDistortion(CONFIG.freezeEscapeScale, CONFIG.freezeEscapeDuration, "is-time-slow");
       this.flash("PLAVI SIGNAL ESCAPED", "TIME x0.5 / 3s", "#168bff");
     } else if (target.type === "life") {
       this.lives--;
       this.flash("LIFE SIGNAL LOST", "LIFE -1", "#55ff88");
-      this.setStatus("LIFE LOST", "danger");
       if (this.lives <= 0) {
         this.finish();
         return;
@@ -2211,7 +1869,6 @@ class Game {
       this.timeLeft += CONFIG.heroEscapeTime;
       this.score += CONFIG.heroEscapePoints;
       this.flash("WHITE HACKER GIFT", `+1 LIFE / +${CONFIG.heroEscapeTime}s / +${CONFIG.heroEscapePoints}`, "#55ffbb");
-      this.setStatus("ANTI-CHEAT CACHE FOUND", "normal");
     } else if (target.type === "net") {
       this.purgeTargets(["redrabbit", "hacker"]);
       this.flash("CYBER NET CLOSED", "THREATS CAPTURED", "#b166ff");
@@ -2230,15 +1887,9 @@ class Game {
 
   levelUp() {
     this.levelHits = 0;
+    if (this.level < CONFIG.maxLevel) this.level++;
 
-    if (this.level < CONFIG.maxLevel) {
-      this.level++;
-    }
-
-    // Pozivanje otkljucavanja slojeva po nivoima!
-    if (this.music) {
-      this.music.setIntensity(this.level);
-    }
+    if (this.music) this.music.setIntensity(this.level);
 
     this.audio.level();
     this.effect("is-level-up");
@@ -2268,9 +1919,7 @@ class Game {
     const now = performance.now();
     this.state = "paused";
 
-    if (this.raf) {
-      cancelAnimationFrame(this.raf);
-    }
+    if (this.raf) cancelAnimationFrame(this.raf);
 
     if (this.music) {
       this.music.stopIntro();
@@ -2289,58 +1938,16 @@ class Game {
     clearTimeout(this.heroSpawnTimer);
     clearTimeout(this.blackHoleSpawnTimer);
 
-    this.goodDueAt = 0;
-    this.hazardDueAt = 0;
-    this.hackerDueAt = 0;
-    this.heroDueAt = 0;
-    this.blackHoleDueAt = 0;
-
     for (const target of this.targets.values()) {
-      if (target.type === "hacker" && !target.cloneSpent && target.cloneDueAt) {
-        target.cloneRemaining = Math.max(1, target.cloneDueAt - now);
-        target.cloneDueAt = 0;
-      }
-
       clearTimeout(target.timerId);
       clearTimeout(target.cloneTimerId);
       clearTimeout(target.portalTimerId);
       clearInterval(target.gravityTimerId);
-
-      if (target.type === "blackhole" && target.portalDueAt) {
-        target.portalRemaining = Math.max(1, target.portalDueAt - now);
-        target.portalDueAt = 0;
-      }
-
       target.remaining = Math.max(1, this.targetRemaining(target, now));
     }
 
-    if (this.isFrozen && this.freezeExpiresAt) {
-      this.freezeRemaining = Math.max(1, this.freezeExpiresAt - now);
-      clearTimeout(this.freezeTimer);
-      this.freezeExpiresAt = 0;
-    }
-
-    if (this.isVirusActive && this.virusExpiresAt) {
-      this.virusRemaining = Math.max(1, this.virusExpiresAt - now);
-      clearTimeout(this.virusTimer);
-      this.virusExpiresAt = 0;
-    }
-
-    if (this.isMonochrome && this.monoExpiresAt) {
-      this.monoRemaining = Math.max(1, this.monoExpiresAt - now);
-      clearTimeout(this.monoTimer);
-      this.monoExpiresAt = 0;
-    }
-
-    if (this.isNetOverlayActive && this.netOverlayExpiresAt) {
-      this.netOverlayRemaining = Math.max(1, this.netOverlayExpiresAt - now);
-      clearTimeout(this.netOverlayTimer);
-      this.netOverlayExpiresAt = 0;
-    }
-
-    this.e.layer.getAnimations({ subtree: true }).forEach((animation) => animation.pause());
+    this.e.layer.getAnimations({ subtree: true }).forEach((anim) => anim.pause());
     this.show(this.e.pauseO, true);
-
     this.e.pause.disabled = true;
     this.audio.stopSamples();
     this.setStatus("SYSTEM SUSPENDED", "warning");
@@ -2350,74 +1957,21 @@ class Game {
     if (this.state !== "paused") return;
 
     const now = performance.now();
-
     this.show(this.e.pauseO, false);
     this.state = "playing";
     this.e.pause.disabled = false;
     this.last = now;
 
-    if (this.music) {
-      this.music.start();
-    }
+    if (this.music) this.music.start();
 
     for (const [id, target] of this.targets.entries()) {
       const remaining = Math.max(1, target.remaining ?? target.life);
       target.life = remaining;
       target.spawnAt = now;
-
       target.timerId = setTimeout(() => this.miss(id), remaining);
-
-      if (target.type === "hacker" && !target.cloneSpent) {
-        this.startHackerCloneTimer(id, target, Math.max(1, target.cloneRemaining || CONFIG.hackerCloneDelay));
-        target.cloneRemaining = 0;
-      }
-
-      if (target.type === "blackhole") {
-        if (!target.portalSpent) {
-          this.startBlackHoleSystems(id, target, Math.max(1, target.portalRemaining || CONFIG.blackHoleCloneDelay));
-        } else {
-          target.gravityTimerId = setInterval(() => {
-            this.applyBlackHoleGravity(id, target);
-          }, CONFIG.blackHoleGravityRate);
-        }
-        target.portalRemaining = 0;
-      }
-      delete target.remaining;
     }
 
-    this.e.layer.getAnimations({ subtree: true }).forEach((animation) => animation.play());
-
-    if (this.isFrozen && this.freezeRemaining > 0) {
-      const remaining = this.freezeRemaining;
-      this.freezeRemaining = 0;
-      this.freezeExpiresAt = now + remaining;
-      this.freezeTimer = setTimeout(() => {
-        this.isFrozen = false;
-        this.freezeScale = 1;
-        this.freezeExpiresAt = 0;
-        this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow");
-        this.freezeClass = "";
-      }, remaining);
-    }
-
-    if (this.isVirusActive && this.virusRemaining > 0) {
-      const remaining = this.virusRemaining;
-      this.virusRemaining = 0;
-      this.applyHackerVirus(remaining);
-    }
-
-    if (this.isMonochrome && this.monoRemaining > 0) {
-      const remaining = this.monoRemaining;
-      this.monoRemaining = 0;
-      this.applyMonochrome(remaining);
-    }
-
-    if (this.isNetOverlayActive && this.netOverlayRemaining > 0) {
-      const remaining = this.netOverlayRemaining;
-      this.netOverlayRemaining = 0;
-      this.applyCyberNetOverlay(remaining);
-    }
-
+    this.e.layer.getAnimations({ subtree: true }).forEach((anim) => anim.play());
     this.raf = requestAnimationFrame((time) => this.loop(time));
 
     this.scheduleGood(Math.max(1, this.goodRemaining || this.goodDelay()));
@@ -2426,32 +1980,20 @@ class Game {
     this.scheduleHero(Math.max(1, this.heroRemaining || this.heroDelay()));
     this.scheduleBlackHole(Math.max(1, this.blackHoleRemaining || this.blackHoleDelay()));
 
-    this.goodRemaining = 0;
-    this.hazardRemaining = 0;
-    this.hackerRemaining = 0;
-    this.heroRemaining = 0;
-    this.blackHoleRemaining = 0;
-
     this.setStatus("TARGET ACQUISITION", "normal");
     this.audio.click();
   }
 
   togglePause() {
-    if (this.state === "playing") {
-      this.pause();
-    } else if (this.state === "paused") {
-      this.resume();
-    }
+    if (this.state === "playing") this.pause();
+    else if (this.state === "paused") this.resume();
   }
 
   finish() {
     if (this.state === "gameover") return;
 
     this.state = "gameover";
-
-    if (this.raf) {
-      cancelAnimationFrame(this.raf);
-    }
+    if (this.raf) cancelAnimationFrame(this.raf);
 
     if (this.music) {
       this.music.stopIntro();
@@ -2463,18 +2005,6 @@ class Game {
     clearTimeout(this.hackerSpawnTimer);
     clearTimeout(this.heroSpawnTimer);
     clearTimeout(this.blackHoleSpawnTimer);
-
-    clearTimeout(this.freezeTimer);
-    clearTimeout(this.virusTimer);
-    clearTimeout(this.monoTimer);
-    clearTimeout(this.netOverlayTimer);
-
-    this.isVirusActive = false;
-    this.isFrozen = false;
-    this.isMonochrome = false;
-    this.isNetOverlayActive = false;
-    this.e.stage.classList.remove("is-virus", "is-anti-cheat", "is-frozen", "is-time-rush", "is-time-slow", "is-cyber-netted");
-    this.e.shell.classList.remove("is-panic-impact", "is-monochrome");
 
     this.removeAllTargets();
     this.e.pause.disabled = true;
@@ -2494,20 +2024,12 @@ class Game {
     this.e.rank.textContent = this.rank();
 
     this.e.record.classList.toggle("is-visible", record);
-
     this.update();
     this.show(this.e.overO, true);
 
     this.setStatus("SESSION COMPLETE", "danger");
     this.audio.stopSamples();
     this.audio.over();
-
-    clearTimeout(this.lobbyTimer);
-    this.lobbyTimer = setTimeout(() => {
-      if (this.state === "gameover") {
-        this.audio.playLobby(0.1);
-      }
-    }, 4200);
   }
 
   rank() {
@@ -2529,22 +2051,14 @@ class Game {
     this.e.floatMain.textContent = main;
     this.e.floatSub.textContent = sub;
     this.e.float.style.color = color;
-
     this.e.float.classList.remove("is-visible");
-    requestAnimationFrame(() => {
-      this.e.float.classList.add("is-visible");
-    });
+    requestAnimationFrame(() => this.e.float.classList.add("is-visible"));
   }
 
   effect(className) {
     this.e.stage.classList.remove(className);
-    requestAnimationFrame(() => {
-      this.e.stage.classList.add(className);
-    });
-
-    setTimeout(() => {
-      this.e.stage.classList.remove(className);
-    }, 700);
+    requestAnimationFrame(() => this.e.stage.classList.add(className));
+    setTimeout(() => this.e.stage.classList.remove(className), 700);
   }
 
   updateSound() {
@@ -2566,7 +2080,6 @@ class Game {
 
     this.e.progressText.textContent = `${this.levelHits} / ${CONFIG.hitsPerLevel}`;
     this.e.progressFill.style.width = `${(this.levelHits / CONFIG.hitsPerLevel) * 100}%`;
-
   }
 }
 
@@ -2575,8 +2088,6 @@ window.addEventListener("DOMContentLoaded", () => {
     new Game();
   } catch (error) {
     console.error(error);
-    alert(
-      "Igra nije mogla da se pokrene. Proveri da li su index.html, style.css i script.js u istom folderu."
-    );
+    alert("Igra nije mogla da se pokrene. Proveri da li su index.html, style.css i script.js u istom folderu.");
   }
 });
