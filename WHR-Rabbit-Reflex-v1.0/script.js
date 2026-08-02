@@ -2016,7 +2016,6 @@ class Game {
       );
 
       this.lives--;
-      this.breakCombo();
       this.audio.bad();
 
       this.flash(
@@ -2062,7 +2061,6 @@ class Game {
           CONFIG.redPenaltyTime
       );
 
-      this.breakCombo();
       this.audio.red();
 
       this.flash(
@@ -2090,12 +2088,11 @@ class Game {
         this.timeLeft - 1.5
       );
 
-      this.breakCombo();
       this.audio.bad();
 
       this.flash(
         "NET TRAP!",
-        "COMBO RESET / -1.5s",
+        "-1.5s",
         "#a855f7"
       );
 
@@ -2121,9 +2118,14 @@ class Game {
           CONFIG.blackHolePenaltyTime
       );
 
-      this.breakCombo();
       this.audio.blackHole();
       this.effect("is-damaged");
+
+      this.flash(
+        "GRAVITY BREACH",
+        `-${CONFIG.blackHolePenaltyTime}s`,
+        "#a855f7"
+      );
 
       this.setStatus(
         "GRAVITY BREACH",
@@ -2152,7 +2154,6 @@ class Game {
           CONFIG.hackerPenaltyPoints
       );
 
-      this.breakCombo();
       this.audio.blackHacker();
       this.applyHackerVirus();
 
