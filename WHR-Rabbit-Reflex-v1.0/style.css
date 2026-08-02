@@ -3164,7 +3164,44 @@ button {
   filter: saturate(1.2) drop-shadow(0 0 7px rgba(168,85,247,.7));
 }
 
-/* ANTI-CHEAT PULSE - BEZ NATPISA */
+/* =========================================
+   WHR ARENA WALLPAPER
+   ========================================= */
+
+.game-stage {
+  background-color: #02050e;
+
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(1, 5, 14, 0.08) 0%,
+      rgba(1, 5, 14, 0.18) 48%,
+      rgba(1, 5, 14, 0.12) 100%
+    ),
+    url("./images/arena-wallpaper.png");
+
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  box-shadow:
+    inset 0 0 55px rgba(0, 0, 0, 0.58),
+    inset 18px 0 35px rgba(0, 245, 255, 0.08),
+    inset -18px 0 35px rgba(255, 56, 199, 0.08),
+    0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* Postojeca proceduralna mreza ostaje preko wallpapera */
+.stage-grid {
+  z-index: 2;
+  opacity: 0.48;
+  mix-blend-mode: screen;
+}
+
+/* Mete i dalje ostaju potpuno iznad pozadine */
+.target-layer {
+  z-index: 10;
+}/* ANTI-CHEAT PULSE - BEZ NATPISA */
 
 .anti-cheat-wave {
   position: absolute;
