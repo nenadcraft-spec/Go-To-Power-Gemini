@@ -438,20 +438,32 @@ const CONFIG = {
   rabbitPoints: 250,
   goldenPoints: 1200,
   goldenBonus: 5,
+  goldenEscapePenalty: 5,
   goldenPitySpawns: 10,
   freezePoints: 500,
-  redPenaltyPoints: 500,
-  redPenaltyTime: 3,
-  decoyPenalty: 300,
+  freezeHitPenalty: 2,
+  freezeRushDuration: 4000,
+  freezeRushScale: 1.2,
+  freezeTargetLifeScale: 0.7,
+  freezeEscapeDuration: 3000,
+  freezeEscapeScale: 0.5,
+  redPenaltyPoints: 10000,
+  redPenaltyTime: 10,
+  redEscapeBonus: 1,
+  decoyPenaltyTime: 20,
+  decoyMonoDuration: 3000,
 
   extraLifeChance: 0.10,
-  extraLifeStartLevel: 5,
+  extraLifeStartLevel: 1,
   extraLifeFullPoints: 1500,
 
   targetLife: 1450,
   hazardLife: 1800,
-  decoyLife: 5000,
-  netLife: 5000,
+  lifeRabbitLife: 5000,
+  decoyLife: 3000,
+  netLife: 10000,
+  netPenaltyTime: 5,
+  netOverlayDuration: 3000,
 
   goodBaseDelay: 780,
   goodMinDelay: 260,
@@ -468,24 +480,25 @@ const CONFIG = {
   hackerLife: 1800,
   hackerPenaltyPoints: 2000,
   hackerVirusDuration: 3000,
-  hackerCloneDelay: 700,
+  hackerCloneDelay: 1500,
   hackerMaxOnBoard: 2,
 
   heroStartLevel: 4,
   heroMinDelay: 12000,
   heroMaxDelay: 16000,
   heroLife: 7000,
+  heroEscapePoints: 20000,
+  heroEscapeTime: 5,
   antiCheatDuration: 780,
 
-  blackHoleStartLevel: 8,
-  blackHoleMinDelay: 14000,
-  blackHoleMaxDelay: 19000,
-  blackHoleLife: 5000,
-  blackHolePenaltyTime: 3,
-  blackHoleHackerDelay: 1200,
-  blackHoleGravityRate: 180,
-  blackHoleGravityRadius: 180,
-  blackHoleGravityStep: 5.5,
+  blackHoleStartLevel: 5,
+  blackHoleMinDelay: 10000,
+  blackHoleMaxDelay: 15000,
+  blackHoleLife: 2000,
+  blackHoleCloneDelay: 1800,
+  blackHoleGravityRate: 70,
+  blackHoleGravityRadius: 230,
+  blackHoleGravityStep: 13,
 
   maxCombo: 25,
 
@@ -960,7 +973,11 @@ class Game {
     this.starting = false;
 
     this.isFrozen = false;
+    this.freezeScale = 1;
+    this.freezeClass = "";
     this.isVirusActive = false;
+    this.isMonochrome = false;
+    this.isNetOverlayActive = false;
 
     this.goodSpawnTimer = null;
     this.hazardSpawnTimer = null;
@@ -970,6 +987,8 @@ class Game {
 
     this.freezeTimer = null;
     this.virusTimer = null;
+    this.monoTimer = null;
+    this.netOverlayTimer = null;
     this.lobbyTimer = null;
 
     this.goodDueAt = 0;
@@ -990,6 +1009,11 @@ class Game {
 
     this.virusExpiresAt = 0;
     this.virusRemaining = 0;
+
+    this.monoExpiresAt = 0;
+    this.monoRemaining = 0;
+    this.netOverlayExpiresAt = 0;
+    this.netOverlayRemaining = 0;
 
     this.bind();
     this.reset();
@@ -1107,6 +1131,8 @@ class Game {
 
     clearTimeout(this.freezeTimer);
     clearTimeout(this.virusTimer);
+    clearTimeout(this.monoTimer);
+    clearTimeout(this.netOverlayTimer);
     clearTimeout(this.lobbyTimer);
     this.lobbyTimer = null;
     this.audio.stopLobby();
@@ -1121,10 +1147,14 @@ class Game {
     this.removeAllTargets();
 
     this.isFrozen = false;
+    this.freezeScale = 1;
+    this.freezeClass = "";
     this.isVirusActive = false;
+    this.isMonochrome = false;
+    this.isNetOverlayActive = false;
 
-    this.e.stage.classList.remove("is-frozen", "is-virus", "is-anti-cheat");
-    this.e.shell.classList.remove("is-panic-impact");
+    this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow", "is-virus", "is-anti-cheat", "is-cyber-netted");
+    this.e.shell.classList.remove("is-panic-impact", "is-monochrome");
 
     this.score = 0;
     this.level = 1;
@@ -1161,6 +1191,10 @@ class Game {
 
     this.virusExpiresAt = 0;
     this.virusRemaining = 0;
+    this.monoExpiresAt = 0;
+    this.monoRemaining = 0;
+    this.netOverlayExpiresAt = 0;
+    this.netOverlayRemaining = 0;
 
     this.update();
   }
@@ -1239,7 +1273,7 @@ class Game {
     this.last = time;
 
     if (this.isFrozen) {
-      delta *= 0.5;
+      delta *= this.freezeScale;
     }
 
     this.timeLeft = Math.max(0, this.timeLeft - delta);
@@ -1267,7 +1301,7 @@ class Game {
       CONFIG.goodMinDelay,
       CONFIG.goodBaseDelay - (this.level - 1) * CONFIG.goodDelayStep
     );
-    return this.isFrozen ? delay * 1.8 : delay;
+    return delay;
   }
 
   hazardDelay() {
@@ -1276,7 +1310,7 @@ class Game {
       CONFIG.hazardBaseDelay - (this.level - CONFIG.hazardStartLevel) * CONFIG.hazardDelayStep
     );
     const variation = 0.8 + Math.random() * 0.45;
-    return (this.isFrozen ? delay * 1.8 : delay) * variation;
+    return delay * variation;
   }
 
   hackerDelay() {
@@ -1451,9 +1485,12 @@ class Game {
     let life = CONFIG.targetLife;
     if (type === "net") life = CONFIG.netLife;
     else if (type === "decoy") life = CONFIG.decoyLife;
+    else if (type === "life") life = CONFIG.lifeRabbitLife;
     else if (type === "redrabbit") life = CONFIG.hazardLife;
 
-    return this.isFrozen ? life * 1.8 : life;
+    return this.isFrozen && this.freezeScale > 1
+      ? life * CONFIG.freezeTargetLifeScale
+      : life;
   }
 
   findSpawnPosition(size, rect) {
@@ -1559,6 +1596,9 @@ class Game {
     button.style.top = `${y}px`;
 
     if (type === "blackhole") {
+      button.disabled = true;
+      button.tabIndex = -1;
+      button.setAttribute("aria-label", "Crna rupa - ne moze da se klikne");
       button.innerHTML = `
         <span class="target__timer"></span>
         <span class="target__blackhole-lens"></span>
@@ -1586,9 +1626,10 @@ class Game {
       `;
 
       if (type === "life") {
-        button.insertAdjacentHTML("beforeend", `<span class="target__life-plus">+1</span>`);
+        button.insertAdjacentHTML("beforeend", `<span class="target__life-aura"></span><span class="target__life-plus">+1</span>`);
       } else if (type === "decoy") {
         button.insertAdjacentHTML("beforeend", `
+          <span class="target__decoy-facets"></span>
           <span class="target__decoy-ghost">
             <span class="target__decoy-ghost-ear target__decoy-ghost-ear--left"></span>
             <span class="target__decoy-ghost-ear target__decoy-ghost-ear--right"></span>
@@ -1620,10 +1661,12 @@ class Game {
 
     const timerId = setTimeout(() => this.miss(id), life);
 
-    button.addEventListener("pointerdown", (event) => {
-      event.stopPropagation();
-      this.hit(id, type, button, x, y);
-    });
+    if (type !== "blackhole") {
+      button.addEventListener("pointerdown", (event) => {
+        event.stopPropagation();
+        this.hit(id, type, button, x, y);
+      });
+    }
 
     this.e.layer.appendChild(button);
     this.playSpawnSound(type);
@@ -1661,7 +1704,7 @@ class Game {
     }
 
     if (type === "blackhole") {
-      this.startBlackHoleSystems(id, target, CONFIG.blackHoleHackerDelay);
+      this.startBlackHoleSystems(id, target, CONFIG.blackHoleCloneDelay);
     }
   }
 
@@ -1684,11 +1727,11 @@ class Game {
     }, delay);
   }
 
-  startBlackHoleSystems(id, target, hackerDelay) {
+  startBlackHoleSystems(id, target, cloneDelay) {
     clearTimeout(target.portalTimerId);
     clearInterval(target.gravityTimerId);
 
-    target.portalDueAt = performance.now() + hackerDelay;
+    target.portalDueAt = performance.now() + cloneDelay;
 
     target.portalTimerId = setTimeout(() => {
       target.portalTimerId = null;
@@ -1699,13 +1742,8 @@ class Game {
       target.element.classList.add("is-portal-spent");
       target.portalSpent = true;
 
-      if (this.countGroup("hacker") < CONFIG.hackerMaxOnBoard) {
-        this.spawn("hacker", "hacker", {
-          isClone: true,
-          spawnAt: { x: target.x + 24, y: target.y - 10 },
-        });
-      }
-    }, hackerDelay);
+      this.spawn("blackhole", "blackhole", { isChain: true });
+    }, cloneDelay);
 
     target.gravityTimerId = setInterval(() => {
       this.applyBlackHoleGravity(id, target);
@@ -1775,10 +1813,6 @@ class Game {
     clearInterval(target.gravityTimerId);
     this.targets.delete(id);
 
-    if (type === "blackhole") {
-      this.clearGravityMarks();
-    }
-
     this.taps++;
     this.attempts++;
 
@@ -1797,37 +1831,40 @@ class Game {
       this.setStatus("LIFE RESTORED", "normal");
       this.particles.burst(x, y, "#55ff88", 36);
     } else if (type === "decoy") {
-      this.score = Math.max(0, this.score - CONFIG.decoyPenalty);
       this.lives--;
-      this.flash("DECOY HIT", `-${CONFIG.decoyPenalty}`, "#ff325f");
+      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.decoyPenaltyTime);
+      this.breakCombo();
+      this.applyMonochrome(CONFIG.decoyMonoDuration);
+      this.flash("BEZBOJNI VIRUS", `LIFE -1 / -${CONFIG.decoyPenaltyTime}s`, "#ffffff");
       this.effect("is-damaged");
-      this.setStatus("SYSTEM DAMAGE", "danger");
-      this.particles.burst(x, y, "#ff325f", 24);
+      this.setStatus("COLOR SIGNAL LOST", "danger");
+      this.particles.burst(x, y, "#ffffff", 24);
+      this.particles.burst(x, y, "#565b66", 18);
 
-      if (this.lives <= 0) {
+      if (this.lives <= 0 || this.timeLeft <= 0) {
         setTimeout(() => this.finish(), 180);
         return;
       }
+      setTimeout(() => {
+        if (this.state === "playing" && this.lives > 0 && this.timeLeft > 0 && this.countType("decoy") === 0) {
+          this.spawn("decoy", "hazard", { isClone: true });
+        }
+      }, 170);
     } else if (type === "redrabbit") {
       this.score = Math.max(0, this.score - CONFIG.redPenaltyPoints);
       this.timeLeft = Math.max(0, this.timeLeft - CONFIG.redPenaltyTime);
+      this.breakCombo();
       this.flash("RED RABBIT HIT!", `-${CONFIG.redPenaltyPoints} PTS / -${CONFIG.redPenaltyTime}s`, "#ff0033");
       this.effect("is-damaged");
       this.setStatus("CRITICAL ERROR!", "danger");
       this.particles.burst(x, y, "#ff0033", 35);
     } else if (type === "net") {
-      this.timeLeft = Math.max(0, this.timeLeft - 1.5);
-      this.flash("NET TRAP!", "-1.5s", "#a855f7");
+      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.netPenaltyTime);
+      this.applyCyberNetOverlay(CONFIG.netOverlayDuration);
+      this.flash("CYBER NET!", `-${CONFIG.netPenaltyTime}s`, "#a855f7");
       this.effect("is-damaged");
       this.setStatus("NETWORK BLOCKED!", "warning");
       this.particles.burst(x, y, "#a855f7", 20);
-    } else if (type === "blackhole") {
-      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.blackHolePenaltyTime);
-      this.effect("is-damaged");
-      this.flash("GRAVITY BREACH", `-${CONFIG.blackHolePenaltyTime}s`, "#a855f7");
-      this.setStatus("GRAVITY BREACH", "danger");
-      this.particles.burst(target.x, target.y, "#a855f7", 34);
-      this.particles.burst(target.x, target.y, "#ffffff", 18);
     } else if (type === "hacker") {
       this.score = Math.max(0, this.score - CONFIG.hackerPenaltyPoints);
       this.applyHackerVirus();
@@ -1838,15 +1875,14 @@ class Game {
       this.particles.burst(x, y, "#a855f7", 18);
     } else if (type === "hero") {
       this.hits++;
+      this.advanceComboAndLevel();
       this.applyAntiCheat(button, x, y);
       this.particles.burst(x, y, "#fff4dc", 24);
       this.particles.burst(x, y, "#ff7a00", 28);
       this.particles.burst(x, y, "#246bff", 20);
     } else {
       this.hits++;
-      this.comboCount++;
-      this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
-      this.maxCombo = Math.max(this.maxCombo, this.mult);
+      this.advanceComboAndLevel();
 
       let points = CONFIG.rabbitPoints;
       if (type === "golden") points = CONFIG.goldenPoints;
@@ -1854,15 +1890,14 @@ class Game {
 
       points *= this.mult;
       this.score += points;
-      this.levelHits++;
-
       if (type === "golden") {
         this.timeLeft += CONFIG.goldenBonus;
         this.flash("GOLDEN RABBIT", `+${points} / +${CONFIG.goldenBonus.toFixed(1)}s`, "#ffd34d");
         this.particles.burst(x, y, "#ffd34d", 30);
       } else if (type === "freeze") {
-        this.applyFreeze();
-        this.flash("FREEZE RABBIT", `TIME SLOWED! +${points}`, "#00f5ff");
+        this.timeLeft = Math.max(0, this.timeLeft - CONFIG.freezeHitPenalty);
+        this.applyTimeDistortion(CONFIG.freezeRushScale, CONFIG.freezeRushDuration, "is-time-rush");
+        this.flash("PLAVI ANOMALY", `+${points} / -${CONFIG.freezeHitPenalty}s / TIME x1.2`, "#168bff");
         this.particles.burst(x, y, "#00f5ff", 30);
       } else {
         this.flash("DIRECT HIT", `+${points}`, "#00f5ff");
@@ -1872,9 +1907,6 @@ class Game {
       this.effect("is-hit");
       this.setStatus("TARGET CONFIRMED", "normal");
 
-      if (this.levelHits >= CONFIG.hitsPerLevel) {
-        this.levelUp();
-      }
     }
 
     setTimeout(() => {
@@ -1884,17 +1916,74 @@ class Game {
     this.update();
   }
 
-  applyFreeze() {
+  advanceComboAndLevel() {
+    this.comboCount++;
+    this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
+    this.maxCombo = Math.max(this.maxCombo, this.mult);
+    this.levelHits++;
+    if (this.levelHits >= CONFIG.hitsPerLevel) this.levelUp();
+  }
+
+  applyTimeDistortion(scale, duration, className) {
     this.isFrozen = true;
-    this.e.stage.classList.add("is-frozen");
+    this.freezeScale = scale;
+    this.freezeClass = className;
+    this.e.stage.classList.remove("is-time-rush", "is-time-slow");
+    this.e.stage.classList.add("is-frozen", className);
     clearTimeout(this.freezeTimer);
-    this.freezeExpiresAt = performance.now() + 4000;
+    this.freezeExpiresAt = performance.now() + duration;
 
     this.freezeTimer = setTimeout(() => {
       this.isFrozen = false;
+      this.freezeScale = 1;
       this.freezeExpiresAt = 0;
-      this.e.stage.classList.remove("is-frozen");
-    }, 4000);
+      this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow");
+      this.freezeClass = "";
+    }, duration);
+  }
+
+  applyMonochrome(duration) {
+    this.isMonochrome = true;
+    this.e.shell.classList.add("is-monochrome");
+    clearTimeout(this.monoTimer);
+    this.monoExpiresAt = performance.now() + duration;
+    this.monoTimer = setTimeout(() => {
+      this.isMonochrome = false;
+      this.monoExpiresAt = 0;
+      this.e.shell.classList.remove("is-monochrome");
+    }, duration);
+  }
+
+  applyCyberNetOverlay(duration) {
+    this.isNetOverlayActive = true;
+    this.e.stage.classList.add("is-cyber-netted");
+    clearTimeout(this.netOverlayTimer);
+    this.netOverlayExpiresAt = performance.now() + duration;
+    this.netOverlayTimer = setTimeout(() => {
+      this.isNetOverlayActive = false;
+      this.netOverlayExpiresAt = 0;
+      this.e.stage.classList.remove("is-cyber-netted");
+    }, duration);
+  }
+
+  purgeTargets(types, origin = null) {
+    const allowed = new Set(types);
+    for (const [id, target] of [...this.targets.entries()]) {
+      if (!allowed.has(target.type)) continue;
+      clearTimeout(target.timerId);
+      clearTimeout(target.cloneTimerId);
+      clearTimeout(target.portalTimerId);
+      clearInterval(target.gravityTimerId);
+      this.targets.delete(id);
+      target.element.classList.add("is-anti-cheat-deleted");
+      const rect = target.element.getBoundingClientRect();
+      const stageRect = this.e.stage.getBoundingClientRect();
+      const px = origin?.x ?? rect.left - stageRect.left + rect.width / 2;
+      const py = origin?.y ?? rect.top - stageRect.top + rect.height / 2;
+      const colors = { redrabbit: "#ff174f", decoy: "#ffffff", net: "#a855f7", hacker: "#ff38c7" };
+      this.particles.burst(px, py, colors[target.type] || "#ffffff", 24);
+      setTimeout(() => target.element.remove(), 580);
+    }
   }
 
   applyHackerVirus(duration = CONFIG.hackerVirusDuration) {
@@ -1950,42 +2039,7 @@ class Game {
     this.e.stage.classList.remove("is-virus");
     this.e.shell.classList.remove("is-panic-impact");
 
-    const dangerousTypes = new Set(["decoy", "redrabbit", "net", "hacker", "blackhole"]);
-
-    for (const [id, target] of [...this.targets.entries()]) {
-      if (!dangerousTypes.has(target.type)) continue;
-
-      clearTimeout(target.timerId);
-      clearTimeout(target.cloneTimerId);
-      clearTimeout(target.portalTimerId);
-      clearInterval(target.gravityTimerId);
-      this.targets.delete(id);
-
-      target.element.classList.add("is-anti-cheat-deleted");
-
-      const targetRect = target.element.getBoundingClientRect();
-      const particleX = targetRect.left - stageRect.left + targetRect.width / 2;
-      const particleY = targetRect.top - stageRect.top + targetRect.height / 2;
-
-      const color =
-        target.type === "hacker"
-          ? "#ff38c7"
-          : target.type === "blackhole"
-          ? "#ffffff"
-          : target.type === "redrabbit"
-          ? "#ff0033"
-          : target.type === "net"
-          ? "#a855f7"
-          : "#ff325f";
-
-      this.particles.burst(particleX, particleY, color, ["hacker", "blackhole"].includes(target.type) ? 32 : 22);
-
-      setTimeout(() => {
-        target.element.remove();
-      }, 580);
-    }
-
-    this.clearGravityMarks();
+    this.purgeTargets(["decoy", "redrabbit", "net", "hacker"]);
 
     setTimeout(() => {
       wave.remove();
@@ -2002,7 +2056,7 @@ class Game {
     clearTimeout(target.portalTimerId);
     clearInterval(target.gravityTimerId);
 
-    if (target.type === "blackhole") {
+    if (target.type === "blackhole" && this.countGroup("blackhole") === 0) {
       this.clearGravityMarks();
     }
 
@@ -2012,11 +2066,7 @@ class Game {
       target.element.remove();
     }, 180);
 
-    const harmlessToIgnore = [
-      "decoy", "redrabbit", "net", "life", "golden", "freeze", "hacker", "hero", "blackhole"
-    ].includes(target.type);
-
-    if (!harmlessToIgnore) {
+    if (target.type === "rabbit") {
       this.attempts++;
       this.breakCombo();
       this.lives--;
@@ -2029,6 +2079,33 @@ class Game {
         this.finish();
         return;
       }
+    } else if (target.type === "golden") {
+      this.timeLeft = Math.max(0, this.timeLeft - CONFIG.goldenEscapePenalty);
+      this.flash("GOLDEN SIGNAL LOST", `-${CONFIG.goldenEscapePenalty}s`, "#ffd34d");
+      this.setStatus("BONUS ESCAPED", "warning");
+    } else if (target.type === "freeze") {
+      this.applyTimeDistortion(CONFIG.freezeEscapeScale, CONFIG.freezeEscapeDuration, "is-time-slow");
+      this.flash("PLAVI SIGNAL ESCAPED", "TIME x0.5 / 3s", "#168bff");
+    } else if (target.type === "life") {
+      this.lives--;
+      this.flash("LIFE SIGNAL LOST", "LIFE -1", "#55ff88");
+      this.setStatus("LIFE LOST", "danger");
+      if (this.lives <= 0) {
+        this.finish();
+        return;
+      }
+    } else if (target.type === "redrabbit") {
+      this.timeLeft += CONFIG.redEscapeBonus;
+      this.flash("THREAT AVOIDED", `+${CONFIG.redEscapeBonus}s`, "#ff325f");
+    } else if (target.type === "hero") {
+      this.lives = Math.min(CONFIG.maxLives, this.lives + 1);
+      this.timeLeft += CONFIG.heroEscapeTime;
+      this.score += CONFIG.heroEscapePoints;
+      this.flash("WHITE HACKER GIFT", `+1 LIFE / +${CONFIG.heroEscapeTime}s / +${CONFIG.heroEscapePoints}`, "#55ffbb");
+      this.setStatus("ANTI-CHEAT CACHE FOUND", "normal");
+    } else if (target.type === "net") {
+      this.purgeTargets(["redrabbit", "hacker"]);
+      this.flash("CYBER NET CLOSED", "THREATS CAPTURED", "#b166ff");
     }
 
     this.update();
@@ -2140,6 +2217,18 @@ class Game {
       this.virusExpiresAt = 0;
     }
 
+    if (this.isMonochrome && this.monoExpiresAt) {
+      this.monoRemaining = Math.max(1, this.monoExpiresAt - now);
+      clearTimeout(this.monoTimer);
+      this.monoExpiresAt = 0;
+    }
+
+    if (this.isNetOverlayActive && this.netOverlayExpiresAt) {
+      this.netOverlayRemaining = Math.max(1, this.netOverlayExpiresAt - now);
+      clearTimeout(this.netOverlayTimer);
+      this.netOverlayExpiresAt = 0;
+    }
+
     this.e.layer.getAnimations({ subtree: true }).forEach((animation) => animation.pause());
     this.show(this.e.pauseO, true);
 
@@ -2176,7 +2265,7 @@ class Game {
 
       if (target.type === "blackhole") {
         if (!target.portalSpent) {
-          this.startBlackHoleSystems(id, target, Math.max(1, target.portalRemaining || CONFIG.blackHoleHackerDelay));
+          this.startBlackHoleSystems(id, target, Math.max(1, target.portalRemaining || CONFIG.blackHoleCloneDelay));
         } else {
           target.gravityTimerId = setInterval(() => {
             this.applyBlackHoleGravity(id, target);
@@ -2195,8 +2284,10 @@ class Game {
       this.freezeExpiresAt = now + remaining;
       this.freezeTimer = setTimeout(() => {
         this.isFrozen = false;
+        this.freezeScale = 1;
         this.freezeExpiresAt = 0;
-        this.e.stage.classList.remove("is-frozen");
+        this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow");
+        this.freezeClass = "";
       }, remaining);
     }
 
@@ -2204,6 +2295,18 @@ class Game {
       const remaining = this.virusRemaining;
       this.virusRemaining = 0;
       this.applyHackerVirus(remaining);
+    }
+
+    if (this.isMonochrome && this.monoRemaining > 0) {
+      const remaining = this.monoRemaining;
+      this.monoRemaining = 0;
+      this.applyMonochrome(remaining);
+    }
+
+    if (this.isNetOverlayActive && this.netOverlayRemaining > 0) {
+      const remaining = this.netOverlayRemaining;
+      this.netOverlayRemaining = 0;
+      this.applyCyberNetOverlay(remaining);
     }
 
     this.raf = requestAnimationFrame((time) => this.loop(time));
@@ -2254,10 +2357,15 @@ class Game {
 
     clearTimeout(this.freezeTimer);
     clearTimeout(this.virusTimer);
+    clearTimeout(this.monoTimer);
+    clearTimeout(this.netOverlayTimer);
 
     this.isVirusActive = false;
-    this.e.stage.classList.remove("is-virus", "is-anti-cheat");
-    this.e.shell.classList.remove("is-panic-impact");
+    this.isFrozen = false;
+    this.isMonochrome = false;
+    this.isNetOverlayActive = false;
+    this.e.stage.classList.remove("is-virus", "is-anti-cheat", "is-frozen", "is-time-rush", "is-time-slow", "is-cyber-netted");
+    this.e.shell.classList.remove("is-panic-impact", "is-monochrome");
 
     this.removeAllTargets();
     this.e.pause.disabled = true;
