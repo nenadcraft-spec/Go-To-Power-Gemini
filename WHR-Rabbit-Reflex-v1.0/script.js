@@ -577,7 +577,6 @@ const CONFIG = {
   soundKey: "whr-rabbit-reflex-sound-enabled",
 };
 
-// NOVI LOGICKI TUTORIJAL KORACI ZA WHR Anti-Cheat & Training
 const TUTORIAL_STEPS = [
   { type: "rabbit", group: "good", action: "click", title: "OBICAN ZEC", text: "KLIKNI METU! Pogodi ga pre nego sto nestane s ekrana." },
   { type: "golden", group: "good", action: "click", title: "ZLATNI ZEC", text: "KLIKNI METU! Donosi velika pojacanja i dodatne sekunde." },
@@ -973,6 +972,7 @@ class Game {
     this.heroRemaining = 0;
     this.blackHoleRemaining = 0;
     this.goodSinceGolden = 0;
+    this.lastBlackHoleSpawnIndex = -1;
 
     this.bind();
     this.reset();
@@ -1053,7 +1053,7 @@ class Game {
   }
 
   /* =========================================
-     NOVA NAPREDNA LOGIKA TUTORIJALA v1.4
+     LOGIKA INTERAKTIVNOG TUTORIJAL MODA
      ========================================= */
 
   startTutorial() {
@@ -1142,6 +1142,7 @@ class Game {
     this.isVirusActive = false;
     this.isMonochrome = false;
     this.isNetOverlayActive = false;
+    this.lastBlackHoleSpawnIndex = -1;
 
     this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow", "is-virus", "is-anti-cheat", "is-cyber-netted");
     this.e.shell.classList.remove("is-panic-impact", "is-monochrome");
@@ -1413,6 +1414,38 @@ class Game {
     return fallback;
   }
 
+  findBlackHoleSpawnPosition(size, rect) {
+    const margin = size / 2 + 18;
+    const left = margin;
+    const centerX = rect.width / 2;
+    const right = Math.max(margin, rect.width - margin);
+    const top = margin;
+    const centerY = rect.height / 2;
+    const bottom = Math.max(margin, rect.height - margin);
+
+    const spawnPoints = [
+      { x: left, y: top },
+      { x: centerX, y: top },
+      { x: right, y: top },
+      { x: right, y: centerY },
+      { x: right, y: bottom },
+      { x: centerX, y: bottom },
+      { x: left, y: bottom },
+      { x: left, y: centerY },
+    ];
+
+    const availableIndexes = spawnPoints
+      .map((_, index) => index)
+      .filter((index) => index !== this.lastBlackHoleSpawnIndex);
+
+    const nextIndex = availableIndexes[
+      Math.floor(Math.random() * availableIndexes.length)
+    ];
+
+    this.lastBlackHoleSpawnIndex = nextIndex;
+    return spawnPoints[nextIndex];
+  }
+
   playSpawnSound(type) {
     const majorWarning = ["hacker", "hero", "blackhole", "decoy", "net"].includes(type);
     this.music?.duck(majorWarning ? 430 : 240, majorWarning ? 0.38 : 0.58);
@@ -1441,6 +1474,10 @@ class Game {
 
     const rect = this.e.stage.getBoundingClientRect();
     let { x, y } = this.findSpawnPosition(size, rect);
+
+    if (type === "blackhole" && !options.spawnAt) {
+      ({ x, y } = this.findBlackHoleSpawnPosition(size, rect));
+    }
 
     if (options.spawnAt) {
       const margin = size / 2 + 12;
@@ -1598,8 +1635,13 @@ class Game {
     }
   }
 
+  /* =========================================
+     ZAVRÅ NA VAR-VERIFIKOVANA HIT METODA
+     ========================================= */
+
   hit(id, type, button, x, y) {
     if (this.isTutorial) {
+      // VAR SOBA HOTFIX: ÄŒiÅ¡Ä‡enje svih tajmera pre ugradnje nove mete
       const target = this.targets.get(id);
       clearTimeout(target?.timerId);
       clearTimeout(target?.cloneTimerId);
@@ -1614,11 +1656,13 @@ class Game {
         this.audio.hit(1);
         setTimeout(() => this.nextTutorialStep(), 300);
       } else {
+        // POGREÅ AN KLIK U TUTORIJALU - FULL FX SINKRONIZOVAN PAKAO
         button.remove();
         this.targets.delete(id);
         this.e.tutorialHud.classList.add("is-error");
         this.audio.bad();
 
+        // Demonstracija specifiÄnih vizuelnih posledica u zavisnosti od pretnje
         if (type === "redrabbit") {
           this.effect("is-damaged");
           this.flash("GRESKA!", "CRVENI IMPACT // COMBO RESET!", "#ff325f");
@@ -1639,6 +1683,7 @@ class Game {
           this.flash("GRESKA!", "NE SMES KLIKNUTI OVU METU!", "#ff325f");
         }
 
+        // VAR SOBA HOTFIX: Spavn tek na 1650ms nakon Å¡to se FX potpuno oÄisti
         setTimeout(() => this.spawnTutorialStep(), 1650);
       }
       return;
