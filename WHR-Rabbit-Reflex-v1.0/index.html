@@ -87,93 +87,93 @@
         </header>
 
         <main class="game-main">
-           <section class="hud" aria-label="Rezultati igre">
-    <article class="hud-card hud-card--score">
-        <span class="hud-card__label">SCORE</span>
+            <section class="hud" aria-label="Rezultati igre">
+                <article class="hud-card hud-card--score">
+                    <span class="hud-card__label">SCORE</span>
 
-        <strong
-            class="hud-card__value"
-            id="scoreValue"
-        >
-            00000000
-        </strong>
+                    <strong
+                        class="hud-card__value"
+                        id="scoreValue"
+                    >
+                        00000000
+                    </strong>
 
-        <span class="hud-card__pulse"></span>
-    </article>
+                    <span class="hud-card__pulse"></span>
+                </article>
 
-    <article class="hud-card">
-        <span class="hud-card__label">BEST SCORE</span>
+                <article class="hud-card">
+                    <span class="hud-card__label">BEST SCORE</span>
 
-        <strong
-            class="hud-card__value"
-            id="bestScoreValue"
-        >
-            00000000
-        </strong>
-    </article>
+                    <strong
+                        class="hud-card__value"
+                        id="bestScoreValue"
+                    >
+                        00000000
+                    </strong>
+                </article>
 
-    <article class="hud-card hud-card--lives">
-        <span class="hud-card__label">LIVES</span>
+                <article class="hud-card hud-card--lives">
+                    <span class="hud-card__label">LIVES</span>
 
-        <strong
-            class="hud-card__value"
-            id="livesValue"
-            aria-label="Preostali zivoti"
-        >
-            03/10
-        </strong>
+                    <strong
+                        class="hud-card__value"
+                        id="livesValue"
+                        aria-label="Preostali zivoti"
+                    >
+                        03/10
+                    </strong>
 
-        <span class="hud-card__unit">
-            SYSTEM INTEGRITY
-        </span>
-    </article>
+                    <span class="hud-card__unit">
+                        SYSTEM INTEGRITY
+                    </span>
+                </article>
 
-    <article
-        class="hud-card hud-card--time"
-        id="timeCard"
-    >
-        <span class="hud-card__label">TIME</span>
+                <article
+                    class="hud-card hud-card--time"
+                    id="timeCard"
+                >
+                    <span class="hud-card__label">TIME</span>
 
-        <strong
-            class="hud-card__value"
-            id="timeValue"
-        >
-            60.0
-        </strong>
+                    <strong
+                        class="hud-card__value"
+                        id="timeValue"
+                    >
+                        60.0
+                    </strong>
 
-        <span class="hud-card__unit">
-            SECONDS
-        </span>
-    </article>
-</section>
+                    <span class="hud-card__unit">
+                        SECONDS
+                    </span>
+                </article>
+            </section>
 
-<section class="status-row" aria-label="Status igre">
-    <div class="status-chip">
-        <span class="status-chip__dot"></span>
-        <span id="statusText">SYSTEM READY</span>
-    </div>
+            <section class="status-row" aria-label="Status igre">
+                <div class="status-chip">
+                    <span class="status-chip__dot"></span>
+                    <span id="statusText">SYSTEM READY</span>
+                </div>
 
-    <div class="status-metric status-metric--level">
-        <span class="status-metric__label">
-            LEVEL
-        </span>
+                <div class="status-metric status-metric--level">
+                    <span class="status-metric__label">
+                        LEVEL
+                    </span>
 
-        <strong id="levelValue">01</strong>
-    </div>
+                    <strong id="levelValue">01</strong>
+                </div>
 
-    <div
-        class="status-metric status-metric--combo"
-        id="comboCard"
-    >
-        <span class="status-metric__label">
-            COMBO
-        </span>
+                <div
+                    class="status-metric status-metric--combo"
+                    id="comboCard"
+                >
+                    <span class="status-metric__label">
+                        COMBO
+                    </span>
 
-        <strong>
-            &times;<span id="comboValue">1</span>
-        </strong>
-    </div>
-</section>
+                    <strong>
+                        &times;<span id="comboValue">1</span>
+                    </strong>
+                </div>
+            </section>
 
             <section class="game-stage" id="gameStage">
                 <canvas
@@ -285,9 +285,9 @@
                         </header>
 
                         <p class="start-panel__description">
-                            Pogodi mete, gradi combo i prezivi sistem.
-                            Boja otkriva nameru - ne veruj svakoj
-                            kopiji.
+                            Pogodi korisne zeceve, izbegni pretnje i
+                            prezivi do nivoa 99. Boja otkriva nameru -
+                            ali ne veruj svakoj kopiji.
                         </p>
 
                         <section
@@ -303,12 +303,12 @@
 
                             <div>
                                 <strong>
-                                    PRIMARNI CILJ: BELI ZEC
+                                    PRIMARNI CILJ: OBICAN ZEC
                                 </strong>
 
                                 <small>
-                                    Pogodi ga pre nestanka. Promasaj
-                                    oduzima zivot.
+                                    Pogodi ga pre nestanka. Jedini je
+                                    zec koji ne sme da pobegne.
                                 </small>
                             </div>
 
@@ -368,7 +368,7 @@
                                         <div>
                                             <strong>PLAVI ZEC</strong>
                                             <small>
-                                                Freeze usporava sistem
+                                                +500, -2s i ubrzava sistem
                                             </small>
                                         </div>
                                     </article>
@@ -383,7 +383,7 @@
                                         <div>
                                             <strong>EXTRA LIFE</strong>
                                             <small>
-                                                Vraca jedan zivot
+                                                +1 zivot / max 10
                                             </small>
                                         </div>
                                     </article>
@@ -398,8 +398,7 @@
                                         <div>
                                             <strong>BELI HAKER</strong>
                                             <small>
-                                                Ceka 7s - cisti sve
-                                                pretnje
+                                                Anti-Cheat cisti pretnje
                                             </small>
                                         </div>
                                     </article>
@@ -425,7 +424,7 @@
                                         <div>
                                             <strong>CRVENI ZEC</strong>
                                             <small>
-                                                Opasna crvena meta
+                                                -10000, -10s, combo reset
                                             </small>
                                         </div>
                                     </article>
@@ -438,9 +437,9 @@
                                         </i>
 
                                         <div>
-                                            <strong>DEEPFAKE</strong>
+                                            <strong>BEZBOJNI ZEC</strong>
                                             <small>
-                                                Lazna glitch kopija
+                                                Crno-bela virus kopija
                                             </small>
                                         </div>
                                     </article>
@@ -455,7 +454,7 @@
                                         <div>
                                             <strong>CYBER MREZA</strong>
                                             <small>
-                                                Zamka ostaje duze
+                                                -5s / hvata pretnje
                                             </small>
                                         </div>
                                     </article>
@@ -470,8 +469,7 @@
                                         <div>
                                             <strong>CRNI HAKER</strong>
                                             <small>
-                                                Virus napad - pravi
-                                                kopiju
+                                                Virus napad - pravi kopiju
                                             </small>
                                         </div>
                                     </article>
@@ -486,7 +484,7 @@
                                         <div>
                                             <strong>CRNA RUPA</strong>
                                             <small>
-                                                -3s i izbacuje Hakera
+                                                Ne klikce se / guta mete
                                             </small>
                                         </div>
                                     </article>
@@ -496,7 +494,7 @@
 
                         <p class="briefing-note">
                             BONUS METE SMEJU DA POBEGNU //
-                            BELI ZEC NE SME
+                            OBICAN ZEC NE SME
                         </p>
 
                         <button
