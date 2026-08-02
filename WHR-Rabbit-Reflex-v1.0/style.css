@@ -15,6 +15,109 @@
   --body: "Rajdhani", sans-serif;
 }
 
+/* =========================================================
+   WHR REBORN TARGET IDENTITIES - gameplay color language
+   ========================================================= */
+
+.target--freeze {
+  --blue-core: #07132f;
+  filter: drop-shadow(0 0 8px #006eff) drop-shadow(0 0 18px #1200ff);
+}
+.target--freeze .target__ring {
+  border-color: #147dff;
+  background: conic-gradient(from 15deg, #020714, #0048c9, #6b28ff, #00d9ff, #071534, #147dff, #020714);
+  box-shadow: inset 0 0 0 5px #020918, inset 0 0 20px #005cff, 0 0 22px #006eff;
+}
+.target--freeze .target__core {
+  background: radial-gradient(circle at 35% 28%, #29d7ff 0 3%, #123e9c 15%, #080c29 45%, #01030d 72%);
+  box-shadow: inset 9px -10px 16px #22005e, inset -7px 5px 13px #006eff, 0 0 15px #008cff;
+}
+.target--freeze .target__rabbit-head,
+.target--freeze .target__rabbit-ear {
+  background: linear-gradient(135deg, #020817 8%, #092d75 38%, #175bd8 55%, #30106f 72%, #031023 94%);
+  border-color: #48a7ff;
+  box-shadow: inset 2px 0 #00d9ff, inset -3px -3px #12002e, 0 0 9px #0077ff;
+}
+.target--freeze .target__rabbit-eye { background:#84eaff; box-shadow:0 0 7px #fff,0 0 14px #008cff; }
+
+.target--life {
+  filter: drop-shadow(0 0 9px #00ff84) drop-shadow(0 0 18px #00a55c);
+}
+.target--life .target__ring {
+  background: conic-gradient(#03140c, #00c96d, #9dff00, #00ffd5, #064b2c, #f4c84a, #03140c);
+  border-color:#38ff9a;
+  box-shadow:inset 0 0 0 5px #020b08,inset 0 0 19px #00ff84,0 0 22px #00ff84;
+}
+.target--life .target__core { background:radial-gradient(circle at 35% 28%,#3dffc2,#087b4a 18%,#031d14 48%,#010604 72%); }
+.target--life .target__rabbit-head,
+.target--life .target__rabbit-ear {
+  background:linear-gradient(135deg,#02130c,#064d31 35%,#00ae65 52%,#26ffd0 65%,#193608 82%,#020906);
+  border-color:#6affbc;
+  box-shadow:inset 3px 0 #a7ff22,inset -3px -3px #003b35,0 0 10px #00ff84;
+}
+.target__life-aura { position:absolute; inset:20%; border:1px solid #6affbc; border-radius:50%; animation:whrLifePulse .72s ease-out infinite; }
+
+.target--redrabbit { filter:drop-shadow(0 0 9px #ff003c) drop-shadow(0 0 19px #7a0019); }
+.target--redrabbit .target__ring {
+  background:conic-gradient(#160006,#c80026,#ff6a00,#ff006c,#4e001a,#8e00a7,#160006);
+  border-color:#ff174f;
+  box-shadow:inset 0 0 0 5px #100006,inset 0 0 20px #ff003c,0 0 24px #ff003c;
+}
+.target--redrabbit .target__core { background:radial-gradient(circle at 38% 30%,#ff6a3d,#9d001f 19%,#24000a 50%,#050002 75%); }
+.target--redrabbit .target__rabbit-head,
+.target--redrabbit .target__rabbit-ear {
+  background:linear-gradient(135deg,#180006,#6e071e 35%,#e2143c 52%,#ff6700 64%,#7b004f 82%,#0b0004);
+  border-color:#ff426d;
+  box-shadow:inset 3px 0 #ff7a00,inset -3px -3px #530029,0 0 11px #ff003c;
+}
+
+.target--decoy { filter:grayscale(1) contrast(1.55) drop-shadow(0 0 8px #fff) drop-shadow(0 0 18px #333); }
+.target--decoy .target__ring { background:conic-gradient(from 25deg,#000,#fff,#30343b,#dce2ec,#080808,#8e939c,#000); border-color:#fff; }
+.target--decoy .target__core { background:repeating-conic-gradient(from 0deg,#050505 0 9deg,#e9e9e9 9deg 17deg,#4b4b4b 17deg 26deg); border-radius:50%; }
+.target--decoy .target__rabbit-head,
+.target--decoy .target__rabbit-ear { background:linear-gradient(135deg,#000 5%,#dedede 23%,#242424 42%,#fff 57%,#090909 76%,#8a8a8a); border-color:#fff; }
+.target__decoy-facets { position:absolute; inset:20%; z-index:3; border-radius:50%; opacity:.7; background:repeating-conic-gradient(transparent 0 13deg,#fff8 14deg,#0000 16deg); animation:whrDisco 1.1s linear infinite; }
+
+.target--net {
+  filter:drop-shadow(0 0 9px #ae45ff) drop-shadow(0 0 20px #4a008c);
+  background:radial-gradient(circle,#44116b55,#090010 68%);
+  border:2px solid #b55cff;
+  border-radius:45% 55% 52% 48%;
+  box-shadow:inset 0 0 22px #8a20dc,0 0 22px #8b2cff;
+}
+.target--net .target__net-grid {
+  inset:9%; border-radius:50%; transform:perspective(100px) rotateX(12deg);
+  background-image:linear-gradient(#ca7cff 2px,transparent 2px),linear-gradient(90deg,#ca7cff 2px,transparent 2px),radial-gradient(circle at 50% 45%,#ab38ff66,transparent 62%);
+  background-size:16px 16px,16px 16px,100% 100%;
+  animation:whrNetWarp 1.2s ease-in-out infinite alternate;
+}
+.target--net::before,.target--net::after { content:""; position:absolute; inset:3%; border:1px dashed #e2b8ff; border-radius:50%; animation:whrNetSpin 2.4s linear infinite; }
+.target--net::after { inset:20%; animation-direction:reverse; animation-duration:1.3s; }
+
+.target--blackhole { pointer-events:none; cursor:default; }
+.game-stage.is-cyber-netted::after {
+  content:""; position:absolute; inset:0; z-index:36; pointer-events:none;
+  background-image:linear-gradient(#c65cff77 1px,transparent 1px),linear-gradient(90deg,#c65cff77 1px,transparent 1px),radial-gradient(circle at 50% 50%,transparent 28%,#5c008d44 100%);
+  background-size:42px 42px,42px 42px,100% 100%;
+  box-shadow:inset 0 0 60px #a200ff;
+  animation:whrArenaNet .32s steps(2) infinite;
+}
+.game-stage.is-time-rush { box-shadow:inset 0 0 34px #006eff,0 0 20px #006eff; }
+.game-stage.is-time-slow { box-shadow:inset 0 0 34px #7ccfff,0 0 20px #7ccfff; }
+.app-shell.is-monochrome .game-stage,
+.app-shell.is-monochrome .brand,
+.app-shell.is-monochrome .hud-card--score,
+.app-shell.is-monochrome .hud-card--best,
+.app-shell.is-monochrome .secondary-hud,
+.app-shell.is-monochrome .progress-section,
+.app-shell.is-monochrome .app-footer { filter:grayscale(1) contrast(1.35); }
+
+@keyframes whrLifePulse { to { transform:scale(1.65); opacity:0; } }
+@keyframes whrDisco { to { transform:rotate(360deg); } }
+@keyframes whrNetWarp { to { transform:perspective(100px) rotateX(-12deg) rotate(4deg) scale(1.07); } }
+@keyframes whrNetSpin { to { transform:rotate(360deg); } }
+@keyframes whrArenaNet { 50% { background-position:4px -3px,-5px 3px,0 0; opacity:.78; } }
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -3327,3 +3430,24 @@ button {
 @keyframes anti-cheat-stage { 0% { box-shadow:inset 0 0 0 rgba(75,255,171,0); } 28% { box-shadow:inset 0 0 70px rgba(255,255,255,.58), inset 0 0 115px rgba(75,255,171,.34); } 100% { box-shadow:inset 0 0 0 rgba(53,143,255,0); } }
 @keyframes anti-cheat-delete { 0% { transform:scale(1); opacity:1; } 35% { transform:scale(1.14); filter:brightness(3) saturate(0); } 100% { transform:scale(.04) rotate(100deg); opacity:0; filter:brightness(4); } }
 @keyframes anti-cheat-hacker-delete { 0% { transform:translate(0) scale(1); opacity:1; } 20% { transform:translate(-9px,3px) skewX(13deg); } 40% { transform:translate(11px,-4px) skewX(-16deg); filter:invert(1); } 65% { transform:translate(-5px,2px) scale(.68); } 100% { transform:scale(.02); opacity:0; filter:brightness(4); } }
+
+/* Final cascade: WHR Reborn identities must override legacy target skins. */
+.target--freeze{filter:drop-shadow(0 0 8px #006eff) drop-shadow(0 0 18px #1200ff)}
+.target--freeze .target__ring{border-color:#147dff;background:conic-gradient(from 15deg,#020714,#0048c9,#6b28ff,#00d9ff,#071534,#147dff,#020714);box-shadow:inset 0 0 0 5px #020918,inset 0 0 20px #005cff,0 0 22px #006eff}
+.target--freeze .target__core{background:radial-gradient(circle at 35% 28%,#29d7ff 0 3%,#123e9c 15%,#080c29 45%,#01030d 72%)}
+.target--freeze .target__rabbit-head,.target--freeze .target__rabbit-ear{background:linear-gradient(135deg,#020817 8%,#092d75 38%,#175bd8 55%,#30106f 72%,#031023 94%);border-color:#48a7ff;box-shadow:inset 2px 0 #00d9ff,inset -3px -3px #12002e,0 0 9px #0077ff}
+.target--life{filter:drop-shadow(0 0 9px #00ff84) drop-shadow(0 0 18px #00a55c)}
+.target--life .target__ring{background:conic-gradient(#03140c,#00c96d,#9dff00,#00ffd5,#064b2c,#f4c84a,#03140c);border-color:#38ff9a;box-shadow:inset 0 0 0 5px #020b08,inset 0 0 19px #00ff84,0 0 22px #00ff84}
+.target--life .target__core{background:radial-gradient(circle at 35% 28%,#3dffc2,#087b4a 18%,#031d14 48%,#010604 72%)}
+.target--life .target__rabbit-head,.target--life .target__rabbit-ear{background:linear-gradient(135deg,#02130c,#064d31 35%,#00ae65 52%,#26ffd0 65%,#193608 82%,#020906);border-color:#6affbc;box-shadow:inset 3px 0 #a7ff22,inset -3px -3px #003b35,0 0 10px #00ff84}
+.target--redrabbit{filter:drop-shadow(0 0 9px #ff003c) drop-shadow(0 0 19px #7a0019)}
+.target--redrabbit .target__ring{background:conic-gradient(#160006,#c80026,#ff6a00,#ff006c,#4e001a,#8e00a7,#160006);border-color:#ff174f;box-shadow:inset 0 0 0 5px #100006,inset 0 0 20px #ff003c,0 0 24px #ff003c}
+.target--redrabbit .target__core{background:radial-gradient(circle at 38% 30%,#ff6a3d,#9d001f 19%,#24000a 50%,#050002 75%)}
+.target--redrabbit .target__rabbit-head,.target--redrabbit .target__rabbit-ear{background:linear-gradient(135deg,#180006,#6e071e 35%,#e2143c 52%,#ff6700 64%,#7b004f 82%,#0b0004);border-color:#ff426d;box-shadow:inset 3px 0 #ff7a00,inset -3px -3px #530029,0 0 11px #ff003c}
+.target--decoy{filter:grayscale(1) contrast(1.55) drop-shadow(0 0 8px #fff) drop-shadow(0 0 18px #333)}
+.target--decoy .target__ring{background:conic-gradient(from 25deg,#000,#fff,#30343b,#dce2ec,#080808,#8e939c,#000);border-color:#fff}
+.target--decoy .target__core{background:repeating-conic-gradient(from 0deg,#050505 0 9deg,#e9e9e9 9deg 17deg,#4b4b4b 17deg 26deg);border-radius:50%}
+.target--decoy .target__rabbit-head,.target--decoy .target__rabbit-ear{background:linear-gradient(135deg,#000 5%,#dedede 23%,#242424 42%,#fff 57%,#090909 76%,#8a8a8a);border-color:#fff}
+.target--net{filter:drop-shadow(0 0 9px #ae45ff) drop-shadow(0 0 20px #4a008c);background:radial-gradient(circle,#44116b55,#090010 68%);border:2px solid #b55cff;border-radius:45% 55% 52% 48%;box-shadow:inset 0 0 22px #8a20dc,0 0 22px #8b2cff}
+.target--net .target__net-grid{inset:9%;border-radius:50%;background-image:linear-gradient(#ca7cff 2px,transparent 2px),linear-gradient(90deg,#ca7cff 2px,transparent 2px),radial-gradient(circle at 50% 45%,#ab38ff66,transparent 62%);background-size:16px 16px,16px 16px,100% 100%;animation:whrNetWarp 1.2s ease-in-out infinite alternate}
+.target--blackhole{pointer-events:none;cursor:default}
