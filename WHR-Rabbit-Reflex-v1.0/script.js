@@ -438,6 +438,7 @@ const CONFIG = {
   rabbitPoints: 250,
   goldenPoints: 1200,
   goldenBonus: 5,
+  goldenPitySpawns: 10,
   freezePoints: 500,
   redPenaltyPoints: 500,
   redPenaltyTime: 3,
@@ -982,6 +983,7 @@ class Game {
     this.hackerRemaining = 0;
     this.heroRemaining = 0;
     this.blackHoleRemaining = 0;
+    this.goodSinceGolden = 0;
 
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
@@ -1152,6 +1154,7 @@ class Game {
     this.hackerRemaining = 0;
     this.heroRemaining = 0;
     this.blackHoleRemaining = 0;
+    this.goodSinceGolden = 0;
 
     this.freezeExpiresAt = 0;
     this.freezeRemaining = 0;
@@ -1407,13 +1410,23 @@ class Game {
   }
 
   pickGoodType() {
+    this.goodSinceGolden++;
+
+    if (this.goodSinceGolden >= CONFIG.goldenPitySpawns) {
+      this.goodSinceGolden = 0;
+      return "golden";
+    }
+
     const roll = Math.random();
     const lifeChance = this.level >= CONFIG.extraLifeStartLevel ? CONFIG.extraLifeChance : 0;
-    const goldenChance = Math.min(0.07 + (this.level - 1) * 0.003, 0.13);
+    const goldenChance = Math.min(0.09 + (this.level - 1) * 0.003, 0.14);
     const freezeChance = Math.min(0.035 + (this.level - 1) * 0.003, 0.075);
 
     if (roll < lifeChance) return "life";
-    if (roll < lifeChance + goldenChance) return "golden";
+    if (roll < lifeChance + goldenChance) {
+      this.goodSinceGolden = 0;
+      return "golden";
+    }
     if (roll < lifeChance + goldenChance + freezeChance) return "freeze";
 
     return "rabbit";
