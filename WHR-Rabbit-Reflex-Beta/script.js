@@ -495,9 +495,7 @@ class MusicEngine {
 
 MusicEngine.KEY = "whr-rabbit-reflex-music-enabled";
 
-/* =========================================
-   CONFIG & UTILS
-   ========================================= */
+/* CONFIG & UTILS */
 
 const CONFIG = {
   time: 60,
@@ -549,7 +547,7 @@ const CONFIG = {
   hackerMaxDelay: 9000,
   hackerLife: 1800,
   hackerPenaltyPoints: 2000,
-  hackerVirusDuration: 3000,
+  hackerVirusDuration: 2000,
   hackerCloneDelay: 1500,
   hackerMaxOnBoard: 2,
 
@@ -602,9 +600,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const pad = (value) => String(Math.max(0, Math.floor(value))).padStart(8, "0");
 
-/* =========================================
-   WHR SAMPLE AUDIO + PROCEDURAL SINTETIZATOR
-   ========================================= */
+/* AUDIO ENGINE */
 
 class AudioFX {
   constructor() {
@@ -678,7 +674,7 @@ class AudioFX {
     oscillator.stop(now + duration + 0.02);
   }
 
-  /* ČISTI PROCEDURALNI ZVUCI NA KLIK (100% WEB AUDIO API) */
+  /* PROCEDURALNI SINTETIZATOR */
   hit() { this.tone(580, 0.08, "sine", 880); }
   gold() { [880, 1100, 1320].forEach((f, i) => setTimeout(() => this.tone(f, 0.1, "triangle", f * 1.15), i * 35)); }
   freeze() { [1000, 800, 600].forEach((f, i) => setTimeout(() => this.tone(f, 0.12, "sine", f * 0.75), i * 40)); }
@@ -688,7 +684,14 @@ class AudioFX {
   level() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, 0.16, "sine", f * 1.05), i * 65)); }
   click() { this.tone(500, 0.07, "sine", 720); }
   over() { [420, 320, 230, 150].forEach((f, i) => setTimeout(() => this.tone(f, 0.2, "sawtooth", f * 0.7), i * 90)); }
-  blackHacker() { this.tone(160, 0.28, "sawtooth", 40); }
+  
+  /* POSEBAN BREACH AKORD ZA CRNOG HAKERA */
+  blackHacker() {
+    [130, 110, 85].forEach((f, i) => {
+      setTimeout(() => this.tone(f, 0.35, "sawtooth", f * 0.4), i * 40);
+    });
+  }
+  
   blackHole() { this.tone(85, 0.5, "sine", 25); }
   whiteHacker() { [523, 659, 783].forEach((f, i) => setTimeout(() => this.tone(f, 0.18, "triangle", f * 1.2), i * 45)); }
   start() { this.tone(360, 0.28, "triangle", 900); }
@@ -702,9 +705,7 @@ class AudioFX {
   }
 }
 
-/* =========================================
-   PARTICLES
-   ========================================= */
+/* PARTICLES */
 
 class Particles {
   constructor(canvas) {
@@ -772,9 +773,7 @@ class Particles {
   }
 }
 
-/* =========================================
-   GAME ENGINE & TUTORIAL INTEGRATION
-   ========================================= */
+/* GAME ENGINE */
 
 class Game {
   constructor() {
@@ -785,6 +784,7 @@ class Game {
       virus: $("virusLayer"),
       canvas: $("particleCanvas"),
       cross: $("crosshair"),
+      stars: $("spaceStars"),
 
       startO: $("startOverlay"),
       countO: $("countdownOverlay"),
@@ -800,7 +800,6 @@ class Game {
       sound: $("soundButton"),
       soundIcon: $("soundIcon"),
 
-      // TUTORIAL ELEMENTS
       tutorialBtn: $("tutorialButton"),
       tutorialHud: $("tutorialHud"),
       tutorialExitBtn: $("tutorialExitButton"),
@@ -861,6 +860,7 @@ class Game {
     this.monoTimer = null;
     this.netOverlayTimer = null;
     this.lobbyTimer = null;
+    this.hudCorruptInterval = null;
 
     this.goodDueAt = 0;
     this.hazardDueAt = 0;
@@ -890,11 +890,9 @@ class Game {
     this.e.pause.onclick = () => this.togglePause();
     this.e.resume.onclick = () => this.resume();
 
-    // BACK TO LOBBY DUGMAD
     if (this.e.pauseLobby) this.e.pauseLobby.onclick = () => this.backToLobby();
     if (this.e.overLobby) this.e.overLobby.onclick = () => this.backToLobby();
 
-    // EVENT LISTENERI ZA TUTORIJAL
     this.e.tutorialBtn.onclick = () => this.startTutorial();
     this.e.tutorialExitBtn.onclick = () => this.endTutorial();
 
@@ -969,9 +967,7 @@ class Game {
     this.audio.playLobby(0.14);
   }
 
-  /* =========================================
-     LOGIKA INTERAKTIVNOG TUTORIJAL MODA
-     ========================================= */
+  /* TUTORIJAL MOD */
 
   startTutorial() {
     this.reset();
@@ -1042,7 +1038,9 @@ class Game {
     clearTimeout(this.monoTimer);
     clearTimeout(this.netOverlayTimer);
     clearTimeout(this.lobbyTimer);
+    clearInterval(this.hudCorruptInterval);
     this.lobbyTimer = null;
+    this.hudCorruptInterval = null;
     this.audio.stopLobby();
 
     if (this.music) {
@@ -1064,6 +1062,7 @@ class Game {
 
     this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow", "is-virus", "is-anti-cheat", "is-cyber-netted", "is-void-collapsing");
     this.e.shell.classList.remove("is-panic-impact", "is-monochrome");
+    this.e.stars.classList.remove("is-reverse");
 
     this.score = 0;
     this.level = 1;
@@ -1148,7 +1147,9 @@ class Game {
     if (this.isFrozen) delta *= this.freezeScale;
 
     this.timeLeft = Math.max(0, this.timeLeft - delta);
-    this.e.time.textContent = this.timeLeft.toFixed(1);
+    if (!this.hudCorruptInterval) {
+      this.e.time.textContent = this.timeLeft.toFixed(1);
+    }
 
     this.e.timeCard.classList.toggle("is-critical", this.timeLeft <= 8);
 
@@ -1418,7 +1419,6 @@ class Game {
     if (type === "hacker") size = Math.max(76, size * 1.18);
     if (type === "hero") size = Math.max(74, size * 1.14);
     
-    // Crna rupa evoluira i fizički raste sa nivoima (max 135px)
     if (type === "blackhole") {
       const scaleFactor = 1 + (this.level - 1) * 0.04;
       size = Math.min(135, Math.max(82, size * 1.26 * scaleFactor));
@@ -1534,11 +1534,9 @@ class Game {
     target.gravityTimerId = setInterval(() => this.applyBlackHoleGravity(id, target), CONFIG.blackHoleGravityRate);
   }
 
-  /* GRAVITACIJA EVOLUIRA KROZ NIVOE S HARD-CAP-OM OD 300PX */
   applyBlackHoleGravity(blackHoleId, blackHole) {
     if (this.state !== "playing" || !this.targets.has(blackHoleId)) return;
 
-    // Komercijalni fix: Hard-cap na 300px radi fer-pleja na mobilnim ekranima!
     const dynamicRadius = Math.min(
       300,
       CONFIG.blackHoleBaseGravityRadius + (this.level - 1) * CONFIG.blackHoleGravityRadiusStep
@@ -1585,7 +1583,42 @@ class Game {
     }
   }
 
-  /* ČISTI PROCEDURALNI CLICK SFX BEZ PLAY_SAMPLE WAV POZIVA */
+  /* BLACK HACKER — SYSTEM BREACH MOĆ IMPLEMENTACIJA */
+  applySystemBreach() {
+    this.audio.blackHacker();
+    this.isVirusActive = true;
+    this.e.stage.classList.add("is-virus");
+    this.e.stars.classList.add("is-reverse");
+    
+    // Potres ekrana
+    this.e.shell.classList.remove("is-panic-impact");
+    requestAnimationFrame(() => this.e.shell.classList.add("is-panic-impact"));
+    setTimeout(() => this.e.shell.classList.remove("is-panic-impact"), 650);
+
+    // Koruptovani HUD brojevi na 2 sekunde
+    const symbols = ["#", "&", "$", "%", "@", "!", "*", "?", "X", "0"];
+    clearInterval(this.hudCorruptInterval);
+    this.hudCorruptInterval = setInterval(() => {
+      this.e.score.textContent = Array.from({length: 8}, () => symbols[Math.floor(Math.random()*symbols.length)]).join("");
+      this.e.time.textContent = Array.from({length: 4}, () => symbols[Math.floor(Math.random()*symbols.length)]).join("");
+      this.e.lives.textContent = `${symbols[Math.floor(Math.random()*symbols.length)]}${symbols[Math.floor(Math.random()*symbols.length)]}/10`;
+    }, 80);
+
+    // Stvaranje dodatne stvarni Bezborne zamke na terenu!
+    this.spawn("decoy", "hazard");
+
+    clearTimeout(this.virusTimer);
+    this.virusTimer = setTimeout(() => {
+      clearInterval(this.hudCorruptInterval);
+      this.hudCorruptInterval = null;
+      this.isVirusActive = false;
+      this.e.stage.classList.remove("is-virus");
+      this.e.stars.classList.remove("is-reverse");
+      this.update();
+      if (this.state === "playing") this.setStatus("SYSTEM RECOVERED", "normal");
+    }, CONFIG.hackerVirusDuration);
+  }
+
   hit(id, type, button, x, y) {
     if (this.isTutorial) {
       const target = this.targets.get(id);
@@ -1620,8 +1653,8 @@ class Game {
           this.flash("GRESKA!", "CYBER NET // NETWORK BLOCKED!", "#a855f7");
           this.particles.burst(x, y, "#a855f7", 25);
         } else if (type === "hacker") {
-          this.applyHackerVirus(1500);
-          this.flash("GRESKA!", "VIRUS UPLOADED // SYSTEM PANIC!", "#ff38c7");
+          this.applySystemBreach();
+          this.flash("GRESKA!", "SYSTEM BREACH // CONTROL LOST!", "#ff38c7");
           this.particles.burst(x, y, "#ff38c7", 30);
         } else {
           this.flash("GRESKA!", "NE SMES KLIKNUTI OVU METU!", "#ff325f");
@@ -1691,10 +1724,9 @@ class Game {
       this.setStatus("NETWORK BLOCKED!", "warning");
       this.particles.burst(x, y, "#a855f7", 20);
     } else if (type === "hacker") {
-      this.audio.blackHacker();
       this.score = Math.max(0, this.score - CONFIG.hackerPenaltyPoints);
-      this.applyHackerVirus();
-      this.flash("HACKER RABBIT HIT!", `-${CONFIG.hackerPenaltyPoints} PTS // VIRUS UPLOADED`, "#ff38c7");
+      this.applySystemBreach();
+      this.flash("SYSTEM BREACH!", `-${CONFIG.hackerPenaltyPoints} PTS // CONTROL LOST`, "#ff38c7");
       this.setStatus("SYSTEM INFECTED", "danger");
       this.particles.burst(x, y, "#00f5ff", 22);
       this.particles.burst(x, y, "#ff38c7", 22);
@@ -1755,12 +1787,10 @@ class Game {
     this.e.stage.classList.remove("is-time-rush", "is-time-slow");
     this.e.stage.classList.add("is-frozen", className);
     clearTimeout(this.freezeTimer);
-    this.freezeExpiresAt = performance.now() + duration;
 
     this.freezeTimer = setTimeout(() => {
       this.isFrozen = false;
       this.freezeScale = 1;
-      this.freezeExpiresAt = 0;
       this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow");
       this.freezeClass = "";
     }, duration);
@@ -1770,10 +1800,8 @@ class Game {
     this.isMonochrome = true;
     this.e.shell.classList.add("is-monochrome");
     clearTimeout(this.monoTimer);
-    this.monoExpiresAt = performance.now() + duration;
     this.monoTimer = setTimeout(() => {
       this.isMonochrome = false;
-      this.monoExpiresAt = 0;
       this.e.shell.classList.remove("is-monochrome");
     }, duration);
   }
@@ -1782,10 +1810,8 @@ class Game {
     this.isNetOverlayActive = true;
     this.e.stage.classList.add("is-cyber-netted");
     clearTimeout(this.netOverlayTimer);
-    this.netOverlayExpiresAt = performance.now() + duration;
     this.netOverlayTimer = setTimeout(() => {
       this.isNetOverlayActive = false;
-      this.netOverlayExpiresAt = 0;
       this.e.stage.classList.remove("is-cyber-netted");
     }, duration);
   }
@@ -1810,25 +1836,6 @@ class Game {
     }
   }
 
-  applyHackerVirus(duration = CONFIG.hackerVirusDuration) {
-    this.isVirusActive = true;
-    this.e.stage.classList.add("is-virus");
-    this.e.shell.classList.remove("is-panic-impact");
-
-    requestAnimationFrame(() => this.e.shell.classList.add("is-panic-impact"));
-    setTimeout(() => this.e.shell.classList.remove("is-panic-impact"), 650);
-
-    clearTimeout(this.virusTimer);
-    this.virusExpiresAt = performance.now() + duration;
-
-    this.virusTimer = setTimeout(() => {
-      this.isVirusActive = false;
-      this.virusExpiresAt = 0;
-      this.e.stage.classList.remove("is-virus");
-      if (this.state === "playing") this.setStatus("VIRUS PURGED", "normal");
-    }, duration);
-  }
-
   applyAntiCheat(heroButton, fallbackX, fallbackY) {
     const stageRect = this.e.stage.getBoundingClientRect();
     const heroRect = heroButton.getBoundingClientRect();
@@ -1847,17 +1854,20 @@ class Game {
     requestAnimationFrame(() => this.e.stage.classList.add("is-anti-cheat"));
 
     clearTimeout(this.virusTimer);
+    clearInterval(this.hudCorruptInterval);
+    this.hudCorruptInterval = null;
     this.isVirusActive = false;
-    this.virusExpiresAt = 0;
 
     this.e.stage.classList.remove("is-virus");
     this.e.shell.classList.remove("is-panic-impact");
+    this.e.stars.classList.remove("is-reverse");
 
     this.purgeTargets(["decoy", "redrabbit", "net", "hacker"]);
 
     setTimeout(() => {
       wave.remove();
       this.e.stage.classList.remove("is-anti-cheat");
+      this.update();
     }, CONFIG.antiCheatDuration);
   }
 
@@ -2059,7 +2069,6 @@ class Game {
     clearTimeout(this.heroSpawnTimer);
     clearTimeout(this.blackHoleSpawnTimer);
 
-    // KOSMIČKO USISAVANJE PRE POJAVU OVERLAY-A
     for (const target of this.targets.values()) {
       target.element.classList.add("is-void-pulled");
     }
@@ -2128,6 +2137,7 @@ class Game {
   }
 
   update() {
+    if (this.hudCorruptInterval) return; // Ne pregazi koruptovane simbole dok traje System Breach
     this.e.score.textContent = pad(this.score);
     this.e.best.textContent = pad(this.best);
     this.e.level.textContent = String(this.level).padStart(2, "0");
