@@ -2,75 +2,47 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WHR: POWER WTF UP</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>WHR: POWER WTF UP v4.2.1</title>
+    <link rel="stylesheet" href="style.css?v=4.2.1">
 </head>
 <body>
-    <div class="game-app" id="gameApp">
-        <!-- START SCREEN / LOBBY -->
-        <div class="screen start-screen screen--active" id="startScreen">
-            <div class="start-screen__content">
-                <div class="brand-mark">
-                    <div class="brand-mark__ear brand-mark__ear--left"></div>
-                    <div class="brand-mark__ear brand-mark__ear--right"></div>
-                    <div class="brand-mark__head">
-                        <div class="brand-mark__eye brand-mark__eye--left"></div>
-                        <div class="brand-mark__eye brand-mark__eye--right"></div>
-                    </div>
-                </div>
-
-                <h1 class="game-title">
-                    <span class="game-title__small">WHITE HAT RABBIT</span>
-                    <span class="game-title__main">POWER</span>
-                    <span class="game-title__wtf">WTF</span>
-                    <span class="game-title__main">UP</span>
-                </h1>
-
-                <div class="menu-button-group">
-                    <button class="button" id="startButton">START GAME</button>
-                </div>
-
-                <div class="start-screen__records">
-                    <div class="record-card">
-                        <span class="record-card__label">BEST SCORE</span>
-                        <span class="record-card__value" id="bestScoreValue">000000</span>
-                    </div>
-                </div>
-            </div>
+    <div id="gameApp">
+        <!-- START SCREEN -->
+        <div id="startScreen" class="screen screen--active">
+            <h1 class="title">WHR: POWER WTF UP</h1>
+            <p class="subtitle">CYBER RABBIT ARENA</p>
+            <button id="startButton" class="btn btn--primary">POKRENI IGRU</button>
         </div>
 
-        <!-- GAMEPLAY SCREEN -->
-        <div class="screen game-screen" id="gameScreen">
-            <div class="hud">
-                <div class="hud__row">
-                    <div class="hud-stat">
-                        <span class="hud-stat__label">SCORE</span>
-                        <span class="hud-stat__value" id="scoreValue">000000</span>
-                    </div>
-                    <div class="hud-stat">
-                        <span class="hud-stat__label">WHR CYBER ARENA</span>
-                        <span class="hud-stat__value">ALFA v2.6</span>
-                    </div>
+        <!-- GAME SCREEN -->
+        <div id="gameScreen" class="screen">
+            <div id="hud">
+                <div class="hud-item">
+                    <span class="hud-label">SCORE</span>
+                    <span id="scoreValue" class="hud-value">000000</span>
+                </div>
+                <div class="hud-item hud-version">
+                    <span>ALFA v4.2.1</span>
                 </div>
             </div>
 
-            <div class="game-stage" id="gameStage">
+            <div id="gameStage">
                 <canvas id="gameCanvas"></canvas>
             </div>
 
-            <!-- CONTROLS -->
-            <div class="mobile-controls">
-                <div class="joystick-zone" id="joystickZone">
-                    <div class="joystick-base" id="joystickBase">
-                        <div class="joystick-stick" id="joystickStick"></div>
+            <!-- CONTROLS ZONE -->
+            <div id="controls">
+                <div id="joystickZone">
+                    <div id="joystickBase">
+                        <div id="joystickStick"></div>
                     </div>
                 </div>
-                <button class="control-button control-button--shoot" id="shootButton">FIRE</button>
+                <button id="shootButton" class="btn btn--fire">FIRE</button>
             </div>
         </div>
     </div>
 
-    <script src="script.js?v=3.0.2"></script>
+    <script src="script.js?v=4.2.1"></script>
 </body>
 </html>
