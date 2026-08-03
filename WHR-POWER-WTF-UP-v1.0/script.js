@@ -1,8 +1,16 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v3.3.0
-   RAPID FIRE (0.5s Cooldown) + PC MOUSE CONTROL ENGINE
+   WHR: POWER WTF UP v4.2.0
+   MASTER RAPID ARCADE BALANCE ENGINE
+   - Complete 7 Cyber Rabbit Unique Powers
+   - Green Guardian: Matrix Slow 50% (1.5s) + Permanent +20% Game Speed Surge on Hole Exit!
+   - Void Shadow: Phantom Shift (3s) + Gravitational Pull Field (Black Hole Aura)!
+   - Red Cyber Explosion (+70% Bounce Force Boost)
+   - White Hacker EMP + Double-Barrel (V-Shot) Charge
+   - Golden Rabbit Dual Razor Shot (Golden Immunity)
+   - Blue Flash Freeze (0.8s)
+   - PC Mouse Aiming & Rapid Shoot (0.5s Cooldown)
 ========================================================= */
 
 const DOM = {
@@ -91,7 +99,7 @@ const GAME_CONFIG = {
     laserSpeed: 900,
     laserLength: 32,
     laserDuration: 5.0,
-    shootCooldown: 0.5,    // BRZI SPRINT: Pucanje svakih 0.5 sec!
+    shootCooldown: 0.5,
     gravity: 580
 };
 
@@ -126,10 +134,10 @@ const state = {
     holeAngle: 0,
     globalFreezeTimer: 0,
     globalSpeedMultiplier: 1.0,
-    pendingRespawns: []
+    pendingRespawns: [],
+    hasShotgunCharged: false
 };
 
-/* JOYSTICK ENGINE */
 const joystick = {
     zone: document.getElementById("joystickZone"),
     base: document.getElementById("joystickBase"),
@@ -214,6 +222,7 @@ function startNewGame() {
         resizeCanvas();
         state.score = 0; state.aimAngle = 0; state.cooldownTimer = 0;
         state.globalFreezeTimer = 0; state.globalSpeedMultiplier = 1.0;
+        state.hasShotgunCharged = false;
         state.lasers = []; state.orbs = []; state.pendingRespawns = [];
 
         for (let i = 0; i < 7; i++) {
@@ -239,9 +248,8 @@ function createRabbitObject(theme, x, y) {
         holeTimer: 0,
         powerGlow: 0,
         goldCooldown: 0,
-        voidStateTimer: 5.0,
-        isVoidSlow: false,
-        isVoidTurbo: false
+        voidStateTimer: 4.0,
+        isPhantom: false
     };
 }
 
@@ -274,11 +282,16 @@ function updateGame(delta) {
         if (item.delay <= 0) {
             const exitHole = state.blackHoles[Math.floor(Math.random() * state.blackHoles.length)];
             const newOrb = createRabbitObject(item.theme, exitHole.x, exitHole.y);
-            const speed = 520;
+            const speed = item.theme.id === "red" ? 780 : 520;
             const rad39 = 39 * (Math.PI / 180);
 
             newOrb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
             newOrb.velocityY = exitHole.dirY * speed * Math.sin(rad39);
+
+            // 💚 GREEN GUARDIAN EXIT SURGE: Kada iskoci iz crne rupe, trajno ubrzava igru za +20%!
+            if (item.theme.id === "green") {
+                state.globalSpeedMultiplier *= 1.20;
+            }
 
             state.orbs.push(newOrb);
             state.pendingRespawns.splice(rIdx, 1);
@@ -286,11 +299,9 @@ function updateGame(delta) {
         }
     }
 
-    // KONTROLA PREKO TASTATURE
     if (state.keys.left) state.aimAngle = Math.max(-Math.PI / 2.6, state.aimAngle - GAME_CONFIG.aimSpeed * delta);
     if (state.keys.right) state.aimAngle = Math.min(Math.PI / 2.6, state.aimAngle + GAME_CONFIG.aimSpeed * delta);
 
-    // PUJANJE (TASTATURA / TAČ / LEVI KLIK MIŠA)
     if ((state.keys.shoot || state.touch.shoot || state.mouse.isDown) && state.cooldownTimer === 0) tryShoot();
 
     for (let i = state.lasers.length - 1; i >= 0; i--) {
@@ -300,7 +311,7 @@ function updateGame(delta) {
         laser.headY += laser.vy * delta;
 
         laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
-        laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
+        laser.tailY = laser.headY - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
 
         if (laser.headX <= 0) { laser.headX = 0; laser.vx = Math.abs(laser.vx); }
         else if (laser.headX >= state.width) { laser.headX = state.width; laser.vx = -Math.abs(laser.vx); }
@@ -371,22 +382,27 @@ function updateGame(delta) {
             if (orb.goldCooldown < 0) orb.goldCooldown = 0;
         }
 
+        // 💜 VOID SHADOW: PHANTOM SHIFT (3s Trajanje) + GRAVITACIONO PRIVLAČENJE
         if (orb.theme.id === "void") {
             orb.voidStateTimer -= delta;
             if (orb.voidStateTimer <= 0) {
-                if (!orb.isVoidSlow && !orb.isVoidTurbo) {
-                    orb.isVoidSlow = true;
-                    orb.voidStateTimer = 3.0;
-                } else if (orb.isVoidSlow) {
-                    orb.isVoidSlow = false;
-                    orb.isVoidTurbo = true;
-                    orb.voidStateTimer = 2.5;
-                    orb.velocityX *= 1.9;
-                    orb.velocityY *= 1.9;
-                } else {
-                    orb.isVoidTurbo = false;
-                    orb.voidStateTimer = 5.0;
-                }
+                orb.isPhantom = !orb.isPhantom;
+                orb.voidStateTimer = orb.isPhantom ? 3.0 : 4.0; // Phantom trajanje promenjeno na 3 sekunde!
+            }
+
+            // BLAGO GRAVITACIONO POLJE (Privlači druge zečeve u radijusu od 220px)
+            if (!orb.inHole) {
+                state.orbs.forEach(other => {
+                    if (other !== orb && !other.inHole) {
+                        const d = Math.hypot(orb.x - other.x, orb.y - other.y);
+                        if (d > 10 && d < 220) {
+                            const pullForce = (220 - d) * 1.8;
+                            const angle = Math.atan2(orb.y - other.y, orb.x - other.x);
+                            other.velocityX += Math.cos(angle) * pullForce * delta;
+                            other.velocityY += Math.sin(angle) * pullForce * delta;
+                        }
+                    }
+                });
             }
         }
 
@@ -413,14 +429,12 @@ function updateGame(delta) {
         let currentGravity = GAME_CONFIG.gravity;
         let speedMult = state.globalSpeedMultiplier;
 
-        if (orb.theme.id === "void" && orb.isVoidSlow) speedMult *= 0.3;
-
         orb.velocityY += currentGravity * delta;
         orb.x += orb.velocityX * speedMult * delta;
         orb.y += orb.velocityY * speedMult * delta;
 
         state.blackHoles.forEach(bh => {
-            if (orb.theme.id === "void") return;
+            if (orb.theme.id === "void") return; // Void Shadow pasivno imun na rupe
 
             const dist = Math.hypot(orb.x - bh.x, orb.y - bh.y);
             if (dist < bh.radius) {
@@ -450,6 +464,9 @@ function updateGame(delta) {
         for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
             const orb = state.orbs[oIdx];
             if (orb.inHole) continue;
+
+            if (orb.theme.id === "void" && orb.isPhantom) continue;
+            if (orb.theme.id === "gold" && laser.isGoldenRazor) continue;
 
             const dist = pointToSegmentDistance(orb.x, orb.y, laser.tailX, laser.tailY, laser.headX, laser.headY);
 
@@ -482,7 +499,10 @@ function updateGame(delta) {
 
 function triggerRabbitPower(orb, orbIndex) {
     switch (orb.theme.id) {
-        case "white":
+        case "white": // SHOCKWAVE COUNTER + DVOCEVKA CHARGE
+            state.lasers = [];
+            state.hasShotgunCharged = true;
+            
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
@@ -501,60 +521,67 @@ function triggerRabbitPower(orb, orbIndex) {
             orb.velocityY = -150;
             break;
 
-        case "blue":
-            state.globalFreezeTimer = 3.0;
+        case "blue": // FLASH FREEZE (0.8s)
+            state.globalFreezeTimer = 0.8;
             break;
 
-        case "gold":
+        case "gold": // DOUBLE RAZOR SHOT (1.2s, Golden Immunity)
             if (!orb.goldCooldown || orb.goldCooldown <= 0) {
-                orb.goldCooldown = 2.0;
-                spawnSplitLasers(orb.x, orb.y, orb.radius);
+                orb.goldCooldown = 1.5;
+                spawnGoldenRazorLasers(orb.x, orb.y, orb.radius);
             }
             break;
 
-        case "red":
+        case "red": // BOOMERANG SURGE (+70% EKSPLOZIJA BOOST!)
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
                     if (d < 250) {
-                        other.velocityX = (other.x - orb.x) * 5.0;
-                        other.velocityY = (other.y - orb.y) * 5.0;
+                        other.velocityX = (other.x - orb.x) * 8.5; 
+                        other.velocityY = (other.y - orb.y) * 8.5;
                     }
                 }
             });
             state.orbs.splice(orbIndex, 1);
-            state.pendingRespawns.push({ theme: orb.theme, delay: 3.0 });
+            state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
             break;
 
-        case "green":
-            state.globalSpeedMultiplier = 0.2;
+        case "green": // MATRIX SLOW 50% (1.5s) + RESPAWN THRU CRNA RUPA
+            const currentSlowBase = state.globalSpeedMultiplier;
+            state.globalSpeedMultiplier *= 0.5; // Uspori sve za 50% na 1.5s
             state.orbs.splice(orbIndex, 1);
-            state.pendingRespawns.push({ theme: orb.theme, delay: 2.5 });
-            setTimeout(() => { state.globalSpeedMultiplier = 1.1; }, 2500);
+            
+            // Re-spawnuje se iz nasumične crne rupe posle 1.5s
+            state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
+            
+            setTimeout(() => { 
+                // Vraća brzinu iz slow-mow-a na baznu
+                state.globalSpeedMultiplier = currentSlowBase; 
+            }, 1500);
             break;
 
         case "void":
-            orb.isVoidTurbo = true;
             orb.velocityX *= 1.8;
             orb.velocityY *= 1.8;
             break;
     }
 }
 
-function spawnSplitLasers(x, y, radius) {
-    const angles = [Math.PI / 3, -Math.PI / 3];
+function spawnGoldenRazorLasers(x, y, radius) {
+    const angles = [Math.PI / 2.5, -Math.PI / 2.5];
     const offset = radius + 15;
 
     angles.forEach(ang => {
-        const vx = Math.sin(ang) * GAME_CONFIG.laserSpeed;
-        const vy = -Math.cos(ang) * GAME_CONFIG.laserSpeed;
+        const vx = Math.sin(ang) * (GAME_CONFIG.laserSpeed * 1.2);
+        const vy = -Math.cos(ang) * (GAME_CONFIG.laserSpeed * 1.2);
 
         const startX = x + Math.sin(ang) * offset;
         const startY = y - Math.cos(ang) * offset;
 
         state.lasers.push({
             headX: startX, headY: startY, tailX: startX, tailY: startY,
-            vx: vx, vy: vy, life: 2.0
+            vx: vx, vy: vy, life: 1.2,
+            isGoldenRazor: true
         });
     });
 }
@@ -573,13 +600,27 @@ function tryShoot() {
     state.cooldownTimer = GAME_CONFIG.shootCooldown;
     const startX = state.player.x + state.player.width / 2;
     const startY = state.player.y;
-    const vx = Math.sin(state.aimAngle) * GAME_CONFIG.laserSpeed;
-    const vy = -Math.cos(state.aimAngle) * GAME_CONFIG.laserSpeed;
 
-    state.lasers.push({
-        headX: startX, headY: startY, tailX: startX, tailY: startY,
-        vx: vx, vy: vy, life: GAME_CONFIG.laserDuration
-    });
+    if (state.hasShotgunCharged) {
+        state.hasShotgunCharged = false;
+        const angles = [state.aimAngle - 0.18, state.aimAngle + 0.18];
+
+        angles.forEach(ang => {
+            const vx = Math.sin(ang) * GAME_CONFIG.laserSpeed;
+            const vy = -Math.cos(ang) * GAME_CONFIG.laserSpeed;
+            state.lasers.push({
+                headX: startX, headY: startY, tailX: startX, tailY: startY,
+                vx: vx, vy: vy, life: GAME_CONFIG.laserDuration
+            });
+        });
+    } else {
+        const vx = Math.sin(state.aimAngle) * GAME_CONFIG.laserSpeed;
+        const vy = -Math.cos(state.aimAngle) * GAME_CONFIG.laserSpeed;
+        state.lasers.push({
+            headX: startX, headY: startY, tailX: startX, tailY: startY,
+            vx: vx, vy: vy, life: GAME_CONFIG.laserDuration
+        });
+    }
 }
 
 function renderGame() {
@@ -606,26 +647,41 @@ function renderGame() {
         const startX = state.player.x + state.player.width / 2;
         const startY = state.player.y;
         const aimLength = 180;
-        const targetX = startX + Math.sin(state.aimAngle) * aimLength;
-        const targetY = startY - Math.cos(state.aimAngle) * aimLength;
 
-        ctx.save();
-        ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = "rgba(0, 245, 255, 0.6)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(targetX, targetY);
-        ctx.stroke();
-        ctx.restore();
+        if (state.hasShotgunCharged) {
+            [-0.18, 0.18].forEach(off => {
+                const targetX = startX + Math.sin(state.aimAngle + off) * aimLength;
+                const targetY = startY - Math.cos(state.aimAngle + off) * aimLength;
+                ctx.save();
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = "#32ff9b";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(targetX, targetY);
+                ctx.stroke();
+                ctx.restore();
+            });
+        } else {
+            const targetX = startX + Math.sin(state.aimAngle) * aimLength;
+            const targetY = startY - Math.cos(state.aimAngle) * aimLength;
+            ctx.save();
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = "rgba(0, 245, 255, 0.6)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(targetX, targetY);
+            ctx.stroke();
+            ctx.restore();
+        }
     }
 
     state.lasers.forEach(laser => {
         ctx.save();
-
         const angle = Math.atan2(laser.vy, laser.vx);
 
-        ctx.strokeStyle = "#00f5ff";
+        ctx.strokeStyle = laser.isGoldenRazor ? "#ffe45c" : "#00f5ff";
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(laser.tailX, laser.tailY);
@@ -635,7 +691,7 @@ function renderGame() {
         ctx.save();
         ctx.translate(laser.headX, laser.headY);
         ctx.rotate(angle);
-        ctx.fillStyle = "#ff2fcf";
+        ctx.fillStyle = laser.isGoldenRazor ? "#ff9100" : "#ff2fcf";
         ctx.beginPath();
         ctx.moveTo(6, 0);
         ctx.lineTo(-6, -4);
@@ -647,7 +703,7 @@ function renderGame() {
         ctx.save();
         ctx.translate(laser.tailX, laser.tailY);
         ctx.rotate(angle);
-        ctx.strokeStyle = "#ff2fcf";
+        ctx.strokeStyle = laser.isGoldenRazor ? "#ff9100" : "#ff2fcf";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(0, 0);
@@ -667,6 +723,20 @@ function renderGame() {
 
         ctx.save();
         ctx.translate(o.x, o.y);
+
+        // VIZUELNI EFEKAT ZA VOID SHADOW (Gravitaciona aura + Phantom Shift providnost)
+        if (o.theme.id === "void") {
+            // Crtanje blagog gravitacionog prstena oko Ljubičastog
+            ctx.beginPath();
+            ctx.arc(0, 0, r + 18, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(156, 77, 255, 0.25)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            if (o.isPhantom) {
+                ctx.globalAlpha = 0.35;
+            }
+        }
 
         if (o.powerGlow > 0) {
             ctx.beginPath();
@@ -700,10 +770,10 @@ function renderGame() {
     if (state.player) {
         ctx.save();
         ctx.translate(state.player.x + state.player.width / 2, state.player.y + state.player.height / 2);
-        ctx.fillStyle = state.cooldownTimer > 0 ? "rgba(255, 47, 207, 0.4)" : "#ff2fcf";
+        ctx.fillStyle = state.hasShotgunCharged ? "#32ff9b" : (state.cooldownTimer > 0 ? "rgba(255, 47, 207, 0.4)" : "#ff2fcf");
         ctx.fillRect(-state.player.width / 2, -state.player.height / 2, state.player.width, state.player.height);
         ctx.rotate(state.aimAngle);
-        ctx.fillStyle = state.cooldownTimer > 0 ? "#8993ad" : "#00f5ff";
+        ctx.fillStyle = state.hasShotgunCharged ? "#32ff9b" : (state.cooldownTimer > 0 ? "#8993ad" : "#00f5ff");
         ctx.fillRect(-3, -16, 6, 16);
         ctx.restore();
     }
@@ -742,7 +812,6 @@ function handleKeyUp(e) {
     if (e.code === "Space") state.keys.shoot = false;
 }
 
-/* EVENT LISTENERI ZA MIŠ NA PC-U (NIŠANJENJE + LEVI KLIK) */
 function handleMouseMove(e) {
     if (!DOM.canvas || !state.player) return;
     const rect = DOM.canvas.getBoundingClientRect();
@@ -752,16 +821,15 @@ function handleMouseMove(e) {
     const playerCenterX = state.player.x + state.player.width / 2;
     const playerCenterY = state.player.y;
 
-    // Proračun ugla u odnosu na poziciju kursora miša
     const dx = mouseX - playerCenterX;
-    const dy = playerCenterY - mouseY; // Invertovana Y osa na platnu
+    const dy = playerCenterY - mouseY;
 
     let angle = Math.atan2(dx, dy);
     state.aimAngle = Math.max(-Math.PI / 2.6, Math.min(Math.PI / 2.6, angle));
 }
 
 function handleMouseDown(e) {
-    if (e.button === 0) { // Levi klik miša
+    if (e.button === 0) {
         audio.init();
         state.mouse.isDown = true;
     }
@@ -782,7 +850,6 @@ function init() {
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
     
-    // Slushaci za miša na PC-u
     DOM.canvas.addEventListener("mousemove", handleMouseMove);
     DOM.canvas.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
