@@ -1,3134 +1,442 @@
-/* =========================================================
-   WHR: POWER WTF UP v1.0.1
-   COMPLETE STYLE.CSS
-   Desktop 16:9 + Mobile Landscape
-========================================================= */
-
-/* =========================================================
-   01. ROOT / RESET
-========================================================= */
-
-:root {
-    --color-bg: #05040a;
-    --color-bg-soft: #0a0812;
-    --color-panel: rgba(10, 8, 20, 0.88);
-    --color-panel-solid: #0d0a18;
-
-    --color-white: #f8fbff;
-    --color-text: #e8efff;
-    --color-muted: #8993ad;
-
-    --color-cyan: #00f5ff;
-    --color-cyan-soft: rgba(0, 245, 255, 0.2);
-
-    --color-purple: #9c4dff;
-    --color-purple-soft: rgba(156, 77, 255, 0.2);
-
-    --color-pink: #ff2fcf;
-    --color-red: #ff315d;
-    --color-orange: #ff8a2a;
-    --color-yellow: #ffe45c;
-    --color-green: #32ff9b;
-
-    --border-soft: rgba(120, 143, 190, 0.2);
-    --border-cyan: rgba(0, 245, 255, 0.5);
-    --border-purple: rgba(156, 77, 255, 0.5);
-
-    --shadow-cyan:
-        0 0 8px rgba(0, 245, 255, 0.45),
-        0 0 24px rgba(0, 245, 255, 0.18);
-
-    --shadow-purple:
-        0 0 8px rgba(156, 77, 255, 0.45),
-        0 0 24px rgba(156, 77, 255, 0.18);
-
-    --shadow-danger:
-        0 0 10px rgba(255, 49, 93, 0.5),
-        0 0 28px rgba(255, 49, 93, 0.22);
-
-    --radius-small: 8px;
-    --radius-medium: 14px;
-    --radius-large: 22px;
-
-    --transition-fast: 160ms ease;
-    --transition-normal: 280ms ease;
-
-    --font-main:
-        Inter,
-        Orbitron,
-        Rajdhani,
-        "Segoe UI",
-        Arial,
-        sans-serif;
-
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-right: env(safe-area-inset-right, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-left: env(safe-area-inset-left, 0px);
-}
-
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-html {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    background: var(--color-bg);
-    color-scheme: dark;
-    overflow: hidden;
-    touch-action: manipulation;
-    -webkit-text-size-adjust: 100%;
-}
-
-body {
-    width: 100%;
-    height: 100%;
-    min-width: 280px;
-    margin: 0;
-    overflow: hidden;
-    background:
-        radial-gradient(
-            circle at 50% 20%,
-            rgba(45, 22, 88, 0.34),
-            transparent 42%
-        ),
-        linear-gradient(
-            180deg,
-            #07050d 0%,
-            #020205 100%
-        );
-    color: var(--color-text);
-    font-family: var(--font-main);
-    font-weight: 500;
-    line-height: 1.4;
-    overscroll-behavior: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-button,
-input,
-textarea,
-select {
-    font: inherit;
-}
-
-button,
-a {
-    -webkit-tap-highlight-color: transparent;
-}
-
-button {
-    color: inherit;
-}
-
-button:focus-visible,
-a:focus-visible,
-canvas:focus-visible {
-    outline: 2px solid var(--color-cyan);
-    outline-offset: 3px;
-}
-
-img,
-svg,
-canvas {
-    display: block;
-    max-width: 100%;
-}
-
-[hidden] {
-    display: none !important;
-}
-
-::selection {
-    color: #020205;
-    background: var(--color-cyan);
-}
-
-/* =========================================================
-   02. ACCESSIBILITY / NOSCRIPT
-========================================================= */
-
-.visually-hidden {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
-}
-
-.noscript-message {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: grid;
-    place-items: center;
-    padding: 30px;
-    background: #05040a;
-    color: var(--color-white);
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-}
-
-/* =========================================================
-   03. GLOBAL BACKGROUND
-========================================================= */
-
-.background-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-    background:
-        radial-gradient(
-            circle at 50% 50%,
-            transparent 0%,
-            rgba(0, 0, 0, 0.1) 45%,
-            rgba(0, 0, 0, 0.7) 100%
-        );
-}
-
-.background-grid {
-    position: absolute;
-    inset: -30%;
-    opacity: 0.32;
-    transform:
-        perspective(700px)
-        rotateX(64deg)
-        translateY(28%);
-    transform-origin: center bottom;
-    background-image:
-        linear-gradient(
-            rgba(0, 245, 255, 0.12) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(156, 77, 255, 0.14) 1px,
-            transparent 1px
-        );
-    background-size: 48px 48px;
-    animation: gridDrift 14s linear infinite;
-    mask-image:
-        linear-gradient(
-            to bottom,
-            transparent 0%,
-            rgba(0, 0, 0, 0.4) 25%,
-            #000 70%,
-            transparent 100%
-        );
-}
-
-.background-glow {
-    position: absolute;
-    width: 50vw;
-    height: 50vw;
-    min-width: 400px;
-    min-height: 400px;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.18;
-    animation: glowFloat 12s ease-in-out infinite alternate;
-}
-
-.background-glow--one {
-    top: -25%;
-    left: -15%;
-    background: var(--color-purple);
-}
-
-.background-glow--two {
-    right: -20%;
-    bottom: -30%;
-    background: var(--color-cyan);
-    animation-delay: -5s;
-}
-
-.background-noise {
-    position: absolute;
-    inset: 0;
-    opacity: 0.06;
-    background-image:
-        repeating-radial-gradient(
-            circle at 0 0,
-            transparent 0,
-            rgba(255, 255, 255, 0.2) 1px,
-            transparent 2px,
-            transparent 4px
-        );
-    background-size: 7px 7px;
-    mix-blend-mode: soft-light;
-}
-
-.scanlines {
-    position: absolute;
-    inset: 0;
-    opacity: 0.12;
-    background:
-        repeating-linear-gradient(
-            to bottom,
-            transparent 0,
-            transparent 3px,
-            rgba(255, 255, 255, 0.04) 4px
-        );
-    animation: scanlineShift 8s linear infinite;
-}
-
-/* =========================================================
-   04. GAME APPLICATION / SCREEN SYSTEM
-========================================================= */
-
-.game-app {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    min-height: 100%;
-    overflow: hidden;
-    isolation: isolate;
-}
-
-.screen {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: none;
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.screen--active {
-    z-index: 10;
-    display: flex;
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    animation: screenEnter 420ms ease both;
-}
-
-/* =========================================================
-   05. SHARED PANELS / BUTTONS
-========================================================= */
-
-.panel,
-.result-panel,
-.game-overlay__content {
-    position: relative;
-    border: 1px solid var(--border-cyan);
-    background:
-        linear-gradient(
-            145deg,
-            rgba(18, 15, 34, 0.96),
-            rgba(5, 4, 13, 0.96)
-        );
-    box-shadow:
-        var(--shadow-cyan),
-        inset 0 0 40px rgba(0, 245, 255, 0.035);
-    backdrop-filter: blur(18px);
-}
-
-.panel::before,
-.result-panel::before,
-.game-overlay__content::before {
-    content: "";
-    position: absolute;
-    inset: 7px;
-    z-index: -1;
-    border: 1px solid rgba(156, 77, 255, 0.14);
-    border-radius: inherit;
-    pointer-events: none;
-}
-
-.button {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: min(100%, 320px);
-    min-height: 48px;
-    padding: 12px 26px;
-    border: 1px solid transparent;
-    border-radius: var(--radius-small);
-    overflow: hidden;
-    color: var(--color-white);
-    text-align: center;
-    text-decoration: none;
-    text-transform: uppercase;
-    font-size: 0.86rem;
-    font-weight: 900;
-    letter-spacing: 0.14em;
-    cursor: pointer;
-    user-select: none;
-    transition:
-        transform var(--transition-fast),
-        border-color var(--transition-fast),
-        background var(--transition-fast),
-        box-shadow var(--transition-fast),
-        filter var(--transition-fast);
-}
-
-.button::before {
-    content: "";
-    position: absolute;
-    top: -150%;
-    left: -70%;
-    width: 45%;
-    height: 400%;
-    transform: rotate(25deg);
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.3),
-            transparent
-        );
-    transition: left 500ms ease;
-}
-
-.button:hover::before {
-    left: 135%;
-}
-
-.button:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.12);
-}
-
-.button:active {
-    transform: translateY(1px) scale(0.985);
-}
-
-.button:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    filter: grayscale(0.7);
-}
-
-.button__label {
-    position: relative;
-    z-index: 1;
-}
-
-.button--primary {
-    border-color: rgba(0, 245, 255, 0.8);
-    background:
-        linear-gradient(
-            135deg,
-            rgba(0, 245, 255, 0.3),
-            rgba(67, 41, 255, 0.55)
-        );
-    box-shadow:
-        0 0 14px rgba(0, 245, 255, 0.35),
-        inset 0 0 20px rgba(0, 245, 255, 0.12);
-}
-
-.button--primary:hover {
-    box-shadow:
-        0 0 20px rgba(0, 245, 255, 0.55),
-        0 0 42px rgba(0, 245, 255, 0.18),
-        inset 0 0 20px rgba(0, 245, 255, 0.2);
-}
-
-.button--secondary {
-    border-color: rgba(156, 77, 255, 0.65);
-    background:
-        linear-gradient(
-            135deg,
-            rgba(156, 77, 255, 0.2),
-            rgba(20, 15, 38, 0.8)
-        );
-    box-shadow: var(--shadow-purple);
-}
-
-.button--ghost {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.035);
-    color: var(--color-muted);
-}
-
-.button--ghost:hover {
-    border-color: rgba(255, 255, 255, 0.38);
-    color: var(--color-white);
-}
-
-.button--white-hat {
-    border-color: rgba(255, 255, 255, 0.75);
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.16),
-            rgba(0, 245, 255, 0.08)
-        );
-    color: var(--color-white);
-    box-shadow:
-        0 0 12px rgba(255, 255, 255, 0.16),
-        inset 0 0 18px rgba(255, 255, 255, 0.05);
-}
-
-.white-hat-button__icon {
-    margin-right: 10px;
-    color: var(--color-cyan);
-    font-size: 1.15em;
-}
-
-.button--guardian {
-    border-color: rgba(0, 245, 255, 0.65);
-    background:
-        linear-gradient(
-            135deg,
-            rgba(0, 245, 255, 0.2),
-            rgba(0, 90, 100, 0.32)
-        );
-}
-
-.button--github {
-    border-color: rgba(255, 255, 255, 0.45);
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.12),
-            rgba(156, 77, 255, 0.16)
-        );
-}
-
-.icon-button {
-    display: inline-grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--color-white);
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition:
-        transform var(--transition-fast),
-        background var(--transition-fast),
-        border-color var(--transition-fast);
-}
-
-.icon-button:hover {
-    transform: rotate(5deg) scale(1.06);
-    border-color: var(--color-cyan);
-    background: rgba(0, 245, 255, 0.12);
-}
-
-/* =========================================================
-   06. START SCREEN
-========================================================= */
-
-.start-screen {
-    align-items: center;
-    justify-content: center;
-    padding:
-        max(18px, var(--safe-top))
-        max(18px, var(--safe-right))
-        max(18px, var(--safe-bottom))
-        max(18px, var(--safe-left));
-    overflow-y: auto;
-}
-
-.start-screen__content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: min(100%, 720px);
-    margin: auto;
-    padding: clamp(18px, 4vh, 40px);
-    text-align: center;
-}
-
-.start-screen__content::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: 50%;
-    background:
-        radial-gradient(
-            circle,
-            rgba(0, 245, 255, 0.08),
-            rgba(156, 77, 255, 0.035) 42%,
-            transparent 72%
-        );
-    filter: blur(20px);
-}
-
-.start-screen__eyebrow,
-.panel__eyebrow,
-.result-panel__eyebrow,
-.game-overlay__eyebrow,
-.white-hat-terminal__eyebrow {
-    margin: 0 0 10px;
-    color: var(--color-cyan);
-    text-transform: uppercase;
-    font-size: clamp(0.62rem, 1.5vw, 0.78rem);
-    font-weight: 900;
-    letter-spacing: 0.24em;
-    text-shadow: 0 0 10px rgba(0, 245, 255, 0.6);
-}
-
-.brand-mark {
-    position: relative;
-    width: 72px;
-    height: 82px;
-    margin-bottom: 8px;
-    filter:
-        drop-shadow(0 0 8px rgba(255, 255, 255, 0.5))
-        drop-shadow(0 0 18px rgba(0, 245, 255, 0.35));
-    animation: rabbitFloat 3.2s ease-in-out infinite;
-}
-
-.brand-mark__ear {
-    position: absolute;
-    top: 0;
-    width: 22px;
-    height: 52px;
-    border: 3px solid var(--color-white);
-    border-radius: 80% 80% 40% 40%;
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.18),
-            rgba(0, 245, 255, 0.08)
-        );
-}
-
-.brand-mark__ear::after {
-    content: "";
-    position: absolute;
-    inset: 7px 5px;
-    border-radius: inherit;
-    background: rgba(255, 47, 207, 0.25);
-}
-
-.brand-mark__ear--left {
-    left: 12px;
-    transform: rotate(-10deg);
-}
-
-.brand-mark__ear--right {
-    right: 12px;
-    transform: rotate(10deg);
-}
-
-.brand-mark__head {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    width: 64px;
-    height: 48px;
-    transform: translateX(-50%);
-    border: 3px solid var(--color-white);
-    border-radius: 52% 52% 44% 44%;
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.18),
-            rgba(0, 245, 255, 0.05)
-        );
-}
-
-.brand-mark__eye {
-    position: absolute;
-    top: 19px;
-    width: 8px;
-    height: 4px;
-    border-radius: 999px;
-    background: var(--color-red);
-    box-shadow: 0 0 10px var(--color-red);
-}
-
-.brand-mark__eye--left {
-    left: 14px;
-    transform: rotate(8deg);
-}
-
-.brand-mark__eye--right {
-    right: 14px;
-    transform: rotate(-8deg);
-}
-
-.game-title {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: center;
-    gap: 0 0.16em;
-    margin: 0;
-    color: var(--color-white);
-    text-transform: uppercase;
-    line-height: 0.86;
-    letter-spacing: -0.05em;
-    filter: drop-shadow(0 0 22px rgba(0, 245, 255, 0.16));
-}
-
-.game-title__small {
-    flex-basis: 100%;
-    margin-bottom: 0.18em;
-    color: var(--color-muted);
-    font-size: clamp(0.8rem, 2vw, 1.1rem);
-    letter-spacing: 0.42em;
-}
-
-.game-title__main {
-    font-size: clamp(2.4rem, 9vw, 6.8rem);
-    font-weight: 1000;
-    text-shadow:
-        0 0 8px rgba(255, 255, 255, 0.45),
-        0 0 22px rgba(0, 245, 255, 0.2);
-}
-
-.game-title__wtf {
-    position: relative;
-    color: var(--color-pink);
-    font-size: clamp(2.7rem, 10vw, 7.5rem);
-    font-weight: 1000;
-    text-shadow:
-        2px 0 0 var(--color-cyan),
-        -2px 0 0 var(--color-purple),
-        0 0 16px rgba(255, 47, 207, 0.7),
-        0 0 42px rgba(255, 47, 207, 0.25);
-    animation: titleGlitch 4.5s infinite;
-}
-
-.game-subtitle {
-    max-width: 640px;
-    margin: clamp(14px, 2.5vh, 24px) auto 14px;
-    color: var(--color-muted);
-    font-size: clamp(0.82rem, 2vw, 1rem);
-}
-
-.game-subtitle strong {
-    color: var(--color-white);
-}
-
-.system-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    margin-bottom: 18px;
-    padding: 7px 12px;
-    border: 1px solid rgba(50, 255, 155, 0.28);
-    border-radius: 999px;
-    background: rgba(50, 255, 155, 0.05);
-}
-
-.system-status__light {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-green);
-    box-shadow: 0 0 12px var(--color-green);
-    animation: statusPulse 1.15s ease-in-out infinite alternate;
-}
-
-.system-status__text {
-    color: var(--color-green);
-    font-size: 0.68rem;
-    font-weight: 900;
-    letter-spacing: 0.16em;
-}
-
-.start-screen__records {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(120px, 1fr));
-    gap: 10px;
-    width: min(100%, 320px);
-    margin-top: 18px;
-}
-
-.record-card {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding: 10px 14px;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-small);
-    background: rgba(255, 255, 255, 0.025);
-}
-
-.record-card__label {
-    color: var(--color-muted);
-    font-size: 0.59rem;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-}
-
-.record-card__value {
-    color: var(--color-cyan);
-    font-size: 1.05rem;
-    letter-spacing: 0.08em;
-    text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
-}
-
-.start-screen__warning {
-    margin: 14px 0 0;
-    color: rgba(255, 255, 255, 0.42);
-    font-size: 0.62rem;
-    font-weight: 900;
-    letter-spacing: 0.3em;
-}
-
-/* =========================================================
-   07. HOW TO PLAY
-========================================================= */
-
-.how-to-play-screen {
-    align-items: center;
-    justify-content: center;
-    padding:
-        max(16px, var(--safe-top))
-        max(16px, var(--safe-right))
-        max(16px, var(--safe-bottom))
-        max(16px, var(--safe-left));
-    overflow-y: auto;
-}
-
-.instructions-panel {
-    width: min(100%, 880px);
-    max-height: calc(100vh - 32px);
-    padding: clamp(22px, 4vw, 42px);
-    border-radius: var(--radius-large);
-    overflow-y: auto;
-    text-align: center;
-}
-
-.instructions-panel__close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 2;
-}
-
-.panel__title {
-    margin: 0 0 24px;
-    color: var(--color-white);
-    font-size: clamp(1.8rem, 5vw, 3.3rem);
-    letter-spacing: 0.04em;
-}
-
-.instructions-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-bottom: 22px;
-    text-align: left;
-}
-
-.instruction-card {
-    position: relative;
-    display: grid;
-    grid-template-columns: 46px 1fr;
-    gap: 12px;
-    min-height: 120px;
-    padding: 18px;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-medium);
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.035),
-            rgba(0, 245, 255, 0.018)
-        );
-    transition:
-        border-color var(--transition-normal),
-        transform var(--transition-normal),
-        background var(--transition-normal);
-}
-
-.instruction-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(0, 245, 255, 0.45);
-    background: rgba(0, 245, 255, 0.055);
-}
-
-.instruction-card__number {
-    color: var(--color-cyan);
-    font-size: 1.2rem;
-    font-weight: 1000;
-    text-shadow: 0 0 10px rgba(0, 245, 255, 0.55);
-}
-
-.instruction-card h3 {
-    margin: 1px 0 7px;
-    color: var(--color-white);
-    font-size: 0.9rem;
-    letter-spacing: 0.08em;
-}
-
-.instruction-card p {
-    margin: 0;
-    color: var(--color-muted);
-    font-size: 0.82rem;
-    line-height: 1.55;
-}
-
-.instruction-card strong {
-    color: var(--color-cyan);
-}
-
-/* =========================================================
-   08. GAME SCREEN LAYOUT
-========================================================= */
-
-.game-screen {
-    flex-direction: column;
-    padding:
-        max(6px, var(--safe-top))
-        max(8px, var(--safe-right))
-        max(6px, var(--safe-bottom))
-        max(8px, var(--safe-left));
-    background:
-        radial-gradient(
-            circle at 50% 40%,
-            rgba(0, 245, 255, 0.035),
-            transparent 58%
-        );
-}
-
-.hud {
-    position: relative;
-    z-index: 20;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: clamp(8px, 2vw, 26px);
-    flex: 0 0 auto;
-    min-height: 68px;
-    padding: 8px clamp(10px, 2.2vw, 24px);
-    border: 1px solid rgba(0, 245, 255, 0.18);
-    border-radius: var(--radius-medium);
-    background:
-        linear-gradient(
-            180deg,
-            rgba(12, 10, 25, 0.93),
-            rgba(5, 4, 12, 0.9)
-        );
-    box-shadow:
-        0 7px 30px rgba(0, 0, 0, 0.28),
-        inset 0 -1px 0 rgba(0, 245, 255, 0.08);
-    backdrop-filter: blur(12px);
-}
-
-.hud__section {
-    display: flex;
-    align-items: center;
-    gap: clamp(12px, 3vw, 34px);
-}
-
-.hud__section--left {
-    justify-content: flex-start;
-}
-
-.hud__section--center {
-    justify-content: center;
-}
-
-.hud__section--right {
-    justify-content: flex-end;
-}
-
-.hud-stat,
-.level-display,
-.lives-display {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-}
-
-.hud-stat__label,
-.level-display__label,
-.lives-display__label,
-.danger-meter__label {
-    color: var(--color-muted);
-    font-size: clamp(0.48rem, 1vw, 0.63rem);
-    font-weight: 900;
-    letter-spacing: 0.15em;
-}
-
-.hud-stat__value {
-    color: var(--color-white);
-    font-size: clamp(0.82rem, 2vw, 1.15rem);
-    letter-spacing: 0.06em;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.22);
-}
-
-.hud-stat--combo .hud-stat__value {
-    color: var(--color-yellow);
-    text-shadow: 0 0 10px rgba(255, 228, 92, 0.5);
-}
-
-.level-display {
-    align-items: center;
-    min-width: 62px;
-}
-
-.level-display__value {
-    color: var(--color-cyan);
-    font-size: clamp(1rem, 2.5vw, 1.5rem);
-    line-height: 1;
-    text-shadow: 0 0 12px rgba(0, 245, 255, 0.62);
-}
-
-.danger-meter {
-    width: clamp(90px, 15vw, 190px);
-}
-
-.danger-meter__track {
-    position: relative;
-    width: 100%;
-    height: 7px;
-    margin-top: 5px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.danger-meter__fill {
-    width: 0%;
-    height: 100%;
-    border-radius: inherit;
-    background:
-        linear-gradient(
-            90deg,
-            var(--color-green),
-            var(--color-yellow),
-            var(--color-red)
-        );
-    box-shadow: 0 0 10px rgba(255, 49, 93, 0.55);
-    transition: width 300ms ease;
-}
-
-.lives-display {
-    align-items: flex-end;
-}
-
-.lives-display__icons {
-    display: flex;
-    gap: 4px;
-    min-height: 20px;
-}
-
-.life-icon {
-    color: var(--color-red);
-    font-size: clamp(0.82rem, 2vw, 1.15rem);
-    text-shadow:
-        0 0 6px rgba(255, 49, 93, 0.75),
-        0 0 14px rgba(255, 49, 93, 0.3);
-    animation: heartPulse 1.8s ease-in-out infinite;
-}
-
-.life-icon:nth-child(2) {
-    animation-delay: 0.14s;
-}
-
-.life-icon:nth-child(3) {
-    animation-delay: 0.28s;
-}
-
-/* =========================================================
-   09. ACTIVE EFFECTS PANEL
-========================================================= */
-
-.active-effects-panel {
-    position: absolute;
-    top: 84px;
-    left: 50%;
-    z-index: 30;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px;
-    max-width: 80%;
-    transform: translateX(-50%);
-    pointer-events: none;
-}
-
-.effect-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 9px;
-    border: 1px solid rgba(0, 245, 255, 0.38);
-    border-radius: 999px;
-    background: rgba(5, 4, 12, 0.82);
-    box-shadow: 0 0 12px rgba(0, 245, 255, 0.18);
-    backdrop-filter: blur(8px);
-}
-
-.effect-indicator__icon {
-    color: var(--color-cyan);
-    font-size: 0.78rem;
-}
-
-.effect-indicator__label {
-    color: var(--color-white);
-    font-size: 0.58rem;
-    font-weight: 900;
-    letter-spacing: 0.09em;
-}
-
-.effect-indicator__timer {
-    color: var(--color-yellow);
-    font-size: 0.58rem;
-    font-weight: 800;
-}
-
-/* =========================================================
-   10. GAME STAGE / CANVAS
-========================================================= */
-
-.game-stage {
-    position: relative;
-    z-index: 2;
-    flex: 1 1 auto;
-    width: 100%;
-    min-height: 0;
-    margin: 6px 0;
-    overflow: hidden;
-    border: 1px solid rgba(0, 245, 255, 0.3);
-    border-radius: var(--radius-medium);
-    background:
-        radial-gradient(
-            circle at 50% 48%,
-            rgba(30, 13, 66, 0.22),
-            transparent 52%
-        ),
-        linear-gradient(
-            180deg,
-            rgba(8, 7, 18, 0.98),
-            rgba(2, 2, 7, 0.98)
-        );
-    box-shadow:
-        inset 0 0 40px rgba(0, 0, 0, 0.78),
-        inset 0 0 80px rgba(0, 245, 255, 0.025),
-        0 0 24px rgba(0, 245, 255, 0.1);
-    isolation: isolate;
-}
-
-.game-stage::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    opacity: 0.26;
-    pointer-events: none;
-    background-image:
-        linear-gradient(
-            rgba(0, 245, 255, 0.07) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(156, 77, 255, 0.07) 1px,
-            transparent 1px
-        );
-    background-size: 44px 44px;
-    mask-image:
-        linear-gradient(
-            to bottom,
-            transparent,
-            #000 35%,
-            #000
-        );
-}
-
-.game-stage::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    pointer-events: none;
-    border-radius: inherit;
-    box-shadow:
-        inset 0 0 24px rgba(0, 245, 255, 0.08),
-        inset 0 0 2px rgba(255, 255, 255, 0.25);
-}
-
-#gameCanvas {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
-    background: transparent;
-    touch-action: none;
-}
-
-/* =========================================================
-   11. GAME ANNOUNCEMENTS / FLASH EFFECTS
-========================================================= */
-
-.screen-flash {
-    position: absolute;
-    inset: 0;
-    z-index: 40;
-    opacity: 0;
-    pointer-events: none;
-    background: rgba(255, 255, 255, 0.9);
-    mix-blend-mode: screen;
-}
-
-.screen-flash.is-active {
-    animation: screenFlash 280ms ease-out;
-}
-
-.earthquake-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 41;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    background:
-        repeating-linear-gradient(
-            0deg,
-            rgba(255, 49, 93, 0.05) 0,
-            rgba(255, 49, 93, 0.05) 2px,
-            transparent 2px,
-            transparent 6px
-        );
-}
-
-.earthquake-overlay.is-active {
-    display: flex;
-    animation: earthquakeShake 100ms linear infinite;
-}
-
-.earthquake-overlay span {
-    padding: 8px 18px;
-    border: 1px solid var(--color-red);
-    background: rgba(10, 0, 5, 0.82);
-    color: var(--color-red);
-    font-size: clamp(0.8rem, 2vw, 1.2rem);
-    font-weight: 1000;
-    letter-spacing: 0.15em;
-    box-shadow: var(--shadow-danger);
-}
-
-.level-announcement,
-.wtf-announcement,
-.combo-announcement,
-.status-message {
-    position: absolute;
-    left: 50%;
-    z-index: 50;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    text-align: center;
-}
-
-.level-announcement {
-    top: 45%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: min(90%, 700px);
-}
-
-.level-announcement.is-active {
-    visibility: visible;
-    animation: announcementEnter 2.25s ease both;
-}
-
-.level-announcement__small {
-    color: var(--color-muted);
-    font-size: clamp(0.62rem, 1.5vw, 0.82rem);
-    font-weight: 900;
-    letter-spacing: 0.36em;
-}
-
-.level-announcement__main {
-    color: var(--color-white);
-    font-size: clamp(2rem, 8vw, 5rem);
-    line-height: 1;
-    text-shadow:
-        0 0 12px rgba(255, 255, 255, 0.5),
-        0 0 30px rgba(0, 245, 255, 0.38);
-}
-
-.level-announcement__message {
-    margin-top: 9px;
-    color: var(--color-cyan);
-    font-size: clamp(0.65rem, 1.8vw, 0.95rem);
-    font-weight: 900;
-    letter-spacing: 0.18em;
-}
-
-.wtf-announcement {
-    top: 47%;
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 0.12em;
-    width: 100%;
-    font-weight: 1000;
-    line-height: 0.92;
-}
-
-.wtf-announcement.is-active {
-    visibility: visible;
-    animation: wtfImpact 1.55s ease both;
-}
-
-.wtf-announcement__power,
-.wtf-announcement__up {
-    color: var(--color-white);
-    font-size: clamp(1.2rem, 5vw, 3.7rem);
-}
-
-.wtf-announcement__wtf {
-    color: var(--color-pink);
-    font-size: clamp(2.4rem, 11vw, 8rem);
-    text-shadow:
-        4px 0 0 var(--color-cyan),
-        -4px 0 0 var(--color-purple),
-        0 0 30px rgba(255, 47, 207, 0.75);
-}
-
-.wtf-announcement__effect {
-    position: absolute;
-    top: calc(100% + 14px);
-    left: 50%;
-    width: 90%;
-    transform: translateX(-50%);
-    color: var(--color-yellow);
-    font-size: clamp(0.65rem, 2vw, 1rem);
-    letter-spacing: 0.17em;
-}
-
-.combo-announcement {
-    top: 31%;
-    color: var(--color-yellow);
-    font-size: clamp(1rem, 4vw, 2.3rem);
-    font-weight: 1000;
-    letter-spacing: 0.07em;
-    text-shadow: 0 0 18px rgba(255, 228, 92, 0.65);
-}
-
-.combo-announcement.is-active {
-    visibility: visible;
-    animation: comboPop 850ms ease both;
-}
-
-.status-message {
-    top: 17%;
-    max-width: 90%;
-    padding: 7px 14px;
-    border: 1px solid rgba(0, 245, 255, 0.32);
-    border-radius: 999px;
-    background: rgba(5, 4, 12, 0.76);
-    color: var(--color-cyan);
-    font-size: clamp(0.58rem, 1.5vw, 0.78rem);
-    font-weight: 900;
-    letter-spacing: 0.12em;
-    white-space: nowrap;
-}
-
-.status-message.is-active {
-    visibility: visible;
-    animation: statusMessage 1.7s ease both;
-}
-
-/* =========================================================
-   12. PAUSE / GAME OVERLAY
-========================================================= */
-
-.game-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 18px;
-    background: rgba(1, 1, 5, 0.82);
-    backdrop-filter: blur(10px);
-}
-
-.game-overlay[hidden] {
-    display: none !important;
-}
-
-.game-overlay__content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: min(100%, 400px);
-    padding: 32px;
-    border-radius: var(--radius-large);
-    text-align: center;
-    animation: overlayPanelEnter 260ms ease both;
-}
-
-.game-overlay__title {
-    margin: 0 0 24px;
-    color: var(--color-white);
-    font-size: clamp(2.4rem, 8vw, 4.8rem);
-    line-height: 1;
-    letter-spacing: 0.08em;
-    text-shadow:
-        0 0 12px rgba(255, 255, 255, 0.35),
-        0 0 32px rgba(0, 245, 255, 0.18);
-}
-
-.game-overlay__content .button + .button {
-    margin-top: 10px;
-}
-
-/* =========================================================
-   13. MOBILE CONTROLS
-========================================================= */
-
-.mobile-controls {
-    position: relative;
-    z-index: 30;
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    flex: 0 0 auto;
-    width: 100%;
-    min-height: 72px;
-    padding: 5px 8px;
-    user-select: none;
-    touch-action: none;
-}
-
-.mobile-controls__movement {
-    display: flex;
-    gap: 10px;
-}
-
-.control-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(0, 245, 255, 0.55);
-    background:
-        linear-gradient(
-            145deg,
-            rgba(0, 245, 255, 0.16),
-            rgba(17, 12, 34, 0.88)
-        );
-    color: var(--color-white);
-    box-shadow:
-        0 0 12px rgba(0, 245, 255, 0.16),
-        inset 0 0 16px rgba(0, 245, 255, 0.06);
-    cursor: pointer;
-    touch-action: none;
-    transition:
-        transform 80ms ease,
-        background 80ms ease,
-        box-shadow 80ms ease;
-}
-
-.control-button:active,
-.control-button.is-active {
-    transform: scale(0.94);
-    background:
-        linear-gradient(
-            145deg,
-            rgba(0, 245, 255, 0.42),
-            rgba(61, 31, 125, 0.82)
-        );
-    box-shadow:
-        0 0 24px rgba(0, 245, 255, 0.48),
-        inset 0 0 22px rgba(0, 245, 255, 0.18);
-}
-
-.control-button--move {
-    width: clamp(58px, 10vw, 88px);
-    height: 58px;
-    border-radius: 16px;
-    font-size: 1.4rem;
-}
-
-.control-button--shoot {
-    width: clamp(90px, 16vw, 138px);
-    height: 58px;
-    border-color: rgba(255, 49, 93, 0.7);
-    border-radius: 16px;
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255, 49, 93, 0.28),
-            rgba(74, 10, 44, 0.9)
-        );
-    box-shadow:
-        0 0 16px rgba(255, 49, 93, 0.25),
-        inset 0 0 18px rgba(255, 49, 93, 0.08);
-}
-
-.control-button--shoot:active,
-.control-button--shoot.is-active {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255, 49, 93, 0.7),
-            rgba(143, 19, 82, 0.95)
-        );
-    box-shadow:
-        0 0 28px rgba(255, 49, 93, 0.65),
-        inset 0 0 18px rgba(255, 255, 255, 0.18);
-}
-
-.control-button__text {
-    font-size: 0.75rem;
-    font-weight: 1000;
-    letter-spacing: 0.14em;
-}
-
-/* =========================================================
-   14. GAME FOOTER
-========================================================= */
-
-.game-footer {
-    position: relative;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex: 0 0 auto;
-    min-height: 40px;
-    padding: 3px 10px;
-}
-
-.game-footer__controls {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    color: var(--color-muted);
-    font-size: 0.58rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-}
-
-.game-footer__controls span {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-kbd {
-    min-width: 24px;
-    padding: 3px 6px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-bottom-width: 2px;
-    border-radius: 5px;
-    background: rgba(255, 255, 255, 0.055);
-    color: var(--color-white);
-    text-align: center;
-    font-size: 0.56rem;
-    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.28);
-}
-
-.pause-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    width: 38px;
-    height: 34px;
-    padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.23);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.045);
-    cursor: pointer;
-    transition:
-        transform var(--transition-fast),
-        border-color var(--transition-fast),
-        background var(--transition-fast);
-}
-
-.pause-button:hover {
-    transform: scale(1.05);
-    border-color: var(--color-cyan);
-    background: rgba(0, 245, 255, 0.08);
-}
-
-.pause-button span {
-    width: 4px;
-    height: 14px;
-    border-radius: 2px;
-    background: var(--color-white);
-}
-
-/* =========================================================
-   15. RESULT SCREENS
-========================================================= */
-
-.result-screen {
-    align-items: center;
-    justify-content: center;
-    padding:
-        max(18px, var(--safe-top))
-        max(18px, var(--safe-right))
-        max(18px, var(--safe-bottom))
-        max(18px, var(--safe-left));
-    overflow-y: auto;
-}
-
-.result-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: min(100%, 680px);
-    max-height: calc(100vh - 36px);
-    padding: clamp(24px, 5vw, 46px);
-    border-radius: var(--radius-large);
-    overflow-y: auto;
-    text-align: center;
-}
-
-.result-panel--danger {
-    border-color: rgba(255, 49, 93, 0.55);
-    box-shadow:
-        var(--shadow-danger),
-        inset 0 0 42px rgba(255, 49, 93, 0.035);
-}
-
-.result-panel__title {
-    margin: 0 0 26px;
-    color: var(--color-white);
-    font-size: clamp(2rem, 7vw, 4.4rem);
-    line-height: 0.96;
-    letter-spacing: -0.02em;
-    text-shadow:
-        0 0 12px rgba(255, 255, 255, 0.35),
-        0 0 30px rgba(0, 245, 255, 0.2);
-}
-
-.result-panel__title--danger {
-    color: var(--color-red);
-    text-shadow:
-        0 0 12px rgba(255, 49, 93, 0.75),
-        0 0 34px rgba(255, 49, 93, 0.3);
-}
-
-.result-panel__stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    width: 100%;
-    margin-bottom: 22px;
-}
-
-.result-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    min-width: 0;
-    padding: 16px 10px;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-medium);
-    background: rgba(255, 255, 255, 0.028);
-}
-
-.result-stat__label {
-    color: var(--color-muted);
-    font-size: clamp(0.52rem, 1.3vw, 0.66rem);
-    font-weight: 900;
-    letter-spacing: 0.1em;
-}
-
-.result-stat__value {
-    color: var(--color-cyan);
-    font-size: clamp(1.1rem, 3.5vw, 1.8rem);
-    overflow-wrap: anywhere;
-    text-shadow: 0 0 12px rgba(0, 245, 255, 0.45);
-}
-
-.result-panel__message {
-    min-height: 1.5em;
-    margin: 0 0 22px;
-    color: var(--color-muted);
-    font-size: 0.88rem;
-}
-
-.game-over-wtf {
-    margin: -12px 0 20px;
-    color: var(--color-pink);
-    font-size: clamp(1.4rem, 5vw, 3rem);
-    font-weight: 1000;
-    letter-spacing: 0.13em;
-    text-shadow:
-        2px 0 0 var(--color-cyan),
-        -2px 0 0 var(--color-purple),
-        0 0 18px rgba(255, 47, 207, 0.65);
-    animation: gameOverGlitch 2.4s infinite;
-}
-
-.new-record-badge {
-    margin: -4px 0 20px;
-    padding: 8px 16px;
-    border: 1px solid var(--color-yellow);
-    border-radius: 999px;
-    background: rgba(255, 228, 92, 0.08);
-    color: var(--color-yellow);
-    font-size: 0.7rem;
-    font-weight: 1000;
-    letter-spacing: 0.16em;
-    box-shadow: 0 0 18px rgba(255, 228, 92, 0.25);
-    animation: badgePulse 1s ease-in-out infinite alternate;
-}
-
-.result-panel .button + .button {
-    margin-top: 10px;
-}
-
-/* =========================================================
-   16. WHITE HAT PROTOCOL MODAL
-========================================================= */
-
-.white-hat-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 9000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding:
-        max(14px, var(--safe-top))
-        max(14px, var(--safe-right))
-        max(14px, var(--safe-bottom))
-        max(14px, var(--safe-left));
-}
-
-.white-hat-modal.is-open,
-.white-hat-modal[aria-hidden="false"] {
-    display: flex;
-}
-
-.white-hat-modal__backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.84);
-    backdrop-filter: blur(12px);
-}
-
-.white-hat-terminal {
-    position: relative;
-    z-index: 2;
-    width: min(100%, 920px);
-    max-height: calc(100vh - 28px);
-    overflow: hidden;
-    border: 1px solid rgba(0, 245, 255, 0.55);
-    border-radius: var(--radius-large);
-    background:
-        linear-gradient(
-            160deg,
-            rgba(10, 18, 24, 0.98),
-            rgba(3, 6, 10, 0.99)
-        );
-    box-shadow:
-        0 0 20px rgba(0, 245, 255, 0.25),
-        0 0 60px rgba(0, 245, 255, 0.08),
-        inset 0 0 50px rgba(0, 245, 255, 0.025);
-    animation: terminalEnter 360ms ease both;
-}
-
-.white-hat-terminal__scanline {
-    position: absolute;
-    top: -20%;
-    left: 0;
-    z-index: 5;
-    width: 100%;
-    height: 16%;
-    opacity: 0.13;
-    pointer-events: none;
-    background:
-        linear-gradient(
-            to bottom,
-            transparent,
-            var(--color-cyan),
-            transparent
-        );
-    animation: terminalScan 5s linear infinite;
-}
-
-.white-hat-terminal__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 70px;
-    padding: 12px 18px;
-    border-bottom: 1px solid rgba(0, 245, 255, 0.2);
-    background: rgba(0, 245, 255, 0.025);
-}
-
-.white-hat-terminal__identity {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.white-hat-terminal__signal {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--color-green);
-    box-shadow: 0 0 15px var(--color-green);
-    animation: statusPulse 1s ease-in-out infinite alternate;
-}
-
-.white-hat-terminal__identity div {
-    display: flex;
-    flex-direction: column;
-}
-
-.white-hat-terminal__system {
-    color: var(--color-muted);
-    font-size: 0.56rem;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-}
-
-.white-hat-terminal__identity strong {
-    color: var(--color-cyan);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-}
-
-.white-hat-terminal__close {
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--color-white);
-    font-size: 1.45rem;
-    cursor: pointer;
-}
-
-.white-hat-terminal__close:hover {
-    border-color: var(--color-red);
-    background: rgba(255, 49, 93, 0.1);
-    color: var(--color-red);
-}
-
-.white-hat-terminal__content {
-    max-height: calc(100vh - 100px);
-    padding: clamp(20px, 4vw, 40px);
-    overflow-y: auto;
-    text-align: center;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-cyan) rgba(255, 255, 255, 0.04);
-}
-
-.white-hat-terminal__content::-webkit-scrollbar,
-.instructions-panel::-webkit-scrollbar,
-.result-panel::-webkit-scrollbar {
-    width: 7px;
-}
-
-.white-hat-terminal__content::-webkit-scrollbar-track,
-.instructions-panel::-webkit-scrollbar-track,
-.result-panel::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.035);
-}
-
-.white-hat-terminal__content::-webkit-scrollbar-thumb,
-.instructions-panel::-webkit-scrollbar-thumb,
-.result-panel::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: rgba(0, 245, 255, 0.55);
-}
-
-.white-hat-terminal__title {
-    margin: 0 0 14px;
-    color: var(--color-white);
-    font-size: clamp(1.7rem, 5vw, 3.4rem);
-    line-height: 1;
-    text-shadow:
-        0 0 12px rgba(255, 255, 255, 0.3),
-        0 0 30px rgba(0, 245, 255, 0.25);
-}
-
-.white-hat-terminal__intro {
-    max-width: 720px;
-    margin: 0 auto 22px;
-    color: var(--color-muted);
-    font-size: 0.88rem;
-    line-height: 1.65;
-}
-
-.white-hat-emblem {
-    position: relative;
-    width: 105px;
-    height: 110px;
-    margin: 0 auto 18px;
-    filter: drop-shadow(0 0 14px rgba(0, 245, 255, 0.28));
-}
-
-.white-hat-emblem__hat {
-    position: absolute;
-    top: 2px;
-    left: 50%;
-    width: 80px;
-    height: 35px;
-    transform: translateX(-50%);
-}
-
-.white-hat-emblem__hat::before {
-    content: "";
-    position: absolute;
-    left: 18px;
-    width: 44px;
-    height: 25px;
-    border: 2px solid var(--color-white);
-    border-radius: 6px 6px 2px 2px;
-    transform: skew(-6deg);
-}
-
-.white-hat-emblem__hat::after {
-    content: "";
-    position: absolute;
-    bottom: 1px;
-    left: 0;
-    width: 80px;
-    height: 7px;
-    border: 2px solid var(--color-white);
-    border-radius: 50%;
-}
-
-.white-hat-emblem__rabbit {
-    position: absolute;
-    top: 30px;
-    left: 50%;
-    width: 64px;
-    height: 60px;
-    transform: translateX(-50%);
-}
-
-.white-hat-emblem__ear {
-    position: absolute;
-    top: 0;
-    width: 16px;
-    height: 35px;
-    border: 2px solid var(--color-cyan);
-    border-radius: 80% 80% 30% 30%;
-}
-
-.white-hat-emblem__ear--left {
-    left: 13px;
-    transform: rotate(-12deg);
-}
-
-.white-hat-emblem__ear--right {
-    right: 13px;
-    transform: rotate(12deg);
-}
-
-.white-hat-emblem__head {
-    position: absolute;
-    right: 8px;
-    bottom: 0;
-    left: 8px;
-    height: 37px;
-    border: 2px solid var(--color-cyan);
-    border-radius: 50%;
-}
-
-.white-hat-emblem__shield {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    display: grid;
-    place-items: center;
-    width: 58px;
-    height: 46px;
-    transform: translateX(-50%);
-    clip-path:
-        polygon(
-            50% 0%,
-            95% 18%,
-            84% 76%,
-            50% 100%,
-            16% 76%,
-            5% 18%
-        );
-    background:
-        linear-gradient(
-            145deg,
-            rgba(0, 245, 255, 0.75),
-            rgba(24, 76, 100, 0.85)
-        );
-    color: #031014;
-    font-size: 0.68rem;
-    font-weight: 1000;
-    letter-spacing: 0.08em;
-}
-
-.white-hat-message {
-    max-width: 760px;
-    margin: 0 auto 22px;
-    padding: 20px;
-    border: 1px solid rgba(0, 245, 255, 0.3);
-    border-left: 4px solid var(--color-cyan);
-    border-radius: var(--radius-medium);
-    background: rgba(0, 245, 255, 0.035);
-    text-align: left;
-}
-
-.white-hat-message__label {
-    display: block;
-    margin-bottom: 10px;
-    color: var(--color-cyan);
-    font-size: 0.7rem;
-    font-weight: 1000;
-    letter-spacing: 0.15em;
-}
-
-.white-hat-message p {
-    margin: 0 0 10px;
-    color: var(--color-text);
-    font-size: 0.84rem;
-    line-height: 1.6;
-}
-
-.white-hat-message p:last-child {
-    margin-bottom: 0;
-}
-
-.white-hat-rules {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    text-align: left;
-}
-
-.white-hat-rule {
-    display: grid;
-    grid-template-columns: 42px 1fr;
-    gap: 10px;
-    padding: 16px;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-medium);
-    background: rgba(255, 255, 255, 0.022);
-}
-
-.white-hat-rule__number {
-    color: var(--color-cyan);
-    font-size: 1.05rem;
-    font-weight: 1000;
-}
-
-.white-hat-rule h3 {
-    margin: 0 0 6px;
-    color: var(--color-white);
-    font-size: 0.78rem;
-    letter-spacing: 0.07em;
-}
-
-.white-hat-rule p {
-    margin: 0;
-    color: var(--color-muted);
-    font-size: 0.76rem;
-    line-height: 1.5;
-}
-
-.guardian-oath {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 14px;
-    margin: 28px 0;
-}
-
-.guardian-oath__line {
-    height: 1px;
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(0, 245, 255, 0.6),
-            transparent
-        );
-}
-
-.guardian-oath p,
-.guardian-oath strong {
-    grid-column: 2;
-    margin: 0;
-}
-
-.guardian-oath p {
-    color: var(--color-muted);
-    font-size: 0.62rem;
-    letter-spacing: 0.13em;
-}
-
-.guardian-oath strong {
-    color: var(--color-cyan);
-    font-size: clamp(0.78rem, 2vw, 1rem);
-    letter-spacing: 0.12em;
-}
-
-.white-hat-terminal__actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-}
-
-.white-hat-copy-status {
-    min-height: 1.4em;
-    margin-top: 12px;
-    color: var(--color-green);
-    font-size: 0.72rem;
-    font-weight: 800;
-}
-
-.white-hat-terminal__footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    margin-top: 24px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--color-muted);
-    font-size: 0.56rem;
-    letter-spacing: 0.08em;
-}
-
-/* =========================================================
-   17. NEWS MODAL OVERRIDES
-   Dopunjuje stilove koji su trenutno u index.html
-========================================================= */
-
-.news-modal-overlay {
-    animation: modalFadeIn 200ms ease both;
-}
-
-.news-tab-container {
-    scrollbar-width: thin;
-    scrollbar-color: #2563eb #f3f4f6;
-    animation: newsPanelEnter 260ms ease both;
-}
-
-.news-tab-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.news-tab-container::-webkit-scrollbar-track {
-    background: #f3f4f6;
-}
-
-.news-tab-container::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: #2563eb;
-}
-
-.btn-news {
-    border-color: rgba(50, 255, 155, 0.75) !important;
-    background:
-        linear-gradient(
-            135deg,
-            rgba(16, 185, 129, 0.78),
-            rgba(5, 110, 90, 0.85)
-        ) !important;
-    color: #ffffff !important;
-}
-
-/* =========================================================
-   18. ORIENTATION MESSAGE
-========================================================= */
-
-.orientation-message {
-    position: fixed;
-    inset: 0;
-    z-index: 20000;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 28px;
-    background:
-        radial-gradient(
-            circle at center,
-            rgba(38, 16, 77, 0.96),
-            rgba(3, 3, 9, 0.99) 68%
-        );
-    color: var(--color-white);
-    text-align: center;
-}
-
-.orientation-message__phone {
-    position: relative;
-    width: 64px;
-    height: 108px;
-    margin-bottom: 26px;
-    border: 4px solid var(--color-cyan);
-    border-radius: 12px;
-    box-shadow: var(--shadow-cyan);
-    animation: phoneRotate 2.2s ease-in-out infinite;
-}
-
-.orientation-message__phone::before {
-    content: "";
-    position: absolute;
-    top: 5px;
-    left: 50%;
-    width: 22px;
-    height: 3px;
-    transform: translateX(-50%);
-    border-radius: 999px;
-    background: var(--color-cyan);
-}
-
-.orientation-message__phone span {
-    position: absolute;
-    right: 7px;
-    bottom: 7px;
-    left: 7px;
-    height: 78px;
-    border: 1px solid rgba(156, 77, 255, 0.7);
-    border-radius: 5px;
-    background:
-        linear-gradient(
-            145deg,
-            rgba(156, 77, 255, 0.22),
-            rgba(0, 245, 255, 0.08)
-        );
-}
-
-.orientation-message strong {
-    color: var(--color-cyan);
-    font-size: clamp(1rem, 6vw, 1.6rem);
-    letter-spacing: 0.08em;
-    text-shadow: 0 0 14px rgba(0, 245, 255, 0.55);
-}
-
-.orientation-message p {
-    margin: 12px 0 0;
-    color: var(--color-muted);
-    font-size: 0.88rem;
-}
-
-/* =========================================================
-   19. TABLET / SMALL DESKTOP
-========================================================= */
-
-@media (max-width: 900px) {
-    .hud {
-        gap: 10px;
-    }
-
-    .hud__section {
-        gap: 14px;
-    }
-
-    .game-footer__controls {
-        gap: 12px;
-    }
-
-    .white-hat-rules {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 700px) {
-    .instructions-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .result-panel__stats {
-        grid-template-columns: 1fr;
-    }
-
-    .result-stat {
-        padding: 11px;
-    }
-
-    .white-hat-terminal__actions {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .white-hat-terminal__footer {
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-    }
-}
-
-/* =========================================================
-   20. MOBILE LANDSCAPE GAME MODE
-========================================================= */
-
-@media (
-    hover: none
-) and (
-    pointer: coarse
-) and (
-    orientation: landscape
-) {
-    .game-screen {
-        padding:
-            max(3px, var(--safe-top))
-            max(5px, var(--safe-right))
-            max(3px, var(--safe-bottom))
-            max(5px, var(--safe-left));
-    }
-
-    .hud {
-        min-height: 48px;
-        padding: 4px 9px;
-        border-radius: 9px;
-    }
-
-    .hud__section {
-        gap: 10px;
-    }
-
-    .hud-stat__label,
-    .level-display__label,
-    .lives-display__label,
-    .danger-meter__label {
-        font-size: 0.42rem;
-    }
-
-    .hud-stat__value {
-        font-size: clamp(0.66rem, 1.9vw, 0.9rem);
-    }
-
-    .level-display {
-        min-width: 42px;
-    }
-
-    .level-display__value {
-        font-size: clamp(0.85rem, 2.3vw, 1.15rem);
-    }
-
-    .danger-meter {
-        width: clamp(62px, 13vw, 120px);
-    }
-
-    .danger-meter__track {
-        height: 5px;
-        margin-top: 2px;
-    }
-
-    .life-icon {
-        font-size: 0.8rem;
-    }
-
-    .active-effects-panel {
-        top: 56px;
-        gap: 3px;
-    }
-
-    .effect-indicator {
-        gap: 3px;
-        padding: 3px 6px;
-    }
-
-    .effect-indicator__label,
-    .effect-indicator__timer {
-        font-size: 0.45rem;
-    }
-
-    .game-stage {
-        margin: 3px 0;
-        border-radius: 8px;
-    }
-
-    .mobile-controls {
-        display: flex;
-        min-height: 54px;
-        padding: 2px 5px;
-    }
-
-    .control-button--move {
-        width: clamp(52px, 10vw, 76px);
-        height: 48px;
-        border-radius: 12px;
-        font-size: 1.15rem;
-    }
-
-    .control-button--shoot {
-        width: clamp(82px, 15vw, 120px);
-        height: 48px;
-        border-radius: 12px;
-    }
-
-    .control-button__text {
-        font-size: 0.62rem;
-    }
-
-    .game-footer {
-        display: none;
-    }
-
-    .level-announcement__main {
-        font-size: clamp(1.7rem, 7vw, 3.7rem);
-    }
-
-    .wtf-announcement__wtf {
-        font-size: clamp(2.5rem, 11vw, 6rem);
-    }
-}
-
-/* =========================================================
-   21. VERY SHORT LANDSCAPE SCREENS
-========================================================= */
-
-@media (
-    orientation: landscape
-) and (
-    max-height: 560px
-) {
-    .start-screen {
-        align-items: flex-start;
-        padding-top: 8px;
-        padding-bottom: 8px;
-    }
-
-    .start-screen__content {
-        width: min(100%, 920px);
-        min-height: 100%;
-        padding: 8px 16px;
-    }
-
-    .brand-mark {
-        width: 44px;
-        height: 50px;
-        margin-bottom: 2px;
-    }
-
-    .brand-mark__ear {
-        width: 14px;
-        height: 32px;
-        border-width: 2px;
-    }
-
-    .brand-mark__ear--left {
-        left: 8px;
-    }
-
-    .brand-mark__ear--right {
-        right: 8px;
-    }
-
-    .brand-mark__head {
-        width: 40px;
-        height: 30px;
-        border-width: 2px;
-    }
-
-    .brand-mark__eye {
-        top: 11px;
-        width: 5px;
-        height: 3px;
-    }
-
-    .brand-mark__eye--left {
-        left: 8px;
-    }
-
-    .brand-mark__eye--right {
-        right: 8px;
-    }
-
-    .start-screen__eyebrow {
-        margin-bottom: 3px;
-        font-size: 0.48rem;
-    }
-
-    .game-title__small {
-        font-size: 0.55rem;
-    }
-
-    .game-title__main {
-        font-size: clamp(2rem, 8vh, 3.25rem);
-    }
-
-    .game-title__wtf {
-        font-size: clamp(2.25rem, 9vh, 3.6rem);
-    }
-
-    .game-subtitle {
-        margin: 6px auto;
-        font-size: 0.66rem;
-    }
-
-    .system-status {
-        margin-bottom: 7px;
-        padding: 4px 8px;
-    }
-
-    .system-status__text {
-        font-size: 0.48rem;
-    }
-
-    .start-screen__content > div[style] {
-        display: grid !important;
-        grid-template-columns: repeat(2, minmax(160px, 230px));
-        gap: 5px 8px !important;
-    }
-
-    .start-screen__content > div[style] .button {
-        min-height: 34px;
-        padding: 6px 14px;
-        font-size: 0.58rem;
-    }
-
-    .start-screen__content > div[style] #startButton,
-    .start-screen__content > div[style] #whiteHatProtocolButton {
-        grid-column: auto;
-    }
-
-    .start-screen__records {
-        gap: 6px;
-        margin-top: 7px;
-    }
-
-    .record-card {
-        padding: 5px 10px;
-    }
-
-    .record-card__label {
-        font-size: 0.45rem;
-    }
-
-    .record-card__value {
-        font-size: 0.78rem;
-    }
-
-    .start-screen__warning {
-        margin-top: 5px;
-        font-size: 0.42rem;
-    }
-
-    .instructions-panel {
-        max-height: calc(100vh - 12px);
-        padding: 14px 20px;
-    }
-
-    .panel__eyebrow {
-        margin-bottom: 2px;
-        font-size: 0.5rem;
-    }
-
-    .panel__title {
-        margin-bottom: 8px;
-        font-size: 1.45rem;
-    }
-
-    .instructions-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 6px;
-        margin-bottom: 8px;
-    }
-
-    .instruction-card {
-        grid-template-columns: 30px 1fr;
-        min-height: 74px;
-        padding: 8px;
-    }
-
-    .instruction-card__number {
-        font-size: 0.8rem;
-    }
-
-    .instruction-card h3 {
-        margin-bottom: 2px;
-        font-size: 0.65rem;
-    }
-
-    .instruction-card p {
-        font-size: 0.58rem;
-        line-height: 1.35;
-    }
-
-    .instructions-panel .button {
-        min-height: 34px;
-        padding: 6px 15px;
-        font-size: 0.58rem;
-    }
-
-    .result-panel {
-        max-height: calc(100vh - 14px);
-        padding: 14px 20px;
-    }
-
-    .result-panel__eyebrow {
-        margin-bottom: 3px;
-        font-size: 0.48rem;
-    }
-
-    .result-panel__title {
-        margin-bottom: 10px;
-        font-size: 1.8rem;
-    }
-
-    .result-panel__stats {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 6px;
-        margin-bottom: 9px;
-    }
-
-    .result-stat {
-        padding: 7px;
-    }
-
-    .result-stat__label {
-        font-size: 0.43rem;
-    }
-
-    .result-stat__value {
-        font-size: 0.84rem;
-    }
-
-    .result-panel__message {
-        margin-bottom: 8px;
-        font-size: 0.6rem;
-    }
-
-    .game-over-wtf {
-        margin: -5px 0 8px;
-        font-size: 1.35rem;
-    }
-
-    .result-panel .button {
-        min-height: 34px;
-        padding: 6px 14px;
-        font-size: 0.58rem;
-    }
-
-    .result-panel .button + .button {
-        margin-top: 5px;
-    }
-
-    .new-record-badge {
-        margin-bottom: 8px;
-        padding: 5px 10px;
-        font-size: 0.52rem;
-    }
-
-    .game-overlay__content {
-        width: min(100%, 330px);
-        padding: 18px;
-    }
-
-    .game-overlay__title {
-        margin-bottom: 12px;
-        font-size: 2.2rem;
-    }
-
-    .game-overlay__content .button {
-        min-height: 34px;
-        padding: 6px 14px;
-        font-size: 0.58rem;
-    }
-
-    .game-overlay__content .button + .button {
-        margin-top: 5px;
-    }
-}
-
-/* =========================================================
-   22. PORTRAIT MOBILE ORIENTATION LOCK
-========================================================= */
-
-@media (
-    hover: none
-) and (
-    pointer: coarse
-) and (
-    orientation: portrait
-) {
-    .orientation-message {
-        display: flex;
-    }
-
-    .game-app {
-        visibility: hidden;
-        pointer-events: none;
-    }
-
-    body {
-        overflow: hidden;
-    }
-}
-
-/* =========================================================
-   23. PHONE LANDSCAPE EXTRA COMPACT
-========================================================= */
-
-@media (
-    hover: none
-) and (
-    pointer: coarse
-) and (
-    orientation: landscape
-) and (
-    max-height: 430px
-) {
-    .hud {
-        min-height: 40px;
-        padding: 2px 7px;
-    }
-
-    .hud__section {
-        gap: 7px;
-    }
-
-    .hud-stat__label,
-    .level-display__label,
-    .lives-display__label,
-    .danger-meter__label {
-        font-size: 0.36rem;
-    }
-
-    .hud-stat__value {
-        font-size: 0.6rem;
-    }
-
-    .level-display__value {
-        font-size: 0.72rem;
-    }
-
-    .danger-meter {
-        width: 64px;
-    }
-
-    .lives-display__icons {
-        gap: 2px;
-    }
-
-    .life-icon {
-        font-size: 0.66rem;
-    }
-
-    .active-effects-panel {
-        top: 43px;
-    }
-
-    .game-stage {
-        margin: 2px 0;
-    }
-
-    .mobile-controls {
-        min-height: 46px;
-        padding: 1px 4px;
-    }
-
-    .control-button--move {
-        width: 52px;
-        height: 42px;
-        border-radius: 10px;
-        font-size: 0.95rem;
-    }
-
-    .control-button--shoot {
-        width: 82px;
-        height: 42px;
-        border-radius: 10px;
-    }
-
-    .control-button__text {
-        font-size: 0.52rem;
-    }
-
-    .mobile-controls__movement {
-        gap: 7px;
-    }
-}
-
-/* =========================================================
-   24. LARGE DESKTOP
-========================================================= */
-
-@media (min-width: 1400px) {
-    .game-screen {
-        padding: 12px 18px;
-    }
-
-    .hud {
-        min-height: 78px;
-    }
-
-    .game-stage {
-        margin: 9px 0;
-    }
-
-    .game-footer {
-        min-height: 46px;
-    }
-}
-
-/* =========================================================
-   25. REDUCED MOTION
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* =========================================================
-   26. ANIMATIONS
-========================================================= */
-
-@keyframes screenEnter {
-    from {
-        opacity: 0;
-        transform: scale(1.015);
-        filter: blur(6px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-        filter: blur(0);
-    }
-}
-
-@keyframes gridDrift {
-    from {
-        background-position: 0 0;
-    }
-
-    to {
-        background-position: 0 48px;
-    }
-}
-
-@keyframes glowFloat {
-    from {
-        transform: translate3d(-2%, -2%, 0) scale(0.95);
-    }
-
-    to {
-        transform: translate3d(5%, 6%, 0) scale(1.08);
-    }
-}
-
-@keyframes scanlineShift {
-    from {
-        background-position: 0 0;
-    }
-
-    to {
-        background-position: 0 160px;
-    }
-}
-
-@keyframes rabbitFloat {
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-6px);
-    }
-}
-
-@keyframes statusPulse {
-    from {
-        opacity: 0.45;
-        transform: scale(0.86);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1.08);
-    }
-}
-
-@keyframes titleGlitch {
-    0%,
-    91%,
-    100% {
-        transform: translate(0);
-        filter: none;
-    }
-
-    92% {
-        transform: translate(-3px, 1px) skewX(4deg);
-    }
-
-    94% {
-        transform: translate(3px, -1px) skewX(-3deg);
-    }
-
-    96% {
-        transform: translate(-1px, 0);
-    }
-}
-
-@keyframes heartPulse {
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.12);
-    }
-}
-
-@keyframes screenFlash {
-    0% {
-        opacity: 0;
-    }
-
-    20% {
-        opacity: 0.9;
-    }
-
-    100% {
-        opacity: 0;
-    }
-}
-
-@keyframes earthquakeShake {
-    0% {
-        transform: translate(0, 0);
-    }
-
-    25% {
-        transform: translate(-3px, 2px);
-    }
-
-    50% {
-        transform: translate(3px, -2px);
-    }
-
-    75% {
-        transform: translate(-2px, -1px);
-    }
-
-    100% {
-        transform: translate(2px, 2px);
-    }
-}
-
-@keyframes announcementEnter {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1.4);
-        filter: blur(9px);
-    }
-
-    18%,
-    70% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-        filter: blur(0);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -56%) scale(0.92);
-    }
-}
-
-@keyframes wtfImpact {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(2.5) rotate(-2deg);
-        filter: blur(12px);
-    }
-
-    18% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(0.92) rotate(1deg);
-        filter: blur(0);
-    }
-
-    28% {
-        transform: translate(-50%, -50%) scale(1.08) rotate(-1deg);
-    }
-
-    40%,
-    72% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -58%) scale(0.85);
-    }
-}
-
-@keyframes comboPop {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.3);
-    }
-
-    35% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.2);
-    }
-
-    65% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -70%) scale(0.9);
-    }
-}
-
-@keyframes statusMessage {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -30%);
-    }
-
-    15%,
-    75% {
-        opacity: 1;
-        transform: translate(-50%, -50%);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -80%);
-    }
-}
-
-@keyframes overlayPanelEnter {
-    from {
-        opacity: 0;
-        transform: scale(0.88) translateY(12px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-@keyframes gameOverGlitch {
-    0%,
-    86%,
-    100% {
-        transform: translate(0);
-    }
-
-    88% {
-        transform: translate(-3px, 1px);
-    }
-
-    91% {
-        transform: translate(3px, -1px);
-    }
-
-    94% {
-        transform: translate(-1px, 0);
-    }
-}
-
-@keyframes badgePulse {
-    from {
-        transform: scale(1);
-        box-shadow: 0 0 10px rgba(255, 228, 92, 0.2);
-    }
-
-    to {
-        transform: scale(1.035);
-        box-shadow: 0 0 25px rgba(255, 228, 92, 0.45);
-    }
-}
-
-@keyframes terminalEnter {
-    from {
-        opacity: 0;
-        transform: scale(0.94) translateY(18px);
-        filter: blur(8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-        filter: blur(0);
-    }
-}
-
-@keyframes terminalScan {
-    from {
-        transform: translateY(-100%);
-    }
-
-    to {
-        transform: translateY(800%);
-    }
-}
-
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes newsPanelEnter {
-    from {
-        opacity: 0;
-        transform: scale(0.94) translateY(15px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-@keyframes phoneRotate {
-    0%,
-    20% {
-        transform: rotate(0deg);
-    }
-
-    55%,
-    85% {
-        transform: rotate(90deg);
-    }
-
-    100% {
-        transform: rotate(0deg);
-    }
-}
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="WHR: POWER WTF UP — futuristička arkadna igra multitaskinga, koncentracije i kontrolisanog haosa (Vertical 9:16 Mode).">
+    <meta name="theme-color" content="#05040a">
+    <title>WHR: POWER WTF UP v1.1.0 (9:16 Vertical)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <noscript>
+        <div class="noscript-message">
+            WHR: POWER WTF UP zahteva uključen JavaScript.
+        </div>
+    </noscript>
+
+    <!-- GLOBAL BACKGROUND -->
+    <div class="background-layer" aria-hidden="true">
+        <div class="background-grid"></div>
+        <div class="background-glow background-glow--one"></div>
+        <div class="background-glow background-glow--two"></div>
+        <div class="background-noise"></div>
+        <div class="scanlines"></div>
+    </div>
+
+    <!-- GAME APPLICATION -->
+    <main id="gameApp" class="game-app">
+
+        <!-- START SCREEN -->
+        <section id="startScreen" class="screen screen--active start-screen" aria-labelledby="gameTitle">
+            <div class="start-screen__content">
+
+                <div class="brand-mark" aria-hidden="true">
+                    <span class="brand-mark__ear brand-mark__ear--left"></span>
+                    <span class="brand-mark__ear brand-mark__ear--right"></span>
+                    <span class="brand-mark__head">
+                        <span class="brand-mark__eye brand-mark__eye--left"></span>
+                        <span class="brand-mark__eye brand-mark__eye--right"></span>
+                    </span>
+                </div>
+
+                <p class="start-screen__eyebrow">WHITE HAT RABBIT ARCADE</p>
+
+                <h1 id="gameTitle" class="game-title">
+                    <span class="game-title__small">WHR:</span>
+                    <span class="game-title__main">POWER</span>
+                    <span class="game-title__wtf">WTF</span>
+                    <span class="game-title__main">UP</span>
+                </h1>
+
+                <p class="game-subtitle">
+                    Što si bolji, dobijaš više mogućnosti...
+                    <strong>ali igra postaje još opasnija.</strong>
+                </p>
+
+                <div class="system-status" aria-label="Status sistema">
+                    <span class="system-status__light"></span>
+                    <span class="system-status__text">VERTICAL 9:16 READY</span>
+                </div>
+
+                <div class="menu-button-group">
+                    <button id="startButton" class="button button--primary" type="button" onclick="startNewGame()">
+                        <span class="button__label">START GAME</span>
+                    </button>
+
+                    <button id="newsButton" class="button button--primary btn-news" type="button" onclick="openNewsModal()">
+                        <span class="button__label">🚀 ŠTA JE NOVO</span>
+                    </button>
+
+                    <button id="howToPlayButton" class="button button--secondary" type="button">
+                        HOW TO PLAY
+                    </button>
+
+                    <button id="whiteHatProtocolButton" class="button button--white-hat" type="button">
+                        <span class="white-hat-button__icon">♞</span>
+                        WHITE HAT PROTOCOL
+                    </button>
+                </div>
+
+                <div class="start-screen__records">
+                    <div class="record-card">
+                        <span class="record-card__label">BEST SCORE</span>
+                        <strong id="startBestScore" class="record-card__value">000000</strong>
+                    </div>
+
+                    <div class="record-card">
+                        <span class="record-card__label">MAX LEVEL</span>
+                        <strong id="startMaxLevel" class="record-card__value">01</strong>
+                    </div>
+                </div>
+
+                <p class="start-screen__warning">EXPECT THE UNEXPECTED</p>
+
+            </div>
+        </section>
+
+        <!-- HOW TO PLAY SCREEN -->
+        <section id="howToPlayScreen" class="screen how-to-play-screen" aria-labelledby="howToPlayTitle">
+            <div class="panel instructions-panel">
+
+                <button id="closeHowToPlayButton" class="icon-button instructions-panel__close" type="button" aria-label="Zatvori uputstvo">
+                    ×
+                </button>
+
+                <p class="panel__eyebrow">WHR TRAINING PROTOCOL</p>
+                <h2 id="howToPlayTitle" class="panel__title">HOW TO PLAY</h2>
+
+                <div class="instructions-grid">
+                    <article class="instruction-card">
+                        <span class="instruction-card__number">01</span>
+                        <div>
+                            <h3>KREĆI SE</h3>
+                            <p>Tastatura: <strong>A / D</strong> ili strelice. Telefon: dodirni levu/desnu stranu pri dnu ekrana.</p>
+                        </div>
+                    </article>
+
+                    <article class="instruction-card">
+                        <span class="instruction-card__number">02</span>
+                        <div>
+                            <h3>PUCAJ NAGORE</h3>
+                            <p>Pritisni <strong>SPACE</strong> ili veliko dugme <strong>FIRE</strong>.</p>
+                        </div>
+                    </article>
+
+                    <article class="instruction-card">
+                        <span class="instruction-card__number">03</span>
+                        <div>
+                            <h3>UNIŠTI ORBOVE</h3>
+                            <p>Orbovi se dele na manje. Očisti sve orbove pre nego što te dodirnu!</p>
+                        </div>
+                    </article>
+
+                    <article class="instruction-card">
+                        <span class="instruction-card__number">04</span>
+                        <div>
+                            <h3>PREŽIVI</h3>
+                            <p>Imaš 3 života. Sakupljaj nepredvidive WTF moći za prednost!</p>
+                        </div>
+                    </article>
+                </div>
+
+                <button id="instructionsStartButton" class="button button--primary" type="button" onclick="startNewGame()">
+                    ENTER THE CHAOS
+                </button>
+
+            </div>
+        </section>
+
+        <!-- GAME SCREEN -->
+        <section id="gameScreen" class="screen game-screen" aria-label="WHR igra">
+            
+            <header class="hud">
+                <div class="hud__row hud__row--top">
+                    <div class="hud-stat">
+                        <span class="hud-stat__label">SCORE</span>
+                        <strong id="scoreValue" class="hud-stat__value">000000</strong>
+                    </div>
+
+                    <div class="level-display">
+                        <span class="level-display__label">LVL</span>
+                        <strong id="levelValue" class="level-display__value">01</strong>
+                    </div>
+
+                    <div class="hud-stat">
+                        <span class="hud-stat__label">BEST</span>
+                        <strong id="bestScoreValue" class="hud-stat__value">000000</strong>
+                    </div>
+                </div>
+
+                <div class="hud__row hud__row--bottom">
+                    <div class="hud-stat hud-stat--combo">
+                        <span class="hud-stat__label">COMBO</span>
+                        <strong id="comboValue" class="hud-stat__value">x1</strong>
+                    </div>
+
+                    <div id="dangerMeter" class="danger-meter" aria-label="Nivo opasnosti">
+                        <span class="danger-meter__label">CHAOS</span>
+                        <div class="danger-meter__track">
+                            <div id="dangerMeterFill" class="danger-meter__fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="lives-display">
+                        <span class="lives-display__label">LIVES</span>
+                        <div id="livesContainer" class="lives-display__icons" aria-label="Preostali životi">
+                            <span class="life-icon">♥</span>
+                            <span class="life-icon">♥</span>
+                            <span class="life-icon">♥</span>
+                        </div>
+                    </div>
+
+                    <button id="pauseButton" class="pause-button" type="button" aria-label="Pauziraj igru">
+                        <span></span><span></span>
+                    </button>
+                </div>
+            </header>
+
+            <div id="activeEffectsPanel" class="active-effects-panel" aria-live="polite">
+                <div id="shieldIndicator" class="effect-indicator" hidden>
+                    <span class="effect-indicator__icon">◉</span>
+                    <span class="effect-indicator__label">SHIELD</span>
+                    <span id="shieldTimer" class="effect-indicator__timer"></span>
+                </div>
+                <div id="freezeIndicator" class="effect-indicator" hidden>
+                    <span class="effect-indicator__icon">❄</span>
+                    <span class="effect-indicator__label">FREEZE</span>
+                    <span id="freezeTimer" class="effect-indicator__timer"></span>
+                </div>
+                <div id="rapidIndicator" class="effect-indicator" hidden>
+                    <span class="effect-indicator__icon">⚡</span>
+                    <span class="effect-indicator__label">RAPID</span>
+                    <span id="rapidTimer" class="effect-indicator__timer"></span>
+                </div>
+                <div id="doubleBeamIndicator" class="effect-indicator" hidden>
+                    <span class="effect-indicator__icon">Ⅱ</span>
+                    <span class="effect-indicator__label">DOUBLE</span>
+                    <span id="doubleBeamTimer" class="effect-indicator__timer"></span>
+                </div>
+            </div>
+
+            <div id="gameStage" class="game-stage">
+                <canvas id="gameCanvas" tabindex="0" aria-label="Polje igre WHR: POWER WTF UP"></canvas>
+                <div id="screenFlash" class="screen-flash" aria-hidden="true"></div>
+                <div id="earthquakeOverlay" class="earthquake-overlay" aria-hidden="true">
+                    <span>SEISMIC ANOMALY</span>
+                </div>
+
+                <div id="levelAnnouncement" class="level-announcement" aria-live="assertive">
+                    <span class="level-announcement__small">ENTERING</span>
+                    <strong id="levelAnnouncementValue" class="level-announcement__main">LEVEL 01</strong>
+                    <span id="levelAnnouncementMessage" class="level-announcement__message">CONTROL THE CHAOS</span>
+                </div>
+
+                <div id="wtfAnnouncement" class="wtf-announcement" aria-live="assertive">
+                    <span class="wtf-announcement__power">POWER</span>
+                    <strong class="wtf-announcement__wtf">WTF</strong>
+                    <span class="wtf-announcement__up">UP</span>
+                    <small id="wtfEffectMessage" class="wtf-announcement__effect"></small>
+                </div>
+
+                <div id="comboAnnouncement" class="combo-announcement" aria-live="polite">COMBO x2</div>
+                <div id="statusMessage" class="status-message" aria-live="polite"></div>
+
+                <!-- PAUSE OVERLAY -->
+                <div id="pauseOverlay" class="game-overlay pause-overlay" hidden>
+                    <div class="game-overlay__content">
+                        <p class="game-overlay__eyebrow">SYSTEM PAUSED</p>
+                        <h2 class="game-overlay__title">PAUSE</h2>
+                        <button id="resumeButton" class="button button--primary" type="button">RESUME</button>
+                        <button id="restartFromPauseButton" class="button button--secondary" type="button">RESTART</button>
+                        <button id="quitFromPauseButton" class="button button--ghost" type="button">MAIN MENU</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VERTICAL MOBILE CONTROLS -->
+            <div id="mobileControls" class="mobile-controls" aria-label="Kontrole na dodir">
+                <div class="mobile-controls__movement">
+                    <button id="moveLeftButton" class="control-button control-button--move" type="button" aria-label="Kretanje ulevo">
+                        <span aria-hidden="true">◀</span>
+                    </button>
+                    <button id="moveRightButton" class="control-button control-button--move" type="button" aria-label="Kretanje udesno">
+                        <span aria-hidden="true">▶</span>
+                    </button>
+                </div>
+
+                <button id="shootButton" class="control-button control-button--shoot" type="button" aria-label="Pucaj">
+                    <span class="control-button__text">FIRE</span>
+                </button>
+            </div>
+
+            <footer class="game-footer">
+                <div class="game-footer__controls">
+                    <span><kbd>A</kbd><kbd>D</kbd> MOVE</span>
+                    <span><kbd>SPACE</kbd> FIRE</span>
+                    <span><kbd>P</kbd> PAUSE</span>
+                </div>
+            </footer>
+
+        </section>
+
+        <!-- LEVEL COMPLETE SCREEN -->
+        <section id="levelCompleteScreen" class="screen result-screen level-complete-screen" aria-labelledby="levelCompleteTitle">
+            <div class="result-panel">
+                <p class="result-panel__eyebrow">CHAOS CONTAINED</p>
+                <h2 id="levelCompleteTitle" class="result-panel__title">LEVEL COMPLETE</h2>
+
+                <div class="result-panel__stats">
+                    <div class="result-stat">
+                        <span class="result-stat__label">LEVEL SCORE</span>
+                        <strong id="levelScoreValue" class="result-stat__value">000000</strong>
+                    </div>
+                    <div class="result-stat">
+                        <span class="result-stat__label">MAX COMBO</span>
+                        <strong id="levelMaxComboValue" class="result-stat__value">x1</strong>
+                    </div>
+                    <div class="result-stat">
+                        <span class="result-stat__label">ORBS DESTROYED</span>
+                        <strong id="orbsDestroyedValue" class="result-stat__value">0</strong>
+                    </div>
+                </div>
+
+                <p id="levelCompleteMessage" class="result-panel__message"></p>
+
+                <button id="nextLevelButton" class="button button--primary" type="button">NEXT LEVEL</button>
+            </div>
+        </section>
+
+        <!-- GAME OVER SCREEN -->
+        <section id="gameOverScreen" class="screen result-screen game-over-screen" aria-labelledby="gameOverTitle">
+            <div class="result-panel result-panel--danger">
+                <p class="result-panel__eyebrow">CHAOS WON</p>
+                <h2 id="gameOverTitle" class="result-panel__title result-panel__title--danger">GAME OVER</h2>
+                <p class="game-over-wtf">WTF?</p>
+
+                <div class="result-panel__stats">
+                    <div class="result-stat">
+                        <span class="result-stat__label">FINAL SCORE</span>
+                        <strong id="finalScoreValue" class="result-stat__value">000000</strong>
+                    </div>
+                    <div class="result-stat">
+                        <span class="result-stat__label">LEVEL REACHED</span>
+                        <strong id="finalLevelValue" class="result-stat__value">01</strong>
+                    </div>
+                    <div class="result-stat">
+                        <span class="result-stat__label">BEST COMBO</span>
+                        <strong id="finalComboValue" class="result-stat__value">x1</strong>
+                    </div>
+                </div>
+
+                <div id="newRecordBadge" class="new-record-badge" hidden>NEW HIGH SCORE</div>
+
+                <button id="playAgainButton" class="button button--primary" type="button">PLAY AGAIN</button>
+                <button id="gameOverMenuButton" class="button button--secondary" type="button">MAIN MENU</button>
+            </div>
+        </section>
+
+        <!-- WHITE HAT PROTOCOL MODAL -->
+        <section id="whiteHatProtocolModal" class="white-hat-modal" aria-labelledby="whiteHatProtocolTitle" aria-hidden="true">
+            <div class="white-hat-modal__backdrop" data-close-white-hat></div>
+            <div class="white-hat-terminal" role="dialog" aria-modal="true">
+                <div class="white-hat-terminal__scanline"></div>
+
+                <header class="white-hat-terminal__header">
+                    <div class="white-hat-terminal__identity">
+                        <span class="white-hat-terminal__signal"></span>
+                        <div>
+                            <span class="white-hat-terminal__system">WHR GUARDIAN NETWORK</span>
+                            <strong>SECURE CHANNEL // 001</strong>
+                        </div>
+                    </div>
+                    <button id="closeWhiteHatProtocolButton" class="white-hat-terminal__close" type="button" aria-label="Zatvori">×</button>
+                </header>
+
+                <div class="white-hat-terminal__content">
+                    <p class="white-hat-terminal__eyebrow">MESSAGE TO PLAYERS & GUARDIANS</p>
+                    <h2 id="whiteHatProtocolTitle" class="white-hat-terminal__title">WHR WHITE HAT PROTOCOL</h2>
+                    <p class="white-hat-terminal__intro">Ova igra testira reflekse i brzinu reakcije. Igrajte fer i prijavite eventualne greške!</p>
+
+                    <div class="white-hat-terminal__actions">
+                        <button id="copySecurityReportButton" class="button button--guardian" type="button">COPY REPORT TEMPLATE</button>
+                        <a class="button button--github" href="https://github.com/nenadcraft-spec" target="_blank" rel="noopener noreferrer">CONTACT CREATOR</a>
+                    </div>
+
+                    <div id="whiteHatCopyStatus" class="white-hat-copy-status" role="status" aria-live="polite"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- NEWS MODAL -->
+    <div id="newsModal" class="news-modal-overlay" aria-hidden="true">
+        <div class="news-tab-container">
+            <button class="close-modal-btn" type="button" onclick="closeNewsModal()" aria-label="Zatvori">✕</button>
+            <div class="tab-header">
+                <h2>Šta je novo 🚀</h2>
+                <span class="live-badge">Live Updates</span>
+            </div>
+            <div id="updates-feed"></div>
+        </div>
+    </div>
+
+    <!-- MAIN GAME SCRIPT -->
+    <script src="script.js" defer></script>
+
+    <!-- NEWS SCRIPT -->
+    <script>
+        "use strict";
+        const updatesData = [
+            {
+                id: 5,
+                title: "WHR Vertical 9:16 Interface Update! 📱",
+                date: "3. avgust 2026.",
+                version: "v1.1.0",
+                tags: ["igra", "novo"],
+                changes: [
+                    "Potpuno prilagođeno za uspravan 9:16 format (vertikalni prikaz)!",
+                    "Novi layout HUD-a i vertikalnih kontrola na dodir za mobilne uređaje.",
+                    "Uklonjeno restriktivno zaključavanje ekrana na landscape režim."
+                ]
+            }
+        ];
+
+        function renderUpdates() {
+            const feedContainer = document.getElementById("updates-feed");
+            if (!feedContainer) return;
+            feedContainer.innerHTML = "";
+            updatesData.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "update-card latest";
+                card.innerHTML = `
+                    <div class="update-meta">
+                        <span>Verzija ${item.version}</span>
+                        <span>${item.date}</span>
+                    </div>
+                    <h3 class="update-title">${item.title}</h3>
+                    <ul class="update-details">
+                        ${item.changes.map(c => `<li>${c}</li>`).join("")}
+                    </ul>
+                `;
+                feedContainer.appendChild(card);
+            });
+        }
+
+        function openNewsModal() {
+            const modal = document.getElementById("newsModal");
+            if (!modal) return;
+            modal.style.display = "flex";
+            renderUpdates();
+        }
+
+        function closeNewsModal() {
+            const modal = document.getElementById("newsModal");
+            if (!modal) return;
+            modal.style.display = "none";
+        }
+    </script>
+</body>
+</html>
