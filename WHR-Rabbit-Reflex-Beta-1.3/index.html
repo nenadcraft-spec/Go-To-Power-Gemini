@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="description" content="WHR Rabbit Reflex v1.6 Beta 1.3 - Geminijev Autorski Projekat">
-    <meta name="theme-color" content="#050714">
-    <title>WHR Rabbit Reflex v1.6 Beta 1.3</title>
-    <link rel="stylesheet" href="style.css?v=1.6-beta1.3">
+    <meta name="description" content="White Hat Rabbit Studios - Rabbit Reflex Beta 1.2 (Srećko Zec Edition)">
+    <meta name="theme-color" content="#04050d">
+    <title>Rabbit Reflex Beta 1.2</title>
+    <link rel="stylesheet" href="style.css?v=beta1.2-srecko">
 </head>
 <body>
     <noscript class="noscript-message">Ova igra zahteva uključen JavaScript.</noscript>
 
     <div class="app-shell" id="appShell">
+        <!-- POZADINSKI SISTEM -->
         <div class="background-system" aria-hidden="true">
             <div class="background-system__stars" id="spaceStars"></div>
             <div class="background-system__cosmic-dust"></div>
@@ -22,6 +23,7 @@
             <div class="background-system__glow background-system__glow--two"></div>
         </div>
 
+        <!-- ZAGLAVLJE -->
         <header class="game-header">
             <div class="brand">
                 <div class="brand__mark" aria-hidden="true">
@@ -48,14 +50,16 @@
             </div>
         </header>
 
+        <!-- GLAVNI SADRŽAJ -->
         <main class="game-main">
+            <!-- HUD METRIKE -->
             <section class="hud" aria-label="Rezultati igre">
                 <article class="hud-card hud-card--score">
-                    <span class="hud-card__label">SCORE <small id="comboBadge" class="hud-card__combo">x1</small></span>
+                    <span class="hud-card__label">SCORE</span>
                     <strong class="hud-card__value" id="scoreValue">00000000</strong>
                 </article>
 
-                <article class="hud-card">
+                <article class="hud-card hud-card--best">
                     <span class="hud-card__label">BEST SCORE</span>
                     <strong class="hud-card__value" id="bestScoreValue">00000000</strong>
                 </article>
@@ -73,10 +77,11 @@
                 </article>
             </section>
 
+            <!-- STATUSNA TRAKA -->
             <section class="status-row" aria-label="Status igre">
                 <div class="status-chip">
                     <span class="status-chip__dot"></span>
-                    <span id="statusText">GEMINI CORE // READY</span>
+                    <span id="statusText">SYSTEM READY // BETA 1.2</span>
                 </div>
 
                 <div class="status-metric status-metric--level">
@@ -85,6 +90,7 @@
                 </div>
             </section>
 
+            <!-- POLJE ZA IGRU -->
             <section class="game-stage" id="gameStage">
                 <canvas class="particle-canvas" id="particleCanvas" aria-hidden="true"></canvas>
 
@@ -98,14 +104,7 @@
                 <div class="stage-grid" aria-hidden="true"></div>
                 <div class="target-layer" id="targetLayer" aria-label="Polje za igru"></div>
 
-                <!-- SPECIAL ABILITY: EMP BOMB BUTTON -->
-                <button class="emp-button" id="empButton" type="button" disabled title="Aktiviraj EMP Bombu (E)">
-                    <span class="emp-button__icon">⚡</span>
-                    <span class="emp-button__label">EMP BOMB</span>
-                    <span class="emp-button__count" id="empCount">0</span>
-                </button>
-
-                <!-- VIRUS LAYER -->
+                <!-- VIRUS LAYER (SYSTEM BREACH) -->
                 <div class="virus-layer" id="virusLayer" aria-hidden="true">
                     <span class="virus-layer__noise"></span>
                     <span class="virus-layer__tear virus-layer__tear--one"></span>
@@ -136,7 +135,7 @@
                     <div class="tutorial-hud__copy">
                         <span class="tutorial-hud__step" id="tutorialStep">TRAINING 01/10</span>
                         <strong id="tutorialTitle">OBIČAN ZEC</strong>
-                        <p id="tutorialText">Pogodi metu pre nestanka.</p>
+                        <p id="tutorialText">Pogodi metu pre nego što nestane.</p>
                     </div>
                     <button class="tutorial-hud__exit" id="tutorialExitButton" type="button">EXIT</button>
                 </aside>
@@ -149,29 +148,60 @@
                                 <span></span><span></span><span></span>
                             </div>
                             <div>
-                                <p class="start-panel__version">GEMINI PROJECT // v1.6 BETA 1.3</p>
+                                <p class="start-panel__version">SYSTEM BRIEFING // BETA 1.2</p>
                                 <h2 class="start-panel__title">MISSION <span>BRIEFING</span></h2>
                             </div>
-                            <span class="briefing-header__status">READY</span>
+                            <span class="briefing-header__status">ONLINE</span>
                         </header>
 
-                        <p class="start-panel__description">
-                            Sakupljaj EMP Bombe, pravi vezane pogotke za Combo Multiplier i porazi Haker Bosseve na svakih 5 nivoa!
-                        </p>
+                        <div class="briefing-objective">
+                            <span class="briefing-objective__icon">🎯</span>
+                            <div>
+                                <strong>PREŽIVI 60 SEKUNDI</strong>
+                                <small>Eliminiši mete, skupljaj poene i uništi Crnog Hakera i opasnosti.</small>
+                            </div>
+                            <span class="briefing-objective__tag">GLAVNI CILJ</span>
+                        </div>
 
                         <div class="briefing-rulebar">
                             <span><b>60s</b> SESIJA</span>
-                            <span><b>EMP</b> ORUŽJE</span>
-                            <span><b>COMBO</b> MULTIPLIER</span>
+                            <span><b>-750</b> HAKER EFEKAT</span>
+                            <span><b>SREĆKO</b> ROCKET GUNNER</span>
                         </div>
 
+                        <div class="briefing-sections">
+                            <div class="briefing-group briefing-group--boost">
+                                <h3><span>+</span> BONSI I SAVEZNICI</h3>
+                                <div class="briefing-items">
+                                    <div class="briefing-item briefing-item--gold"><i>🐰</i><div><strong>ZLATNI ZEC</strong><small>+1200 bonus x5</small></div></div>
+                                    <div class="briefing-item briefing-item--freeze"><i>❄️</i><div><strong>PLAVI ZEC</strong><small>+500 uspori vreme</small></div></div>
+                                    <div class="briefing-item briefing-item--life"><i>💚</i><div><strong>EXTRA LIFE</strong><small>+1 život / +3s</small></div></div>
+                                    <div class="briefing-item briefing-item--white-hacker"><i>⚡</i><div><strong>BELI HAKER</strong><small>Zaroj / Čisti tablu</small></div></div>
+                                    <div class="briefing-item briefing-item--srecko"><i>🚀</i><div><strong>SREĆKO GUNNER</strong><small>Laserski rafal čisti loše mete</small></div></div>
+                                </div>
+                            </div>
+
+                            <div class="briefing-group briefing-group--danger">
+                                <h3><span>!</span> PRETNJE I ZAMKE</h3>
+                                <div class="briefing-items">
+                                    <div class="briefing-item briefing-item--red"><i>😡</i><div><strong>CRVENI ZEC</strong><small>-1 život / -500pts</small></div></div>
+                                    <div class="briefing-item briefing-item--decoy"><i>🤡</i><div><strong>MAMAC ZEC</strong><small>-1 život zamka</small></div></div>
+                                    <div class="briefing-item briefing-item--net"><i>🕸️</i><div><strong>MREŽA ZEC</strong><small>-1 život zamka</small></div></div>
+                                    <div class="briefing-item briefing-item--black-hacker"><i>👾</i><div><strong>CRNI HAKER</strong><small>Minus poeni / Glitch</small></div></div>
+                                    <div class="briefing-item briefing-item--black-hole"><i>🌀</i><div><strong>CRNA RUPA</strong><small>Guta sve / -3 sekunde</small></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="briefing-note">DODIRNI ILI KLIKNI NA ZECA DA REAGUJEŠ!</p>
+
                         <button class="primary-button" id="startButton" type="button">
-                            <span class="primary-button__text">START MISSION</span>
+                            <span class="primary-button__text">START GAME</span>
                         </button>
                         <button class="tutorial-button" id="tutorialButton" type="button">
-                            INTERACTIVE TUTORIAL
+                            <span>🎮</span> INTERACTIVE TUTORIAL
                         </button>
-                        <p class="start-panel__hint">TAP / CLICK / SPACE / KEY 'E' (EMP)</p>
+                        <p class="start-panel__hint">KLIKNI ILI PRITISNI SPACE ZA START</p>
                     </div>
                 </div>
 
@@ -183,10 +213,11 @@
                 <!-- PAUSE OVERLAY -->
                 <div class="stage-overlay" id="pauseOverlay">
                     <div class="modal-panel">
-                        <p class="modal-panel__eyebrow">SYSTEM SUSPENDED</p>
+                        <p class="modal-panel__eyebrow">PAUZA SISTEMA</p>
                         <h2>PAUSED</h2>
+                        <p>Igra je zamrznuta. Nastavi tačno iz iste tačke!</p>
                         <div class="modal-actions">
-                            <button class="primary-button primary-button--compact" id="resumeButton" type="button">RESUME</button>
+                            <button class="primary-button primary-button--compact" id="resumeButton" type="button">NASTAVI</button>
                             <button class="secondary-button" id="pauseLobbyButton" type="button">BACK TO LOBBY</button>
                         </div>
                     </div>
@@ -195,27 +226,28 @@
                 <!-- GAME OVER OVERLAY -->
                 <div class="stage-overlay" id="gameOverOverlay">
                     <div class="modal-panel modal-panel--game-over">
-                        <p class="modal-panel__eyebrow">SESSION COMPLETE</p>
-                        <h2>RUN TERMINATED</h2>
+                        <p class="modal-panel__eyebrow">SESIJA ZAVRŠENA</p>
+                        <h2>GAME OVER</h2>
                         <div class="result-rank" id="resultRank">REFLEX ROOKIE</div>
 
                         <div class="result-grid">
-                            <div class="result-item"><span>SCORE</span><strong id="finalScoreValue">00000000</strong></div>
-                            <div class="result-item"><span>BEST</span><strong id="finalBestValue">00000000</strong></div>
-                            <div class="result-item"><span>LEVEL</span><strong id="finalLevelValue">01</strong></div>
+                            <div class="result-item"><span>FINAL SCORE</span><strong id="finalScoreValue">00000000</strong></div>
+                            <div class="result-item"><span>BEST SCORE</span><strong id="finalBestValue">00000000</strong></div>
+                            <div class="result-item"><span>REACHED LEVEL</span><strong id="finalLevelValue">01</strong></div>
                             <div class="result-item"><span>ACCURACY</span><strong id="finalAccuracyValue">0%</strong></div>
                         </div>
 
-                        <p class="new-record" id="newRecordMessage">NEW GEMINI RECORD</p>
+                        <p class="new-record" id="newRecordMessage">NOVI REKORD SISTEMA!</p>
 
                         <div class="modal-actions">
-                            <button class="primary-button" id="restartButton" type="button">RUN AGAIN</button>
+                            <button class="primary-button" id="restartButton" type="button">IGRAJ PONOVO</button>
                             <button class="secondary-button" id="overLobbyButton" type="button">BACK TO LOBBY</button>
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- PROGRES NIVOA -->
             <section class="progress-module" aria-label="Napredak nivoa">
                 <div class="progress-module__header">
                     <span>LEVEL PROGRESS</span>
@@ -227,12 +259,19 @@
             </section>
         </main>
 
+        <!-- PODNOŽJE -->
         <footer class="game-footer">
-            <p>WHITE HAT RABBIT STUDIOS <span>//</span> GEMINI CORE v1.6</p>
+            <p>WHITE HAT RABBIT STUDIOS <span>//</span> RABBIT REFLEX BETA 1.2</p>
             <p class="game-footer__signature">WRRAAAAAA</p>
         </footer>
     </div>
 
-    <script src="script.js?v=1.6-beta1.3"></script>
+    <script src="script.js?v=beta1.2-srecko"></script>
 </body>
 </html>
+"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("index.html saved successfully")
