@@ -1,7 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v1.1.3 (Dynamic Arena Engine)
+   WHR: POWER WTF UP v1.2.0
+   HYBRID PANG ENGINE WITH HARPOON CABLE & JOYSTICK
 ========================================================= */
 
 const DOM = {
@@ -25,8 +26,6 @@ const DOM = {
         nextLevel: document.getElementById("nextLevelButton"),
         playAgain: document.getElementById("playAgainButton"),
         gameOverMenu: document.getElementById("gameOverMenuButton"),
-        moveLeft: document.getElementById("moveLeftButton"),
-        moveRight: document.getElementById("moveRightButton"),
         shoot: document.getElementById("shootButton"),
         whiteHatProtocol: document.getElementById("whiteHatProtocolButton"),
         closeWhiteHatProtocol: document.getElementById("closeWhiteHatProtocolButton"),
@@ -66,18 +65,18 @@ const STORAGE_KEYS = {
 
 const GAME_CONFIG = {
     startingLives: 3,
-    playerWidth: 60,
+    playerWidth: 50,
     playerHeight: 26,
-    playerSpeed: 520,
-    normalShootDelay: 250,
-    beamSpeed: 1100,
-    gravity: 800,
+    playerSpeed: 480,
+    cableSpeed: 1200,
+    gravity: 780,
+    shootDelay: 350
 };
 
 const ORB_TYPES = {
-    large: { radius: 46, speedX: 160, bounce: 680, score: 100, next: "medium" },
-    medium: { radius: 30, speedX: 200, bounce: 560, score: 180, next: "small" },
-    small: { radius: 18, speedX: 250, bounce: 460, score: 300, next: null }
+    large: { radius: 44, speedX: 150, bounce: 660, score: 100, next: "medium" },
+    medium: { radius: 28, speedX: 190, bounce: 540, score: 180, next: "small" },
+    small: { radius: 16, speedX: 240, bounce: 440, score: 300, next: null }
 };
 
 const state = {
@@ -100,9 +99,103 @@ const state = {
     keys: { left: false, right: false, shoot: false },
     touch: { left: false, right: false, shoot: false },
     player: null,
-    beams: [],
+    cables: [], // Pang Vertical Chains/Cables
     orbs: []
 };
+
+/* JOYSTICK ENGINE */
+const joystick = {
+    zone: document.getElementById("joystickZone"),
+    base: document.getElementById("joystickBase"),
+    stick: document.getElementById("joystickStick"),
+    active: false,
+    touchId: null,
+    startX: 0,
+    maxRadius: 40
+};
+
+function initJoystick() {
+    if (!joystick.zone || !joystick.base || !joystick.stick) return;
+
+    function handleStart(e) {
+        e.preventDefault();
+        if (joystick.active) return;
+
+        const touch = e.changedTouches ? e.changedTouches[0] : e;
+        joystick.active = true;
+        joystick.touchId = touch.identifier ?? "mouse";
+
+        const rect = joystick.base.getBoundingClientRect();
+        joystick.startX = rect.left + rect.width / 2;
+
+        handleMove(e);
+    }
+
+    function handleMove(e) {
+        if (!joystick.active) return;
+
+        let touch = null;
+        if (e.changedTouches) {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === joystick.touchId) {
+                    touch = e.changedTouches[i];
+                    break;
+                }
+            }
+        } else {
+            touch = e;
+        }
+
+        if (!touch) return;
+
+        let deltaX = touch.clientX - joystick.startX;
+
+        if (deltaX > joystick.maxRadius) deltaX = joystick.maxRadius;
+        if (deltaX < -joystick.maxRadius) deltaX = -joystick.maxRadius;
+
+        joystick.stick.style.transform = `translateX(${deltaX}px)`;
+
+        const intensity = deltaX / joystick.maxRadius;
+
+        if (intensity < -0.15) {
+            state.touch.left = true;
+            state.touch.right = false;
+        } else if (intensity > 0.15) {
+            state.touch.right = true;
+            state.touch.left = false;
+        } else {
+            state.touch.left = false;
+            state.touch.right = false;
+        }
+    }
+
+    function handleEnd(e) {
+        if (!joystick.active) return;
+
+        if (e.changedTouches) {
+            let touchFound = false;
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === joystick.touchId) {
+                    touchFound = true;
+                    break;
+                }
+            }
+            if (!touchFound) return;
+        }
+
+        joystick.active = false;
+        joystick.touchId = null;
+        joystick.stick.style.transform = `translateX(0px)`;
+
+        state.touch.left = false;
+        state.touch.right = false;
+    }
+
+    joystick.zone.addEventListener("touchstart", handleStart, { passive: false });
+    window.addEventListener("touchmove", handleMove, { passive: false });
+    window.addEventListener("touchend", handleEnd, { passive: false });
+    window.addEventListener("touchcancel", handleEnd, { passive: false });
+}
 
 function resizeCanvas() {
     if (!DOM.canvas || !DOM.gameStage) return;
@@ -115,7 +208,7 @@ function resizeCanvas() {
     DOM.canvas.height = rect.height;
 
     if (state.player) {
-        state.player.y = state.height - state.player.height - 18;
+        state.player.y = state.height - state.player.height - 10;
         state.player.x = Math.min(Math.max(0, state.player.x), state.width - state.player.width);
     }
 }
@@ -123,7 +216,7 @@ function resizeCanvas() {
 function createPlayer() {
     return {
         x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
-        y: state.height - GAME_CONFIG.playerHeight - 18,
+        y: state.height - GAME_CONFIG.playerHeight - 10,
         width: GAME_CONFIG.playerWidth,
         height: GAME_CONFIG.playerHeight
     };
@@ -135,7 +228,7 @@ function resetGameState() {
     state.lives = GAME_CONFIG.startingLives;
     state.combo = 1;
     state.maxCombo = 1;
-    state.beams = [];
+    state.cables = [];
     state.orbs = [];
     state.player = createPlayer();
     updateHUD();
@@ -155,7 +248,7 @@ function startLevel(levelNumber) {
     state.levelComplete = false;
     state.paused = false;
     state.orbs = [];
-    state.beams = [];
+    state.cables = [];
     createLevelOrbs(levelNumber);
     state.running = true;
     state.lastTimestamp = performance.now();
@@ -169,12 +262,12 @@ function createLevelOrbs(levelNumber) {
     for (let i = 0; i < count; i++) {
         state.orbs.push({
             x: (state.width / (count + 1)) * (i + 1),
-            y: 80 + Math.random() * 100,
+            y: 80 + Math.random() * 80,
             radius: ORB_TYPES.large.radius,
             type: "large",
             velocityX: ORB_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
-            velocityY: -ORB_TYPES.large.bounce * 0.4,
-            hue: 180 + Math.random() * 50
+            velocityY: -ORB_TYPES.large.bounce * 0.3,
+            hue: 180 + Math.random() * 60
         });
     }
 }
@@ -194,6 +287,7 @@ function gameLoop(timestamp) {
 }
 
 function updateGame(delta, timestamp) {
+    // Player Movement
     const dir = (state.keys.left || state.touch.left ? -1 : 0) + (state.keys.right || state.touch.right ? 1 : 0);
     state.player.x += dir * GAME_CONFIG.playerSpeed * delta;
     state.player.x = Math.max(0, Math.min(state.width - state.player.width, state.player.x));
@@ -202,12 +296,18 @@ function updateGame(delta, timestamp) {
         tryShoot(timestamp);
     }
 
-    for (let i = state.beams.length - 1; i >= 0; i--) {
-        const b = state.beams[i];
-        b.y -= GAME_CONFIG.beamSpeed * delta;
-        if (b.y < 0) state.beams.splice(i, 1);
+    // Update PANG Vertical Cables
+    for (let i = state.cables.length - 1; i >= 0; i--) {
+        const cable = state.cables[i];
+        cable.height += GAME_CONFIG.cableSpeed * delta;
+
+        // If cable reaches ceiling, retract/destroy
+        if (cable.height >= state.height) {
+            state.cables.splice(i, 1);
+        }
     }
 
+    // Update Orbs with Pang Gravity & Bouncing
     state.orbs.forEach(orb => {
         orb.velocityY += GAME_CONFIG.gravity * delta;
         orb.x += orb.velocityX * delta;
@@ -216,20 +316,30 @@ function updateGame(delta, timestamp) {
         if (orb.x - orb.radius < 0 || orb.x + orb.radius > state.width) {
             orb.velocityX *= -1;
         }
-        if (orb.y + orb.radius > state.height - 10) {
-            orb.y = state.height - 10 - orb.radius;
+        if (orb.y + orb.radius > state.height - 4) {
+            orb.y = state.height - 4 - orb.radius;
             orb.velocityY = -ORB_TYPES[orb.type].bounce;
         }
     });
 
-    for (let bIdx = state.beams.length - 1; bIdx >= 0; bIdx--) {
-        const b = state.beams[bIdx];
+    // Pang Cable vs Orb Collisions
+    for (let cIdx = state.cables.length - 1; cIdx >= 0; cIdx--) {
+        const cable = state.cables[cIdx];
+        const cableX = cable.x;
+        const cableTopY = state.height - cable.height;
+
         for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
-            const o = state.orbs[oIdx];
-            const dist = Math.hypot(b.x - o.x, b.y - o.y);
-            if (dist < o.radius + b.width) {
-                state.beams.splice(bIdx, 1);
-                destroyOrb(oIdx, o);
+            const orb = state.orbs[oIdx];
+
+            // Line segment to circle collision check
+            const closestY = Math.max(cableTopY, Math.min(state.height, orb.y));
+            const distX = orb.x - cableX;
+            const distY = orb.y - closestY;
+            const distance = Math.hypot(distX, distY);
+
+            if (distance < orb.radius + 3) {
+                state.cables.splice(cIdx, 1);
+                destroyOrb(oIdx, orb);
                 break;
             }
         }
@@ -252,39 +362,79 @@ function destroyOrb(idx, orb) {
     if (next) {
         const cfg = ORB_TYPES[next];
         state.orbs.push({
-            x: orb.x - 12, y: orb.y, radius: cfg.radius, type: next,
-            velocityX: -cfg.speedX, velocityY: -cfg.bounce * 0.6, hue: orb.hue + 15
+            x: orb.x - 10, y: orb.y, radius: cfg.radius, type: next,
+            velocityX: -cfg.speedX, velocityY: -cfg.bounce * 0.6, hue: orb.hue + 20
         });
         state.orbs.push({
-            x: orb.x + 12, y: orb.y, radius: cfg.radius, type: next,
-            velocityX: cfg.speedX, velocityY: -cfg.bounce * 0.6, hue: orb.hue + 15
+            x: orb.x + 10, y: orb.y, radius: cfg.radius, type: next,
+            velocityX: cfg.speedX, velocityY: -cfg.bounce * 0.6, hue: orb.hue + 20
         });
     }
 }
 
 function tryShoot(timestamp) {
-    if (timestamp - state.lastShotTime < GAME_CONFIG.normalShootDelay) return;
+    // Pang Rule: Allow 1 cable at a time (or 2 with upgrade)
+    if (state.cables.length >= 1) return;
+    if (timestamp - state.lastShotTime < GAME_CONFIG.shootDelay) return;
+
     state.lastShotTime = timestamp;
-    state.beams.push({ x: state.player.x + state.player.width / 2, y: state.player.y, width: 5, height: 20 });
+    state.cables.push({
+        x: state.player.x + state.player.width / 2,
+        height: 0
+    });
 }
 
 function renderGame() {
     ctx.clearRect(0, 0, state.width, state.height);
 
-    ctx.fillStyle = "#00f5ff";
-    state.beams.forEach(b => ctx.fillRect(b.x - b.width / 2, b.y, b.width, b.height));
+    // Render Pang Cables (Jagged Harpoon Line)
+    state.cables.forEach(cable => {
+        const startY = state.height;
+        const topY = state.height - cable.height;
 
+        ctx.strokeStyle = "#00f5ff";
+        ctx.lineWidth = 3;
+        ctx.shadowColor = "#00f5ff";
+        ctx.shadowBlur = 10;
+
+        ctx.beginPath();
+        ctx.moveTo(cable.x, startY);
+
+        // Draw Harpoon Zig-Zag Line
+        for (let y = startY; y > topY; y -= 12) {
+            const offsetX = Math.sin(y * 0.1) * 3;
+            ctx.lineTo(cable.x + offsetX, y);
+        }
+        ctx.lineTo(cable.x, topY);
+        ctx.stroke();
+
+        // Harpoon Tip
+        ctx.fillStyle = "#ff2fcf";
+        ctx.beginPath();
+        ctx.moveTo(cable.x - 6, topY + 8);
+        ctx.lineTo(cable.x + 6, topY + 8);
+        ctx.lineTo(cable.x, topY - 4);
+        ctx.closePath();
+        ctx.fill();
+    });
+
+    // Render Orbs
     state.orbs.forEach(o => {
         ctx.beginPath();
         ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
         ctx.fillStyle = `hsl(${o.hue}, 90%, 60%)`;
+        ctx.shadowColor = `hsl(${o.hue}, 90%, 60%)`;
+        ctx.shadowBlur = 12;
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = "#fff";
         ctx.stroke();
     });
 
+    // Render Player
     if (state.player) {
+        ctx.shadowColor = "#ff2fcf";
+        ctx.shadowBlur = 10;
         ctx.fillStyle = "#ff2fcf";
         ctx.fillRect(state.player.x, state.player.y, state.player.width, state.player.height);
     }
@@ -297,7 +447,13 @@ function updateHUD() {
 
 function showScreen(name) {
     Object.keys(DOM.screens).forEach(k => {
-        if (DOM.screens[k]) DOM.screens[k].classList.toggle("screen--active", k === name);
+        if (DOM.screens[k]) {
+            if (k === name) {
+                DOM.screens[k].classList.add("screen--active");
+            } else {
+                DOM.screens[k].classList.remove("screen--active");
+            }
+        }
     });
 }
 
@@ -308,21 +464,34 @@ function bindShootControl(btn) {
     btn.addEventListener("pointercancel", e => { e.preventDefault(); state.touch.shoot = false; });
 }
 
-function init() {
-    // Inicijalizujemo nov klizajući džojstik za kretanje
-    initJoystick();
+function handleKeyDown(e) {
+    if (e.code === "ArrowLeft" || e.code === "KeyA") state.keys.left = true;
+    if (e.code === "ArrowRight" || e.code === "KeyD") state.keys.right = true;
+    if (e.code === "Space") state.keys.shoot = true;
+}
 
-    // Inicijalizujemo taster za pucanje (FIRE)
+function handleKeyUp(e) {
+    if (e.code === "ArrowLeft" || e.code === "KeyA") state.keys.left = false;
+    if (e.code === "ArrowRight" || e.code === "KeyD") state.keys.right = false;
+    if (e.code === "Space") state.keys.shoot = false;
+}
+
+function init() {
+    initJoystick();
     bindShootControl(DOM.buttons.shoot);
 
     DOM.buttons.start?.addEventListener("click", startNewGame);
+    DOM.buttons.instructionsStart?.addEventListener("click", startNewGame);
     DOM.buttons.nextLevel?.addEventListener("click", () => {
         showScreen("game");
         startLevel(state.level + 1);
     });
     DOM.buttons.playAgain?.addEventListener("click", startNewGame);
 
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("resize", resizeCanvas);
+
     showScreen("start");
     resizeCanvas();
 }
