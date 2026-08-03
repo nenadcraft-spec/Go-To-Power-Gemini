@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v3.1.0
-   DART BULLET VISUAL & PHYSICS ENGINE (2s Cooldown, +20% Speed)
+   WHR: POWER WTF UP v3.2.0
+   ONE-HIT BULLET DESTRUCT & IMPULSE ENGINE
 ========================================================= */
 
 const DOM = {
@@ -84,15 +84,14 @@ class AudioEngine {
 
 const audio = new AudioEngine();
 
-// NOVA PODEŠAVANJA ZA METAK (BRZINA 900, COOLDOWN 2s, KRAĆA DUŽINA PIKADO STRELICE 32px)
 const GAME_CONFIG = {
     playerWidth: 40,
     playerHeight: 18,
     aimSpeed: 1.8,
-    laserSpeed: 900,        // Povećano za 20% (sa 750 na 900)
-    laserLength: 32,        // Smanjeno na veličinu pikado strelice!
-    laserDuration: 5.0,     // Metak traje 5 sekundi
-    shootCooldown: 2.0,     // Cooldown smanjen na 2 sekunde
+    laserSpeed: 900,
+    laserLength: 32,
+    laserDuration: 5.0,
+    shootCooldown: 2.0,
     gravity: 580
 };
 
@@ -291,14 +290,12 @@ function updateGame(delta) {
 
     if ((state.keys.shoot || state.touch.shoot) && state.cooldownTimer === 0) tryShoot();
 
-    // UPDATE METAKA / PIKADO STRELICA
     for (let i = state.lasers.length - 1; i >= 0; i--) {
         const laser = state.lasers[i];
         laser.life -= delta;
         laser.headX += laser.vx * delta;
         laser.headY += laser.vy * delta;
 
-        // Održavanje dužine tela strelice na tačno GAME_CONFIG.laserLength (32px)
         laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
         laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
 
@@ -443,29 +440,45 @@ function updateGame(delta) {
         }
     }
 
-    state.lasers.forEach(laser => {
-        state.orbs.forEach((orb, oIdx) => {
-            if (orb.inHole) return;
+    // SUDAR METKA I ZECA (ODBIJANJE ZECA + AKTIVACIJA MOĆI + NESTANAK METKA!)
+    for (let lIdx = state.lasers.length - 1; lIdx >= 0; lIdx--) {
+        const laser = state.lasers[lIdx];
+        let hitDetected = false;
+
+        for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
+            const orb = state.orbs[oIdx];
+            if (orb.inHole) continue;
+
             const dist = pointToSegmentDistance(orb.x, orb.y, laser.tailX, laser.tailY, laser.headX, laser.headY);
 
             if (dist < orb.radius + 4) {
                 audio.playBounce();
                 audio.playPower();
 
+                // 1. ZEC SE ODBIJA OD METKA (Kinetički impuls)
                 const lSpeed = Math.hypot(laser.vx, laser.vy);
                 const dirX = laser.vx / lSpeed;
                 const dirY = laser.vy / lSpeed;
-                orb.velocityX = dirX * 680;
-                orb.velocityY = dirY * 680;
+                orb.velocityX = dirX * 720;
+                orb.velocityY = dirY * 720;
 
+                // 2. AKTIVIRA SE MOĆ ZECA
                 triggerRabbitPower(orb, oIdx);
 
                 orb.powerGlow = 1.0;
                 state.score += 50;
                 updateHUD();
+
+                // 3. METAK NESTAJE NAKON POGOTKA!
+                hitDetected = true;
+                break;
             }
-        });
-    });
+        }
+
+        if (hitDetected) {
+            state.lasers.splice(lIdx, 1);
+        }
+    }
 }
 
 function triggerRabbitPower(orb, orbIndex) {
@@ -608,13 +621,11 @@ function renderGame() {
         ctx.restore();
     }
 
-    // ISCRTAVANJE PIKADO STRELICA METAKA
     state.lasers.forEach(laser => {
         ctx.save();
 
         const angle = Math.atan2(laser.vy, laser.vx);
 
-        // Telo strelice
         ctx.strokeStyle = "#00f5ff";
         ctx.lineWidth = 4;
         ctx.beginPath();
@@ -622,7 +633,6 @@ function renderGame() {
         ctx.lineTo(laser.headX, laser.headY);
         ctx.stroke();
 
-        // Spicasti vrh pikado strelice (Glava)
         ctx.save();
         ctx.translate(laser.headX, laser.headY);
         ctx.rotate(angle);
@@ -635,7 +645,6 @@ function renderGame() {
         ctx.fill();
         ctx.restore();
 
-        // Perca na zadnjem delu pikado strelice (Rep)
         ctx.save();
         ctx.translate(laser.tailX, laser.tailY);
         ctx.rotate(angle);
