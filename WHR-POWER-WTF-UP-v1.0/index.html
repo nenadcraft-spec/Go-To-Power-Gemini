@@ -1,398 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="WHR: POWER WTF UP v1.6.0 — Cyberpunk Pang-style arcade game featuring Audio & Visual Synth Engines.">
-    <meta name="theme-color" content="#05040a">
-    <title>WHR: POWER WTF UP v1.6.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WHR: POWER WTF UP</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <noscript>
-        <div class="noscript-message">
-            WHR: POWER WTF UP requires JavaScript enabled to play.
-        </div>
-    </noscript>
-
-    <!-- GLOBAL BACKGROUND -->
-    <div class="background-layer" aria-hidden="true">
-        <div class="background-grid"></div>
-        <div class="background-glow background-glow--one"></div>
-        <div class="background-glow background-glow--two"></div>
-        <div class="scanlines"></div>
-    </div>
-
-    <!-- MAIN CENTERED ARCADE CONTAINER -->
-    <main id="gameApp" class="game-app">
-
-        <!-- START SCREEN -->
-        <section id="startScreen" class="screen screen--active start-screen" aria-labelledby="gameTitle">
+    <div class="game-app" id="gameApp">
+        <!-- START SCREEN / LOBBY -->
+        <div class="screen start-screen screen--active" id="startScreen">
             <div class="start-screen__content">
-
-                <div class="brand-mark" aria-hidden="true">
-                    <span class="brand-mark__ear brand-mark__ear--left"></span>
-                    <span class="brand-mark__ear brand-mark__ear--right"></span>
-                    <span class="brand-mark__head">
-                        <span class="brand-mark__eye brand-mark__eye--left"></span>
-                        <span class="brand-mark__eye brand-mark__eye--right"></span>
-                    </span>
+                <div class="brand-mark">
+                    <div class="brand-mark__ear brand-mark__ear--left"></div>
+                    <div class="brand-mark__ear brand-mark__ear--right"></div>
+                    <div class="brand-mark__head">
+                        <div class="brand-mark__eye brand-mark__eye--left"></div>
+                        <div class="brand-mark__eye brand-mark__eye--right"></div>
+                    </div>
                 </div>
 
-                <p class="start-screen__eyebrow">WHITE HAT RABBIT STUDIOS</p>
-
-                <h1 id="gameTitle" class="game-title">
-                    <span class="game-title__small">WHR:</span>
+                <h1 class="game-title">
+                    <span class="game-title__small">WHITE HAT RABBIT</span>
                     <span class="game-title__main">POWER</span>
                     <span class="game-title__wtf">WTF</span>
                     <span class="game-title__main">UP</span>
                 </h1>
 
-                <p class="game-subtitle">
-                    Control the WHR Guardian. Slice Cyber-Rabbit Anomalies with Neo-Harpoon &amp; feel the Audio Synth!
-                </p>
-
-                <div class="system-status" aria-label="System status">
-                    <span class="system-status__light"></span>
-                    <span class="system-status__text">WHR AUDIO ENGINE v1.6 ACTIVE</span>
-                </div>
-
                 <div class="menu-button-group">
-                    <button id="startButton" class="button button--primary" type="button">
-                        <span class="button__label">START GAME</span>
-                    </button>
-
-                    <button id="newsButton" class="button button--primary btn-news" type="button" onclick="openNewsModal()">
-                        <span class="button__label">WHAT'S NEW</span>
-                    </button>
-
-                    <button id="howToPlayButton" class="button button--secondary" type="button">
-                        HOW TO PLAY
-                    </button>
-
-                    <button id="whiteHatProtocolButton" class="button button--white-hat" type="button">
-                        <span class="white-hat-button__icon">&#9823;</span>
-                        WHITE HAT PROTOCOL
-                    </button>
+                    <button class="button" id="startButton">START GAME</button>
                 </div>
 
                 <div class="start-screen__records">
                     <div class="record-card">
                         <span class="record-card__label">BEST SCORE</span>
-                        <strong id="startBestScore" class="record-card__value">000000</strong>
-                    </div>
-
-                    <div class="record-card">
-                        <span class="record-card__label">MAX LEVEL</span>
-                        <strong id="startMaxLevel" class="record-card__value">01</strong>
+                        <span class="record-card__value" id="bestScoreValue">000000</span>
                     </div>
                 </div>
-
-                <p class="start-screen__warning">NO AIMBOT // FULL SYNTHWAVE EXPERIENCE</p>
-
             </div>
-        </section>
+        </div>
 
-        <!-- HOW TO PLAY SCREEN -->
-        <section id="howToPlayScreen" class="screen how-to-play-screen" aria-labelledby="howToPlayTitle">
-            <div class="panel instructions-panel">
-
-                <button id="closeHowToPlayButton" class="icon-button instructions-panel__close" type="button" aria-label="Close instructions">
-                    &times;
-                </button>
-
-                <p class="panel__eyebrow">WHR TRAINING PROTOCOL</p>
-                <h2 id="howToPlayTitle" class="panel__title">HOW TO PLAY</h2>
-
-                <div class="instructions-grid">
-                    <article class="instruction-card">
-                        <span class="instruction-card__number">01</span>
-                        <div>
-                            <h3>MOVE GUARDIAN</h3>
-                            <p>PC: <strong>A / D</strong> or Arrows. Mobile: Slide the neon joystick left and right.</p>
-                        </div>
-                    </article>
-
-                    <article class="instruction-card">
-                        <span class="instruction-card__number">02</span>
-                        <div>
-                            <h3>NEO-ROPE HOOK</h3>
-                            <p>Press <strong>SPACEBAR</strong> or tap <strong>FIRE</strong> to shoot vertical harpoon ropes.</p>
-                        </div>
-                    </article>
-
-                    <article class="instruction-card">
-                        <span class="instruction-card__number">03</span>
-                        <div>
-                            <h3>SPLIT ANOMALIES</h3>
-                            <p>Orbs split into smaller fragments when hit. Clear all to complete the level!</p>
-                        </div>
-                    </article>
-
-                    <article class="instruction-card">
-                        <span class="instruction-card__number">04</span>
-                        <div>
-                            <h3>WHR POWER-UPS</h3>
-                            <p>Collect falling Cyber-Items for Shields, Freeze Time, and Double Cables!</p>
-                        </div>
-                    </article>
-                </div>
-
-                <button id="instructionsStartButton" class="button button--primary" type="button">
-                    ENTER THE CHAOS
-                </button>
-
-            </div>
-        </section>
-
-        <!-- GAME SCREEN -->
-        <section id="gameScreen" class="screen game-screen" aria-label="WHR Game">
-            
-            <header class="hud">
+        <!-- GAMEPLAY SCREEN -->
+        <div class="screen game-screen" id="gameScreen">
+            <div class="hud">
                 <div class="hud__row">
                     <div class="hud-stat">
                         <span class="hud-stat__label">SCORE</span>
-                        <strong id="scoreValue" class="hud-stat__value">000000</strong>
+                        <span class="hud-stat__value" id="scoreValue">000000</span>
                     </div>
-
-                    <div class="level-display">
-                        <span class="level-display__label">LVL</span>
-                        <strong id="levelValue" class="level-display__value">01</strong>
-                    </div>
-
                     <div class="hud-stat">
-                        <span class="hud-stat__label">BEST</span>
-                        <strong id="bestScoreValue" class="hud-stat__value">000000</strong>
-                    </div>
-
-                    <div class="hud-stat hud-stat--combo">
-                        <span class="hud-stat__label">COMBO</span>
-                        <strong id="comboValue" class="hud-stat__value">x1</strong>
-                    </div>
-
-                    <div class="lives-display">
-                        <span class="lives-display__label">LIVES</span>
-                        <div id="livesContainer" class="lives-display__icons">
-                            <span class="life-icon">&#9829;</span>
-                            <span class="life-icon">&#9829;</span>
-                            <span class="life-icon">&#9829;</span>
-                        </div>
-                    </div>
-
-                    <button id="pauseButton" class="pause-button" type="button" aria-label="Pause">
-                        <span></span><span></span>
-                    </button>
-                </div>
-            </header>
-
-            <!-- MAIN ARENA STAGE -->
-            <div id="gameStage" class="game-stage">
-                <canvas id="gameCanvas" tabindex="0"></canvas>
-                
-                <div id="levelAnnouncement" class="level-announcement" aria-live="assertive">
-                    <span class="level-announcement__small">ENTERING</span>
-                    <strong id="levelAnnouncementValue" class="level-announcement__main">LEVEL 01</strong>
-                    <span id="levelAnnouncementMessage" class="level-announcement__message">CONTROL THE CHAOS</span>
-                </div>
-
-                <div id="wtfAnnouncement" class="wtf-announcement" aria-live="assertive">
-                    <span class="wtf-announcement__power">POWER</span>
-                    <strong class="wtf-announcement__wtf">WTF</strong>
-                    <span class="wtf-announcement__up">UP</span>
-                    <small id="wtfEffectMessage" class="wtf-announcement__effect"></small>
-                </div>
-
-                <div id="comboAnnouncement" class="combo-announcement" aria-live="polite">COMBO x2</div>
-                <div id="statusMessage" class="status-message" aria-live="polite"></div>
-
-                <!-- PAUSE OVERLAY -->
-                <div id="pauseOverlay" class="game-overlay pause-overlay" hidden>
-                    <div class="game-overlay__content">
-                        <p class="game-overlay__eyebrow">SYSTEM PAUSED</p>
-                        <h2 class="game-overlay__title">PAUSE</h2>
-                        <button id="resumeButton" class="button button--primary" type="button">RESUME</button>
-                        <button id="restartFromPauseButton" class="button button--secondary" type="button">RESTART</button>
-                        <button id="quitFromPauseButton" class="button button--ghost" type="button">MAIN MENU</button>
+                        <span class="hud-stat__label">WHR CYBER ARENA</span>
+                        <span class="hud-stat__value">ALFA v2.6</span>
                     </div>
                 </div>
             </div>
 
-            <!-- EXPANDED SLIDER CONTROL DECK FOR MOBILE -->
-            <div id="mobileControls" class="mobile-controls">
-                <div id="joystickZone" class="joystick-zone">
-                    <div id="joystickBase" class="joystick-base">
-                        <div id="joystickStick" class="joystick-stick"></div>
-                    </div>
-                </div>
-
-                <button id="shootButton" class="control-button control-button--shoot" type="button">
-                    <span class="control-button__text">FIRE</span>
-                </button>
+            <div class="game-stage" id="gameStage">
+                <canvas id="gameCanvas"></canvas>
             </div>
 
-            <footer class="game-footer">
-                <div class="game-footer__controls">
-                    <span><kbd>A</kbd><kbd>D</kbd> MOVE</span>
-                    <span><kbd>SPACE</kbd> FIRE HARPOON</span>
-                    <span><kbd>P</kbd> PAUSE</span>
-                </div>
-            </footer>
-
-        </section>
-
-        <!-- LEVEL COMPLETE SCREEN -->
-        <section id="levelCompleteScreen" class="screen result-screen level-complete-screen" aria-labelledby="levelCompleteTitle">
-            <div class="result-panel">
-                <p class="result-panel__eyebrow">CHAOS CONTAINED</p>
-                <h2 id="levelCompleteTitle" class="result-panel__title">LEVEL COMPLETE</h2>
-
-                <div class="result-panel__stats">
-                    <div class="result-stat">
-                        <span class="result-stat__label">LEVEL SCORE</span>
-                        <strong id="levelScoreValue" class="result-stat__value">000000</strong>
-                    </div>
-                    <div class="result-stat">
-                        <span class="result-stat__label">MAX COMBO</span>
-                        <strong id="levelMaxComboValue" class="result-stat__value">x1</strong>
-                    </div>
-                    <div class="result-stat">
-                        <span class="result-stat__label">ORBS DESTROYED</span>
-                        <strong id="orbsDestroyedValue" class="result-stat__value">0</strong>
+            <!-- CONTROLS -->
+            <div class="mobile-controls">
+                <div class="joystick-zone" id="joystickZone">
+                    <div class="joystick-base" id="joystickBase">
+                        <div class="joystick-stick" id="joystickStick"></div>
                     </div>
                 </div>
-
-                <p id="levelCompleteMessage" class="result-panel__message"></p>
-
-                <button id="nextLevelButton" class="button button--primary" type="button">NEXT LEVEL</button>
+                <button class="control-button control-button--shoot" id="shootButton">FIRE</button>
             </div>
-        </section>
-
-        <!-- GAME OVER SCREEN -->
-        <section id="gameOverScreen" class="screen result-screen game-over-screen" aria-labelledby="gameOverTitle">
-            <div class="result-panel result-panel--danger">
-                <p class="result-panel__eyebrow">CHAOS WON</p>
-                <h2 id="gameOverTitle" class="result-panel__title result-panel__title--danger">GAME OVER</h2>
-                <p class="game-over-wtf">WTF?</p>
-
-                <div class="result-panel__stats">
-                    <div class="result-stat">
-                        <span class="result-stat__label">FINAL SCORE</span>
-                        <strong id="finalScoreValue" class="result-stat__value">000000</strong>
-                    </div>
-                    <div class="result-stat">
-                        <span class="result-stat__label">LEVEL REACHED</span>
-                        <strong id="finalLevelValue" class="result-stat__value">01</strong>
-                    </div>
-                    <div class="result-stat">
-                        <span class="result-stat__label">BEST COMBO</span>
-                        <strong id="finalComboValue" class="result-stat__value">x1</strong>
-                    </div>
-                </div>
-
-                <div id="newRecordBadge" class="new-record-badge" hidden>NEW HIGH SCORE</div>
-
-                <button id="playAgainButton" class="button button--primary" type="button">PLAY AGAIN</button>
-                <button id="gameOverMenuButton" class="button button--secondary" type="button">MAIN MENU</button>
-            </div>
-        </section>
-
-        <!-- WHITE HAT PROTOCOL MODAL -->
-        <section id="whiteHatProtocolModal" class="white-hat-modal" aria-labelledby="whiteHatProtocolTitle" aria-hidden="true">
-            <div class="white-hat-modal__backdrop" data-close-white-hat></div>
-            <div class="white-hat-terminal" role="dialog" aria-modal="true">
-                <header class="white-hat-terminal__header">
-                    <div class="white-hat-terminal__identity">
-                        <span class="white-hat-terminal__signal"></span>
-                        <div>
-                            <span class="white-hat-terminal__system">WHR GUARDIAN NETWORK</span>
-                            <strong>SECURE CHANNEL // 001</strong>
-                        </div>
-                    </div>
-                    <button id="closeWhiteHatProtocolButton" class="white-hat-terminal__close" type="button" aria-label="Close">&times;</button>
-                </header>
-
-                <div class="white-hat-terminal__content">
-                    <p class="white-hat-terminal__eyebrow">MESSAGE TO PLAYERS &amp; GUARDIANS</p>
-                    <h2 id="whiteHatProtocolTitle" class="white-hat-terminal__title">WHR WHITE HAT PROTOCOL</h2>
-                    <p class="white-hat-terminal__intro">This game tests reflexes, speed, and focus. Play fair, respect players, and report bugs responsibly!</p>
-
-                    <div class="white-hat-terminal__actions">
-                        <button id="copySecurityReportButton" class="button button--guardian" type="button">COPY REPORT TEMPLATE</button>
-                        <a class="button button--github" href="https://github.com/nenadcraft-spec" target="_blank" rel="noopener noreferrer">CONTACT CREATOR</a>
-                    </div>
-
-                    <div id="whiteHatCopyStatus" class="white-hat-copy-status" role="status" aria-live="polite"></div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- NEWS MODAL -->
-    <div id="newsModal" class="news-modal-overlay" aria-hidden="true">
-        <div class="news-tab-container">
-            <button class="close-modal-btn" type="button" onclick="closeNewsModal()" aria-label="Close">&times;</button>
-            <div class="tab-header">
-                <h2>What's New</h2>
-                <span class="live-badge">Live Updates</span>
-            </div>
-            <div id="updates-feed"></div>
         </div>
     </div>
 
-    <script src="script.js" defer></script>
-    <script>
-        "use strict";
-        const updatesData = [
-            {
-                id: 11,
-                title: "WHR v1.6.0 Audio Synth & Particles Update!",
-                date: "August 3, 2026",
-                version: "v1.6.0",
-                tags: ["game", "audio", "particles"],
-                changes: [
-                    "Integrated procedural Web Audio API Synth Engine (Harpoon shot, Orb Explode, Powerup SFX).",
-                    "Added Cyberpunk Neon Particle System (sparks on orb hit).",
-                    "Enhanced Screen Shake Effect on large anomaly destruction.",
-                    "Dynamic Viewport Box stabilized for all mobile browsers."
-                ]
-            }
-        ];
-
-        function renderUpdates() {
-            const feedContainer = document.getElementById("updates-feed");
-            if (!feedContainer) return;
-            feedContainer.innerHTML = "";
-            updatesData.forEach(item => {
-                const card = document.createElement("div");
-                card.className = "update-card latest";
-                card.innerHTML = `
-                    <div class="update-meta">
-                        <span>Version ${item.version}</span>
-                        <span>${item.date}</span>
-                    </div>
-                    <h3 class="update-title">${item.title}</h3>
-                    <ul class="update-details">
-                        ${item.changes.map(c => `<li>${c}</li>`).join("")}
-                    </ul>
-                `;
-                feedContainer.appendChild(card);
-            });
-        }
-
-        function openNewsModal() {
-            const modal = document.getElementById("newsModal");
-            if (!modal) return;
-            modal.style.display = "flex";
-            renderUpdates();
-        }
-
-        function closeNewsModal() {
-            const modal = document.getElementById("newsModal");
-            if (!modal) return;
-            modal.style.display = "none";
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
