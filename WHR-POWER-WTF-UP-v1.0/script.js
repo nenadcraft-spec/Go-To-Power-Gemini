@@ -2,15 +2,7 @@
 
 /* =========================================================
    WHR: POWER WTF UP v4.2.1
-   MASTER RAPID ARCADE BALANCE ENGINE (FIXED SYNTAX)
-   - Complete 7 Cyber Rabbit Unique Powers
-   - Green Guardian: Matrix Slow 50% (1.5s) + Permanent +20% Game Speed Surge on Hole Exit!
-   - Void Shadow: Phantom Shift (3s) + Gravitational Pull Field (Black Hole Aura)!
-   - Red Cyber Explosion (+70% Bounce Force Boost)
-   - White Hacker EMP + Double-Barrel (V-Shot) Charge
-   - Golden Rabbit Dual Razor Shot (Golden Immunity)
-   - Blue Flash Freeze (0.8s)
-   - PC Mouse Aiming & Rapid Shoot (0.5s Cooldown)
+   MASTER RAPID ARCADE BALANCE ENGINE
 ========================================================= */
 
 const DOM = {
@@ -30,7 +22,7 @@ const DOM = {
     }
 };
 
-const ctx = DOM.canvas.getContext("2d");
+const ctx = DOM.canvas ? DOM.canvas.getContext("2d") : null;
 
 class AudioEngine {
     constructor() { this.ctx = null; }
@@ -496,7 +488,7 @@ function updateGame(delta) {
 
 function triggerRabbitPower(orb, orbIndex) {
     switch (orb.theme.id) {
-        case "white": // EMP Pulse + Puni Double-Barrel Sačmaricu!
+        case "white":
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
@@ -509,25 +501,25 @@ function triggerRabbitPower(orb, orbIndex) {
             state.hasShotgunCharged = true;
             break;
 
-        case "black": // Hacker Swap Teleport
+        case "black":
             orb.x = 40 + Math.random() * (state.width - 80);
             orb.y = 40 + Math.random() * (state.height * 0.4);
             orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 350;
             orb.velocityY = -150;
             break;
 
-        case "blue": // FLASH FREEZE (0.8s)
+        case "blue":
             state.globalFreezeTimer = 0.8;
             break;
 
-        case "gold": // DOUBLE RAZOR SHOT (Golden Razor immunity)
+        case "gold":
             if (!orb.goldCooldown || orb.goldCooldown <= 0) {
                 orb.goldCooldown = 1.5;
                 spawnGoldenRazorLasers(orb.x, orb.y, orb.radius);
             }
             break;
 
-        case "red": // BOOMERANG SURGE (+70% EKSPLOZIJA BOOST)
+        case "red":
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
@@ -541,7 +533,7 @@ function triggerRabbitPower(orb, orbIndex) {
             state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
             break;
 
-        case "green": // MATRIX SLOW 50% (1.5s) + RESPAWN KROZ CRNU RUPU
+        case "green":
             const currentSlowBase = state.globalSpeedMultiplier;
             state.globalSpeedMultiplier *= 0.5;
             state.orbs.splice(orbIndex, 1);
@@ -552,7 +544,7 @@ function triggerRabbitPower(orb, orbIndex) {
             }, 1500);
             break;
 
-        case "void": // Turbo boost
+        case "void":
             orb.velocityX *= 1.8;
             orb.velocityY *= 1.8;
             break;
@@ -616,6 +608,7 @@ function tryShoot() {
 }
 
 function renderGame() {
+    if (!ctx) return;
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
@@ -840,10 +833,11 @@ function init() {
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
 
-    DOM.canvas.addEventListener("mousemove", handleMouseMove);
-    DOM.canvas.addEventListener("mousedown", handleMouseDown);
+    if (DOM.canvas) {
+        DOM.canvas.addEventListener("mousemove", handleMouseMove);
+        DOM.canvas.addEventListener("mousedown", handleMouseDown);
+    }
     window.addEventListener("mouseup", handleMouseUp);
-
     window.addEventListener("resize", resizeCanvas);
 
     showScreen("start");
