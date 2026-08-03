@@ -42,4 +42,687 @@
 
         <header class="game-header">
             <div class="brand">
-   
+                <div class="brand__mark" aria-hidden="true">
+                    <span class="brand__ear brand__ear--left"></span>
+                    <span class="brand__ear brand__ear--right"></span>
+                    <span class="brand__head"></span>
+                    <span class="brand__eye"></span>
+                </div>
+
+                <div class="brand__copy">
+                    <p class="brand__eyebrow">
+                        WHITE HAT RABBIT STUDIOS
+                    </p>
+
+                    <h1 class="brand__title">
+                        RABBIT
+                        <span>REFLEX</span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button
+                    class="icon-button"
+                    id="soundButton"
+                    type="button"
+                    aria-label="Uključi ili isključi zvuk"
+                    aria-pressed="true"
+                >
+                    <span class="icon-button__icon" id="soundIcon">ON</span>
+                    <span class="icon-button__label">SOUND</span>
+                </button>
+
+                <button
+                    class="icon-button"
+                    id="pauseButton"
+                    type="button"
+                    aria-label="Pauziraj igru"
+                    disabled
+                >
+                    <span class="icon-button__icon">&#8545;</span>
+                    <span class="icon-button__label">PAUSE</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="game-main">
+            <section class="hud" aria-label="Rezultati igre">
+                <article class="hud-card hud-card--score">
+                    <span class="hud-card__label">SCORE</span>
+
+                    <strong
+                        class="hud-card__value"
+                        id="scoreValue"
+                    >
+                        00000000
+                    </strong>
+
+                    <span class="hud-card__pulse"></span>
+                </article>
+
+                <article class="hud-card">
+                    <span class="hud-card__label">BEST SCORE</span>
+
+                    <strong
+                        class="hud-card__value"
+                        id="bestScoreValue"
+                    >
+                        00000000
+                    </strong>
+                </article>
+
+                <article class="hud-card hud-card--lives">
+                    <span class="hud-card__label">LIVES</span>
+
+                    <strong
+                        class="hud-card__value"
+                        id="livesValue"
+                        aria-label="Preostali životi"
+                    >
+                        03/10
+                    </strong>
+
+                    <span class="hud-card__unit">
+                        SYSTEM INTEGRITY
+                    </span>
+                </article>
+
+                <article
+                    class="hud-card hud-card--time"
+                    id="timeCard"
+                >
+                    <span class="hud-card__label">TIME</span>
+
+                    <strong
+                        class="hud-card__value"
+                        id="timeValue"
+                    >
+                        60.0
+                    </strong>
+
+                    <span class="hud-card__unit">
+                        SECONDS
+                    </span>
+                </article>
+            </section>
+
+            <section class="status-row" aria-label="Status igre">
+                <div class="status-chip">
+                    <span class="status-chip__dot"></span>
+                    <span id="statusText">SYSTEM READY</span>
+                </div>
+
+                <div class="status-metric status-metric--level">
+                    <span class="status-metric__label">
+                        LEVEL
+                    </span>
+
+                    <strong id="levelValue">01</strong>
+                </div>
+            </section>
+
+            <section class="game-stage" id="gameStage">
+                <canvas
+                    class="particle-canvas"
+                    id="particleCanvas"
+                    aria-hidden="true"
+                ></canvas>
+
+                <div class="stage-frame" aria-hidden="true">
+                    <span
+                        class="stage-frame__corner stage-frame__corner--tl"
+                    ></span>
+
+                    <span
+                        class="stage-frame__corner stage-frame__corner--tr"
+                    ></span>
+
+                    <span
+                        class="stage-frame__corner stage-frame__corner--bl"
+                    ></span>
+
+                    <span
+                        class="stage-frame__corner stage-frame__corner--br"
+                    ></span>
+                </div>
+
+                <div class="stage-grid" aria-hidden="true"></div>
+
+                <div
+                    class="target-layer"
+                    id="targetLayer"
+                    aria-label="Polje za igru"
+                ></div>
+
+                <!-- CRNI HAKER - PANIC MODE -->
+                <div
+                    class="virus-layer"
+                    id="virusLayer"
+                    aria-hidden="true"
+                >
+                    <span class="virus-layer__noise"></span>
+
+                    <span
+                        class="virus-layer__tear virus-layer__tear--one"
+                    ></span>
+
+                    <span
+                        class="virus-layer__tear virus-layer__tear--two"
+                    ></span>
+
+                    <span
+                        class="virus-layer__tear virus-layer__tear--three"
+                    ></span>
+
+                    <div class="virus-layer__warning">
+                        <strong>PANIC MODE</strong>
+                        <span>SYSTEM INFECTED</span>
+                    </div>
+                </div>
+
+                <div
+                    class="crosshair"
+                    id="crosshair"
+                    aria-hidden="true"
+                >
+                    <span class="crosshair__horizontal"></span>
+                    <span class="crosshair__vertical"></span>
+                    <span class="crosshair__circle"></span>
+                </div>
+
+                <div
+                    class="floating-message"
+                    id="floatingMessage"
+                    aria-live="polite"
+                >
+                    <span class="floating-message__main"></span>
+                    <span class="floating-message__sub"></span>
+                </div>
+
+                <!-- INTERAKTIVNI TUTORIJAL HUD -->
+                <aside
+                    class="tutorial-hud"
+                    id="tutorialHud"
+                    aria-live="polite"
+                    aria-hidden="true"
+                >
+                    <div class="tutorial-hud__signal" aria-hidden="true">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                    <div class="tutorial-hud__copy">
+                        <span
+                            class="tutorial-hud__step"
+                            id="tutorialStep"
+                        >
+                            TRAINING 01/10
+                        </span>
+
+                        <strong id="tutorialTitle">
+                            OBIČAN ZEC
+                        </strong>
+
+                        <p id="tutorialText">
+                            Pogodi metu pre nestanka.
+                        </p>
+                    </div>
+
+                    <button
+                        class="tutorial-hud__exit"
+                        id="tutorialExitButton"
+                        type="button"
+                    >
+                        EXIT
+                    </button>
+                </aside>
+
+                <!-- POČETNI EKRAN -->
+                <div
+                    class="stage-overlay stage-overlay--visible"
+                    id="startOverlay"
+                >
+                    <div class="start-panel mission-briefing">
+                        <header class="briefing-header">
+                            <div
+                                class="briefing-header__signal"
+                                aria-hidden="true"
+                            >
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+
+                            <div>
+                                <p class="start-panel__version">
+                                    WHR ANTI-CHEAT SYSTEM // v1.4 BETA
+                                </p>
+
+                                <h2 class="start-panel__title">
+                                    MISSION <span>BRIEFING</span>
+                                </h2>
+                            </div>
+
+                            <span class="briefing-header__status">
+                                READY
+                            </span>
+                        </header>
+
+                        <p class="start-panel__description">
+                            Pogodi korisne zečeve, izbegni pretnje i
+                            preživi 60 sekundi. Napreduj kroz beskonačne
+                            nivoe. Boja otkriva nameru — ali ne veruj
+                            svakoj kopiji.
+                        </p>
+
+                        <section
+                            class="briefing-objective"
+                            aria-label="Glavni cilj"
+                        >
+                            <span
+                                class="briefing-objective__icon"
+                                aria-hidden="true"
+                            >
+                                &#9671;
+                            </span>
+
+                            <div>
+                                <strong>
+                                    PRIMARNI CILJ: OBIČAN ZEC
+                                </strong>
+
+                                <small>
+                                    Pogodi ga pre nestanka. Jedini je
+                                    zec koji ne sme da pobegne.
+                                </small>
+                            </div>
+
+                            <span class="briefing-objective__tag">
+                                SCORE
+                            </span>
+                        </section>
+
+                        <div
+                            class="briefing-rulebar"
+                            aria-label="Brza pravila"
+                        >
+                            <span>
+                                <b>60s</b> SESIJA
+                            </span>
+
+                            <span>
+                                <b>3</b> START /
+                                <b>10</b> MAX ŽIVOTA
+                            </span>
+
+                            <span>
+                                <b>LEVEL</b> = VEĆI PRITISAK
+                            </span>
+                        </div>
+
+                        <div class="briefing-sections">
+                            <section
+                                class="briefing-group briefing-group--boost"
+                            >
+                                <h3>
+                                    <span>+</span> POJAČANJA
+                                </h3>
+
+                                <div class="briefing-items">
+                                    <article
+                                        class="briefing-item briefing-item--gold"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9733;
+                                        </i>
+
+                                        <div>
+                                            <strong>ZLATNI ZEC</strong>
+
+                                            <small>
+                                                Bonus poeni i vreme
+                                            </small>
+                                        </div>
+                                    </article>
+
+                                    <article
+                                        class="briefing-item briefing-item--freeze"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#10052;
+                                        </i>
+
+                                        <div>
+                                            <strong>PLAVI ZEC</strong>
+
+                                            <small>
+                                                +500, -2s i ubrzava sistem
+                                            </small>
+                                        </div>
+                                    </article>
+
+                                    <article
+                                        class="briefing-item briefing-item--life"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9829;
+                                        </i>
+
+                                        <div>
+                                            <strong>EXTRA LIFE</strong>
+
+                                            <small>
+                                                +1 život / max 10
+                                            </small>
+                                        </div>
+                                    </article>
+
+                                    <article
+                                        class="briefing-item briefing-item--white-hacker"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9826;
+                                        </i>
+
+                                        <div>
+                                            <strong>BELI HAKER</strong>
+
+                                            <small>
+                                                Anti-Cheat čisti pretnje
+                                            </small>
+                                        </div>
+                                    </article>
+                                </div>
+                            </section>
+
+                            <section
+                                class="briefing-group briefing-group--danger"
+                            >
+                                <h3>
+                                    <span>!</span>
+                                    PRETNJE — NE DODIRUJ
+                                </h3>
+
+                                <div class="briefing-items">
+                                    <article
+                                        class="briefing-item briefing-item--red"
+                                    >
+                                        <i aria-hidden="true">
+                                            &times;
+                                        </i>
+
+                                        <div>
+                                            <strong>CRVENI ZEC</strong>
+
+                                            <small>
+                                                -10000 poena i -10s
+                                            </small>
+                                        </div>
+                                    </article>
+
+                                    <article
+                                        class="briefing-item briefing-item--decoy"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#8779;
+                                        </i>
+
+                                        <div>
+                                            <strong>BEZBOJNI ZEC</strong>
+
+                                            <small>
+                                                Crno-bela virus kopija
+                                            </small>
+                                        </div>
+                                    </article>
+
+                                    <article
+                                        class="briefing-item briefing-item--net"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9638;
+                                        </i>
+
+                                        <div>
+                                            <strong>CYBER MREŽA</strong>
+
+                                            <small>
+                                                -5s / hvata pretnje
+                                            </small>
+                                        </div>
+                                    </article>
+
+                                    <article
+                                        class="briefing-item briefing-item--black-hacker"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9670;
+                                        </i>
+
+                                        <div>
+                                            <strong>CRNI HAKER</strong>
+
+                                            <small>
+                                                Virus napad — pravi kopiju
+                                            </small>
+                                        </div>
+                                    </article>
+
+                                    <article
+                                        class="briefing-item briefing-item--black-hole"
+                                    >
+                                        <i aria-hidden="true">
+                                            &#9679;
+                                        </i>
+
+                                        <div>
+                                            <strong>CRNA RUPA</strong>
+
+                                            <small>
+                                                Ne klikće se / guta mete
+                                            </small>
+                                        </div>
+                                    </article>
+                                </div>
+                            </section>
+                        </div>
+
+                        <p class="briefing-note">
+                            BONUS METE SMEJU DA POBEGNU //
+                            BELI ZEC NE SME
+                        </p>
+
+                        <button
+                            class="primary-button"
+                            id="startButton"
+                            type="button"
+                        >
+                            <span
+                                class="primary-button__glitch"
+                                aria-hidden="true"
+                            >
+                                START MISSION
+                            </span>
+
+                            <span class="primary-button__text">
+                                START MISSION
+                            </span>
+                        </button>
+
+                        <button
+                            class="tutorial-button"
+                            id="tutorialButton"
+                            type="button"
+                        >
+                            <span aria-hidden="true">
+                                &#9671;
+                            </span>
+
+                            INTERACTIVE TUTORIAL
+                        </button>
+
+                        <p class="start-panel__hint">
+                            TAP / CLICK / SPACE
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ODBROJAVANJE -->
+                <div
+                    class="stage-overlay"
+                    id="countdownOverlay"
+                >
+                    <div
+                        class="countdown"
+                        id="countdownValue"
+                    >
+                        3
+                    </div>
+                </div>
+
+                <!-- PAUZA -->
+                <div
+                    class="stage-overlay"
+                    id="pauseOverlay"
+                >
+                    <div class="modal-panel">
+                        <p class="modal-panel__eyebrow">
+                            SYSTEM SUSPENDED
+                        </p>
+
+                        <h2>PAUSED</h2>
+
+                        <p>
+                            Refleks modul je privremeno zaustavljen.
+                        </p>
+
+                        <button
+                            class="primary-button primary-button--compact"
+                            id="resumeButton"
+                            type="button"
+                        >
+                            <span class="primary-button__text">
+                                RESUME
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KRAJ IGRE -->
+                <div
+                    class="stage-overlay"
+                    id="gameOverOverlay"
+                >
+                    <div class="modal-panel modal-panel--game-over">
+                        <p class="modal-panel__eyebrow">
+                            SESSION COMPLETE
+                        </p>
+
+                        <h2>RUN TERMINATED</h2>
+
+                        <div
+                            class="result-rank"
+                            id="resultRank"
+                        >
+                            REFLEX ROOKIE
+                        </div>
+
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <span>SCORE</span>
+
+                                <strong id="finalScoreValue">
+                                    00000000
+                                </strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>BEST</span>
+
+                                <strong id="finalBestValue">
+                                    00000000
+                                </strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>LEVEL</span>
+
+                                <strong id="finalLevelValue">
+                                    01
+                                </strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>ACCURACY</span>
+
+                                <strong id="finalAccuracyValue">
+                                    0%
+                                </strong>
+                            </div>
+                        </div>
+
+                        <p
+                            class="new-record"
+                            id="newRecordMessage"
+                        >
+                            NEW WHITE HAT RECORD
+                        </p>
+
+                        <button
+                            class="primary-button"
+                            id="restartButton"
+                            type="button"
+                        >
+                            <span
+                                class="primary-button__glitch"
+                                aria-hidden="true"
+                            >
+                                RUN AGAIN
+                            </span>
+
+                            <span class="primary-button__text">
+                                RUN AGAIN
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section
+                class="progress-module"
+                aria-label="Napredak nivoa"
+            >
+                <div class="progress-module__header">
+                    <span>LEVEL PROGRESS</span>
+                    <span id="progressText">0 / 10</span>
+                </div>
+
+                <div class="progress-bar">
+                    <div
+                        class="progress-bar__fill"
+                        id="progressFill"
+                    ></div>
+
+                    <div class="progress-bar__shine"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="game-footer">
+            <p>
+                WHITE HAT RABBIT STUDIOS
+                <span>//</span>
+                REFLEX TRAINING PROTOCOL
+            </p>
+
+            <p class="game-footer__signature">
+                WRRAAAAAA
+            </p>
+        </footer>
+    </div>
+
+    <script src="script.js?v=1.4-beta"></script>
+</body>
+</html>
