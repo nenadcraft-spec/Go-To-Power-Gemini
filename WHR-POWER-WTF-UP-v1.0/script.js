@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v1.9.0
-   BILLIARDS POCKETS & PINBALL BOUNCER PHYSICS
+   WHR: POWER WTF UP v1.8.2
+   CLEAN CANVAS RENDER & FLIPER BOUNCE PHYSICS
 ========================================================= */
 
 const DOM = {
@@ -33,19 +33,17 @@ const DOM = {
     },
     canvas: document.getElementById("gameCanvas"),
     gameStage: document.getElementById("gameStage"),
-    pauseOverlay: document.getElementById("pauseOverlay"),
     hud: {
         score: document.getElementById("scoreValue"),
         bestScore: document.getElementById("bestScoreValue"),
         level: document.getElementById("levelValue"),
-        combo: document.getElementById("comboValue"),
-        lives: document.getElementById("livesContainer")
+        combo: document.getElementById("comboValue")
     }
 };
 
-const ctx = DOM.canvas.getContext("2d", { alpha: true });
+const ctx = DOM.canvas.getContext("2d");
 
-/* PROCEDURAL WEB AUDIO SYNTH ENGINE */
+/* PROCEDURAL AUDIO */
 class AudioEngine {
     constructor() {
         this.ctx = null;
@@ -54,9 +52,7 @@ class AudioEngine {
     init() {
         if (!this.ctx) {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (AudioCtx) {
-                this.ctx = new AudioCtx();
-            }
+            if (AudioCtx) this.ctx = new AudioCtx();
         }
     }
 
@@ -67,7 +63,7 @@ class AudioEngine {
         osc.type = "sawtooth";
         osc.frequency.setValueAtTime(800, this.ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.12);
-        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
@@ -82,34 +78,18 @@ class AudioEngine {
         osc.type = "triangle";
         osc.frequency.setValueAtTime(300, this.ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start();
         osc.stop(this.ctx.currentTime + 0.1);
     }
-
-    playPocketScore() {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.25);
-    }
 }
 
 const audio = new AudioEngine();
 
 const GAME_CONFIG = {
-    startingLives: 3,
     playerWidth: 50,
     playerHeight: 24,
     playerSpeed: 750,
@@ -119,9 +99,9 @@ const GAME_CONFIG = {
 };
 
 const ORB_TYPES = {
-    large: { radius: 36, speedX: 160, bounce: 880, score: 250 },
-    medium: { radius: 24, speedX: 200, bounce: 760, score: 350 },
-    small: { radius: 16, speedX: 250, bounce: 640, score: 500 }
+    large: { radius: 36, speedX: 160, bounce: 850 },
+    medium: { radius: 24, speedX: 200, bounce: 750 },
+    small: { radius: 15, speedX: 240, bounce: 650 }
 };
 
 const RABBIT_THEMES = [
@@ -129,34 +109,27 @@ const RABBIT_THEMES = [
     { name: "Black Hacker", main: "#ff2fcf", eye: "#ff315d" },
     { name: "Blue Freeze", main: "#00a2ff", eye: "#ffffff" },
     { name: "Golden Rabbit", main: "#ffe45c", eye: "#ff9100" },
-    { name: "Red Cyber", main: "#ff315d", eye: "#ffe45c" },
-    { name: "Green Guardian", main: "#32ff9b", eye: "#00f5ff" },
-    { name: "Void Shadow", main: "#9c4dff", eye: "#ff2fcf" }
+    { name: "Red Cyber", main: "#ff315d", eye: "#ffe45c" }
 ];
 
 const state = {
     running: false,
     paused: false,
-    gameOver: false,
-    levelComplete: false,
-    animationFrameId: null,
     lastTimestamp: 0,
     width: 600,
     height: 800,
     score: 0,
     level: 1,
-    lives: GAME_CONFIG.startingLives,
     lastShotTime: 0,
     keys: { left: false, right: false, shoot: false },
     touch: { left: false, right: false, shoot: false },
     player: null,
     cables: [],
     orbs: [],
-    particles: [],
-    pockets: [] // 6 Bilijar Rupa
+    particles: []
 };
 
-/* JOYSTICK ENGINE WITH MAX SENSITIVITY */
+/* JOYSTICK ENGINE */
 const joystick = {
     zone: document.getElementById("joystickZone"),
     base: document.getElementById("joystickBase"),
@@ -181,7 +154,6 @@ function initJoystick() {
 
         const rect = joystick.base.getBoundingClientRect();
         joystick.startX = rect.left + rect.width / 2;
-
         handleMove(e);
     }
 
@@ -203,9 +175,7 @@ function initJoystick() {
         if (!touch) return;
 
         let deltaX = touch.clientX - joystick.startX;
-
-        if (deltaX > joystick.maxRadius) deltaX = joystick.maxRadius;
-        if (deltaX < -joystick.maxRadius) deltaX = -joystick.maxRadius;
+        deltaX = Math.max(-joystick.maxRadius, Math.min(joystick.maxRadius, deltaX));
 
         joystick.stick.style.transform = `translateX(${deltaX}px)`;
 
@@ -223,22 +193,9 @@ function initJoystick() {
 
     function handleEnd(e) {
         if (!joystick.active) return;
-
-        if (e.changedTouches) {
-            let touchFound = false;
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === joystick.touchId) {
-                    touchFound = true;
-                    break;
-                }
-            }
-            if (!touchFound) return;
-        }
-
         joystick.active = false;
         joystick.touchId = null;
         joystick.stick.style.transform = `translateX(0px)`;
-
         state.touch.left = false;
         state.touch.right = false;
     }
@@ -247,18 +204,6 @@ function initJoystick() {
     window.addEventListener("touchmove", handleMove, { passive: false });
     window.addEventListener("touchend", handleEnd, { passive: false });
     window.addEventListener("touchcancel", handleEnd, { passive: false });
-}
-
-function updatePocketPositions() {
-    const pocketRadius = 30;
-    state.pockets = [
-        { x: pocketRadius, y: pocketRadius, r: pocketRadius },                          // Top-Left
-        { x: state.width / 2, y: pocketRadius, r: pocketRadius },                       // Top-Center
-        { x: state.width - pocketRadius, y: pocketRadius, r: pocketRadius },            // Top-Right
-        { x: pocketRadius, y: state.height / 2, r: pocketRadius },                      // Mid-Left
-        { x: state.width - pocketRadius, y: state.height / 2, r: pocketRadius },         // Mid-Right
-        { x: pocketRadius, y: state.height - pocketRadius - 15, r: pocketRadius }        // Bottom-Left
-    ];
 }
 
 function resizeCanvas() {
@@ -270,8 +215,6 @@ function resizeCanvas() {
 
     DOM.canvas.width = rect.width;
     DOM.canvas.height = rect.height;
-
-    updatePocketPositions();
 
     if (state.player) {
         state.player.y = state.height - state.player.height - 10;
@@ -288,75 +231,46 @@ function createPlayer() {
     };
 }
 
-function resetGameState() {
-    state.score = 0;
-    state.level = 1;
-    state.lives = GAME_CONFIG.startingLives;
-    state.cables = [];
-    state.orbs = [];
-    state.particles = [];
-    state.player = createPlayer();
-    updateHUD();
-}
-
 function startNewGame() {
     audio.init();
     showScreen("game");
     window.requestAnimationFrame(() => {
         resizeCanvas();
-        resetGameState();
+        state.score = 0;
+        state.level = 1;
+        state.cables = [];
+        state.orbs = [];
+        state.particles = [];
+        state.player = createPlayer();
+        updateHUD();
         startLevel(1);
     });
 }
 
 function startLevel(levelNumber) {
     state.level = levelNumber;
-    state.levelComplete = false;
     state.paused = false;
     state.orbs = [];
     state.cables = [];
     state.particles = [];
-    createLevelOrbs(levelNumber);
-    state.running = true;
-    state.lastTimestamp = performance.now();
-    if (!state.animationFrameId) {
-        state.animationFrameId = window.requestAnimationFrame(gameLoop);
-    }
-}
 
-function createLevelOrbs(levelNumber) {
-    const count = Math.min(3 + levelNumber, 8);
+    const count = Math.min(2 + levelNumber, 5);
     for (let i = 0; i < count; i++) {
         const theme = RABBIT_THEMES[i % RABBIT_THEMES.length];
-        const typeKeys = ["large", "medium", "small"];
-        const orbType = typeKeys[i % 3];
         state.orbs.push({
             x: (state.width / (count + 1)) * (i + 1),
-            y: 70 + Math.random() * 80,
-            radius: ORB_TYPES[orbType].radius,
-            type: orbType,
-            velocityX: ORB_TYPES[orbType].speedX * (i % 2 === 0 ? 1 : -1),
-            velocityY: -ORB_TYPES[orbType].bounce * 0.3,
+            y: 70 + Math.random() * 60,
+            radius: ORB_TYPES.large.radius,
+            type: "large",
+            velocityX: ORB_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
+            velocityY: -100,
             theme: theme
         });
     }
-}
 
-function createParticles(x, y, color) {
-    for (let i = 0; i < 15; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 120 + Math.random() * 200;
-        state.particles.push({
-            x: x,
-            y: y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            radius: 2 + Math.random() * 3,
-            color: color,
-            alpha: 1.0,
-            life: 0.4
-        });
-    }
+    state.running = true;
+    state.lastTimestamp = performance.now();
+    window.requestAnimationFrame(gameLoop);
 }
 
 function gameLoop(timestamp) {
@@ -365,12 +279,12 @@ function gameLoop(timestamp) {
     const delta = Math.min(0.033, (timestamp - state.lastTimestamp) / 1000);
     state.lastTimestamp = timestamp;
 
-    if (!state.paused && !state.gameOver) {
+    if (!state.paused) {
         updateGame(delta, timestamp);
     }
 
     renderGame();
-    state.animationFrameId = window.requestAnimationFrame(gameLoop);
+    window.requestAnimationFrame(gameLoop);
 }
 
 function updateGame(delta, timestamp) {
@@ -382,42 +296,22 @@ function updateGame(delta, timestamp) {
         tryShoot(timestamp);
     }
 
-    // Harpoon Cable Speed
+    // Harpoon Cable Update
     for (let i = state.cables.length - 1; i >= 0; i--) {
         const cable = state.cables[i];
         cable.height += GAME_CONFIG.cableSpeed * delta;
-
         if (cable.height >= state.height) {
             state.cables.splice(i, 1);
         }
     }
 
     // Orbs Physics
-    for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
-        const orb = state.orbs[oIdx];
+    state.orbs.forEach(orb => {
         orb.velocityY += GAME_CONFIG.gravity * delta;
         orb.x += orb.velocityX * delta;
         orb.y += orb.velocityY * delta;
 
-        // BILIJAR DETEKCIJA UBACIVANJA U 6 RUPA (POCKETS)
-        let potted = false;
-        state.pockets.forEach(pocket => {
-            const dist = Math.hypot(orb.x - pocket.x, orb.y - pocket.y);
-            if (dist < pocket.r + orb.radius * 0.4) {
-                potted = true;
-                audio.playPocketScore();
-                createParticles(pocket.x, pocket.y, orb.theme.main);
-                state.score += ORB_TYPES[orb.type].score;
-                updateHUD();
-            }
-        });
-
-        if (potted) {
-            state.orbs.splice(oIdx, 1);
-            continue;
-        }
-
-        // Standardne litice i zidovi
+        // Bounce Walls
         if (orb.x - orb.radius < 0) {
             orb.x = orb.radius;
             orb.velocityX *= -1;
@@ -426,62 +320,44 @@ function updateGame(delta, timestamp) {
             orb.velocityX *= -1;
         }
 
+        // Bounce Ceiling
         if (orb.y - orb.radius < 0) {
             orb.y = orb.radius;
             orb.velocityY = Math.abs(orb.velocityY) * 0.85;
         }
 
+        // Bounce Floor
         if (orb.y + orb.radius > state.height - 4) {
             orb.y = state.height - 4 - orb.radius;
             orb.velocityY = -ORB_TYPES[orb.type].bounce;
         }
-    }
+    });
 
-    // FLIPER FIZIKA ODBIJANJA OD ZRAKA
+    // Fliper Bounce Colision against Harpoon
     state.cables.forEach(cable => {
         const cableX = cable.x;
         const cableTopY = state.height - cable.height;
 
         state.orbs.forEach(orb => {
             if (orb.y >= cableTopY - orb.radius && orb.y <= state.height) {
-                const distX = Math.abs(orb.x - cableX);
-
-                if (distX < orb.radius + 4) {
+                if (Math.abs(orb.x - cableX) < orb.radius + 4) {
                     audio.playBounce();
-                    createParticles(orb.x, orb.y, "#00f5ff");
 
                     if (orb.x < cableX) {
-                        orb.velocityX = -Math.abs(orb.velocityX) - 70;
-                        orb.x = cableX - orb.radius - 5;
+                        orb.velocityX = -Math.abs(orb.velocityX) - 50;
+                        orb.x = cableX - orb.radius - 4;
                     } else {
-                        orb.velocityX = Math.abs(orb.velocityX) + 70;
-                        orb.x = cableX + orb.radius + 5;
+                        orb.velocityX = Math.abs(orb.velocityX) + 50;
+                        orb.x = cableX + orb.radius + 4;
                     }
 
-                    orb.velocityY = -Math.abs(orb.velocityY) * 1.15 - 160;
+                    orb.velocityY = -Math.abs(orb.velocityY) - 120;
+                    state.score += 20;
+                    updateHUD();
                 }
             }
         });
     });
-
-    // Particles Update
-    for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
-        const p = state.particles[pIdx];
-        p.x += p.vx * delta;
-        p.y += p.vy * delta;
-        p.alpha -= delta / p.life;
-
-        if (p.alpha <= 0) {
-            state.particles.splice(pIdx, 1);
-        }
-    }
-
-    if (state.orbs.length === 0 && !state.levelComplete) {
-        state.levelComplete = true;
-        setTimeout(() => {
-            showScreen("levelComplete");
-        }, 500);
-    }
 }
 
 function tryShoot(timestamp) {
@@ -497,60 +373,29 @@ function tryShoot(timestamp) {
 }
 
 function renderGame() {
-    ctx.clearRect(0, 0, state.width, state.height);
+    // Potpuno brisanje ekrana bez tragova
+    ctx.fillStyle = "#020205";
+    ctx.fillRect(0, 0, state.width, state.height);
 
-    // 1. RENDER 6 BILIJAR RUPA (POCKETS)
-    state.pockets.forEach(p => {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = "#030208";
-        ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "#9c4dff";
-        ctx.shadowColor = "#9c4dff";
-        ctx.shadowBlur = 15;
-        ctx.stroke();
-
-        // Inner Vortex Glow
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 0.5, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(156, 77, 255, 0.3)";
-        ctx.fill();
-        ctx.restore();
-    });
-
-    // 2. FLIPER HARPOON BOUNCER
+    // Render Harpoon Bouncer
     state.cables.forEach(cable => {
         const startY = state.height;
         const topY = state.height - cable.height;
 
-        ctx.save();
         ctx.strokeStyle = "#00f5ff";
-        ctx.lineWidth = 5;
-        ctx.shadowColor = "#00f5ff";
-        ctx.shadowBlur = 18;
-
+        ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(cable.x, startY);
-
-        for (let y = startY; y > topY; y -= 10) {
-            const offsetX = Math.sin(y * 0.2) * 5;
-            ctx.lineTo(cable.x + offsetX, y);
-        }
         ctx.lineTo(cable.x, topY);
         ctx.stroke();
 
         ctx.fillStyle = "#ff2fcf";
-        ctx.shadowColor = "#ff2fcf";
-        ctx.shadowBlur = 20;
         ctx.beginPath();
-        ctx.arc(cable.x, topY, 8, 0, Math.PI * 2);
+        ctx.arc(cable.x, topY, 6, 0, Math.PI * 2);
         ctx.fill();
-        ctx.restore();
     });
 
-    // 3. ADVANCED RABBIT ORBS
+    // Render Clean Rabbit Orbs
     state.orbs.forEach(o => {
         const theme = o.theme || RABBIT_THEMES[0];
         const r = o.radius;
@@ -558,90 +403,36 @@ function renderGame() {
         ctx.save();
         ctx.translate(o.x, o.y);
 
+        // Orb Outline
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(5, 4, 10, 0.88)";
-        ctx.fill();
         ctx.lineWidth = 3;
         ctx.strokeStyle = theme.main;
-        ctx.shadowColor = theme.main;
-        ctx.shadowBlur = 18;
         ctx.stroke();
 
-        ctx.lineWidth = 2.5;
+        // Rabbit Ears
+        ctx.lineWidth = 2;
         ctx.strokeStyle = theme.main;
-        ctx.fillStyle = theme.main;
 
         ctx.beginPath();
-        ctx.ellipse(-r * 0.35, -r * 0.65, r * 0.18, r * 0.45, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(-r * 0.35, -r * 0.6, r * 0.18, r * 0.4, -0.2, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.ellipse(r * 0.35, -r * 0.65, r * 0.18, r * 0.45, 0.2, 0, Math.PI * 2);
+        ctx.ellipse(r * 0.35, -r * 0.6, r * 0.18, r * 0.4, 0.2, 0, Math.PI * 2);
         ctx.stroke();
 
-        if (theme.name === "Black Hacker" || theme.name === "White Hacker") {
-            ctx.fillStyle = theme.eye;
-            ctx.shadowColor = theme.eye;
-            ctx.shadowBlur = 12;
-            ctx.fillRect(-r * 0.5, -r * 0.15, r * 1.0, r * 0.32);
-
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(r * 0.1, -r * 0.1, r * 0.25, r * 0.2);
-        } else if (theme.name === "Red Cyber") {
-            ctx.strokeStyle = "#ff315d";
-            ctx.shadowColor = "#ff315d";
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.arc(0, 0, r * 0.4, 0, Math.PI * 2);
-            ctx.moveTo(-r * 0.55, 0); ctx.lineTo(r * 0.55, 0);
-            ctx.moveTo(0, -r * 0.55); ctx.lineTo(0, r * 0.55);
-            ctx.stroke();
-        } else if (theme.name === "Golden Rabbit") {
-            ctx.fillStyle = "#ffe45c";
-            ctx.shadowColor = "#ffe45c";
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.arc(-r * 0.3, 0, r * 0.12, 0, Math.PI * 2);
-            ctx.arc(r * 0.3, 0, r * 0.12, 0, Math.PI * 2);
-            ctx.fill();
-        } else {
-            ctx.fillStyle = theme.eye;
-            ctx.shadowColor = theme.eye;
-            ctx.shadowBlur = 10;
-            ctx.beginPath();
-            ctx.arc(-r * 0.3, 0, r * 0.14, 0, Math.PI * 2);
-            ctx.arc(r * 0.3, 0, r * 0.14, 0, Math.PI * 2);
-            ctx.fill();
-        }
+        // VR Visor / Eyes
+        ctx.fillStyle = theme.eye;
+        ctx.fillRect(-r * 0.4, -r * 0.1, r * 0.8, r * 0.25);
 
         ctx.restore();
     });
 
-    // 4. PARTICLES
-    state.particles.forEach(p => {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 12;
-        ctx.fill();
-        ctx.restore();
-    });
-
-    // 5. PLAYER GUARDIAN
+    // Render Player
     if (state.player) {
-        ctx.save();
-        ctx.shadowColor = "#ff2fcf";
-        ctx.shadowBlur = 15;
         ctx.fillStyle = "#ff2fcf";
         ctx.fillRect(state.player.x, state.player.y, state.player.width, state.player.height);
-
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(state.player.x + state.player.width / 2 - 4, state.player.y + 4, 8, state.player.height - 8);
-        ctx.restore();
     }
 }
 
@@ -653,11 +444,8 @@ function updateHUD() {
 function showScreen(name) {
     Object.keys(DOM.screens).forEach(k => {
         if (DOM.screens[k]) {
-            if (k === name) {
-                DOM.screens[k].classList.add("screen--active");
-            } else {
-                DOM.screens[k].classList.remove("screen--active");
-            }
+            if (k === name) DOM.screens[k].classList.add("screen--active");
+            else DOM.screens[k].classList.remove("screen--active");
         }
     });
 }
