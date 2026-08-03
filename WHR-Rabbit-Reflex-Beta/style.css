@@ -1426,8 +1426,9 @@ button {
   letter-spacing: 0.16em;
 }
 
-.app-shell.is-panic-impact {
-  animation: hacker-screen-shake 0.62s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+.game-stage.is-panic-impact {
+  animation: hacker-stage-shake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important;
+  will-change: transform, filter;
 }
 
 @keyframes virus-color-panic {
@@ -1460,15 +1461,33 @@ button {
   50% { transform: translate(calc(-50% + 5px), calc(-50% - 2px)) skewX(5deg); opacity: 0.7; }
 }
 
-@keyframes hacker-screen-shake {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
-  10% { transform: translate3d(-10px, 6px, 0) rotate(-0.8deg); }
-  20% { transform: translate3d(12px, -7px, 0) rotate(0.9deg); }
-  30% { transform: translate3d(-14px, -4px, 0) rotate(-0.6deg); }
-  42% { transform: translate3d(11px, 7px, 0) rotate(0.7deg); }
-  55% { transform: translate3d(-8px, 4px, 0) rotate(-0.45deg); }
-  68% { transform: translate3d(7px, -4px, 0) rotate(0.35deg); }
-  82% { transform: translate3d(-4px, 2px, 0) rotate(-0.18deg); }
+@keyframes hacker-stage-shake {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); filter: none; }
+  12% { transform: translate3d(-7px, 4px, 0) scale(0.99); filter: hue-rotate(90deg) contrast(1.3); }
+  25% { transform: translate3d(8px, -5px, 0) scale(1.01); filter: hue-rotate(180deg) contrast(1.5); }
+  38% { transform: translate3d(-9px, -3px, 0) scale(0.99); filter: hue-rotate(270deg); }
+  50% { transform: translate3d(7px, 5px, 0) scale(1.01); filter: invert(0.2); }
+  65% { transform: translate3d(-5px, 2px, 0) scale(1); filter: hue-rotate(45deg); }
+  80% { transform: translate3d(4px, -2px, 0) scale(1); filter: none; }
+}
+
+/* Ključne animacije za pojavu i uklanjanje meta. */
+@keyframes spawn {
+  to { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes target-hit {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.7) rotate(20deg);
+  }
+}
+
+@keyframes expire {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
 }
 
 /* MEDIA QUERIES */
@@ -1543,35 +1562,6 @@ button {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* =========================================
-   KLJUČNE ANIMACIJE ZA POJAVU METE (FIX 1:1)
-   ========================================= */
-
-@keyframes spawn {
-  to {
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes target-hit {
-  to {
-    opacity: 0;
-    transform:
-      translate(-50%, -50%)
-      scale(1.7)
-      rotate(20deg);
-  }
-}
-
-@keyframes expire {
-  to {
-    opacity: 0;
-    transform:
-      translate(-50%, -50%)
-      scale(0.2);
   }
 }
 
