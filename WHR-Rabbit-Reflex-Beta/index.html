@@ -8,13 +8,13 @@
     >
     <meta
         name="description"
-        content="WHR Rabbit Reflex v1.5 Beta 1.1 - Cosmic Cyberpunk Reflex Protocol by White Hat Rabbit Studios."
+        content="WHR Rabbit Reflex v1.5 Beta 1.2 - System Breach Protocol by White Hat Rabbit Studios."
     >
     <meta name="theme-color" content="#050714">
 
-    <title>WHR Rabbit Reflex v1.5 Beta 1.1</title>
+    <title>WHR Rabbit Reflex v1.5 Beta 1.2</title>
 
-    <link rel="stylesheet" href="style.css?v=1.5-beta1.1">
+    <link rel="stylesheet" href="style.css?v=1.5-beta1.2">
 </head>
 
 <body>
@@ -23,9 +23,9 @@
     </noscript>
 
     <div class="app-shell" id="appShell">
-        <!-- SVEMIRSKI POZADINSKI SISTEM SA CRNOM RUPOM I ZVEZDAMA -->
+        <!-- SVEMIRSKI POZADINSKI SISTEM -->
         <div class="background-system" aria-hidden="true">
-            <div class="background-system__stars"></div>
+            <div class="background-system__stars" id="spaceStars"></div>
             <div class="background-system__cosmic-dust"></div>
             <div class="background-system__grid"></div>
             <div class="background-system__scanlines"></div>
@@ -87,7 +87,7 @@
         </header>
 
         <main class="game-main">
-            <!-- HUD BEZ COMBO PRIKAZA -->
+            <!-- HUD -->
             <section class="hud" aria-label="Rezultati igre">
                 <article class="hud-card hud-card--score">
                     <span class="hud-card__label">SCORE</span>
@@ -196,7 +196,7 @@
                     aria-label="Polje za igru"
                 ></div>
 
-                <!-- VIRUS LAYER -->
+                <!-- BLACK HACKER - SYSTEM BREACH LAYER -->
                 <div
                     class="virus-layer"
                     id="virusLayer"
@@ -217,8 +217,8 @@
                     ></span>
 
                     <div class="virus-layer__warning">
-                        <strong>PANIC MODE</strong>
-                        <span>SYSTEM INFECTED</span>
+                        <strong>SYSTEM BREACH</strong>
+                        <span>CONTROL LOST</span>
                     </div>
                 </div>
 
@@ -298,7 +298,7 @@
 
                             <div>
                                 <p class="start-panel__version">
-                                    WHR ANTI-CHEAT SYSTEM // v1.5 BETA 1.1
+                                    WHR ANTI-CHEAT SYSTEM // v1.5 BETA 1.2
                                 </p>
 
                                 <h2 class="start-panel__title">
@@ -506,7 +506,7 @@
                                             <strong>CRNI HAKER</strong>
 
                                             <small>
-                                                Virus napad — pravi kopiju
+                                                System Breach — pravi kopiju
                                             </small>
                                         </div>
                                     </article>
@@ -583,7 +583,7 @@
                     </div>
                 </div>
 
-                <!-- PAUZA SA LOBBY DUGMETOM -->
+                <!-- PAUZA -->
                 <div
                     class="stage-overlay"
                     id="pauseOverlay"
@@ -621,7 +621,7 @@
                     </div>
                 </div>
 
-                <!-- KRAJ IGRE SA VOID COLLAPSE I LOBBY DUGMETOM -->
+                <!-- KRAJ IGRE -->
                 <div
                     class="stage-overlay"
                     id="gameOverOverlay"
@@ -744,6 +744,6 @@
         </footer>
     </div>
 
-    <script src="script.js?v=1.5-beta1.1"></script>
+    <script src="script.js?v=1.5-beta1.2"></script>
 </body>
 </html>
