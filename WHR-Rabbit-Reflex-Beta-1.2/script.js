@@ -1480,7 +1480,7 @@ class Game {
 
       if (type === "life") button.insertAdjacentHTML("beforeend", `<span class="target__life-aura"></span><span class="target__life-plus">+1</span>`);
       else if (type === "decoy") button.insertAdjacentHTML("beforeend", `<span class="target__decoy-facets"></span><span class="target__decoy-ghost"><span class="target__decoy-ghost-ear target__decoy-ghost-ear--left"></span><span class="target__decoy-ghost-ear target__decoy-ghost-ear--right"></span><span class="target__decoy-ghost-head"></span></span><span class="target__decoy-split target__decoy-split--one"></span><span class="target__decoy-split target__decoy-split--two"></span>`);
-      else if (type === "hacker") button.insertAdjacentHTML("beforeend", `<span class="target__hacker-code">0xBAD</span><span class="target__hacker-mask"></span><span class="target__hacker-glitch target__hacker-glitch--one"></span><span class="target__hacker-glitch target__hacker-glitch--two"></span>`);
+      else if (type === "hacker") button.insertAdjacentHTML("beforeend", `<span class="target__hacker-code">#ERR_0x01</span><span class="target__hacker-mask"></span><span class="target__hacker-glitch target__hacker-glitch--one"></span><span class="target__hacker-glitch target__hacker-glitch--two"></span>`);
       else if (type === "hero") button.insertAdjacentHTML("beforeend", `<span class="target__whitehat-hat"></span><span class="target__whitehat-visor"></span><span class="target__whitehat-circuit"></span><span class="target__whitehat-shield"></span>`);
     }
 
@@ -1604,7 +1604,7 @@ class Game {
       this.e.lives.textContent = `${symbols[Math.floor(Math.random()*symbols.length)]}${symbols[Math.floor(Math.random()*symbols.length)]}/10`;
     }, 80);
 
-    // Stvaranje dodatne stvarni Bezborne zamke na terenu!
+    // Stvaranje dodatne Bezbojne zamke na terenu
     this.spawn("decoy", "hazard");
 
     clearTimeout(this.virusTimer);
