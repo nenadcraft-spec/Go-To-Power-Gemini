@@ -497,12 +497,10 @@ function updateGame(delta) {
     }
 }
 
+/* NOV SIGURAN MEHANIZAM ZA ZLATNOG ZECA */
 function triggerRabbitPower(orb, orbIndex) {
     switch (orb.theme.id) {
-        case "white": // SHOCKWAVE COUNTER + DVOCEVKA CHARGE
-            state.lasers = [];
-            state.hasShotgunCharged = true;
-            
+        case "white": // EMP Pulse
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
@@ -512,6 +510,72 @@ function triggerRabbitPower(orb, orbIndex) {
                     }
                 }
             });
+            break;
+
+        case "black": // Hacker Swap
+            orb.x = 40 + Math.random() * (state.width - 80);
+            orb.y = 40 + Math.random() * (state.height * 0.4);
+            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 350;
+            orb.velocityY = -150;
+            break;
+
+        case "blue": // Freeze na 3s
+            state.globalFreezeTimer = 3.0;
+            break;
+
+        case "gold": // NOVI SAFE SPLIT-SHOT: 2 metka izleću iz TOPA sa dna pod uglom!
+            spawnSafeCannonLasers();
+            break;
+
+        case "red": // Boomerang Explosion & Respawn
+            state.orbs.forEach(other => {
+                if (other !== orb && !other.inHole) {
+                    const d = Math.hypot(other.x - orb.x, other.y - orb.y);
+                    if (d < 250) {
+                        other.velocityX = (other.x - orb.x) * 5.0;
+                        other.velocityY = (other.y - orb.y) * 5.0;
+                    }
+                }
+            });
+            state.orbs.splice(orbIndex, 1);
+            state.pendingRespawns.push({ theme: orb.theme, delay: 3.0 });
+            break;
+
+        case "green": // Time-Warp
+            state.globalSpeedMultiplier = 0.2;
+            state.orbs.splice(orbIndex, 1);
+            state.pendingRespawns.push({ theme: orb.theme, delay: 2.5 });
+            setTimeout(() => { state.globalSpeedMultiplier = 1.1; }, 2500);
+            break;
+
+        case "void": // Turbo
+            orb.isVoidTurbo = true;
+            orb.velocityX *= 1.8;
+            orb.velocityY *= 1.8;
+            break;
+    }
+}
+
+/* DUPLI METAK SA DNA ARENE - NEMA ŠANSE DA SE POKVARI */
+function spawnSafeCannonLasers() {
+    if (!state.player) return;
+    const startX = state.player.x + state.player.width / 2;
+    const startY = state.player.y;
+
+    // Dva dodatna metka pod uglom od -25° i +25° u odnosu na trenutni nišan
+    const offsetAngles = [-0.4, 0.4];
+
+    offsetAngles.forEach(off => {
+        const finalAngle = state.aimAngle + off;
+        const vx = Math.sin(finalAngle) * GAME_CONFIG.laserSpeed;
+        const vy = -Math.cos(finalAngle) * GAME_CONFIG.laserSpeed;
+
+        state.lasers.push({
+            headX: startX, headY: startY, tailX: startX, tailY: startY,
+            vx: vx, vy: vy, life: 2.5
+        });
+    });
+}
             break;
 
         case "black":
