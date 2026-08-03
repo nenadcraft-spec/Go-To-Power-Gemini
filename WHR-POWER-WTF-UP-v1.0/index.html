@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="WHR: POWER WTF UP — Cyberpunk Pang-style arcade game testing your reflexes and multitasking.">
+    <meta name="description" content="WHR: POWER WTF UP — Cyberpunk arcade action featuring WHR Guardian vs Rabbit Anomalies.">
     <meta name="theme-color" content="#05040a">
-    <title>WHR: POWER WTF UP v1.2.0</title>
+    <title>WHR: POWER WTF UP v1.3.0</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -51,13 +51,13 @@
                 </h1>
 
                 <p class="game-subtitle">
-                    Classic Pang physics upgraded with chaotic powers.
-                    <strong>Slice orbs, unlock WTF skills, stay alive!</strong>
+                    Control the WHR Guardian.
+                    <strong>Slice Rabbit Anomalies with Neo-Rope &amp; survive the WTF chaos!</strong>
                 </p>
 
                 <div class="system-status" aria-label="System status">
                     <span class="system-status__light"></span>
-                    <span class="system-status__text">PANG ENGINE ACTIVE</span>
+                    <span class="system-status__text">WHR ENGINE v1.3 ACTIVE</span>
                 </div>
 
                 <div class="menu-button-group">
@@ -111,24 +111,24 @@
                     <article class="instruction-card">
                         <span class="instruction-card__number">01</span>
                         <div>
-                            <h3>MOVE</h3>
-                            <p>Keyboard: <strong>A / D</strong> or Arrows. Mobile: Drag the slider joystick left and right.</p>
+                            <h3>MOVE GUARDIAN</h3>
+                            <p>Keyboard: <strong>A / D</strong> or Arrows. Mobile: Drag the slide joystick left and right.</p>
                         </div>
                     </article>
 
                     <article class="instruction-card">
                         <span class="instruction-card__number">02</span>
                         <div>
-                            <h3>SHOOT HOOK CABLE</h3>
-                            <p>Press <strong>SPACEBAR</strong> or tap <strong>FIRE</strong> to shoot vertical Pang cables upward.</p>
+                            <h3>FIRE NEO-ROPE</h3>
+                            <p>Press <strong>SPACEBAR</strong> or tap <strong>FIRE</strong> to shoot vertical laser cables upward.</p>
                         </div>
                     </article>
 
                     <article class="instruction-card">
                         <span class="instruction-card__number">03</span>
                         <div>
-                            <h3>SPLIT &amp; CLEAR ORBS</h3>
-                            <p>Large orbs split into smaller ones on hit. Clear every fragment to advance!</p>
+                            <h3>RABBIT ANOMALIES</h3>
+                            <p>Red, Blue, White, Gold &amp; Ghost rabbits bounce with unique physics. Slice them into fragments!</p>
                         </div>
                     </article>
 
@@ -136,7 +136,7 @@
                         <span class="instruction-card__number">04</span>
                         <div>
                             <h3>CHAOS POWERS</h3>
-                            <p>Collect falling WTF items to get shields, rapid hooks, freeze, or double beams!</p>
+                            <p>Collect floating WTF items for Energy Shields, Rapid Ropes, Freeze Fields, and Score Multipliers!</p>
                         </div>
                     </article>
                 </div>
@@ -264,7 +264,7 @@
             <footer class="game-footer">
                 <div class="game-footer__controls">
                     <span><kbd>A</kbd><kbd>D</kbd> MOVE</span>
-                    <span><kbd>SPACE</kbd> FIRE HOOK</span>
+                    <span><kbd>SPACE</kbd> FIRE ROPE</span>
                     <span><kbd>P</kbd> PAUSE</span>
                 </div>
             </footer>
@@ -287,7 +287,7 @@
                         <strong id="levelMaxComboValue" class="result-stat__value">x1</strong>
                     </div>
                     <div class="result-stat">
-                        <span class="result-stat__label">ORBS DESTROYED</span>
+                        <span class="result-stat__label">RABBITS SLICED</span>
                         <strong id="orbsDestroyedValue" class="result-stat__value">0</strong>
                     </div>
                 </div>
@@ -378,16 +378,16 @@
         "use strict";
         const updatesData = [
             {
-                id: 8,
-                title: "WHR v1.2.0 Pang Cable & Hybrid Layout Reset!",
+                id: 9,
+                title: "WHR v1.3.0 Original Reboot Release!",
                 date: "August 3, 2026",
-                version: "v1.2.0",
+                version: "v1.3.0",
                 tags: ["game", "feature"],
                 changes: [
-                    "Engine reset: Full vertical Pang Cable / Chain Mechanics implemented.",
-                    "Hybrid layout: Expands on PC (16:9), auto-adapts for Mobile touch.",
-                    "New horizontal slide joystick for mobile movement.",
-                    "Fully cleaned UTF-8 encoding across all files."
+                    "WHR Guardian Character vector-rendered with ears & cyber goggles.",
+                    "Rabbit Anomalies with custom colors (Red, Blue, White, Gold, Ghost).",
+                    "Hit-stop impact pause & laser spark particle system.",
+                    "Dynamic arena physics and mobile slide joystick."
                 ]
             }
         ];
