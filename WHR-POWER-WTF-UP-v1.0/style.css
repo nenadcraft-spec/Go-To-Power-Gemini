@@ -1,6 +1,6 @@
 /* =========================================================
-   WHR: POWER WTF UP v1.5.0
-   FIXED VIEWPORT & NEON BORDER
+   WHR: POWER WTF UP v1.6.0
+   CYBERPUNK NEON GLOW & STABILIZED VIEWPORT
 ========================================================= */
 
 :root {
@@ -34,7 +34,7 @@
 html, body {
     width: 100%;
     height: 100%;
-    height: 100dvh; /* Dynamic Viewport Height za mobilne */
+    height: 100dvh;
     margin: 0;
     padding: 0;
     background: var(--color-bg);
@@ -46,7 +46,7 @@ html, body {
     -webkit-user-select: none;
 }
 
-/* SAVRŠENO CENTRIRAN I UKROĆEN ARKADNI KONTEJNER */
+/* ARKADNI KONTEJNER ZAKUCAN U MIKRON */
 .game-app {
     position: relative;
     width: calc(100vw - 12px);
@@ -60,7 +60,7 @@ html, body {
     background: radial-gradient(circle at 50% 30%, rgba(45, 22, 88, 0.5), #020205 92%);
     border: 2px solid var(--color-cyan);
     border-radius: var(--radius-large);
-    box-shadow: 0 0 20px rgba(0, 245, 255, 0.3), inset 0 0 15px rgba(0, 245, 255, 0.1);
+    box-shadow: 0 0 25px rgba(0, 245, 255, 0.35), inset 0 0 15px rgba(0, 245, 255, 0.15);
 }
 
 .background-layer {
@@ -163,7 +163,7 @@ html, body {
 
 .game-title__small { color: var(--color-muted); font-size: 0.8rem; letter-spacing: 0.3em; }
 .game-title__main { font-size: 2.2rem; font-weight: 900; }
-.game-title__wtf { font-size: 2.8rem; font-weight: 900; color: var(--color-pink); }
+.game-title__wtf { font-size: 2.8rem; font-weight: 900; color: var(--color-pink); text-shadow: 0 0 15px var(--color-pink); }
 
 .game-subtitle { font-size: 0.75rem; color: var(--color-muted); margin: 0; }
 
@@ -189,6 +189,7 @@ html, body {
     font-size: 0.85rem;
     letter-spacing: 0.1em;
     cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
 }
 
 .button--secondary { border-color: var(--color-purple); background: rgba(156, 77, 255, 0.2); }
@@ -227,6 +228,7 @@ html, body {
     border-radius: var(--radius-medium);
     background: rgba(10, 8, 20, 0.95);
     z-index: 20;
+    box-shadow: 0 0 12px rgba(0, 245, 255, 0.2);
 }
 
 .hud__row {
@@ -239,7 +241,7 @@ html, body {
 .hud-stat { display: flex; flex-direction: column; }
 .hud-stat__label { font-size: 0.5rem; color: var(--color-muted); font-weight: 800; }
 .hud-stat__value { font-size: 0.85rem; font-weight: 900; color: #fff; }
-.level-display__value { font-size: 1.1rem; color: var(--color-cyan); }
+.level-display__value { font-size: 1.1rem; color: var(--color-cyan); text-shadow: 0 0 8px var(--color-cyan); }
 .life-icon { color: var(--color-red); font-size: 0.85rem; margin-left: 2px; }
 
 .pause-button {
@@ -346,6 +348,7 @@ html, body {
     letter-spacing: 0.12em;
     cursor: pointer;
     touch-action: none;
+    box-shadow: 0 0 12px rgba(255, 47, 207, 0.3);
 }
 
 .level-announcement,
