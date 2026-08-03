@@ -1,6 +1,6 @@
 /* =========================================================
    WHR: POWER WTF UP v1.3.0
-   100% ENGLISH STYLES & DYNAMIC ARENA
+   UNIFIED CENTERED ARCADE CONTAINER
 ========================================================= */
 
 :root {
@@ -45,16 +45,21 @@ html, body {
     -webkit-user-select: none;
 }
 
+/* CENTERED ARCADE BOX CONTAINER */
 .game-app {
     position: relative;
     width: 100vw;
     height: 100vh;
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: clamp(340px, 92vw, 900px);
+    max-height: clamp(500px, 96vh, 950px);
+    margin: auto;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: radial-gradient(circle at 50% 30%, rgba(45, 22, 88, 0.4), #020205 90%);
+    background: radial-gradient(circle at 50% 30%, rgba(45, 22, 88, 0.5), #020205 92%);
+    border: 1px solid var(--border-cyan);
+    border-radius: var(--radius-large);
+    box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
 }
 
 .background-layer {
@@ -67,14 +72,14 @@ html, body {
 .background-grid {
     position: absolute;
     inset: -20%;
-    opacity: 0.25;
+    opacity: 0.22;
     background-image: 
         linear-gradient(rgba(0, 245, 255, 0.12) 1px, transparent 1px),
         linear-gradient(90deg, rgba(156, 77, 255, 0.14) 1px, transparent 1px);
-    background-size: 40px 44px;
+    background-size: 36px 36px;
 }
 
-/* SCREEN DISPLAY MANAGEMENT */
+/* SCREEN MANAGEMENT */
 .screen {
     position: absolute;
     inset: 0;
@@ -83,6 +88,7 @@ html, body {
     width: 100%;
     height: 100%;
     padding: 12px;
+    box-sizing: border-box;
 }
 
 .screen--active {
@@ -95,41 +101,42 @@ html, body {
     align-items: center;
     justify-content: center;
     text-align: center;
+    overflow-y: auto;
 }
 
 .start-screen__content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     width: 100%;
-    max-width: 480px;
+    max-width: 420px;
 }
 
 .brand-mark {
     position: relative;
-    width: 60px;
-    height: 70px;
+    width: 50px;
+    height: 60px;
 }
 
 .brand-mark__ear {
     position: absolute;
     top: 0;
-    width: 18px;
-    height: 44px;
+    width: 15px;
+    height: 36px;
     border: 3px solid var(--color-white);
     border-radius: 80% 80% 40% 40%;
 }
 
-.brand-mark__ear--left { left: 8px; transform: rotate(-10deg); }
-.brand-mark__ear--right { right: 8px; transform: rotate(10deg); }
+.brand-mark__ear--left { left: 6px; transform: rotate(-10deg); }
+.brand-mark__ear--right { right: 6px; transform: rotate(10deg); }
 
 .brand-mark__head {
     position: absolute;
     left: 50%;
     bottom: 0;
-    width: 52px;
-    height: 40px;
+    width: 44px;
+    height: 34px;
     transform: translateX(-50%);
     border: 3px solid var(--color-white);
     border-radius: 50%;
@@ -137,13 +144,13 @@ html, body {
 
 .brand-mark__eye {
     position: absolute;
-    top: 15px;
-    width: 7px;
+    top: 12px;
+    width: 6px;
     height: 4px;
     background: var(--color-red);
 }
-.brand-mark__eye--left { left: 10px; }
-.brand-mark__eye--right { right: 10px; }
+.brand-mark__eye--left { left: 8px; }
+.brand-mark__eye--right { right: 8px; }
 
 .game-title {
     display: flex;
@@ -153,16 +160,16 @@ html, body {
     line-height: 0.9;
 }
 
-.game-title__small { color: var(--color-muted); font-size: 1rem; letter-spacing: 0.3em; }
-.game-title__main { font-size: 3rem; font-weight: 900; }
-.game-title__wtf { font-size: 3.8rem; font-weight: 900; color: var(--color-pink); }
+.game-title__small { color: var(--color-muted); font-size: 0.85rem; letter-spacing: 0.3em; }
+.game-title__main { font-size: 2.4rem; font-weight: 900; }
+.game-title__wtf { font-size: 3rem; font-weight: 900; color: var(--color-pink); }
 
-.game-subtitle { font-size: 0.9rem; color: var(--color-muted); margin: 0; }
+.game-subtitle { font-size: 0.8rem; color: var(--color-muted); margin: 0; }
 
 .menu-button-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
 }
 
@@ -171,14 +178,14 @@ html, body {
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 48px;
-    padding: 10px 18px;
+    min-height: 42px;
+    padding: 8px 16px;
     border-radius: var(--radius-small);
     border: 1px solid var(--color-cyan);
     background: linear-gradient(135deg, rgba(0, 245, 255, 0.25), rgba(67, 41, 255, 0.45));
     color: var(--color-white);
     font-weight: 800;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     letter-spacing: 0.1em;
     cursor: pointer;
 }
@@ -190,22 +197,28 @@ html, body {
 .start-screen__records {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
 }
 
 .record-card {
-    padding: 10px;
+    padding: 8px;
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-small);
     background: rgba(255, 255, 255, 0.03);
     text-align: center;
 }
 
-.record-card__label { display: block; font-size: 0.6rem; color: var(--color-muted); }
-.record-card__value { font-size: 1.1rem; color: var(--color-cyan); }
+.record-card__label { display: block; font-size: 0.55rem; color: var(--color-muted); }
+.record-card__value { font-size: 1rem; color: var(--color-cyan); }
 
-/* GAME HUD */
+/* GAME SCREEN HUD */
+.game-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 .hud {
     flex: 0 0 auto;
     padding: 8px 12px;
@@ -239,7 +252,7 @@ html, body {
 }
 .pause-button span { width: 3px; height: 12px; background: var(--color-white); }
 
-/* MAIN ARENA STAGE */
+/* ARENA CANVA CONTAINER */
 .game-stage {
     position: relative;
     flex: 1 1 auto;
@@ -261,7 +274,7 @@ html, body {
     display: block;
 }
 
-/* MOBILE TOUCH CONTROLS */
+/* MOBILE CONTROLS INTEGRATED INSIDE BOX */
 .mobile-controls {
     display: none !important;
 }
@@ -269,11 +282,11 @@ html, body {
 @media (hover: none) and (pointer: coarse), (max-width: 768px) {
     .mobile-controls {
         display: flex !important;
-        flex: 0 0 75px;
-        height: 75px;
+        flex: 0 0 65px;
+        height: 65px;
         justify-content: space-between;
         align-items: center;
-        padding: 0 10px;
+        padding: 0 8px;
         box-sizing: border-box;
         background: rgba(5, 4, 10, 0.95);
         border-top: 1px solid rgba(0, 245, 255, 0.2);
@@ -283,8 +296,8 @@ html, body {
 
 .joystick-zone {
     position: relative;
-    width: 140px;
-    height: 60px;
+    width: 120px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -293,10 +306,10 @@ html, body {
 
 .joystick-base {
     position: relative;
-    width: 120px;
-    height: 42px;
+    width: 100px;
+    height: 38px;
     border: 2px solid var(--color-cyan);
-    border-radius: 21px;
+    border-radius: 19px;
     background: rgba(0, 245, 255, 0.08);
     box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
     display: flex;
@@ -306,8 +319,8 @@ html, body {
 
 .joystick-stick {
     position: absolute;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: 2px solid #ffffff;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--color-cyan), var(--color-purple));
@@ -317,20 +330,43 @@ html, body {
 }
 
 .control-button--shoot {
-    width: 120px;
-    height: 50px;
+    width: 100px;
+    height: 44px;
     border: 1px solid var(--color-red);
     background: rgba(255, 49, 93, 0.28);
     color: #fff;
-    border-radius: 12px;
+    border-radius: 10px;
     font-weight: 900;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     letter-spacing: 0.1em;
     cursor: pointer;
     touch-action: none;
 }
 
-/* OVERLAYS & MODALS */
+/* OVERLAYS & ANNOUNCEMENTS BOUND TO STAGE */
+.level-announcement,
+.wtf-announcement,
+.combo-announcement,
+.status-message {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+    text-align: center;
+    pointer-events: none;
+    width: 90%;
+}
+
+.level-announcement { top: 40%; }
+.level-announcement__main { font-size: 2.2rem; color: #fff; }
+.level-announcement__message { font-size: 0.8rem; color: var(--color-cyan); }
+
+.wtf-announcement { top: 45%; font-size: 2.5rem; font-weight: 900; }
+.wtf-announcement__wtf { color: var(--color-pink); }
+
+.combo-announcement { top: 30%; color: var(--color-yellow); font-size: 1.5rem; font-weight: 900; }
+.status-message { top: 20%; color: var(--color-cyan); font-size: 0.8rem; }
+
 .game-overlay,
 .white-hat-modal,
 .news-modal-overlay {
@@ -355,13 +391,13 @@ html, body {
     flex-direction: column;
     gap: 10px;
     width: 100%;
-    max-width: 280px;
+    max-width: 260px;
     text-align: center;
 }
 
 .game-footer {
     text-align: center;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--color-muted);
-    padding: 4px;
+    padding: 2px;
 }
