@@ -1,6 +1,6 @@
 /* =========================================================
-   WHR: POWER WTF UP v1.6.0
-   CYBERPUNK NEON GLOW & STABILIZED VIEWPORT
+   WHR: POWER WTF UP v2.5.0
+   RESPONSIVE CANVAS & FLEX ARENA FIX
 ========================================================= */
 
 :root {
@@ -14,11 +14,6 @@
     --color-purple: #9c4dff;
     --color-pink: #ff2fcf;
     --color-red: #ff315d;
-    --color-yellow: #ffe45c;
-    --color-green: #32ff9b;
-
-    --border-soft: rgba(120, 143, 190, 0.22);
-    --border-cyan: rgba(0, 245, 255, 0.6);
 
     --radius-small: 8px;
     --radius-medium: 14px;
@@ -46,41 +41,22 @@ html, body {
     -webkit-user-select: none;
 }
 
-/* ARKADNI KONTEJNER ZAKUCAN U MIKRON */
+/* ARKADNI KONTEJNER */
 .game-app {
     position: relative;
-    width: calc(100vw - 12px);
-    height: calc(100dvh - 12px);
-    max-width: clamp(320px, 94vw, 850px);
-    max-height: clamp(500px, 98dvh, 920px);
-    margin: 6px auto;
+    width: 100vw;
+    height: 100dvh;
+    max-width: 950px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background: radial-gradient(circle at 50% 30%, rgba(45, 22, 88, 0.5), #020205 92%);
     border: 2px solid var(--color-cyan);
-    border-radius: var(--radius-large);
-    box-shadow: 0 0 25px rgba(0, 245, 255, 0.35), inset 0 0 15px rgba(0, 245, 255, 0.15);
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.35);
 }
 
-.background-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-}
-
-.background-grid {
-    position: absolute;
-    inset: -20%;
-    opacity: 0.22;
-    background-image: 
-        linear-gradient(rgba(0, 245, 255, 0.12) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(156, 77, 255, 0.14) 1px, transparent 1px);
-    background-size: 36px 36px;
-}
-
-/* SCREEN MANAGEMENT */
+/* SCREENS */
 .screen {
     position: absolute;
     inset: 0;
@@ -88,7 +64,7 @@ html, body {
     display: none !important;
     width: 100%;
     height: 100%;
-    padding: 10px;
+    padding: 6px;
     box-sizing: border-box;
 }
 
@@ -102,56 +78,16 @@ html, body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    overflow-y: auto;
 }
 
 .start-screen__content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
-    max-width: 400px;
+    max-width: 380px;
 }
-
-.brand-mark {
-    position: relative;
-    width: 46px;
-    height: 54px;
-}
-
-.brand-mark__ear {
-    position: absolute;
-    top: 0;
-    width: 14px;
-    height: 32px;
-    border: 3px solid var(--color-white);
-    border-radius: 80% 80% 40% 40%;
-}
-
-.brand-mark__ear--left { left: 5px; transform: rotate(-10deg); }
-.brand-mark__ear--right { right: 5px; transform: rotate(10deg); }
-
-.brand-mark__head {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    width: 40px;
-    height: 30px;
-    transform: translateX(-50%);
-    border: 3px solid var(--color-white);
-    border-radius: 50%;
-}
-
-.brand-mark__eye {
-    position: absolute;
-    top: 10px;
-    width: 5px;
-    height: 4px;
-    background: var(--color-red);
-}
-.brand-mark__eye--left { left: 7px; }
-.brand-mark__eye--right { right: 7px; }
 
 .game-title {
     display: flex;
@@ -161,107 +97,59 @@ html, body {
     line-height: 0.9;
 }
 
-.game-title__small { color: var(--color-muted); font-size: 0.8rem; letter-spacing: 0.3em; }
-.game-title__main { font-size: 2.2rem; font-weight: 900; }
-.game-title__wtf { font-size: 2.8rem; font-weight: 900; color: var(--color-pink); text-shadow: 0 0 15px var(--color-pink); }
-
-.game-subtitle { font-size: 0.75rem; color: var(--color-muted); margin: 0; }
-
-.menu-button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-}
+.game-title__main { font-size: 1.8rem; font-weight: 900; }
+.game-title__wtf { font-size: 2.3rem; font-weight: 900; color: var(--color-pink); }
 
 .button {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 40px;
-    padding: 6px 14px;
+    min-height: 42px;
+    padding: 4px 12px;
     border-radius: var(--radius-small);
     border: 1px solid var(--color-cyan);
     background: linear-gradient(135deg, rgba(0, 245, 255, 0.25), rgba(67, 41, 255, 0.45));
     color: var(--color-white);
     font-weight: 800;
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
+    font-size: 0.9rem;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
 }
 
-.button--secondary { border-color: var(--color-purple); background: rgba(156, 77, 255, 0.2); }
-.button--ghost { border-color: rgba(255,255,255,0.2); background: transparent; }
-.button--white-hat { border-color: #fff; background: rgba(255,255,255,0.1); }
-
-.start-screen__records {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    width: 100%;
-}
-
-.record-card {
-    padding: 6px;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-small);
-    background: rgba(255, 255, 255, 0.03);
-    text-align: center;
-}
-
-.record-card__label { display: block; font-size: 0.55rem; color: var(--color-muted); }
-.record-card__value { font-size: 0.95rem; color: var(--color-cyan); }
-
-/* GAME HUD */
+/* GAME SCREEN HUD & ARENA */
 .game-screen {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding: 4px;
 }
 
 .hud {
     flex: 0 0 auto;
-    padding: 6px 10px;
-    border: 1px solid var(--border-cyan);
+    padding: 4px 10px;
+    border: 1px solid var(--color-cyan);
     border-radius: var(--radius-medium);
     background: rgba(10, 8, 20, 0.95);
     z-index: 20;
-    box-shadow: 0 0 12px rgba(0, 245, 255, 0.2);
 }
 
 .hud__row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 4px;
 }
 
 .hud-stat { display: flex; flex-direction: column; }
 .hud-stat__label { font-size: 0.5rem; color: var(--color-muted); font-weight: 800; }
 .hud-stat__value { font-size: 0.85rem; font-weight: 900; color: #fff; }
-.level-display__value { font-size: 1.1rem; color: var(--color-cyan); text-shadow: 0 0 8px var(--color-cyan); }
-.life-icon { color: var(--color-red); font-size: 0.85rem; margin-left: 2px; }
 
-.pause-button {
-    display: flex;
-    gap: 3px;
-    padding: 5px 8px;
-    border: 1px solid rgba(255,255,255,0.3);
-    background: transparent;
-    border-radius: 6px;
-    cursor: pointer;
-}
-.pause-button span { width: 3px; height: 10px; background: var(--color-white); }
-
-/* ARENA CANVA CONTAINER */
+/* ARENA CANVAS - POPUNJAVA CEO SLOBODAN PROSTOR */
 .game-stage {
     position: relative;
     flex: 1 1 auto;
     width: 100%;
     margin: 4px 0;
-    border: 1px solid var(--border-cyan);
+    border: 1px solid var(--color-cyan);
     border-radius: var(--radius-medium);
     overflow: hidden;
     background: #020205;
@@ -277,32 +165,25 @@ html, body {
     display: block;
 }
 
-/* EXPANDED MOBILE CONTROL DECK */
+/* KONTROLE DNU */
 .mobile-controls {
-    display: none !important;
-}
-
-@media (hover: none) and (pointer: coarse), (max-width: 768px) {
-    .mobile-controls {
-        display: flex !important;
-        flex: 0 0 100px;
-        height: 100px;
-        justify-content: space-between;
-        align-items: center;
-        padding: 6px 10px;
-        box-sizing: border-box;
-        background: linear-gradient(180deg, rgba(8, 5, 20, 0.98), rgba(2, 2, 7, 0.99));
-        border: 1px solid rgba(0, 245, 255, 0.4);
-        border-radius: var(--radius-medium);
-        box-shadow: 0 -4px 15px rgba(0, 245, 255, 0.15);
-        z-index: 20;
-    }
+    display: flex !important;
+    flex: 0 0 65px;
+    height: 65px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    background: rgba(8, 5, 20, 0.98);
+    border: 1px solid rgba(0, 245, 255, 0.4);
+    border-radius: var(--radius-medium);
+    z-index: 20;
 }
 
 .joystick-zone {
     position: relative;
     flex: 1 1 auto;
-    height: 80px;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -314,11 +195,10 @@ html, body {
     position: relative;
     width: 100%;
     max-width: 220px;
-    height: 48px;
+    height: 38px;
     border: 2px solid var(--color-cyan);
-    border-radius: 24px;
-    background: linear-gradient(90deg, rgba(0, 245, 255, 0.12), rgba(156, 77, 255, 0.18), rgba(0, 245, 255, 0.12));
-    box-shadow: 0 0 14px rgba(0, 245, 255, 0.3);
+    border-radius: 19px;
+    background: rgba(0, 245, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -326,80 +206,46 @@ html, body {
 
 .joystick-stick {
     position: absolute;
-    width: 42px;
-    height: 42px;
+    width: 32px;
+    height: 32px;
     border: 2px solid #ffffff;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ffffff, var(--color-cyan) 45%, var(--color-purple) 90%);
-    box-shadow: 0 0 12px var(--color-cyan);
+    background: radial-gradient(circle at 35% 35%, #ffffff, var(--color-cyan) 50%, var(--color-purple) 90%);
     pointer-events: none;
-    will-change: transform;
 }
 
 .control-button--shoot {
-    flex: 0 0 80px;
-    height: 52px;
+    flex: 0 0 75px;
+    height: 42px;
     border: 2px solid var(--color-pink);
     background: linear-gradient(135deg, rgba(255, 47, 207, 0.45), rgba(120, 10, 60, 0.7));
     color: #ffffff;
-    border-radius: 14px;
+    border-radius: 12px;
     font-weight: 900;
-    font-size: 0.9rem;
-    letter-spacing: 0.12em;
+    font-size: 0.85rem;
     cursor: pointer;
     touch-action: none;
-    box-shadow: 0 0 12px rgba(255, 47, 207, 0.3);
 }
 
-.level-announcement,
-.wtf-announcement,
-.combo-announcement,
-.status-message {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 50;
-    text-align: center;
-    pointer-events: none;
-    width: 90%;
-}
-
-.level-announcement { top: 30%; }
-.wtf-announcement { top: 48%; }
-.combo-announcement { top: 22%; }
-.status-message { top: 15%; }
-
-.game-overlay,
-.white-hat-modal,
-.news-modal-overlay {
-    display: none !important;
-}
-
-.game-overlay:not([hidden]),
-.white-hat-modal.is-open,
-.news-modal-overlay[style*="display: flex"] {
-    display: flex !important;
-    position: absolute;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.88);
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-}
-
-.game-overlay__content {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    max-width: 260px;
-    text-align: center;
+/* LANDSCAPE (16:9) OPTIMIZACIJA */
+@media (max-height: 520px) and (orientation: landscape) {
+    .hud { padding: 2px 8px; }
+    .hud-stat__label { font-size: 0.4rem; }
+    .hud-stat__value { font-size: 0.7rem; }
+    
+    .mobile-controls {
+        flex: 0 0 44px;
+        height: 44px;
+        padding: 2px 6px;
+    }
+    .joystick-base { height: 28px; }
+    .joystick-stick { width: 24px; height: 24px; }
+    .control-button--shoot { height: 32px; font-size: 0.7rem; flex: 0 0 65px; }
+    .game-footer { display: none; }
 }
 
 .game-footer {
     text-align: center;
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     color: var(--color-muted);
-    padding: 2px;
 }
