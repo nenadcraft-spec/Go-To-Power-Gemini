@@ -1,11 +1,10 @@
 /* =========================================================
-   WHR: POWER WTF UP v1.1.0
-   9:16 VERTICAL INTERFACE & RESPONSIVE DESIGN
+   WHR: POWER WTF UP v1.1.3
+   RESPONSIVE ARCADE ARENA (100% ENGLISH & CLEAN UTF-8)
 ========================================================= */
 
 :root {
     --color-bg: #05040a;
-    --color-bg-soft: #0a0812;
     --color-panel: rgba(10, 8, 20, 0.92);
     --color-white: #f8fbff;
     --color-text: #e8efff;
@@ -21,17 +20,11 @@
     --border-soft: rgba(120, 143, 190, 0.22);
     --border-cyan: rgba(0, 245, 255, 0.5);
 
-    --shadow-cyan: 0 0 12px rgba(0, 245, 255, 0.35);
-    --shadow-danger: 0 0 12px rgba(255, 49, 93, 0.45);
-
     --radius-small: 8px;
     --radius-medium: 14px;
     --radius-large: 20px;
 
-    --font-main: Inter, Orbitron, Rajdhani, "Segoe UI", sans-serif;
-
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 *, *::before, *::after {
@@ -52,21 +45,19 @@ html, body {
     -webkit-user-select: none;
 }
 
-/* 9:16 CONTAINER ASPECT RATIO MANDATE */
+/* FLUID CONTAINER - ADAPTS TO SCREEN UP TO 1200PX */
 .game-app {
     position: relative;
-    width: 100%;
-    height: 100%;
-    max-width: calc(100vh * (9 / 16));
+    width: 100vw;
+    height: 100vh;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background: radial-gradient(circle at 50% 30%, rgba(45, 22, 88, 0.4), #020205 90%);
-    box-shadow: 0 0 40px rgba(0, 245, 255, 0.15);
 }
 
-/* GLOBAL BACKGROUND */
 .background-layer {
     position: fixed;
     inset: 0;
@@ -81,10 +72,10 @@ html, body {
     background-image: 
         linear-gradient(rgba(0, 245, 255, 0.12) 1px, transparent 1px),
         linear-gradient(90deg, rgba(156, 77, 255, 0.14) 1px, transparent 1px);
-    background-size: 36px 36px;
+    background-size: 40px 44px;
 }
 
-/* SCREENS */
+/* SCREEN SYSTEM */
 .screen {
     position: absolute;
     inset: 0;
@@ -93,18 +84,17 @@ html, body {
     flex-direction: column;
     width: 100%;
     height: 100%;
-    padding: clamp(12px, 2vh, 20px);
-    overflow-y: auto;
+    padding: 12px;
 }
 
 .screen--active {
     display: flex;
 }
 
-/* START SCREEN (9:16 VERTIKALNI LAYOUT) */
+/* START SCREEN */
 .start-screen {
     align-items: center;
-    justify-content: space-around;
+    justify-content: center;
     text-align: center;
 }
 
@@ -112,8 +102,9 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     width: 100%;
+    max-width: 480px;
 }
 
 .brand-mark {
@@ -163,18 +154,17 @@ html, body {
     line-height: 0.9;
 }
 
-.game-title__small { color: var(--color-muted); font-size: 0.9rem; letter-spacing: 0.3em; }
-.game-title__main { font-size: clamp(2.2rem, 8vw, 3.8rem); font-weight: 900; }
-.game-title__wtf { font-size: clamp(2.6rem, 10vw, 4.5rem); font-weight: 900; color: var(--color-pink); }
+.game-title__small { color: var(--color-muted); font-size: 1rem; letter-spacing: 0.3em; }
+.game-title__main { font-size: 3rem; font-weight: 900; }
+.game-title__wtf { font-size: 3.8rem; font-weight: 900; color: var(--color-pink); }
 
-.game-subtitle { font-size: 0.85rem; color: var(--color-muted); max-width: 280px; margin: 0; }
+.game-subtitle { font-size: 0.9rem; color: var(--color-muted); margin: 0; }
 
 .menu-button-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
     width: 100%;
-    max-width: 280px;
 }
 
 .button {
@@ -189,7 +179,7 @@ html, body {
     background: linear-gradient(135deg, rgba(0, 245, 255, 0.25), rgba(67, 41, 255, 0.45));
     color: var(--color-white);
     font-weight: 800;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     letter-spacing: 0.1em;
     cursor: pointer;
 }
@@ -203,26 +193,25 @@ html, body {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 100%;
-    max-width: 280px;
 }
 
 .record-card {
-    padding: 8px;
+    padding: 10px;
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-small);
     background: rgba(255, 255, 255, 0.03);
     text-align: center;
 }
 
-.record-card__label { display: block; font-size: 0.55rem; color: var(--color-muted); }
-.record-card__value { font-size: 1rem; color: var(--color-cyan); }
+.record-card__label { display: block; font-size: 0.6rem; color: var(--color-muted); }
+.record-card__value { font-size: 1.1rem; color: var(--color-cyan); }
 
-/* HUD FOR 9:16 VERTICAL */
+/* HUD HEADER */
 .hud {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border: 1px solid var(--border-cyan);
     border-radius: var(--radius-medium);
     background: rgba(10, 8, 20, 0.9);
@@ -235,17 +224,13 @@ html, body {
 }
 
 .hud-stat { display: flex; flex-direction: column; }
-.hud-stat__label { font-size: 0.55rem; color: var(--color-muted); font-weight: 800; }
-.hud-stat__value { font-size: 0.95rem; font-weight: 900; color: var(--color-white); }
+.hud-stat__label { font-size: 0.6rem; color: var(--color-muted); font-weight: 800; }
+.hud-stat__value { font-size: 1rem; font-weight: 900; color: var(--color-white); }
 
 .level-display { text-align: center; }
-.level-display__value { font-size: 1.2rem; color: var(--color-cyan); }
+.level-display__value { font-size: 1.3rem; color: var(--color-cyan); }
 
-.danger-meter { width: 70px; }
-.danger-meter__track { height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-.danger-meter__fill { height: 100%; width: 20%; background: var(--color-red); }
-
-.life-icon { color: var(--color-red); font-size: 0.9rem; }
+.life-icon { color: var(--color-red); font-size: 1rem; margin-left: 2px; }
 
 .pause-button {
     display: flex;
@@ -258,7 +243,7 @@ html, body {
 }
 .pause-button span { width: 3px; height: 12px; background: var(--color-white); }
 
-/* GAME STAGE (VERTIKALNI CANVAS) */
+/* DYNAMIC EXPANDED ARENA STAGE */
 .game-stage {
     position: relative;
     flex: 1;
@@ -276,25 +261,25 @@ html, body {
     display: block;
 }
 
-/* MOBILE TOUCH CONTROLS (VERTICAL LAYOUT) */
+/* TOUCH CONTROLS */
 .mobile-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 4px;
-    gap: 10px;
+    padding: 6px 0;
+    gap: 12px;
 }
 
 .mobile-controls__movement {
     display: flex;
-    gap: 12px;
+    gap: 10px;
 }
 
 .control-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 54px;
+    height: 56px;
     border: 1px solid var(--color-cyan);
     background: rgba(0, 245, 255, 0.15);
     color: #fff;
@@ -308,18 +293,17 @@ html, body {
     transform: scale(0.95);
 }
 
-.control-button--move { width: 68px; font-size: 1.3rem; }
+.control-button--move { width: 72px; font-size: 1.4rem; }
 .control-button--shoot {
     flex: 1;
-    max-width: 160px;
     border-color: var(--color-red);
     background: rgba(255, 49, 93, 0.25);
     font-weight: 900;
-    font-size: 0.9rem;
+    font-size: 1rem;
     letter-spacing: 0.1em;
 }
 
-/* OVERLAYS & MODALS */
+/* OVERLAYS AND MODALS */
 .active-effects-panel {
     display: flex;
     gap: 6px;
@@ -330,7 +314,7 @@ html, body {
     padding: 3px 8px;
     border-radius: 12px;
     border: 1px solid var(--color-cyan);
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     background: rgba(0,0,0,0.8);
 }
 
@@ -349,17 +333,13 @@ html, body {
     flex-direction: column;
     gap: 10px;
     width: 100%;
-    max-width: 260px;
+    max-width: 280px;
     text-align: center;
 }
 
-.game-footer { display: none; }
-@media (min-width: 768px) {
-    .game-footer {
-        display: block;
-        text-align: center;
-        font-size: 0.65rem;
-        color: var(--color-muted);
-        padding: 4px;
-    }
+.game-footer {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--color-muted);
+    padding: 4px;
 }
