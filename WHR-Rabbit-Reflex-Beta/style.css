@@ -15,9 +15,7 @@
   --body: "Rajdhani", sans-serif;
 }
 
-/* =========================================================
-   WHR REBORN TARGET IDENTITIES - gameplay color language
-   ========================================================= */
+/* TARGET IDENTITIES */
 
 .target--freeze {
   --blue-core: #07132f;
@@ -167,7 +165,7 @@ button {
 }
 
 /* ==============================
-   POZADINSKI SISTEM SA SVEMIRSKIM DUBINAMA
+   POZADINSKI SISTEM
    ============================== */
 
 .background-system {
@@ -190,6 +188,11 @@ button {
   background-size: 380px 380px;
   opacity: 0.62;
   animation: cosmic-star-drift 90s linear infinite;
+}
+
+.background-system__stars.is-reverse {
+  animation-direction: reverse !important;
+  animation-duration: 20s !important;
 }
 
 .background-system__cosmic-dust {
@@ -625,7 +628,6 @@ button {
   animation: levelup 0.65s;
 }
 
-/* VOID COLLAPSE SINGULARNOST ANIMACIJA */
 .game-stage.is-void-collapsing {
   animation: void-collapse 1.1s cubic-bezier(0.7, 0, 0.3, 1) forwards;
 }
@@ -720,7 +722,7 @@ button {
 }
 
 /* ==============================
-   OSNOVNA META
+   OSNOVNA META & CRNI HAKER EVOLUCIJA
    ============================== */
 
 .target {
@@ -853,6 +855,35 @@ button {
   opacity: 0.3;
 }
 
+/* STILOVI ZA BLACK HACKER TIK SPALJIVANJE */
+
+.target--hacker .target__hacker-code {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: 2%;
+  padding: 2px 6px;
+  border: 1px solid #ff38c7;
+  border-radius: 4px;
+  background: #020207;
+  color: #00f5ff;
+  font: 900 0.48rem var(--display);
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 6px #ff38c7;
+  transform: translateX(-50%);
+  animation: hacker-badge-pulse 0.42s ease-in-out infinite alternate;
+}
+
+.target--hacker .target__rabbit-eye {
+  background: #ff38c7 !important;
+  box-shadow: 0 0 8px #ff38c7, 0 0 14px #00f5ff !important;
+}
+
+@keyframes hacker-badge-pulse {
+  from { transform: translateX(-50%) scale(0.92); box-shadow: 0 0 4px #ff38c7; }
+  to { transform: translateX(-50%) scale(1.08); box-shadow: 0 0 12px #00f5ff; }
+}
+
 /* ==============================
    OVERLAY EKRANI I MODAL TASTERI
    ============================== */
@@ -924,9 +955,7 @@ button {
   box-shadow: 0 0 14px rgba(255, 56, 199, 0.25);
 }
 
-/* ==============================
-   MISSION BRIEFING - START EKRAN
-   ============================== */
+/* MISSION BRIEFING */
 
 .mission-briefing {
   position: relative;
@@ -1140,9 +1169,7 @@ button {
   letter-spacing: 0.07em;
 }
 
-/* ==============================
-   GLAVNI TASTERI
-   ============================== */
+/* GLAVNI TASTERI */
 
 .primary-button {
   position: relative;
@@ -1194,9 +1221,7 @@ button {
   letter-spacing: 0.12em;
 }
 
-/* ==============================
-   ODBROJAVANJE I REZULTATI
-   ============================== */
+/* ODBROJAVANJE I REZULTATI */
 
 .countdown {
   color: var(--cyan);
@@ -1244,9 +1269,7 @@ button {
   display: block;
 }
 
-/* ==============================
-   NAPREDAK NIVOA
-   ============================== */
+/* NAPREDAK NIVOA */
 
 .progress-module {
   margin-top: 8px;
@@ -1282,9 +1305,7 @@ button {
   transition: width 0.25s ease;
 }
 
-/* ==============================
-   PODNOZJE
-   ============================== */
+/* PODNOZJE */
 
 .game-footer {
   display: flex;
@@ -1308,31 +1329,156 @@ button {
   color: var(--pink) !important;
 }
 
-/* ==============================
-   TABLETI I DESKTOP
-   ============================== */
+/* SYSTEM BREACH - VIRUS LAYER EFEKTI */
 
-@media (min-width: 700px) {
-  .app-shell {
-    padding: 18px;
-  }
-
-  .hud {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .game-stage {
-    min-height: 520px;
-  }
-
-  .stage-overlay {
-    padding: 28px;
-  }
+.virus-layer {
+  position: absolute;
+  z-index: 24;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
 }
 
-/* ==============================
-   MOBILNI TELEFONI (9:16 DUAL-WIELD)
-   ============================== */
+.game-stage.is-virus .virus-layer {
+  opacity: 1;
+  visibility: visible;
+  animation: virus-color-panic 0.18s steps(2) infinite;
+}
+
+.game-stage.is-virus .target-layer {
+  animation: virus-target-jitter 0.23s steps(3) infinite;
+}
+
+.virus-layer__noise {
+  position: absolute;
+  inset: -35%;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 3px,
+      rgba(255, 255, 255, 0.08) 3px 4px,
+      transparent 4px 8px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 245, 255, 0.1) 0 1px,
+      transparent 1px 11px,
+      rgba(255, 56, 199, 0.12) 11px 12px,
+      transparent 12px 23px
+    );
+  mix-blend-mode: screen;
+  animation: virus-noise 0.2s steps(3) infinite;
+}
+
+.virus-layer__tear {
+  position: absolute;
+  right: -10%;
+  left: -10%;
+  height: 10%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 245, 255, 0.4),
+    rgba(0, 0, 0, 0.86),
+    rgba(255, 56, 199, 0.48),
+    transparent
+  );
+  mix-blend-mode: screen;
+  animation: virus-tear 0.36s steps(4) infinite;
+}
+
+.virus-layer__tear--one { top: 18%; }
+.virus-layer__tear--two { top: 48%; animation-delay: -0.14s; }
+.virus-layer__tear--three { top: 76%; animation-delay: -0.27s; }
+
+.virus-layer__warning {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  gap: 5px;
+  padding: 10px 16px;
+  border: 1px solid #ff38c7;
+  background: rgba(0, 0, 7, 0.88);
+  text-align: center;
+  box-shadow:
+    -6px 0 0 rgba(0, 245, 255, 0.25),
+    6px 0 0 rgba(255, 56, 199, 0.25),
+    0 0 28px #000;
+  transform: translate(-50%, -50%) skewX(-5deg);
+  animation: virus-warning 0.42s steps(2) infinite;
+}
+
+.virus-layer__warning strong {
+  color: #fff;
+  font: 900 clamp(1.2rem, 7vw, 2.5rem) var(--display);
+  letter-spacing: 0.08em;
+  text-shadow:
+    -4px 0 #00f5ff,
+    4px 0 #ff38c7;
+}
+
+.virus-layer__warning span {
+  color: #55ffb8;
+  font: 800 0.58rem var(--display);
+  letter-spacing: 0.16em;
+}
+
+.app-shell.is-panic-impact {
+  animation: hacker-screen-shake 0.62s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes virus-color-panic {
+  0%, 100% { background: rgba(0, 0, 0, 0.04); filter: hue-rotate(0deg) contrast(1.08); }
+  50% { background: rgba(19, 0, 24, 0.13); filter: hue-rotate(80deg) contrast(1.35); }
+}
+
+@keyframes virus-target-jitter {
+  0%, 100% { transform: translate(0); filter: drop-shadow(-3px 0 rgba(0, 245, 255, 0.75)) drop-shadow(3px 0 rgba(255, 56, 199, 0.72)); }
+  33% { transform: translate(3px, -2px) skewX(0.7deg); }
+  66% { transform: translate(-3px, 2px) skewX(-0.7deg); }
+}
+
+@keyframes virus-noise {
+  0% { transform: translate(-4%, -7%); opacity: 0.42; }
+  33% { transform: translate(5%, 3%); opacity: 0.75; }
+  66% { transform: translate(-2%, 8%); opacity: 0.52; }
+  100% { transform: translate(7%, -3%); opacity: 0.68; }
+}
+
+@keyframes virus-tear {
+  0% { transform: translateX(-6%) scaleY(0.35); opacity: 0.25; }
+  35% { transform: translateX(5%) scaleY(1.2); opacity: 0.8; }
+  70% { transform: translateX(-3%) scaleY(0.55); opacity: 0.45; }
+  100% { transform: translateX(7%) scaleY(0.2); opacity: 0.18; }
+}
+
+@keyframes virus-warning {
+  0%, 100% { transform: translate(-50%, -50%) skewX(-5deg); opacity: 0.92; }
+  50% { transform: translate(calc(-50% + 5px), calc(-50% - 2px)) skewX(5deg); opacity: 0.7; }
+}
+
+@keyframes hacker-screen-shake {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
+  10% { transform: translate3d(-10px, 6px, 0) rotate(-0.8deg); }
+  20% { transform: translate3d(12px, -7px, 0) rotate(0.9deg); }
+  30% { transform: translate3d(-14px, -4px, 0) rotate(-0.6deg); }
+  42% { transform: translate3d(11px, 7px, 0) rotate(0.7deg); }
+  55% { transform: translate3d(-8px, 4px, 0) rotate(-0.45deg); }
+  68% { transform: translate3d(7px, -4px, 0) rotate(0.35deg); }
+  82% { transform: translate3d(-4px, 2px, 0) rotate(-0.18deg); }
+}
+
+/* MEDIA QUERIES */
+
+@media (min-width: 700px) {
+  .app-shell { padding: 18px; }
+  .hud { grid-template-columns: repeat(4, 1fr); }
+  .game-stage { min-height: 520px; }
+  .stage-overlay { padding: 28px; }
+}
 
 @media (max-width: 480px) {
   .app-shell {
@@ -1342,281 +1488,57 @@ button {
       max(8px, env(safe-area-inset-bottom))
       max(8px, env(safe-area-inset-left));
   }
-
-  .game-header {
-    gap: 6px;
-    margin-bottom: 7px;
-  }
-
-  .brand {
-    gap: 6px;
-  }
-
-  .brand__mark {
-    width: 36px;
-    height: 41px;
-  }
-
-  .brand__head {
-    left: 7px;
-    width: 25px;
-    height: 24px;
-  }
-
-  .brand__ear {
-    width: 10px;
-    height: 26px;
-  }
-
-  .brand__ear--left {
-    left: 8px;
-  }
-
-  .brand__ear--right {
-    right: 6px;
-  }
-
-  .brand__eye {
-    right: 9px;
-    bottom: 14px;
-  }
-
-  .brand__eyebrow {
-    font-size: 0.43rem;
-    letter-spacing: 0.08em;
-  }
-
-  .brand__title {
-    font-size: clamp(0.9rem, 4.5vw, 1.15rem);
-  }
-
-  .header-actions {
-    gap: 4px;
-  }
-
-  .icon-button {
-    min-width: 49px;
-    min-height: 43px;
-    padding: 2px;
-  }
-
-  .hud-card {
-    padding: 7px 8px;
-  }
-
-  .hud-card__value {
-    font-size: clamp(0.9rem, 4.6vw, 1.25rem);
-  }
-
-  .status-row {
-    gap: 5px;
-  }
-
-  .status-metric {
-    gap: 3px;
-    padding-left: 6px;
-  }
-
-  .status-metric__label {
-    font-size: 0.42rem;
-  }
-
-  .status-metric strong {
-    min-width: 28px;
-    font-size: 0.78rem;
-  }
-
-  .hud-card--time,
-  .hud-card--lives {
-    min-height: 67px;
-  }
-
-  .hud-card__unit {
-    right: 8px;
-    bottom: 6px;
-    font-size: 0.32rem;
-  }
-
-  .status-chip {
-    font-size: 0.5rem;
-    letter-spacing: 0.04em;
-  }
-
-  .game-stage {
-    min-height: 390px;
-  }
-
-  .stage-overlay {
-    padding: 10px;
-  }
-
-  .start-panel,
-  .modal-panel {
-    padding: 16px 14px;
-  }
-
-  .mission-briefing {
-    padding: 14px 11px;
-  }
-
-  .briefing-header {
-    grid-template-columns: 24px 1fr auto;
-    gap: 7px;
-  }
-
-  .briefing-header__signal {
-    transform: scale(0.8);
-  }
-
-  .briefing-header .start-panel__title {
-    font-size: clamp(1.08rem, 5.3vw, 1.55rem);
-  }
-
-  .briefing-header__status {
-    padding: 5px;
-    font-size: 0.43rem;
-  }
-
-  .briefing-objective {
-    grid-template-columns: 30px 1fr;
-    gap: 7px;
-    padding: 8px;
-  }
-
-  .briefing-objective__tag {
-    display: none;
-  }
-
-  .briefing-rulebar span {
-    padding: 6px 2px;
-    font-size: 0.4rem;
-  }
-
-  .briefing-sections {
-    grid-template-columns: 1fr;
-    gap: 7px;
-  }
-
-  .briefing-group {
-    padding: 7px;
-  }
-
-  .briefing-items {
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-  }
-
-  .briefing-item {
-    grid-template-columns: 24px 1fr;
-    min-height: 42px;
-    padding: 5px;
-  }
-
-  .briefing-item strong {
-    font-size: 0.52rem;
-  }
-
-  .briefing-item small {
-    font-size: 0.62rem;
-  }
-
-  .briefing-group--danger .briefing-item--black-hole {
-    grid-column: 1 / -1;
-  }
-
-  .briefing-note {
-    margin: 8px 0;
-    font-size: 0.43rem;
-  }
-
-  .primary-button {
-    min-height: 50px;
-  }
+  .game-header { gap: 6px; margin-bottom: 7px; }
+  .brand { gap: 6px; }
+  .brand__mark { width: 36px; height: 41px; }
+  .brand__head { left: 7px; width: 25px; height: 24px; }
+  .brand__ear { width: 10px; height: 26px; }
+  .brand__ear--left { left: 8px; }
+  .brand__ear--right { right: 6px; }
+  .brand__eye { right: 9px; bottom: 14px; }
+  .brand__eyebrow { font-size: 0.43rem; letter-spacing: 0.08em; }
+  .brand__title { font-size: clamp(0.9rem, 4.5vw, 1.15rem); }
+  .header-actions { gap: 4px; }
+  .icon-button { min-width: 49px; min-height: 43px; padding: 2px; }
+  .hud-card { padding: 7px 8px; }
+  .hud-card__value { font-size: clamp(0.9rem, 4.6vw, 1.25rem); }
+  .status-row { gap: 5px; }
+  .status-metric { gap: 3px; padding-left: 6px; }
+  .status-metric__label { font-size: 0.42rem; }
+  .status-metric strong { min-width: 28px; font-size: 0.78rem; }
+  .hud-card--time, .hud-card--lives { min-height: 67px; }
+  .hud-card__unit { right: 8px; bottom: 6px; font-size: 0.32rem; }
+  .status-chip { font-size: 0.5rem; letter-spacing: 0.04em; }
+  .game-stage { min-height: 390px; }
+  .stage-overlay { padding: 10px; }
+  .start-panel, .modal-panel { padding: 16px 14px; }
+  .mission-briefing { padding: 14px 11px; }
+  .briefing-header { grid-template-columns: 24px 1fr auto; gap: 7px; }
+  .briefing-header__signal { transform: scale(0.8); }
+  .briefing-header .start-panel__title { font-size: clamp(1.08rem, 5.3vw, 1.55rem); }
+  .briefing-header__status { padding: 5px; font-size: 0.43rem; }
+  .briefing-objective { grid-template-columns: 30px 1fr; gap: 7px; padding: 8px; }
+  .briefing-objective__tag { display: none; }
+  .briefing-rulebar span { padding: 6px 2px; font-size: 0.4rem; }
+  .briefing-sections { grid-template-columns: 1fr; gap: 7px; }
+  .briefing-group { padding: 7px; }
+  .briefing-items { grid-template-columns: 1fr 1fr; gap: 4px; }
+  .briefing-item { grid-template-columns: 24px 1fr; min-height: 42px; padding: 5px; }
+  .briefing-item strong { font-size: 0.52rem; }
+  .briefing-item small { font-size: 0.62rem; }
+  .briefing-group--danger .briefing-item--black-hole { grid-column: 1 / -1; }
+  .briefing-note { margin: 8px 0; font-size: 0.43rem; }
+  .primary-button { min-height: 50px; }
 }
 
 @media (pointer: coarse) {
-  .crosshair {
-    display: none;
-  }
-
-  .game-stage {
-    cursor: default;
-  }
-
-  .target {
-    min-width: 58px;
-    min-height: 58px;
-  }
+  .crosshair { display: none; }
+  .game-stage { cursor: default; }
+  .target { min-width: 58px; min-height: 58px; }
 }
-
-/* ==============================
-   ANIMACIJE
-   ============================== */
-
-@keyframes spawn {
-  to {
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes target-hit {
-  to {
-    opacity: 0;
-    transform:
-      translate(-50%, -50%)
-      scale(1.7)
-      rotate(20deg);
-  }
-}
-
-@keyframes expire {
-  to {
-    opacity: 0;
-    transform:
-      translate(-50%, -50%)
-      scale(0.2);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes flash {
-  50% {
-    box-shadow: 0 0 20px var(--cyan);
-  }
-}
-
-@keyframes hit {
-  50% {
-    box-shadow:
-      inset 0 0 50px rgba(0, 245, 255, 0.25);
-  }
-}
-
-@keyframes damage {
-  50% {
-    box-shadow:
-      inset 0 0 70px rgba(255, 50, 95, 0.35);
-  }
-}
-
-@keyframes levelup {
-  50% {
-    box-shadow:
-      inset 0 0 70px rgba(255, 211, 77, 0.3);
-  }
-}
-
-/* Smanjene animacije za korisnike koji ih ne zele */
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -1624,156 +1546,56 @@ button {
   }
 }
 
-/* =========================================
-   WHR SYSTEM v1.2 - WHITE HACKER UPDATE
-   ========================================= */
+/* WHITE HACKER & TUTORIAL */
 
 .target--hero {
   --target-color: #f8ffff;
   z-index: 7;
   isolation: isolate;
-  filter:
-    drop-shadow(0 0 8px #ffffff)
-    drop-shadow(-5px 0 14px rgba(75, 255, 171, 0.92))
-    drop-shadow(5px 0 15px rgba(53, 143, 255, 0.88));
+  filter: drop-shadow(0 0 8px #ffffff) drop-shadow(-5px 0 14px rgba(75, 255, 171, 0.92)) drop-shadow(5px 0 15px rgba(53, 143, 255, 0.88));
 }
-
 .target--hero::before {
-  inset: -14%;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  background: conic-gradient(
-    from 0deg,
-    transparent 0 10%,
-    #4bffab 11% 15%,
-    transparent 16% 36%,
-    #ffffff 37% 40%,
-    transparent 41% 68%,
-    #358fff 69% 74%,
-    transparent 75% 100%
-  );
-  box-shadow:
-    inset 0 0 22px rgba(75, 255, 171, 0.22),
-    0 0 18px rgba(255, 255, 255, 0.72);
+  inset: -14%; border: 2px solid rgba(255, 255, 255, 0.9);
+  background: conic-gradient(from 0deg, transparent 0 10%, #4bffab 11% 15%, transparent 16% 36%, #ffffff 37% 40%, transparent 41% 68%, #358fff 69% 74%, transparent 75% 100%);
+  box-shadow: inset 0 0 22px rgba(75, 255, 171, 0.22), 0 0 18px rgba(255, 255, 255, 0.72);
   animation: whitehat-ring 2.4s linear infinite;
 }
-
 .target--hero::after {
-  inset: -24%;
-  border: 0;
-  background: repeating-conic-gradient(
-    rgba(75, 255, 171, 0.4) 0 1.5deg,
-    transparent 1.5deg 18deg
-  );
-  opacity: 0.65;
-  animation: whitehat-ring 6s linear infinite reverse;
+  inset: -24%; border: 0; background: repeating-conic-gradient(rgba(75, 255, 171, 0.4) 0 1.5deg, transparent 1.5deg 18deg);
+  opacity: 0.65; animation: whitehat-ring 6s linear infinite reverse;
 }
-
 .target--hero .target__ring {
-  border: 3px solid #ffffff;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.18),
-    rgba(75, 255, 171, 0.08) 45%,
-    transparent 70%
-  );
-  box-shadow:
-    0 0 9px #ffffff,
-    0 0 20px rgba(75, 255, 171, 0.88),
-    inset 0 0 18px rgba(53, 143, 255, 0.46);
+  border: 3px solid #ffffff; background: radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(75, 255, 171, 0.08) 45%, transparent 70%);
+  box-shadow: 0 0 9px #ffffff, 0 0 20px rgba(75, 255, 171, 0.88), inset 0 0 18px rgba(53, 143, 255, 0.46);
   animation: whitehat-breathe 0.7s ease-in-out infinite alternate;
 }
-
-.target--hero .target__ring::before {
-  border-color: #4bffab;
-  border-style: dashed;
-  box-shadow: inset 0 0 10px rgba(53, 143, 255, 0.72);
-}
-
-.target--hero .target__timer {
-  color: #ffffff;
-  filter: drop-shadow(0 0 6px #4bffab);
-}
-
-.target--hero .target__rabbit {
-  z-index: 5;
-  inset: 18%;
-  filter: drop-shadow(0 0 7px #fff) drop-shadow(0 0 13px #4bffab);
-  animation: whitehat-float 0.66s ease-in-out infinite alternate;
-}
-
-.target--hero .target__rabbit-head,
-.target--hero .target__rabbit-ear {
-  display: block;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
+.target--hero .target__ring::before { border-color: #4bffab; border-style: dashed; box-shadow: inset 0 0 10px rgba(53, 143, 255, 0.72); }
+.target--hero .target__timer { color: #ffffff; filter: drop-shadow(0 0 6px #4bffab); }
+.target--hero .target__rabbit { z-index: 5; inset: 18%; filter: drop-shadow(0 0 7px #fff) drop-shadow(0 0 13px #4bffab); animation: whitehat-float 0.66s ease-in-out infinite alternate; }
+.target--hero .target__rabbit-head, .target--hero .target__rabbit-ear {
+  display: block; border: 2px solid #ffffff; border-radius: 50%;
   background: linear-gradient(145deg, #ffffff 0 24%, #dce8ef 25% 54%, #8496a3 76%, #25303a 100%);
-  box-shadow:
-    inset 4px 4px 7px rgba(255, 255, 255, 0.95),
-    inset -5px -6px 9px rgba(8, 20, 26, 0.55),
-    0 0 10px #ffffff;
+  box-shadow: inset 4px 4px 7px rgba(255, 255, 255, 0.95), inset -5px -6px 9px rgba(8, 20, 26, 0.55), 0 0 10px #ffffff;
 }
+.target--hero .target__rabbit-ear { border-radius: 80% 80% 28% 28%; }
+.target--hero .target__rabbit-eye { right: 17%; bottom: 34%; width: 17%; height: 8%; border-radius: 2px; background: #4bffab; box-shadow: 0 0 5px #fff, 0 0 12px #4bffab; animation: whitehat-eye 1.2s steps(2) infinite; }
+.target--hero .target__core { background: radial-gradient(circle, #fff 0 8%, #4bffab 9% 25%, #358fff 28% 43%, rgba(255,255,255,.18) 48%, transparent 70%); opacity: 0.78; animation: whitehat-core 0.6s ease-in-out infinite alternate; }
 
-.target--hero .target__rabbit-ear {
-  border-radius: 80% 80% 28% 28%;
-}
-
-.target--hero .target__rabbit-eye {
-  right: 17%;
-  bottom: 34%;
-  width: 17%;
-  height: 8%;
-  border-radius: 2px;
-  background: #4bffab;
-  box-shadow: 0 0 5px #fff, 0 0 12px #4bffab;
-  animation: whitehat-eye 1.2s steps(2) infinite;
-}
-
-.target--hero .target__core {
-  background: radial-gradient(circle, #fff 0 8%, #4bffab 9% 25%, #358fff 28% 43%, rgba(255,255,255,.18) 48%, transparent 70%);
-  opacity: 0.78;
-  animation: whitehat-core 0.6s ease-in-out infinite alternate;
-}
-
-/* =========================================
-   INTERACTIVE TUTORIAL MODE
-   ========================================= */
 .tutorial-button {
-  width: min(100%, 342px);
-  min-height: 48px;
-  margin: 10px auto 0;
-  border: 1px solid rgba(85,255,184,.58);
-  border-radius: 10px;
-  color: #a8ffda;
-  background: linear-gradient(135deg,rgba(5,31,34,.92),rgba(20,12,48,.92));
-  box-shadow: inset 0 0 18px rgba(85,255,184,.08),0 0 14px rgba(0,245,255,.08);
-  font: 700 12px/1 var(--display);
-  letter-spacing: .12em;
-  cursor: pointer;
-  transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+  width: min(100%, 342px); min-height: 48px; margin: 10px auto 0; border: 1px solid rgba(85,255,184,.58);
+  border-radius: 10px; color: #a8ffda; background: linear-gradient(135deg,rgba(5,31,34,.92),rgba(20,12,48,.92));
+  box-shadow: inset 0 0 18px rgba(85,255,184,.08),0 0 14px rgba(0,245,255,.08); font: 700 12px/1 var(--display);
+  letter-spacing: .12em; cursor: pointer; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease;
 }
 .tutorial-button span { margin-right: 8px; color:#55ffb8; text-shadow:0 0 9px #55ffb8; }
 .tutorial-button:hover,.tutorial-button:focus-visible { transform:translateY(-2px);border-color:#55ffb8;box-shadow:inset 0 0 20px rgba(85,255,184,.14),0 0 18px rgba(85,255,184,.22);outline:none; }
 
 .tutorial-hud {
-  position:absolute;
-  z-index:42;
-  top:14px;
-  left:50%;
-  width:min(calc(100% - 28px),620px);
-  min-height:82px;
-  display:grid;
-  grid-template-columns:36px 1fr auto;
-  gap:12px;
-  align-items:center;
-  padding:12px 13px;
-  border:1px solid rgba(85,255,184,.72);
-  border-radius:12px;
-  background:linear-gradient(135deg,rgba(2,13,25,.96),rgba(9,12,35,.94));
-  box-shadow:inset 0 0 24px rgba(0,245,255,.08),0 0 24px rgba(0,245,255,.2);
-  opacity:0;
-  pointer-events:none;
-  transform:translate(-50%,-18px) scale(.97);
-  transition:opacity .22s ease,transform .22s ease,border-color .22s ease;
+  position:absolute; z-index:42; top:14px; left:50%; width:min(calc(100% - 28px),620px); min-height:82px;
+  display:grid; grid-template-columns:36px 1fr auto; gap:12px; align-items:center; padding:12px 13px;
+  border:1px solid rgba(85,255,184,.72); border-radius:12px; background:linear-gradient(135deg,rgba(2,13,25,.96),rgba(9,12,35,.94));
+  box-shadow:inset 0 0 24px rgba(0,245,255,.08),0 0 24px rgba(0,245,255,.2); opacity:0; pointer-events:none;
+  transform:translate(-50%,-18px) scale(.97); transition:opacity .22s ease,transform .22s ease,border-color .22s ease;
 }
 .tutorial-hud.is-visible { opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1); }
 .tutorial-hud.is-success { border-color:#55ffb8;box-shadow:inset 0 0 28px rgba(85,255,184,.14),0 0 28px rgba(85,255,184,.3); }
