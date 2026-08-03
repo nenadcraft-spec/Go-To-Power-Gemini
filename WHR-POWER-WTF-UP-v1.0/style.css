@@ -243,6 +243,56 @@ html, body {
 }
 .pause-button span { width: 3px; height: 12px; background: var(--color-white); }
 
+/* =========================================================
+   VIRTUAL JOYSTICK STYLES
+========================================================= */
+
+.joystick-zone {
+    position: relative;
+    width: 130px;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+}
+
+.joystick-base {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    border: 2px solid var(--color-cyan);
+    border-radius: 50%;
+    background: rgba(0, 245, 255, 0.08);
+    box-shadow: 0 0 15px rgba(0, 245, 255, 0.2), inset 0 0 15px rgba(0, 245, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+}
+
+.joystick-stick {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    border: 2px solid var(--color-white);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-cyan), var(--color-purple));
+    box-shadow: 0 0 12px var(--color-cyan);
+    pointer-events: none;
+    transition: transform 0.05s ease-out;
+}
+
+/* Adjust shoot button next to joystick */
+.mobile-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    width: 100%;
+    touch-action: none;
+}
+
 /* DYNAMIC EXPANDED ARENA STAGE */
 .game-stage {
     position: relative;
