@@ -610,27 +610,8 @@ class AudioFX {
   constructor() {
     this.ctx = null;
     this.enabled = localStorage.getItem(CONFIG.soundKey) !== "false";
-
-    this.sampleConfig = {
-      normalHit: { src: "./sound/normal-hit.wav", volume: 0.62, cooldown: 70, voices: 3 },
-      redRabbit: { src: "./sound/red-rabbit.wav", volume: 0.65, cooldown: 160, voices: 2 },
-      trap: { src: "./sound/trap.wav", volume: 0.7, cooldown: 180, voices: 2 },
-      extraLife: { src: "./sound/extra-life.wav", volume: 0.82, cooldown: 250, voices: 1 },
-      goldenRabbit: { src: "./sound/golden-rabbit.wav", volume: 0.38, cooldown: 200, voices: 2 },
-      blackHacker: { src: "./sound/black-hacker.wav", volume: 0.22, cooldown: 300, voices: 1 },
-      blackHole: { src: "./sound/black-hole.wav", volume: 0.58, cooldown: 400, voices: 1 },
-      whiteHacker: { src: "./sound/white-hacker.wav", volume: 0.72, cooldown: 350, voices: 1 },
-      gameStart: { src: "./sound/game-start.wav", volume: 0.4, cooldown: 1000, voices: 1, maxDuration: 3000 },
-      levelUp: { src: "./sound/level-up.wav", volume: 0.8, cooldown: 500, voices: 1 },
-      gameOver: { src: "./sound/game-over.wav", volume: 1, cooldown: 1000, voices: 1 },
-    };
-
-    this.samplePools = new Map();
-    this.sampleCursor = new Map();
-    this.lastSampleAt = new Map();
     this.lobbyMusic = null;
 
-    this.prepareSamples();
     this.prepareLobbyMusic();
   }
 
@@ -666,86 +647,6 @@ class AudioFX {
     } catch {}
   }
 
-  prepareSamples() {
-    if (typeof Audio === "undefined") return;
-
-    Object.entries(this.sampleConfig).forEach(([name, config]) => {
-      const pool = [];
-      for (let index = 0; index < config.voices; index++) {
-        const sample = new Audio(config.src);
-        sample.preload = "auto";
-        sample.volume = config.volume;
-        sample.setAttribute("playsinline", "");
-        pool.push(sample);
-      }
-      this.samplePools.set(name, pool);
-      this.sampleCursor.set(name, 0);
-    });
-  }
-
-  playSample(name, fallback) {
-    if (!this.enabled) return false;
-
-    const config = this.sampleConfig[name];
-    const pool = this.samplePools.get(name);
-
-    if (!config || !pool?.length) {
-      fallback?.();
-      return false;
-    }
-
-    const now = performance.now();
-    const last = this.lastSampleAt.get(name) || 0;
-
-    if (now - last < config.cooldown) return true;
-
-    this.lastSampleAt.set(name, now);
-    const cursor = this.sampleCursor.get(name) || 0;
-    const sample = pool[cursor];
-    this.sampleCursor.set(name, (cursor + 1) % pool.length);
-
-    sample.pause();
-    sample.currentTime = 0;
-    sample.volume = config.volume;
-
-    sample._whrPlayId = (sample._whrPlayId || 0) + 1;
-    const playId = sample._whrPlayId;
-    let result;
-
-    try {
-      result = sample.play();
-    } catch {
-      fallback?.();
-      return false;
-    }
-
-    if (result?.catch) {
-      result.catch(() => {
-        if (this.enabled && sample._whrPlayId === playId) fallback?.();
-      });
-    }
-
-    if (config.maxDuration) {
-      setTimeout(() => {
-        if (sample._whrPlayId !== playId) return;
-        sample.pause();
-        sample.currentTime = 0;
-      }, config.maxDuration);
-    }
-
-    return true;
-  }
-
-  stopSamples() {
-    for (const pool of this.samplePools.values()) {
-      for (const sample of pool) {
-        sample._whrPlayId = (sample._whrPlayId || 0) + 1;
-        sample.pause();
-        sample.currentTime = 0;
-      }
-    }
-  }
-
   init() {
     if (this.ctx) return;
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -777,26 +678,26 @@ class AudioFX {
     oscillator.stop(now + duration + 0.02);
   }
 
-  /* PROCEDURALNI SINTETIZOVANI KLIK ZVUCI */
-  hit() { this.playSample("normalHit", () => this.tone(580, 0.08, "sine", 880)); }
-  gold() { this.playSample("goldenRabbit", () => [880, 1100, 1320].forEach((f, i) => setTimeout(() => this.tone(f, 0.1, "triangle", f * 1.15), i * 35))); }
+  /* ČISTI PROCEDURALNI ZVUCI NA KLIK (100% WEB AUDIO API) */
+  hit() { this.tone(580, 0.08, "sine", 880); }
+  gold() { [880, 1100, 1320].forEach((f, i) => setTimeout(() => this.tone(f, 0.1, "triangle", f * 1.15), i * 35)); }
   freeze() { [1000, 800, 600].forEach((f, i) => setTimeout(() => this.tone(f, 0.12, "sine", f * 0.75), i * 40)); }
-  red() { this.playSample("redRabbit", () => [240, 160, 80].forEach((f, i) => setTimeout(() => this.tone(f, 0.15, "sawtooth", f * 0.5), i * 50))); }
-  life() { this.playSample("extraLife", () => [580, 720, 960, 1200].forEach((f, i) => setTimeout(() => this.tone(f, 0.12, "triangle", f * 1.1), i * 40))); }
-  bad() { this.playSample("trap", () => this.tone(210, 0.22, "sawtooth", 50)); }
-  level() { this.playSample("levelUp", () => [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, 0.16, "sine", f * 1.05), i * 65))); }
+  red() { [240, 160, 80].forEach((f, i) => setTimeout(() => this.tone(f, 0.15, "sawtooth", f * 0.5), i * 50)); }
+  life() { [580, 720, 960, 1200].forEach((f, i) => setTimeout(() => this.tone(f, 0.12, "triangle", f * 1.1), i * 40)); }
+  bad() { this.tone(210, 0.22, "sawtooth", 50); }
+  level() { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, 0.16, "sine", f * 1.05), i * 65)); }
   click() { this.tone(500, 0.07, "sine", 720); }
-  over() { this.playSample("gameOver", () => [420, 320, 230, 150].forEach((f, i) => setTimeout(() => this.tone(f, 0.2, "sawtooth", f * 0.7), i * 90))); }
-  blackHacker() { this.playSample("blackHacker", () => this.tone(160, 0.28, "sawtooth", 40)); }
-  blackHole() { this.playSample("blackHole", () => this.tone(85, 0.5, "sine", 25)); }
-  whiteHacker() { this.playSample("whiteHacker", () => [523, 659, 783].forEach((f, i) => setTimeout(() => this.tone(f, 0.18, "triangle", f * 1.2), i * 45))); }
-  start() { this.playSample("gameStart", () => this.tone(360, 0.28, "triangle", 900)); }
+  over() { [420, 320, 230, 150].forEach((f, i) => setTimeout(() => this.tone(f, 0.2, "sawtooth", f * 0.7), i * 90)); }
+  blackHacker() { this.tone(160, 0.28, "sawtooth", 40); }
+  blackHole() { this.tone(85, 0.5, "sine", 25); }
+  whiteHacker() { [523, 659, 783].forEach((f, i) => setTimeout(() => this.tone(f, 0.18, "triangle", f * 1.2), i * 45)); }
+  start() { this.tone(360, 0.28, "triangle", 900); }
 
   toggle() {
     this.enabled = !this.enabled;
     localStorage.setItem(CONFIG.soundKey, String(this.enabled));
     if (this.enabled) this.click();
-    else { this.stopLobby(); this.stopSamples(); }
+    else { this.stopLobby(); }
     return this.enabled;
   }
 }
@@ -1057,7 +958,6 @@ class Game {
     });
   }
 
-  /* FIX 1: POPRAVLJEN BACK TO LOBBY STATUS */
   backToLobby() {
     this.reset();
     this.show(this.e.pauseO, false);
@@ -1197,7 +1097,6 @@ class Game {
     this.show(this.e.pauseO, false);
     this.show(this.e.countO, true);
 
-    this.audio.stopSamples();
     this.audio.stopLobby();
     this.audio.start();
 
@@ -1505,14 +1404,12 @@ class Game {
     }
   }
 
-  /* ZVUK CRNE RUPE SE POJAVUJE TEK PRI SPAWN-U */
   playSpawnSound(type) {
     if (type === "blackhole") {
       this.audio.blackHole();
     }
   }
 
-  /* FIX 3: EVOLUCIJA CRNE RUPE KROZ NIVOE */
   spawn(type, group, options = {}) {
     if (this.state !== "playing" && this.state !== "tutorial") return;
 
@@ -1521,7 +1418,7 @@ class Game {
     if (type === "hacker") size = Math.max(76, size * 1.18);
     if (type === "hero") size = Math.max(74, size * 1.14);
     
-    // Crna rupa evoluira i fizički raste sa nivoima!
+    // Crna rupa evoluira i fizički raste sa nivoima (max 135px)
     if (type === "blackhole") {
       const scaleFactor = 1 + (this.level - 1) * 0.04;
       size = Math.min(135, Math.max(82, size * 1.26 * scaleFactor));
@@ -1637,12 +1534,15 @@ class Game {
     target.gravityTimerId = setInterval(() => this.applyBlackHoleGravity(id, target), CONFIG.blackHoleGravityRate);
   }
 
-  /* GRAVITACIJA EVOLUIRA KROZ NIVOE */
+  /* GRAVITACIJA EVOLUIRA KROZ NIVOE S HARD-CAP-OM OD 300PX */
   applyBlackHoleGravity(blackHoleId, blackHole) {
     if (this.state !== "playing" || !this.targets.has(blackHoleId)) return;
 
-    // Radijus privlačenja raste sa nivoom!
-    const dynamicRadius = CONFIG.blackHoleBaseGravityRadius + (this.level - 1) * CONFIG.blackHoleGravityRadiusStep;
+    // Komercijalni fix: Hard-cap na 300px radi fer-pleja na mobilnim ekranima!
+    const dynamicRadius = Math.min(
+      300,
+      CONFIG.blackHoleBaseGravityRadius + (this.level - 1) * CONFIG.blackHoleGravityRadiusStep
+    );
 
     for (const [id, target] of this.targets.entries()) {
       if (id === blackHoleId || target.type === "blackhole") continue;
@@ -1685,7 +1585,7 @@ class Game {
     }
   }
 
-  /* FIX 2: NOVI PROCEDURALNI CLICK SFX NA KLIK */
+  /* ČISTI PROCEDURALNI CLICK SFX BEZ PLAY_SAMPLE WAV POZIVA */
   hit(id, type, button, x, y) {
     if (this.isTutorial) {
       const target = this.targets.get(id);
@@ -2102,7 +2002,6 @@ class Game {
     this.e.layer.getAnimations({ subtree: true }).forEach((anim) => anim.pause());
     this.show(this.e.pauseO, true);
     this.e.pause.disabled = true;
-    this.audio.stopSamples();
     this.setStatus("SYSTEM SUSPENDED", "warning");
   }
 
@@ -2143,7 +2042,6 @@ class Game {
     else if (this.state === "paused") this.resume();
   }
 
-  /* FIX 4: PRAVA VOID COLLAPSE SINGULARNOST */
   finish() {
     if (this.state === "gameover") return;
 
@@ -2191,7 +2089,6 @@ class Game {
       this.show(this.e.overO, true);
 
       this.setStatus("SESSION COMPLETE", "danger");
-      this.audio.stopSamples();
       this.audio.over();
     }, 1100);
   }
