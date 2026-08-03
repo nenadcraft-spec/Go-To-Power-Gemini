@@ -1546,6 +1546,35 @@ button {
   }
 }
 
+/* =========================================
+   KLJUČNE ANIMACIJE ZA POJAVU METE (FIX 1:1)
+   ========================================= */
+
+@keyframes spawn {
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes target-hit {
+  to {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(1.7)
+      rotate(20deg);
+  }
+}
+
+@keyframes expire {
+  to {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(0.2);
+  }
+}
+
 /* WHITE HACKER & TUTORIAL */
 
 .target--hero {
