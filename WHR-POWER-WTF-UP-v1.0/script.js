@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v1.8.0
-   PINBALL HARPOON-BOUNCER PHYSICS & RABBIT ORB REFLECTION
+   WHR: POWER WTF UP v1.9.0
+   BILLIARDS POCKETS & PINBALL BOUNCER PHYSICS
 ========================================================= */
 
 const DOM = {
@@ -89,6 +89,21 @@ class AudioEngine {
         osc.start();
         osc.stop(this.ctx.currentTime + 0.1);
     }
+
+    playPocketScore() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.25);
+    }
 }
 
 const audio = new AudioEngine();
@@ -104,9 +119,9 @@ const GAME_CONFIG = {
 };
 
 const ORB_TYPES = {
-    large: { radius: 42, speedX: 160, bounce: 880, score: 100 },
-    medium: { radius: 26, speedX: 200, bounce: 760, score: 180 },
-    small: { radius: 15, speedX: 250, bounce: 640, score: 300 }
+    large: { radius: 36, speedX: 160, bounce: 880, score: 250 },
+    medium: { radius: 24, speedX: 200, bounce: 760, score: 350 },
+    small: { radius: 16, speedX: 250, bounce: 640, score: 500 }
 };
 
 const RABBIT_THEMES = [
@@ -137,7 +152,8 @@ const state = {
     player: null,
     cables: [],
     orbs: [],
-    particles: []
+    particles: [],
+    pockets: [] // 6 Bilijar Rupa
 };
 
 /* JOYSTICK ENGINE WITH MAX SENSITIVITY */
@@ -233,6 +249,18 @@ function initJoystick() {
     window.addEventListener("touchcancel", handleEnd, { passive: false });
 }
 
+function updatePocketPositions() {
+    const pocketRadius = 30;
+    state.pockets = [
+        { x: pocketRadius, y: pocketRadius, r: pocketRadius },                          // Top-Left
+        { x: state.width / 2, y: pocketRadius, r: pocketRadius },                       // Top-Center
+        { x: state.width - pocketRadius, y: pocketRadius, r: pocketRadius },            // Top-Right
+        { x: pocketRadius, y: state.height / 2, r: pocketRadius },                      // Mid-Left
+        { x: state.width - pocketRadius, y: state.height / 2, r: pocketRadius },         // Mid-Right
+        { x: pocketRadius, y: state.height - pocketRadius - 15, r: pocketRadius }        // Bottom-Left
+    ];
+}
+
 function resizeCanvas() {
     if (!DOM.canvas || !DOM.gameStage) return;
 
@@ -242,6 +270,8 @@ function resizeCanvas() {
 
     DOM.canvas.width = rect.width;
     DOM.canvas.height = rect.height;
+
+    updatePocketPositions();
 
     if (state.player) {
         state.player.y = state.height - state.player.height - 10;
@@ -295,14 +325,14 @@ function startLevel(levelNumber) {
 }
 
 function createLevelOrbs(levelNumber) {
-    const count = Math.min(2 + Math.floor(levelNumber / 2), 6);
+    const count = Math.min(3 + levelNumber, 8);
     for (let i = 0; i < count; i++) {
         const theme = RABBIT_THEMES[i % RABBIT_THEMES.length];
         const typeKeys = ["large", "medium", "small"];
         const orbType = typeKeys[i % 3];
         state.orbs.push({
             x: (state.width / (count + 1)) * (i + 1),
-            y: 60 + Math.random() * 80,
+            y: 70 + Math.random() * 80,
             radius: ORB_TYPES[orbType].radius,
             type: orbType,
             velocityX: ORB_TYPES[orbType].speedX * (i % 2 === 0 ? 1 : -1),
@@ -313,9 +343,9 @@ function createLevelOrbs(levelNumber) {
 }
 
 function createParticles(x, y, color) {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 15; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 120 + Math.random() * 180;
+        const speed = 120 + Math.random() * 200;
         state.particles.push({
             x: x,
             y: y,
@@ -324,7 +354,7 @@ function createParticles(x, y, color) {
             radius: 2 + Math.random() * 3,
             color: color,
             alpha: 1.0,
-            life: 0.35
+            life: 0.4
         });
     }
 }
@@ -352,7 +382,7 @@ function updateGame(delta, timestamp) {
         tryShoot(timestamp);
     }
 
-    // Cables / Harpoon Update
+    // Harpoon Cable Speed
     for (let i = state.cables.length - 1; i >= 0; i--) {
         const cable = state.cables[i];
         cable.height += GAME_CONFIG.cableSpeed * delta;
@@ -362,13 +392,32 @@ function updateGame(delta, timestamp) {
         }
     }
 
-    // Orbs Physics & Wall Bounces
-    state.orbs.forEach(orb => {
+    // Orbs Physics
+    for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
+        const orb = state.orbs[oIdx];
         orb.velocityY += GAME_CONFIG.gravity * delta;
         orb.x += orb.velocityX * delta;
         orb.y += orb.velocityY * delta;
 
-        // Odbijanje od zidova
+        // BILIJAR DETEKCIJA UBACIVANJA U 6 RUPA (POCKETS)
+        let potted = false;
+        state.pockets.forEach(pocket => {
+            const dist = Math.hypot(orb.x - pocket.x, orb.y - pocket.y);
+            if (dist < pocket.r + orb.radius * 0.4) {
+                potted = true;
+                audio.playPocketScore();
+                createParticles(pocket.x, pocket.y, orb.theme.main);
+                state.score += ORB_TYPES[orb.type].score;
+                updateHUD();
+            }
+        });
+
+        if (potted) {
+            state.orbs.splice(oIdx, 1);
+            continue;
+        }
+
+        // Standardne litice i zidovi
         if (orb.x - orb.radius < 0) {
             orb.x = orb.radius;
             orb.velocityX *= -1;
@@ -377,20 +426,18 @@ function updateGame(delta, timestamp) {
             orb.velocityX *= -1;
         }
 
-        // Odbijanje od plafona
         if (orb.y - orb.radius < 0) {
             orb.y = orb.radius;
             orb.velocityY = Math.abs(orb.velocityY) * 0.85;
         }
 
-        // Odbijanje od poda
         if (orb.y + orb.radius > state.height - 4) {
             orb.y = state.height - 4 - orb.radius;
             orb.velocityY = -ORB_TYPES[orb.type].bounce;
         }
-    });
+    }
 
-    // FLIPER FIZIKA ODBIJANJA OD ZRAKA (HARPUN NE UNISTAVA NEGO ODBIJA)
+    // FLIPER FIZIKA ODBIJANJA OD ZRAKA
     state.cables.forEach(cable => {
         const cableX = cable.x;
         const cableTopY = state.height - cable.height;
@@ -403,20 +450,15 @@ function updateGame(delta, timestamp) {
                     audio.playBounce();
                     createParticles(orb.x, orb.y, "#00f5ff");
 
-                    // Smer odbijanja zavisno sa koje strane zraka udara
                     if (orb.x < cableX) {
-                        orb.velocityX = -Math.abs(orb.velocityX) - 60;
+                        orb.velocityX = -Math.abs(orb.velocityX) - 70;
                         orb.x = cableX - orb.radius - 5;
                     } else {
-                        orb.velocityX = Math.abs(orb.velocityX) + 60;
+                        orb.velocityX = Math.abs(orb.velocityX) + 70;
                         orb.x = cableX + orb.radius + 5;
                     }
 
-                    // Vertikalni odbojnik boost
-                    orb.velocityY = -Math.abs(orb.velocityY) * 1.1 - 150;
-
-                    state.score += 25;
-                    updateHUD();
+                    orb.velocityY = -Math.abs(orb.velocityY) * 1.15 - 160;
                 }
             }
         });
@@ -432,6 +474,13 @@ function updateGame(delta, timestamp) {
         if (p.alpha <= 0) {
             state.particles.splice(pIdx, 1);
         }
+    }
+
+    if (state.orbs.length === 0 && !state.levelComplete) {
+        state.levelComplete = true;
+        setTimeout(() => {
+            showScreen("levelComplete");
+        }, 500);
     }
 }
 
@@ -450,7 +499,28 @@ function tryShoot(timestamp) {
 function renderGame() {
     ctx.clearRect(0, 0, state.width, state.height);
 
-    // 1. NEON FLIPER HARPOON BOUNCER
+    // 1. RENDER 6 BILIJAR RUPA (POCKETS)
+    state.pockets.forEach(p => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "#030208";
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#9c4dff";
+        ctx.shadowColor = "#9c4dff";
+        ctx.shadowBlur = 15;
+        ctx.stroke();
+
+        // Inner Vortex Glow
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(156, 77, 255, 0.3)";
+        ctx.fill();
+        ctx.restore();
+    });
+
+    // 2. FLIPER HARPOON BOUNCER
     state.cables.forEach(cable => {
         const startY = state.height;
         const topY = state.height - cable.height;
@@ -471,7 +541,6 @@ function renderGame() {
         ctx.lineTo(cable.x, topY);
         ctx.stroke();
 
-        // High Voltage Energy Tip
         ctx.fillStyle = "#ff2fcf";
         ctx.shadowColor = "#ff2fcf";
         ctx.shadowBlur = 20;
@@ -481,7 +550,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 2. ADVANCED RABBIT ORBS
+    // 3. ADVANCED RABBIT ORBS
     state.orbs.forEach(o => {
         const theme = o.theme || RABBIT_THEMES[0];
         const r = o.radius;
@@ -549,7 +618,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 3. PARTICLES
+    // 4. PARTICLES
     state.particles.forEach(p => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.alpha);
@@ -562,7 +631,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 4. PLAYER GUARDIAN
+    // 5. PLAYER GUARDIAN
     if (state.player) {
         ctx.save();
         ctx.shadowColor = "#ff2fcf";
