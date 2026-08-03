@@ -1,6 +1,6 @@
 /* =========================================================
-   WHR: POWER WTF UP v1.2.0
-   HYBRID RESPONSIVE PANG STYLES (CLEAN UTF-8)
+   WHR: POWER WTF UP v1.3.0
+   100% ENGLISH STYLES & DYNAMIC ARENA
 ========================================================= */
 
 :root {
@@ -74,7 +74,7 @@ html, body {
     background-size: 40px 44px;
 }
 
-/* STRICT SCREEN DISPLAY MANAGEMENT */
+/* SCREEN DISPLAY MANAGEMENT */
 .screen {
     position: absolute;
     inset: 0;
@@ -239,7 +239,7 @@ html, body {
 }
 .pause-button span { width: 3px; height: 12px; background: var(--color-white); }
 
-/* EXPANDED PANG ARENA */
+/* MAIN ARENA STAGE */
 .game-stage {
     position: relative;
     flex: 1 1 auto;
@@ -261,12 +261,11 @@ html, body {
     display: block;
 }
 
-/* MOBILE TOUCH CONTROLS - HIDDEN ON DESKTOP BY DEFAULT */
+/* MOBILE TOUCH CONTROLS */
 .mobile-controls {
     display: none !important;
 }
 
-/* SHOW CONTROLS ONLY ON TOUCH / MOBILE DEVICES */
 @media (hover: none) and (pointer: coarse), (max-width: 768px) {
     .mobile-controls {
         display: flex !important;
