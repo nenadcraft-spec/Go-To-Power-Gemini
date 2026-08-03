@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v4.2.0
-   MASTER RAPID ARCADE BALANCE ENGINE
+   WHR: POWER WTF UP v4.2.1
+   MASTER RAPID ARCADE BALANCE ENGINE (FIXED SYNTAX)
    - Complete 7 Cyber Rabbit Unique Powers
    - Green Guardian: Matrix Slow 50% (1.5s) + Permanent +20% Game Speed Surge on Hole Exit!
    - Void Shadow: Phantom Shift (3s) + Gravitational Pull Field (Black Hole Aura)!
@@ -288,7 +288,6 @@ function updateGame(delta) {
             newOrb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
             newOrb.velocityY = exitHole.dirY * speed * Math.sin(rad39);
 
-            // 💚 GREEN GUARDIAN EXIT SURGE: Kada iskoci iz crne rupe, trajno ubrzava igru za +20%!
             if (item.theme.id === "green") {
                 state.globalSpeedMultiplier *= 1.20;
             }
@@ -311,7 +310,7 @@ function updateGame(delta) {
         laser.headY += laser.vy * delta;
 
         laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
-        laser.tailY = laser.headY - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
+        laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
 
         if (laser.headX <= 0) { laser.headX = 0; laser.vx = Math.abs(laser.vx); }
         else if (laser.headX >= state.width) { laser.headX = state.width; laser.vx = -Math.abs(laser.vx); }
@@ -382,15 +381,13 @@ function updateGame(delta) {
             if (orb.goldCooldown < 0) orb.goldCooldown = 0;
         }
 
-        // 💜 VOID SHADOW: PHANTOM SHIFT (3s Trajanje) + GRAVITACIONO PRIVLAČENJE
         if (orb.theme.id === "void") {
             orb.voidStateTimer -= delta;
             if (orb.voidStateTimer <= 0) {
                 orb.isPhantom = !orb.isPhantom;
-                orb.voidStateTimer = orb.isPhantom ? 3.0 : 4.0; // Phantom trajanje promenjeno na 3 sekunde!
+                orb.voidStateTimer = orb.isPhantom ? 3.0 : 4.0;
             }
 
-            // BLAGO GRAVITACIONO POLJE (Privlači druge zečeve u radijusu od 220px)
             if (!orb.inHole) {
                 state.orbs.forEach(other => {
                     if (other !== orb && !other.inHole) {
@@ -434,7 +431,7 @@ function updateGame(delta) {
         orb.y += orb.velocityY * speedMult * delta;
 
         state.blackHoles.forEach(bh => {
-            if (orb.theme.id === "void") return; // Void Shadow pasivno imun na rupe
+            if (orb.theme.id === "void") return;
 
             const dist = Math.hypot(orb.x - bh.x, orb.y - bh.y);
             if (dist < bh.radius) {
@@ -497,10 +494,9 @@ function updateGame(delta) {
     }
 }
 
-/* NOV SIGURAN MEHANIZAM ZA ZLATNOG ZECA */
 function triggerRabbitPower(orb, orbIndex) {
     switch (orb.theme.id) {
-        case "white": // EMP Pulse
+        case "white": // EMP Pulse + Puni Double-Barrel Sačmaricu!
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
@@ -510,75 +506,10 @@ function triggerRabbitPower(orb, orbIndex) {
                     }
                 }
             });
+            state.hasShotgunCharged = true;
             break;
 
-        case "black": // Hacker Swap
-            orb.x = 40 + Math.random() * (state.width - 80);
-            orb.y = 40 + Math.random() * (state.height * 0.4);
-            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 350;
-            orb.velocityY = -150;
-            break;
-
-        case "blue": // Freeze na 3s
-            state.globalFreezeTimer = 3.0;
-            break;
-
-        case "gold": // NOVI SAFE SPLIT-SHOT: 2 metka izleću iz TOPA sa dna pod uglom!
-            spawnSafeCannonLasers();
-            break;
-
-        case "red": // Boomerang Explosion & Respawn
-            state.orbs.forEach(other => {
-                if (other !== orb && !other.inHole) {
-                    const d = Math.hypot(other.x - orb.x, other.y - orb.y);
-                    if (d < 250) {
-                        other.velocityX = (other.x - orb.x) * 5.0;
-                        other.velocityY = (other.y - orb.y) * 5.0;
-                    }
-                }
-            });
-            state.orbs.splice(orbIndex, 1);
-            state.pendingRespawns.push({ theme: orb.theme, delay: 3.0 });
-            break;
-
-        case "green": // Time-Warp
-            state.globalSpeedMultiplier = 0.2;
-            state.orbs.splice(orbIndex, 1);
-            state.pendingRespawns.push({ theme: orb.theme, delay: 2.5 });
-            setTimeout(() => { state.globalSpeedMultiplier = 1.1; }, 2500);
-            break;
-
-        case "void": // Turbo
-            orb.isVoidTurbo = true;
-            orb.velocityX *= 1.8;
-            orb.velocityY *= 1.8;
-            break;
-    }
-}
-
-/* DUPLI METAK SA DNA ARENE - NEMA ŠANSE DA SE POKVARI */
-function spawnSafeCannonLasers() {
-    if (!state.player) return;
-    const startX = state.player.x + state.player.width / 2;
-    const startY = state.player.y;
-
-    // Dva dodatna metka pod uglom od -25° i +25° u odnosu na trenutni nišan
-    const offsetAngles = [-0.4, 0.4];
-
-    offsetAngles.forEach(off => {
-        const finalAngle = state.aimAngle + off;
-        const vx = Math.sin(finalAngle) * GAME_CONFIG.laserSpeed;
-        const vy = -Math.cos(finalAngle) * GAME_CONFIG.laserSpeed;
-
-        state.lasers.push({
-            headX: startX, headY: startY, tailX: startX, tailY: startY,
-            vx: vx, vy: vy, life: 2.5
-        });
-    });
-}
-            break;
-
-        case "black":
+        case "black": // Hacker Swap Teleport
             orb.x = 40 + Math.random() * (state.width - 80);
             orb.y = 40 + Math.random() * (state.height * 0.4);
             orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 350;
@@ -589,19 +520,19 @@ function spawnSafeCannonLasers() {
             state.globalFreezeTimer = 0.8;
             break;
 
-        case "gold": // DOUBLE RAZOR SHOT (1.2s, Golden Immunity)
+        case "gold": // DOUBLE RAZOR SHOT (Golden Razor immunity)
             if (!orb.goldCooldown || orb.goldCooldown <= 0) {
                 orb.goldCooldown = 1.5;
                 spawnGoldenRazorLasers(orb.x, orb.y, orb.radius);
             }
             break;
 
-        case "red": // BOOMERANG SURGE (+70% EKSPLOZIJA BOOST!)
+        case "red": // BOOMERANG SURGE (+70% EKSPLOZIJA BOOST)
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
                     if (d < 250) {
-                        other.velocityX = (other.x - orb.x) * 8.5; 
+                        other.velocityX = (other.x - orb.x) * 8.5;
                         other.velocityY = (other.y - orb.y) * 8.5;
                     }
                 }
@@ -610,21 +541,18 @@ function spawnSafeCannonLasers() {
             state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
             break;
 
-        case "green": // MATRIX SLOW 50% (1.5s) + RESPAWN THRU CRNA RUPA
+        case "green": // MATRIX SLOW 50% (1.5s) + RESPAWN KROZ CRNU RUPU
             const currentSlowBase = state.globalSpeedMultiplier;
-            state.globalSpeedMultiplier *= 0.5; // Uspori sve za 50% na 1.5s
+            state.globalSpeedMultiplier *= 0.5;
             state.orbs.splice(orbIndex, 1);
-            
-            // Re-spawnuje se iz nasumične crne rupe posle 1.5s
             state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
-            
-            setTimeout(() => { 
-                // Vraća brzinu iz slow-mow-a na baznu
-                state.globalSpeedMultiplier = currentSlowBase; 
+
+            setTimeout(() => {
+                state.globalSpeedMultiplier = currentSlowBase;
             }, 1500);
             break;
 
-        case "void":
+        case "void": // Turbo boost
             orb.velocityX *= 1.8;
             orb.velocityY *= 1.8;
             break;
@@ -788,9 +716,7 @@ function renderGame() {
         ctx.save();
         ctx.translate(o.x, o.y);
 
-        // VIZUELNI EFEKAT ZA VOID SHADOW (Gravitaciona aura + Phantom Shift providnost)
         if (o.theme.id === "void") {
-            // Crtanje blagog gravitacionog prstena oko Ljubičastog
             ctx.beginPath();
             ctx.arc(0, 0, r + 18, 0, Math.PI * 2);
             ctx.strokeStyle = "rgba(156, 77, 255, 0.25)";
@@ -913,7 +839,7 @@ function init() {
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    
+
     DOM.canvas.addEventListener("mousemove", handleMouseMove);
     DOM.canvas.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
