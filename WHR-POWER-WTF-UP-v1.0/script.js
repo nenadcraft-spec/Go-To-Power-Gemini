@@ -1,9 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v3.0.2
-   THE ULTIMATE 7-RABBIT UNIQUE POWER REACTION ENGINE
-   (HOTFIX: Anti-crash Zlatni Zec + Totalna Latinica)
+   WHR: POWER WTF UP v3.1.0
+   DART BULLET VISUAL & PHYSICS ENGINE (2s Cooldown, +20% Speed)
 ========================================================= */
 
 const DOM = {
@@ -85,14 +84,15 @@ class AudioEngine {
 
 const audio = new AudioEngine();
 
+// NOVA PODEŠAVANJA ZA METAK (BRZINA 900, COOLDOWN 2s, KRAĆA DUŽINA PIKADO STRELICE 32px)
 const GAME_CONFIG = {
     playerWidth: 40,
     playerHeight: 18,
     aimSpeed: 1.8,
-    laserSpeed: 750,
-    laserLength: 150,
-    laserDuration: 5.0,
-    shootCooldown: 4.0,
+    laserSpeed: 900,        // Povećano za 20% (sa 750 na 900)
+    laserLength: 32,        // Smanjeno na veličinu pikado strelice!
+    laserDuration: 5.0,     // Metak traje 5 sekundi
+    shootCooldown: 2.0,     // Cooldown smanjen na 2 sekunde
     gravity: 580
 };
 
@@ -291,17 +291,16 @@ function updateGame(delta) {
 
     if ((state.keys.shoot || state.touch.shoot) && state.cooldownTimer === 0) tryShoot();
 
+    // UPDATE METAKA / PIKADO STRELICA
     for (let i = state.lasers.length - 1; i >= 0; i--) {
         const laser = state.lasers[i];
         laser.life -= delta;
         laser.headX += laser.vx * delta;
         laser.headY += laser.vy * delta;
 
-        const currentLen = Math.hypot(laser.headX - laser.tailX, laser.headY - laser.tailY);
-        if (currentLen > GAME_CONFIG.laserLength) {
-            laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
-            laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
-        }
+        // Održavanje dužine tela strelice na tačno GAME_CONFIG.laserLength (32px)
+        laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
+        laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
 
         if (laser.headX <= 0) { laser.headX = 0; laser.vx = Math.abs(laser.vx); }
         else if (laser.headX >= state.width) { laser.headX = state.width; laser.vx = -Math.abs(laser.vx); }
@@ -609,18 +608,47 @@ function renderGame() {
         ctx.restore();
     }
 
+    // ISCRTAVANJE PIKADO STRELICA METAKA
     state.lasers.forEach(laser => {
         ctx.save();
+
+        const angle = Math.atan2(laser.vy, laser.vx);
+
+        // Telo strelice
         ctx.strokeStyle = "#00f5ff";
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(laser.tailX, laser.tailY);
         ctx.lineTo(laser.headX, laser.headY);
         ctx.stroke();
+
+        // Spicasti vrh pikado strelice (Glava)
+        ctx.save();
+        ctx.translate(laser.headX, laser.headY);
+        ctx.rotate(angle);
         ctx.fillStyle = "#ff2fcf";
         ctx.beginPath();
-        ctx.arc(laser.headX, laser.headY, 6, 0, Math.PI * 2);
+        ctx.moveTo(6, 0);
+        ctx.lineTo(-6, -4);
+        ctx.lineTo(-6, 4);
+        ctx.closePath();
         ctx.fill();
+        ctx.restore();
+
+        // Perca na zadnjem delu pikado strelice (Rep)
+        ctx.save();
+        ctx.translate(laser.tailX, laser.tailY);
+        ctx.rotate(angle);
+        ctx.strokeStyle = "#ff2fcf";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-6, -5);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-6, 5);
+        ctx.stroke();
+        ctx.restore();
+
         ctx.restore();
     });
 
