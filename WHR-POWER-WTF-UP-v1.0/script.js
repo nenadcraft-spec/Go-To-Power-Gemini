@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v1.6.0
-   AUDIO SYNTH ENGINE & NEON PARTICLE SYSTEM
+   WHR: POWER WTF UP v1.7.0
+   AUDIO SYNTH ENGINE, NEON PARTICLES & RABBIT AVATARS
 ========================================================= */
 
 const DOM = {
@@ -45,7 +45,7 @@ const DOM = {
 
 const ctx = DOM.canvas.getContext("2d", { alpha: true });
 
-/* PROCEDURAL WEB AUDIO SYNTH ENGINE (NO EXTERNAL FILES) */
+/* PROCEDURAL WEB AUDIO SYNTH ENGINE */
 class AudioEngine {
     constructor() {
         this.ctx = null;
@@ -337,14 +337,135 @@ function gameLoop(timestamp) {
         updateGame(delta, timestamp);
     }
 
-    /* =========================================================
-   WHR v1.7.0 — ADVANCED VECTOR RABBIT AVATARS (CANVAS RENDER)
-========================================================= */
+    renderGame();
+    state.animationFrameId = window.requestAnimationFrame(gameLoop);
+}
+
+function updateGame(delta, timestamp) {
+    const dir = (state.keys.left || state.touch.left ? -1 : 0) + (state.keys.right || state.touch.right ? 1 : 0);
+    state.player.x += dir * GAME_CONFIG.playerSpeed * delta;
+    state.player.x = Math.max(0, Math.min(state.width - state.player.width, state.player.x));
+
+    if (state.keys.shoot || state.touch.shoot) {
+        tryShoot(timestamp);
+    }
+
+    // Cables Update
+    for (let i = state.cables.length - 1; i >= 0; i--) {
+        const cable = state.cables[i];
+        cable.height += GAME_CONFIG.cableSpeed * delta;
+
+        if (cable.height >= state.height) {
+            state.cables.splice(i, 1);
+        }
+    }
+
+    // Orbs Physics
+    state.orbs.forEach(orb => {
+        orb.velocityY += GAME_CONFIG.gravity * delta;
+        orb.x += orb.velocityX * delta;
+        orb.y += orb.velocityY * delta;
+
+        if (orb.x - orb.radius < 0) {
+            orb.x = orb.radius;
+            orb.velocityX *= -1;
+        } else if (orb.x + orb.radius > state.width) {
+            orb.x = state.width - orb.radius;
+            orb.velocityX *= -1;
+        }
+
+        if (orb.y - orb.radius < 0) {
+            orb.y = orb.radius;
+            orb.velocityY = Math.abs(orb.velocityY) * 0.8;
+        }
+
+        if (orb.y + orb.radius > state.height - 4) {
+            orb.y = state.height - 4 - orb.radius;
+            orb.velocityY = -ORB_TYPES[orb.type].bounce;
+        }
+    });
+
+    // Particles Update
+    for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+        const p = state.particles[pIdx];
+        p.x += p.vx * delta;
+        p.y += p.vy * delta;
+        p.alpha -= delta / p.life;
+
+        if (p.alpha <= 0) {
+            state.particles.splice(pIdx, 1);
+        }
+    }
+
+    // Collisions
+    for (let cIdx = state.cables.length - 1; cIdx >= 0; cIdx--) {
+        const cable = state.cables[cIdx];
+        const cableX = cable.x;
+        const cableTopY = state.height - cable.height;
+
+        for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
+            const orb = state.orbs[oIdx];
+
+            const closestY = Math.max(cableTopY, Math.min(state.height, orb.y));
+            const distX = orb.x - cableX;
+            const distY = orb.y - closestY;
+            const distance = Math.hypot(distX, distY);
+
+            if (distance < orb.radius + 3) {
+                state.cables.splice(cIdx, 1);
+                destroyOrb(oIdx, orb);
+                break;
+            }
+        }
+    }
+
+    if (state.orbs.length === 0 && !state.levelComplete) {
+        state.levelComplete = true;
+        setTimeout(() => {
+            showScreen("levelComplete");
+        }, 500);
+    }
+}
+
+function destroyOrb(idx, orb) {
+    audio.playExplode();
+    createParticles(orb.x, orb.y, orb.theme ? orb.theme.main : "#00f5ff");
+
+    state.orbs.splice(idx, 1);
+    state.score += ORB_TYPES[orb.type].score;
+    updateHUD();
+
+    const next = ORB_TYPES[orb.type].next;
+    if (next) {
+        const cfg = ORB_TYPES[next];
+        const theme = orb.theme;
+        state.orbs.push({
+            x: orb.x - 10, y: orb.y, radius: cfg.radius, type: next,
+            velocityX: -cfg.speedX, velocityY: -cfg.bounce * 0.6, theme: theme
+        });
+        state.orbs.push({
+            x: orb.x + 10, y: orb.y, radius: cfg.radius, type: next,
+            velocityX: cfg.speedX, velocityY: -cfg.bounce * 0.6, theme: theme
+        });
+    }
+}
+
+function tryShoot(timestamp) {
+    if (state.cables.length >= 1) return;
+    if (timestamp - state.lastShotTime < GAME_CONFIG.shootDelay) return;
+
+    audio.playShoot();
+    state.lastShotTime = timestamp;
+    state.cables.push({
+        x: state.player.x + state.player.width / 2,
+        height: 0
+    });
+}
 
 function renderGame() {
     ctx.clearRect(0, 0, state.width, state.height);
 
-    // 1. RENDER HARPOON CABLES
+    // 1. HARPOON CABLES
     state.cables.forEach(cable => {
         const startY = state.height;
         const topY = state.height - cable.height;
@@ -365,7 +486,6 @@ function renderGame() {
         ctx.lineTo(cable.x, topY);
         ctx.stroke();
 
-        // Harpoon Hook Head
         ctx.fillStyle = "#ff2fcf";
         ctx.shadowColor = "#ff2fcf";
         ctx.shadowBlur = 15;
@@ -378,7 +498,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 2. RENDER ADVANCED RABBIT ORBS (TAČNO SA TVOJE SLIKE)
+    // 2. ADVANCED RABBIT ORBS
     state.orbs.forEach(o => {
         const theme = o.theme || RABBIT_THEMES[0];
         const r = o.radius;
@@ -386,7 +506,6 @@ function renderGame() {
         ctx.save();
         ctx.translate(o.x, o.y);
 
-        // Neon Outer Aura Glow
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(5, 4, 10, 0.85)";
@@ -397,35 +516,27 @@ function renderGame() {
         ctx.shadowBlur = 18;
         ctx.stroke();
 
-        // Cyber Rabbit Ears (Vektorske dugačke uši)
         ctx.lineWidth = 2.5;
         ctx.strokeStyle = theme.main;
         ctx.fillStyle = theme.main;
 
-        // Left Ear
         ctx.beginPath();
         ctx.ellipse(-r * 0.35, -r * 0.65, r * 0.18, r * 0.45, -0.2, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Right Ear
         ctx.beginPath();
         ctx.ellipse(r * 0.35, -r * 0.65, r * 0.18, r * 0.45, 0.2, 0, Math.PI * 2);
         ctx.stroke();
 
-        // UNUTRAŠNJI DETALJI U ZAVISNOSTI OD KLASE ZECA
-
         if (theme.name === "Black Hacker" || theme.name === "White Hacker") {
-            // VR Vizir / Cyber Naočare (Beli i Crni Haker)
             ctx.fillStyle = theme.eye;
             ctx.shadowColor = theme.eye;
             ctx.shadowBlur = 12;
             ctx.fillRect(-r * 0.5, -r * 0.15, r * 1.0, r * 0.32);
 
-            // Vizir Glitch Linija
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(r * 0.1, -r * 0.1, r * 0.25, r * 0.2);
         } else if (theme.name === "Red Cyber") {
-            // Crveni Zec sa Nišanom (Target Crosshair)
             ctx.strokeStyle = "#ff315d";
             ctx.shadowColor = "#ff315d";
             ctx.shadowBlur = 10;
@@ -435,7 +546,6 @@ function renderGame() {
             ctx.moveTo(0, -r * 0.55); ctx.lineTo(0, r * 0.55);
             ctx.stroke();
         } else if (theme.name === "Golden Rabbit") {
-            // Zlatne Zvezdice i Oči
             ctx.fillStyle = "#ffe45c";
             ctx.shadowColor = "#ffe45c";
             ctx.shadowBlur = 10;
@@ -444,7 +554,6 @@ function renderGame() {
             ctx.arc(r * 0.3, 0, r * 0.12, 0, Math.PI * 2);
             ctx.fill();
         } else {
-            // Standardne Neonske Cyber Oči (Beli/Plavi/Zeleni)
             ctx.fillStyle = theme.eye;
             ctx.shadowColor = theme.eye;
             ctx.shadowBlur = 10;
@@ -457,7 +566,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 3. RENDER NEON SPARKS PARTICLES
+    // 3. PARTICLES
     state.particles.forEach(p => {
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.alpha);
@@ -470,7 +579,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 4. RENDER PLAYER GUARDIAN SHIP
+    // 4. PLAYER GUARDIAN
     if (state.player) {
         ctx.save();
         ctx.shadowColor = "#ff2fcf";
@@ -478,7 +587,6 @@ function renderGame() {
         ctx.fillStyle = "linear-gradient(135deg, #ff2fcf, #00f5ff)";
         ctx.fillRect(state.player.x, state.player.y, state.player.width, state.player.height);
 
-        // Player Core Light
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(state.player.x + state.player.width / 2 - 4, state.player.y + 4, 8, state.player.height - 8);
         ctx.restore();
