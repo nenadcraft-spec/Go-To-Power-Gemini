@@ -570,8 +570,8 @@ const CONFIG = {
   blackHoleBaseSpeed: 18,
   blackHoleMaxSpeed: 40,
   blackHoleGravityRate: 70,
-  blackHoleGravityRadius: 230,
-  blackHoleGravityStep: 13,
+  blackHoleBaseGravityRadius: 230,
+  blackHoleGravityRadiusStep: 15,
 
   bestKey: "whr-rabbit-reflex-best-score",
   soundKey: "whr-rabbit-reflex-sound-enabled",
@@ -603,7 +603,7 @@ const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const pad = (value) => String(Math.max(0, Math.floor(value))).padStart(8, "0");
 
 /* =========================================
-   WHR SAMPLE AUDIO + SYNTH FALLBACK
+   WHR SAMPLE AUDIO + PROCEDURAL SINTETIZATOR
    ========================================= */
 
 class AudioFX {
@@ -777,18 +777,19 @@ class AudioFX {
     oscillator.stop(now + duration + 0.02);
   }
 
-  hit() { this.playSample("normalHit", () => this.tone(504, 0.09, "sine", 844)); }
-  gold() { this.playSample("goldenRabbit", () => [660, 880, 1100].forEach((f, i) => setTimeout(() => this.tone(f, 0.13, "triangle", f * 1.1), i * 45))); }
-  freeze() { [900, 700, 500].forEach((f, i) => setTimeout(() => this.tone(f, 0.15, "sine", f * 0.8), i * 50)); }
-  red() { this.playSample("redRabbit", () => [200, 150, 100].forEach((f, i) => setTimeout(() => this.tone(f, 0.18, "sawtooth", f * 0.6), i * 60))); }
-  life() { this.playSample("extraLife", () => [520, 660, 880, 1040].forEach((f, i) => setTimeout(() => this.tone(f, 0.14, "triangle", f * 1.12), i * 45))); }
-  bad() { this.playSample("trap", () => this.tone(190, 0.24, "sawtooth", 55)); }
+  /* PROCEDURALNI SINTETIZOVANI KLIK ZVUCI */
+  hit() { this.playSample("normalHit", () => this.tone(580, 0.08, "sine", 880)); }
+  gold() { this.playSample("goldenRabbit", () => [880, 1100, 1320].forEach((f, i) => setTimeout(() => this.tone(f, 0.1, "triangle", f * 1.15), i * 35))); }
+  freeze() { [1000, 800, 600].forEach((f, i) => setTimeout(() => this.tone(f, 0.12, "sine", f * 0.75), i * 40)); }
+  red() { this.playSample("redRabbit", () => [240, 160, 80].forEach((f, i) => setTimeout(() => this.tone(f, 0.15, "sawtooth", f * 0.5), i * 50))); }
+  life() { this.playSample("extraLife", () => [580, 720, 960, 1200].forEach((f, i) => setTimeout(() => this.tone(f, 0.12, "triangle", f * 1.1), i * 40))); }
+  bad() { this.playSample("trap", () => this.tone(210, 0.22, "sawtooth", 50)); }
   level() { this.playSample("levelUp", () => [440, 554, 659, 880].forEach((f, i) => setTimeout(() => this.tone(f, 0.16, "sine", f * 1.05), i * 65))); }
   click() { this.tone(500, 0.07, "sine", 720); }
   over() { this.playSample("gameOver", () => [420, 320, 230, 150].forEach((f, i) => setTimeout(() => this.tone(f, 0.2, "sawtooth", f * 0.7), i * 90))); }
-  blackHacker() { this.playSample("blackHacker", () => this.tone(150, 0.3, "sawtooth", 45)); }
-  blackHole() { this.playSample("blackHole", () => this.tone(90, 0.45, "sine", 28)); }
-  whiteHacker() { this.playSample("whiteHacker", () => this.tone(620, 0.3, "triangle", 1250)); }
+  blackHacker() { this.playSample("blackHacker", () => this.tone(160, 0.28, "sawtooth", 40)); }
+  blackHole() { this.playSample("blackHole", () => this.tone(85, 0.5, "sine", 25)); }
+  whiteHacker() { this.playSample("whiteHacker", () => [523, 659, 783].forEach((f, i) => setTimeout(() => this.tone(f, 0.18, "triangle", f * 1.2), i * 45))); }
   start() { this.playSample("gameStart", () => this.tone(360, 0.28, "triangle", 900)); }
 
   toggle() {
@@ -1056,6 +1057,7 @@ class Game {
     });
   }
 
+  /* FIX 1: POPRAVLJEN BACK TO LOBBY STATUS */
   backToLobby() {
     this.reset();
     this.show(this.e.pauseO, false);
@@ -1063,6 +1065,7 @@ class Game {
     this.show(this.e.startO, true);
     this.state = "ready";
     this.e.pause.disabled = true;
+    this.setStatus("SYSTEM READY", "normal");
     this.audio.playLobby(0.14);
   }
 
@@ -1122,6 +1125,7 @@ class Game {
     this.reset();
     this.show(this.e.startO, true);
     this.state = "ready";
+    this.setStatus("SYSTEM READY", "normal");
   }
 
   reset() {
@@ -1501,13 +1505,14 @@ class Game {
     }
   }
 
-  // OPTIMIZOVANO: ZVUK SE NE PUŠTA PRI SPAWNINGU (BEZ DUPLOG ZVUKA)
+  /* ZVUK CRNE RUPE SE POJAVUJE TEK PRI SPAWN-U */
   playSpawnSound(type) {
     if (type === "blackhole") {
       this.audio.blackHole();
     }
   }
 
+  /* FIX 3: EVOLUCIJA CRNE RUPE KROZ NIVOE */
   spawn(type, group, options = {}) {
     if (this.state !== "playing" && this.state !== "tutorial") return;
 
@@ -1515,7 +1520,12 @@ class Game {
 
     if (type === "hacker") size = Math.max(76, size * 1.18);
     if (type === "hero") size = Math.max(74, size * 1.14);
-    if (type === "blackhole") size = Math.max(82, size * 1.26);
+    
+    // Crna rupa evoluira i fizički raste sa nivoima!
+    if (type === "blackhole") {
+      const scaleFactor = 1 + (this.level - 1) * 0.04;
+      size = Math.min(135, Math.max(82, size * 1.26 * scaleFactor));
+    }
 
     const rect = this.e.stage.getBoundingClientRect();
     let { x, y } = this.findSpawnPosition(size, rect);
@@ -1627,8 +1637,12 @@ class Game {
     target.gravityTimerId = setInterval(() => this.applyBlackHoleGravity(id, target), CONFIG.blackHoleGravityRate);
   }
 
+  /* GRAVITACIJA EVOLUIRA KROZ NIVOE */
   applyBlackHoleGravity(blackHoleId, blackHole) {
     if (this.state !== "playing" || !this.targets.has(blackHoleId)) return;
+
+    // Radijus privlačenja raste sa nivoom!
+    const dynamicRadius = CONFIG.blackHoleBaseGravityRadius + (this.level - 1) * CONFIG.blackHoleGravityRadiusStep;
 
     for (const [id, target] of this.targets.entries()) {
       if (id === blackHoleId || target.type === "blackhole") continue;
@@ -1637,7 +1651,7 @@ class Game {
       const dy = blackHole.y - target.y;
       const distance = Math.hypot(dx, dy);
 
-      if (distance <= 1 || distance > CONFIG.blackHoleGravityRadius) {
+      if (distance <= 1 || distance > dynamicRadius) {
         target.element.classList.remove("is-gravity-pulled");
         continue;
       }
@@ -1655,7 +1669,7 @@ class Game {
         continue;
       }
 
-      const strength = CONFIG.blackHoleGravityStep * (1 - distance / CONFIG.blackHoleGravityRadius + 0.25);
+      const strength = CONFIG.blackHoleGravityStep * (1 - distance / dynamicRadius + 0.25);
       target.x += (dx / distance) * strength;
       target.y += (dy / distance) * strength;
 
@@ -1671,10 +1685,7 @@ class Game {
     }
   }
 
-  /* =========================================
-     HIT LOGIKA SA SPECIFIČNIM ZVUKOM NA KLIK
-     ========================================= */
-
+  /* FIX 2: NOVI PROCEDURALNI CLICK SFX NA KLIK */
   hit(id, type, button, x, y) {
     if (this.isTutorial) {
       const target = this.targets.get(id);
@@ -2132,6 +2143,7 @@ class Game {
     else if (this.state === "paused") this.resume();
   }
 
+  /* FIX 4: PRAVA VOID COLLAPSE SINGULARNOST */
   finish() {
     if (this.state === "gameover") return;
 
@@ -2149,7 +2161,10 @@ class Game {
     clearTimeout(this.heroSpawnTimer);
     clearTimeout(this.blackHoleSpawnTimer);
 
-    // VOID COLLAPSE ANIMACIJA - USISAVANJE PRE POJAVU OVERLAY-A
+    // KOSMIČKO USISAVANJE PRE POJAVU OVERLAY-A
+    for (const target of this.targets.values()) {
+      target.element.classList.add("is-void-pulled");
+    }
     this.e.stage.classList.add("is-void-collapsing");
 
     setTimeout(() => {
