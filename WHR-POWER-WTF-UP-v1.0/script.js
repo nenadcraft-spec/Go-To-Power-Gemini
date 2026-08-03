@@ -2,7 +2,7 @@
 
 /* =========================================================
    WHR: POWER WTF UP v1.3.0
-   ORIGINAL WHR GUARDIAN VS RABBIT ANOMALIES ENGINE
+   HYBRID PANG ENGINE WITH BOUNDED CANVAS RESIZING
 ========================================================= */
 
 const DOM = {
@@ -65,37 +65,25 @@ const STORAGE_KEYS = {
 
 const GAME_CONFIG = {
     startingLives: 3,
-    // WHR GUARDIAN COMPACT PLAYER SIZE
-    playerWidth: 44,
-    playerHeight: 32,
-    playerSpeed: 520,
-    ropeSpeed: 1250,
-    gravity: 800,
-    shootDelay: 320
+    playerWidth: 50,
+    playerHeight: 24,
+    playerSpeed: 480,
+    cableSpeed: 1200,
+    gravity: 780,
+    shootDelay: 350
 };
 
-/* RABBIT ANOMALY ARCHETYPES */
-const RABBIT_TYPES = {
-    large: { radius: 48, speedX: 150, bounce: 680, score: 100, next: "medium" },
-    medium: { radius: 32, speedX: 190, bounce: 550, score: 180, next: "small" },
-    small: { radius: 20, speedX: 240, bounce: 450, score: 300, next: null }
+const ORB_TYPES = {
+    large: { radius: 42, speedX: 150, bounce: 650, score: 100, next: "medium" },
+    medium: { radius: 26, speedX: 190, bounce: 530, score: 180, next: "small" },
+    small: { radius: 15, speedX: 240, bounce: 430, score: 300, next: null }
 };
-
-const RABBIT_COLORS = [
-    { name: "red", hue: 350 },
-    { name: "blue", hue: 200 },
-    { name: "white", hue: 0, isWhite: true },
-    { name: "green", hue: 130 },
-    { name: "gold", hue: 45, isGold: true },
-    { name: "purple", hue: 280 }
-];
 
 const state = {
     running: false,
     paused: false,
     gameOver: false,
     levelComplete: false,
-    hitStopUntil: 0,
     animationFrameId: null,
     lastTimestamp: 0,
     width: 600,
@@ -112,11 +100,10 @@ const state = {
     touch: { left: false, right: false, shoot: false },
     player: null,
     cables: [],
-    rabbits: [],
-    particles: []
+    orbs: []
 };
 
-/* TOUCH SLIDE JOYSTICK ENGINE */
+/* JOYSTICK ENGINE */
 const joystick = {
     zone: document.getElementById("joystickZone"),
     base: document.getElementById("joystickBase"),
@@ -231,8 +218,7 @@ function createPlayer() {
         x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
         y: state.height - GAME_CONFIG.playerHeight - 8,
         width: GAME_CONFIG.playerWidth,
-        height: GAME_CONFIG.playerHeight,
-        facing: 1
+        height: GAME_CONFIG.playerHeight
     };
 }
 
@@ -243,8 +229,7 @@ function resetGameState() {
     state.combo = 1;
     state.maxCombo = 1;
     state.cables = [];
-    state.rabbits = [];
-    state.particles = [];
+    state.orbs = [];
     state.player = createPlayer();
     updateHUD();
 }
@@ -262,9 +247,9 @@ function startLevel(levelNumber) {
     state.level = levelNumber;
     state.levelComplete = false;
     state.paused = false;
-    state.rabbits = [];
+    state.orbs = [];
     state.cables = [];
-    createLevelRabbits(levelNumber);
+    createLevelOrbs(levelNumber);
     state.running = true;
     state.lastTimestamp = performance.now();
     if (!state.animationFrameId) {
@@ -272,18 +257,17 @@ function startLevel(levelNumber) {
     }
 }
 
-function createLevelRabbits(levelNumber) {
+function createLevelOrbs(levelNumber) {
     const count = Math.min(1 + Math.floor(levelNumber / 2), 5);
     for (let i = 0; i < count; i++) {
-        const colorObj = RABBIT_COLORS[i % RABBIT_COLORS.length];
-        state.rabbits.push({
+        state.orbs.push({
             x: (state.width / (count + 1)) * (i + 1),
-            y: 80 + Math.random() * 80,
-            radius: RABBIT_TYPES.large.radius,
+            y: 60 + Math.random() * 80,
+            radius: ORB_TYPES.large.radius,
             type: "large",
-            velocityX: RABBIT_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
-            velocityY: -RABBIT_TYPES.large.bounce * 0.3,
-            colorInfo: colorObj
+            velocityX: ORB_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
+            velocityY: -ORB_TYPES.large.bounce * 0.3,
+            hue: 180 + Math.random() * 60
         });
     }
 }
@@ -294,10 +278,8 @@ function gameLoop(timestamp) {
     const delta = Math.min(0.033, (timestamp - state.lastTimestamp) / 1000);
     state.lastTimestamp = timestamp;
 
-    if (timestamp > state.hitStopUntil) {
-        if (!state.paused && !state.gameOver) {
-            updateGame(delta, timestamp);
-        }
+    if (!state.paused && !state.gameOver) {
+        updateGame(delta, timestamp);
     }
 
     renderGame();
@@ -306,7 +288,6 @@ function gameLoop(timestamp) {
 
 function updateGame(delta, timestamp) {
     const dir = (state.keys.left || state.touch.left ? -1 : 0) + (state.keys.right || state.touch.right ? 1 : 0);
-    if (dir !== 0) state.player.facing = dir;
     state.player.x += dir * GAME_CONFIG.playerSpeed * delta;
     state.player.x = Math.max(0, Math.min(state.width - state.player.width, state.player.x));
 
@@ -316,59 +297,49 @@ function updateGame(delta, timestamp) {
 
     for (let i = state.cables.length - 1; i >= 0; i--) {
         const cable = state.cables[i];
-        cable.height += GAME_CONFIG.ropeSpeed * delta;
+        cable.height += GAME_CONFIG.cableSpeed * delta;
+
         if (cable.height >= state.height) {
             state.cables.splice(i, 1);
         }
     }
 
-    state.rabbits.forEach(rabbit => {
-        rabbit.velocityY += GAME_CONFIG.gravity * delta;
-        rabbit.x += rabbit.velocityX * delta;
-        rabbit.y += rabbit.velocityY * delta;
+    state.orbs.forEach(orb => {
+        orb.velocityY += GAME_CONFIG.gravity * delta;
+        orb.x += orb.velocityX * delta;
+        orb.y += orb.velocityY * delta;
 
-        if (rabbit.x - rabbit.radius < 0 || rabbit.x + rabbit.radius > state.width) {
-            rabbit.velocityX *= -1;
+        if (orb.x - orb.radius < 0 || orb.x + orb.radius > state.width) {
+            orb.velocityX *= -1;
         }
-        if (rabbit.y + rabbit.radius > state.height - 4) {
-            rabbit.y = state.height - 4 - rabbit.radius;
-            rabbit.velocityY = -RABBIT_TYPES[rabbit.type].bounce;
+        if (orb.y + orb.radius > state.height - 4) {
+            orb.y = state.height - 4 - orb.radius;
+            orb.velocityY = -ORB_TYPES[orb.type].bounce;
         }
     });
-
-    for (let i = state.particles.length - 1; i >= 0; i--) {
-        const p = state.particles[i];
-        p.x += p.vx * delta;
-        p.y += p.vy * delta;
-        p.life -= delta;
-        if (p.life <= 0) state.particles.splice(i, 1);
-    }
 
     for (let cIdx = state.cables.length - 1; cIdx >= 0; cIdx--) {
         const cable = state.cables[cIdx];
         const cableX = cable.x;
         const cableTopY = state.height - cable.height;
 
-        for (let rIdx = state.rabbits.length - 1; rIdx >= 0; rIdx--) {
-            const rabbit = state.rabbits[rIdx];
+        for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
+            const orb = state.orbs[oIdx];
 
-            const closestY = Math.max(cableTopY, Math.min(state.height, rabbit.y));
-            const distX = rabbit.x - cableX;
-            const distY = rabbit.y - closestY;
+            const closestY = Math.max(cableTopY, Math.min(state.height, orb.y));
+            const distX = orb.x - cableX;
+            const distY = orb.y - closestY;
             const distance = Math.hypot(distX, distY);
 
-            if (distance < rabbit.radius + 3) {
+            if (distance < orb.radius + 3) {
                 state.cables.splice(cIdx, 1);
-                state.hitStopUntil = timestamp + 40;
-                
-                spawnSparks(rabbit.x, rabbit.y, rabbit.colorInfo.hue);
-                destroyRabbit(rIdx, rabbit);
+                destroyOrb(oIdx, orb);
                 break;
             }
         }
     }
 
-    if (state.rabbits.length === 0 && !state.levelComplete) {
+    if (state.orbs.length === 0 && !state.levelComplete) {
         state.levelComplete = true;
         setTimeout(() => {
             showScreen("levelComplete");
@@ -376,35 +347,21 @@ function updateGame(delta, timestamp) {
     }
 }
 
-function spawnSparks(x, y, hue) {
-    for (let i = 0; i < 16; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 120 + Math.random() * 200;
-        state.particles.push({
-            x, y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            life: 0.25 + Math.random() * 0.2,
-            hue: hue ?? 190
-        });
-    }
-}
-
-function destroyRabbit(idx, rabbit) {
-    state.rabbits.splice(idx, 1);
-    state.score += RABBIT_TYPES[rabbit.type].score;
+function destroyOrb(idx, orb) {
+    state.orbs.splice(idx, 1);
+    state.score += ORB_TYPES[orb.type].score;
     updateHUD();
 
-    const next = RABBIT_TYPES[rabbit.type].next;
+    const next = ORB_TYPES[orb.type].next;
     if (next) {
-        const cfg = RABBIT_TYPES[next];
-        state.rabbits.push({
-            x: rabbit.x - 12, y: rabbit.y, radius: cfg.radius, type: next,
-            velocityX: -cfg.speedX, velocityY: -cfg.bounce * 0.6, colorInfo: rabbit.colorInfo
+        const cfg = ORB_TYPES[next];
+        state.orbs.push({
+            x: orb.x - 10, y: orb.y, radius: cfg.radius, type: next,
+            velocityX: -cfg.speedX, velocityY: -cfg.bounce * 0.6, hue: orb.hue + 20
         });
-        state.rabbits.push({
-            x: rabbit.x + 12, y: rabbit.y, radius: cfg.radius, type: next,
-            velocityX: cfg.speedX, velocityY: -cfg.bounce * 0.6, colorInfo: rabbit.colorInfo
+        state.orbs.push({
+            x: orb.x + 10, y: orb.y, radius: cfg.radius, type: next,
+            velocityX: cfg.speedX, velocityY: -cfg.bounce * 0.6, hue: orb.hue + 20
         });
     }
 }
@@ -420,11 +377,10 @@ function tryShoot(timestamp) {
     });
 }
 
-/* VECTOR RENDERER FOR WHR GUARDIAN & RABBIT ANOMALIES */
 function renderGame() {
     ctx.clearRect(0, 0, state.width, state.height);
 
-    // Neo-Rope Cable
+    // Render Pang Cables
     state.cables.forEach(cable => {
         const startY = state.height;
         const topY = state.height - cable.height;
@@ -446,81 +402,32 @@ function renderGame() {
 
         ctx.fillStyle = "#ff2fcf";
         ctx.beginPath();
-        ctx.moveTo(cable.x - 7, topY + 10);
-        ctx.lineTo(cable.x + 7, topY + 10);
-        ctx.lineTo(cable.x, topY - 6);
+        ctx.moveTo(cable.x - 6, topY + 8);
+        ctx.lineTo(cable.x + 6, topY + 8);
+        ctx.lineTo(cable.x, topY - 4);
         ctx.closePath();
         ctx.fill();
     });
 
-    // Spark Particles
-    state.particles.forEach(p => {
-        ctx.fillStyle = `hsl(${p.hue}, 100%, 70%)`;
-        ctx.fillRect(p.x, p.y, 3, 3);
-    });
-
-    // Vector Rabbit Anomalies
-    state.rabbits.forEach(r => {
-        ctx.save();
-        ctx.translate(r.x, r.y);
-
-        const fillStyle = r.colorInfo.isWhite ? "#ffffff" : `hsl(${r.colorInfo.hue}, 90%, 60%)`;
-        ctx.fillStyle = fillStyle;
-        ctx.shadowColor = fillStyle;
+    // Render Orbs
+    state.orbs.forEach(o => {
+        ctx.beginPath();
+        ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${o.hue}, 90%, 60%)`;
+        ctx.shadowColor = `hsl(${o.hue}, 90%, 60%)`;
         ctx.shadowBlur = 12;
-
-        ctx.beginPath();
-        ctx.arc(0, 0, r.radius, 0, Math.PI * 2);
         ctx.fill();
-
-        const earW = r.radius * 0.35;
-        const earH = r.radius * 0.9;
-        
-        ctx.beginPath();
-        ctx.ellipse(-r.radius * 0.35, -r.radius * 0.8, earW / 2, earH / 2, -0.15, 0, Math.PI * 2);
-        ctx.ellipse(r.radius * 0.35, -r.radius * 0.8, earW / 2, earH / 2, 0.15, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#ff315d";
-        ctx.fillRect(-r.radius * 0.3, -r.radius * 0.1, r.radius * 0.2, r.radius * 0.2);
-        ctx.fillRect(r.radius * 0.1, -r.radius * 0.1, r.radius * 0.2, r.radius * 0.2);
-
-        ctx.restore();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#fff";
+        ctx.stroke();
     });
 
-    // WHR Guardian Character
+    // Render Player
     if (state.player) {
-        const p = state.player;
-        ctx.save();
-        ctx.translate(p.x + p.width / 2, p.y + p.height / 2);
-
-        ctx.fillStyle = "#ffffff";
-        ctx.shadowColor = "#00f5ff";
-        ctx.shadowBlur = 14;
-
-        ctx.beginPath();
-        ctx.ellipse(0, 4, p.width / 2, p.height / 2.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#00f5ff";
-        ctx.beginPath();
-        ctx.moveTo(-12, -4);
-        ctx.lineTo(-18, -20);
-        ctx.lineTo(-6, -8);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(12, -4);
-        ctx.lineTo(18, -20);
-        ctx.lineTo(6, -8);
-        ctx.closePath();
-        ctx.fill();
-
+        ctx.shadowColor = "#ff2fcf";
+        ctx.shadowBlur = 10;
         ctx.fillStyle = "#ff2fcf";
-        ctx.fillRect(-10, -2, 20, 5);
-
-        ctx.restore();
+        ctx.fillRect(state.player.x, state.player.y, state.player.width, state.player.height);
     }
 }
 
