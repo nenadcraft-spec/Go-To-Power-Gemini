@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v2.0.0
-   4 CORNER PORTALS WITH 45° LAUNCH & PINBALL FLIPPERS
+   WHR: POWER WTF UP v2.1.0
+   FIXED CENTER CANNON & BILLIARD AIMING MECHANICS
 ========================================================= */
 
 const DOM = {
@@ -99,10 +99,10 @@ class AudioEngine {
 const audio = new AudioEngine();
 
 const GAME_CONFIG = {
-    playerWidth: 50,
-    playerHeight: 20,
-    playerSpeed: 750,
-    cableSpeed: 1300,
+    playerWidth: 44,
+    playerHeight: 22,
+    aimSpeed: 1.8,     // Brzina rotacije nišana
+    cableSpeed: 1400,
     gravity: 620,
     shootDelay: 300
 };
@@ -130,6 +130,7 @@ const state = {
     score: 0,
     level: 1,
     lastShotTime: 0,
+    aimAngle: 0, // Ugao u radijanima (0 je vertikalno gore)
     keys: { left: false, right: false, shoot: false },
     touch: { left: false, right: false, shoot: false },
     player: null,
@@ -138,7 +139,7 @@ const state = {
     portalAngle: 0
 };
 
-/* JOYSTICK ENGINE */
+/* JOYSTICK ENGINE ZA ŠTELOVANJE UGLA */
 const joystick = {
     zone: document.getElementById("joystickZone"),
     base: document.getElementById("joystickBase"),
@@ -188,16 +189,9 @@ function initJoystick() {
 
         joystick.stick.style.transform = `translateX(${deltaX}px)`;
 
-        if (deltaX < -2) {
-            state.touch.left = true;
-            state.touch.right = false;
-        } else if (deltaX > 2) {
-            state.touch.right = true;
-            state.touch.left = false;
-        } else {
-            state.touch.left = false;
-            state.touch.right = false;
-        }
+        // DIREKTNO POSTAVLJANJE UGLA CILJANJA SA KLIZAČA
+        const normalized = deltaX / joystick.maxRadius; // od -1 do 1
+        state.aimAngle = normalized * (Math.PI / 2.6); // do oko 70 stepeni levo/desno
     }
 
     function handleEnd(e) {
@@ -205,8 +199,6 @@ function initJoystick() {
         joystick.active = false;
         joystick.touchId = null;
         joystick.stick.style.transform = `translateX(0px)`;
-        state.touch.left = false;
-        state.touch.right = false;
     }
 
     joystick.zone.addEventListener("touchstart", handleStart, { passive: false });
@@ -225,14 +217,8 @@ function resizeCanvas() {
     DOM.canvas.width = rect.width;
     DOM.canvas.height = rect.height;
 
-    if (state.player) {
-        state.player.y = state.height - state.player.height - 8;
-        state.player.x = Math.min(Math.max(0, state.player.x), state.width - state.player.width);
-    }
-}
-
-function createPlayer() {
-    return {
+    // IGRAČ FIKSIRAN TAČNO U CENTRU DNU
+    state.player = {
         x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
         y: state.height - GAME_CONFIG.playerHeight - 8,
         width: GAME_CONFIG.playerWidth,
@@ -243,10 +229,10 @@ function createPlayer() {
 function getCornerPortals() {
     const r = 24;
     return [
-        { id: 0, x: r + 8, y: r + 8, dirX: 1, dirY: 1 },                      // Top-Left (Lansira dole-desno 45°)
-        { id: 1, x: state.width - r - 8, y: r + 8, dirX: -1, dirY: 1 },       // Top-Right (Lansira dole-levo 45°)
-        { id: 2, x: r + 8, y: state.height - r - 28, dirX: 1, dirY: -1 },     // Bottom-Left (Lansira gore-desno 45°)
-        { id: 3, x: state.width - r - 8, y: state.height - r - 28, dirX: -1, dirY: -1 } // Bottom-Right (Lansira gore-levo 45°)
+        { id: 0, x: r + 8, y: r + 8, dirX: 1, dirY: 1 },
+        { id: 1, x: state.width - r - 8, y: r + 8, dirX: -1, dirY: 1 },
+        { id: 2, x: r + 8, y: state.height - r - 28, dirX: 1, dirY: -1 },
+        { id: 3, x: state.width - r - 8, y: state.height - r - 28, dirX: -1, dirY: -1 }
     ];
 }
 
@@ -257,9 +243,9 @@ function startNewGame() {
         resizeCanvas();
         state.score = 0;
         state.level = 1;
+        state.aimAngle = 0;
         state.cables = [];
         state.orbs = [];
-        state.player = createPlayer();
         updateHUD();
         startLevel(1);
     });
@@ -309,19 +295,25 @@ function gameLoop(timestamp) {
 function updateGame(delta, timestamp) {
     state.portalAngle += delta * 3;
 
-    const dir = (state.keys.left || state.touch.left ? -1 : 0) + (state.keys.right || state.touch.right ? 1 : 0);
-    state.player.x += dir * GAME_CONFIG.playerSpeed * delta;
-    state.player.x = Math.max(0, Math.min(state.width - state.player.width, state.player.x));
+    // ROTACIJA NIŠANA PREKO TASTATURE (A/D ILI STRELICE)
+    if (state.keys.left) state.aimAngle = Math.max(-Math.PI / 2.6, state.aimAngle - GAME_CONFIG.aimSpeed * delta);
+    if (state.keys.right) state.aimAngle = Math.min(Math.PI / 2.6, state.aimAngle + GAME_CONFIG.aimSpeed * delta);
 
     if (state.keys.shoot || state.touch.shoot) {
         tryShoot(timestamp);
     }
 
-    // Harpoon Cable Update
+    // Ažuriranje Zraka isprijem pod uglom
     for (let i = state.cables.length - 1; i >= 0; i--) {
         const cable = state.cables[i];
-        cable.height += GAME_CONFIG.cableSpeed * delta;
-        if (cable.height >= state.height) {
+        cable.length += GAME_CONFIG.cableSpeed * delta;
+
+        // Krajnja tačka zraka
+        cable.endX = cable.startX + Math.sin(cable.angle) * cable.length;
+        cable.endY = cable.startY - Math.cos(cable.angle) * cable.length;
+
+        // Provera da li je izašao van granica
+        if (cable.endY <= 0 || cable.endX <= 0 || cable.endX >= state.width) {
             state.cables.splice(i, 1);
         }
     }
@@ -330,36 +322,31 @@ function updateGame(delta, timestamp) {
 
     // Orbs Physics & Portal Logic
     state.orbs.forEach(orb => {
-        // Ako je kugla unutar portala (tajmer od 1 sekunde)
         if (orb.inPortal) {
             orb.portalTimer -= delta;
             if (orb.portalTimer <= 0) {
-                // TAČNO NAKON 1 SEKUNDE - ISPUCAVANJE POD UGLOM OD 45 STEPENI!
                 orb.inPortal = false;
                 const p = portals[orb.portalId];
-                const speed = 450; // Sila lansiranja
-                
-                // Ugao od 45 stepeni dobijamo sa jednakim X i Y vektorima (cos(45°) = sin(45°))
+                const speed = 450;
                 orb.x = p.x + p.dirX * (orb.radius + 10);
                 orb.y = p.y + p.dirY * (orb.radius + 10);
                 orb.velocityX = p.dirX * speed * 0.7071;
                 orb.velocityY = p.dirY * speed * 0.7071;
-
                 audio.playPortal();
             }
-            return; // Preskačemo fiziku dok je u portalu
+            return;
         }
 
         orb.velocityY += GAME_CONFIG.gravity * delta;
         orb.x += orb.velocityX * delta;
         orb.y += orb.velocityY * delta;
 
-        // Provera da li kugla upada u neki od 4 portala
+        // Provera portala
         portals.forEach(p => {
             const dist = Math.hypot(orb.x - p.x, orb.y - p.y);
             if (dist < 26) {
                 orb.inPortal = true;
-                orb.portalTimer = 1.0; // 1 SEKUNDA ČEKANJA U RUPI
+                orb.portalTimer = 1.0;
                 orb.portalId = p.id;
                 orb.x = p.x;
                 orb.y = p.y;
@@ -389,31 +376,37 @@ function updateGame(delta, timestamp) {
         }
     });
 
-    // Harpoon Bounce Collision
+    // Fliper Bounce od Dijagonalnog Zraka
     state.cables.forEach(cable => {
-        const cableX = cable.x;
-        const cableTopY = state.height - cable.height;
-
         state.orbs.forEach(orb => {
-            if (!orb.inPortal && orb.y >= cableTopY - orb.radius && orb.y <= state.height) {
-                if (Math.abs(orb.x - cableX) < orb.radius + 4) {
-                    audio.playBounce();
+            if (orb.inPortal) return;
 
-                    if (orb.x < cableX) {
-                        orb.velocityX = -Math.abs(orb.velocityX) - 40;
-                        orb.x = cableX - orb.radius - 4;
-                    } else {
-                        orb.velocityX = Math.abs(orb.velocityX) + 40;
-                        orb.x = cableX + orb.radius + 4;
-                    }
+            // Računanje najkraće udaljenosti od centra kugle do zraka
+            const dist = pointToSegmentDistance(orb.x, orb.y, cable.startX, cable.startY, cable.endX, cable.endY);
 
-                    orb.velocityY = -Math.abs(orb.velocityY) - 100;
-                    state.score += 20;
-                    updateHUD();
-                }
+            if (dist < orb.radius + 4) {
+                audio.playBounce();
+
+                // Odbijanje pod uglom zraka
+                const bounceAngle = cable.angle + (orb.x < state.width / 2 ? -Math.PI / 4 : Math.PI / 4);
+                const speed = Math.hypot(orb.velocityX, orb.velocityY) + 80;
+
+                orb.velocityX = Math.sin(bounceAngle) * speed;
+                orb.velocityY = -Math.abs(Math.cos(bounceAngle) * speed);
+
+                state.score += 25;
+                updateHUD();
             }
         });
     });
+}
+
+function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
+    const l2 = (x2 - x1) ** 2 + (y2 - y1) ** 2;
+    if (l2 === 0) return Math.hypot(px - x1, py - y1);
+    let t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (x1 + t * (x2 - x1)), py - (y1 + t * (y2 - y1)));
 }
 
 function tryShoot(timestamp) {
@@ -422,45 +415,17 @@ function tryShoot(timestamp) {
 
     audio.playShoot();
     state.lastShotTime = timestamp;
+
+    const startX = state.player.x + state.player.width / 2;
+    const startY = state.player.y;
+
     state.cables.push({
-        x: state.player.x + state.player.width / 2,
-        height: 0
-    });
-}
-
-/* CRTANJE 4 PORTALA SA FLIPER PALICAMA PORED NJIH */
-function drawCornerPortalsWithFlippers() {
-    const portals = getCornerPortals();
-
-    portals.forEach(p => {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-
-        // 1. NEON FLIPER PALICA PORED PORTALA
-        ctx.save();
-        ctx.rotate(p.dirX * Math.sin(state.portalAngle * 2) * 0.4);
-        ctx.fillStyle = "#ff2fcf";
-        ctx.shadowColor = "#ff2fcf";
-        ctx.shadowBlur = 10;
-        ctx.fillRect(-p.dirX * 5, 0, p.dirX * 28, 6);
-        ctx.restore();
-
-        // 2. PORTAL VORTEX RUPA
-        ctx.rotate(state.portalAngle);
-        ctx.beginPath();
-        ctx.arc(0, 0, 22, 0, Math.PI * 2);
-        ctx.strokeStyle = "#9c4dff";
-        ctx.lineWidth = 3.5;
-        ctx.shadowColor = "#9c4dff";
-        ctx.shadowBlur = 14;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(0, 0, 10, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(156, 77, 255, 0.5)";
-        ctx.fill();
-
-        ctx.restore();
+        startX: startX,
+        startY: startY,
+        angle: state.aimAngle,
+        length: 0,
+        endX: startX,
+        endY: startY
     });
 }
 
@@ -468,30 +433,72 @@ function renderGame() {
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
-    // 1. RENDER 4 CORNER PORTALS + FLIPPERS
-    drawCornerPortalsWithFlippers();
-
-    // 2. RENDER HARPOON BOUNCER
-    state.cables.forEach(cable => {
-        const startY = state.height;
-        const topY = state.height - cable.height;
-
-        ctx.strokeStyle = "#00f5ff";
-        ctx.lineWidth = 4;
+    // 1. 4 CORNER PORTALS
+    const portals = getCornerPortals();
+    portals.forEach(p => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(state.portalAngle);
         ctx.beginPath();
-        ctx.moveTo(cable.x, startY);
-        ctx.lineTo(cable.x, topY);
+        ctx.arc(0, 0, 22, 0, Math.PI * 2);
+        ctx.strokeStyle = "#9c4dff";
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, 10, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(156, 77, 255, 0.5)";
+        ctx.fill();
+        ctx.restore();
+    });
+
+    // 2. BILIJARSKI LASERSKI NIŠAN (AIMING SIGHT LINE)
+    if (state.player && state.cables.length === 0) {
+        const startX = state.player.x + state.player.width / 2;
+        const startY = state.player.y;
+        const aimLength = 220;
+        const targetX = startX + Math.sin(state.aimAngle) * aimLength;
+        const targetY = startY - Math.cos(state.aimAngle) * aimLength;
+
+        ctx.save();
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = "rgba(0, 245, 255, 0.6)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(targetX, targetY);
+        ctx.stroke();
+
+        // Ciljni krug na kraju nišana
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#00f5ff";
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // 3. DIJAGONALNI ZRAK (HARPOON BEAM)
+    state.cables.forEach(cable => {
+        ctx.save();
+        ctx.strokeStyle = "#00f5ff";
+        ctx.lineWidth = 5;
+        ctx.shadowColor = "#00f5ff";
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.moveTo(cable.startX, cable.startY);
+        ctx.lineTo(cable.endX, cable.endY);
         ctx.stroke();
 
         ctx.fillStyle = "#ff2fcf";
         ctx.beginPath();
-        ctx.arc(cable.x, topY, 6, 0, Math.PI * 2);
+        ctx.arc(cable.endX, cable.endY, 7, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
     });
 
-    // 3. RENDER RABBIT ORBS
+    // 4. RABBIT ORBS
     state.orbs.forEach(o => {
-        if (o.inPortal) return; // Ne crtamo dok je u rupi
+        if (o.inPortal) return;
 
         const theme = o.theme || RABBIT_THEMES[0];
         const r = o.radius;
@@ -522,10 +529,21 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 4. RENDER PLAYER
+    // 5. FIKSIRANI TOP / IGRAČ U CENTRU
     if (state.player) {
+        ctx.save();
+        ctx.translate(state.player.x + state.player.width / 2, state.player.y + state.player.height / 2);
+
+        // Baza topa
         ctx.fillStyle = "#ff2fcf";
-        ctx.fillRect(state.player.x, state.player.y, state.player.width, state.player.height);
+        ctx.fillRect(-state.player.width / 2, -state.player.height / 2, state.player.width, state.player.height);
+
+        // Rotirajuća cevi topa usmerena u pravcu nišana
+        ctx.rotate(state.aimAngle);
+        ctx.fillStyle = "#00f5ff";
+        ctx.fillRect(-4, -18, 8, 18);
+
+        ctx.restore();
     }
 }
 
