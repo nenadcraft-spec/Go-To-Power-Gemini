@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v2.1.0
-   FIXED CENTER CANNON & BILLIARD AIMING MECHANICS
+   WHR: POWER WTF UP v2.2.0
+   BLACK HOLE VORTEX & BILLIARD ANGLE MECHANICS
 ========================================================= */
 
 const DOM = {
@@ -80,19 +80,19 @@ class AudioEngine {
         osc.start();
         osc.stop(this.ctx.currentTime + 0.1);
     }
-    playPortal() {
+    playBlackHoleSuck() {
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.25);
+        osc.stop(this.ctx.currentTime + 0.3);
     }
 }
 
@@ -101,16 +101,16 @@ const audio = new AudioEngine();
 const GAME_CONFIG = {
     playerWidth: 44,
     playerHeight: 22,
-    aimSpeed: 1.8,     // Brzina rotacije nišana
+    aimSpeed: 1.8,
     cableSpeed: 1400,
-    gravity: 620,
+    gravity: 580,
     shootDelay: 300
 };
 
 const ORB_TYPES = {
-    large: { radius: 30, speedX: 160, bounce: 850 },
-    medium: { radius: 20, speedX: 200, bounce: 750 },
-    small: { radius: 13, speedX: 240, bounce: 650 }
+    large: { radius: 30, speedX: 160, bounce: 820 },
+    medium: { radius: 20, speedX: 200, bounce: 720 },
+    small: { radius: 13, speedX: 240, bounce: 620 }
 };
 
 const RABBIT_THEMES = [
@@ -130,16 +130,16 @@ const state = {
     score: 0,
     level: 1,
     lastShotTime: 0,
-    aimAngle: 0, // Ugao u radijanima (0 je vertikalno gore)
+    aimAngle: 0,
     keys: { left: false, right: false, shoot: false },
     touch: { left: false, right: false, shoot: false },
     player: null,
     cables: [],
     orbs: [],
-    portalAngle: 0
+    blackHole: { x: 0, y: 0, radius: 34, angle: 0 }
 };
 
-/* JOYSTICK ENGINE ZA ŠTELOVANJE UGLA */
+/* JOYSTICK ENGINE */
 const joystick = {
     zone: document.getElementById("joystickZone"),
     base: document.getElementById("joystickBase"),
@@ -189,9 +189,8 @@ function initJoystick() {
 
         joystick.stick.style.transform = `translateX(${deltaX}px)`;
 
-        // DIREKTNO POSTAVLJANJE UGLA CILJANJA SA KLIZAČA
-        const normalized = deltaX / joystick.maxRadius; // od -1 do 1
-        state.aimAngle = normalized * (Math.PI / 2.6); // do oko 70 stepeni levo/desno
+        const normalized = deltaX / joystick.maxRadius;
+        state.aimAngle = normalized * (Math.PI / 2.6);
     }
 
     function handleEnd(e) {
@@ -217,23 +216,17 @@ function resizeCanvas() {
     DOM.canvas.width = rect.width;
     DOM.canvas.height = rect.height;
 
-    // IGRAČ FIKSIRAN TAČNO U CENTRU DNU
+    // Centrirana Crna Rupa u Sredini Arene
+    state.blackHole.x = state.width / 2;
+    state.blackHole.y = state.height * 0.42;
+
+    // Top zakucan u dnu
     state.player = {
         x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
         y: state.height - GAME_CONFIG.playerHeight - 8,
         width: GAME_CONFIG.playerWidth,
         height: GAME_CONFIG.playerHeight
     };
-}
-
-function getCornerPortals() {
-    const r = 24;
-    return [
-        { id: 0, x: r + 8, y: r + 8, dirX: 1, dirY: 1 },
-        { id: 1, x: state.width - r - 8, y: r + 8, dirX: -1, dirY: 1 },
-        { id: 2, x: r + 8, y: state.height - r - 28, dirX: 1, dirY: -1 },
-        { id: 3, x: state.width - r - 8, y: state.height - r - 28, dirX: -1, dirY: -1 }
-    ];
 }
 
 function startNewGame() {
@@ -257,19 +250,19 @@ function startLevel(levelNumber) {
     state.orbs = [];
     state.cables = [];
 
-    const count = Math.min(2 + levelNumber, 5);
+    const count = Math.min(2 + levelNumber, 6);
     for (let i = 0; i < count; i++) {
         const theme = RABBIT_THEMES[i % RABBIT_THEMES.length];
         state.orbs.push({
             x: (state.width / (count + 1)) * (i + 1),
-            y: 60 + Math.random() * 40,
+            y: 50 + Math.random() * 40,
             radius: ORB_TYPES.large.radius,
+            originalRadius: ORB_TYPES.large.radius,
             type: "large",
             velocityX: ORB_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
-            velocityY: -80,
+            velocityY: -60,
             theme: theme,
-            inPortal: false,
-            portalTimer: 0
+            beingSucked: false
         });
     }
 
@@ -293,9 +286,8 @@ function gameLoop(timestamp) {
 }
 
 function updateGame(delta, timestamp) {
-    state.portalAngle += delta * 3;
+    state.blackHole.angle += delta * 4;
 
-    // ROTACIJA NIŠANA PREKO TASTATURE (A/D ILI STRELICE)
     if (state.keys.left) state.aimAngle = Math.max(-Math.PI / 2.6, state.aimAngle - GAME_CONFIG.aimSpeed * delta);
     if (state.keys.right) state.aimAngle = Math.min(Math.PI / 2.6, state.aimAngle + GAME_CONFIG.aimSpeed * delta);
 
@@ -303,93 +295,83 @@ function updateGame(delta, timestamp) {
         tryShoot(timestamp);
     }
 
-    // Ažuriranje Zraka isprijem pod uglom
+    // Ažuriranje Zraka
     for (let i = state.cables.length - 1; i >= 0; i--) {
         const cable = state.cables[i];
         cable.length += GAME_CONFIG.cableSpeed * delta;
-
-        // Krajnja tačka zraka
         cable.endX = cable.startX + Math.sin(cable.angle) * cable.length;
         cable.endY = cable.startY - Math.cos(cable.angle) * cable.length;
 
-        // Provera da li je izašao van granica
         if (cable.endY <= 0 || cable.endX <= 0 || cable.endX >= state.width) {
             state.cables.splice(i, 1);
         }
     }
 
-    const portals = getCornerPortals();
+    // Fizika Kugli & Usisavanje u Crnu Rupu
+    for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
+        const orb = state.orbs[oIdx];
 
-    // Orbs Physics & Portal Logic
-    state.orbs.forEach(orb => {
-        if (orb.inPortal) {
-            orb.portalTimer -= delta;
-            if (orb.portalTimer <= 0) {
-                orb.inPortal = false;
-                const p = portals[orb.portalId];
-                const speed = 450;
-                orb.x = p.x + p.dirX * (orb.radius + 10);
-                orb.y = p.y + p.dirY * (orb.radius + 10);
-                orb.velocityX = p.dirX * speed * 0.7071;
-                orb.velocityY = p.dirY * speed * 0.7071;
-                audio.playPortal();
+        // Gravitacija Crne Rupe
+        const distToBH = Math.hypot(orb.x - state.blackHole.x, orb.y - state.blackHole.y);
+
+        if (distToBH < state.blackHole.radius + orb.radius + 15) {
+            orb.beingSucked = true;
+            // Privlačenje ka centru
+            const angleBH = Math.atan2(state.blackHole.y - orb.y, state.blackHole.x - orb.x);
+            orb.x += Math.cos(angleBH) * 220 * delta;
+            orb.y += Math.sin(angleBH) * 220 * delta;
+            orb.radius -= delta * 35; // Smanjivanje dok je guta
+
+            // Potpuno uništenje kada stigne u sam centar!
+            if (distToBH < 12 || orb.radius <= 4) {
+                audio.playBlackHoleSuck();
+                state.orbs.splice(oIdx, 1);
+                state.score += 150;
+                updateHUD();
+                continue;
             }
-            return;
+        } else {
+            orb.beingSucked = false;
         }
 
-        orb.velocityY += GAME_CONFIG.gravity * delta;
-        orb.x += orb.velocityX * delta;
-        orb.y += orb.velocityY * delta;
+        if (!orb.beingSucked) {
+            orb.velocityY += GAME_CONFIG.gravity * delta;
+            orb.x += orb.velocityX * delta;
+            orb.y += orb.velocityY * delta;
 
-        // Provera portala
-        portals.forEach(p => {
-            const dist = Math.hypot(orb.x - p.x, orb.y - p.y);
-            if (dist < 26) {
-                orb.inPortal = true;
-                orb.portalTimer = 1.0;
-                orb.portalId = p.id;
-                orb.x = p.x;
-                orb.y = p.y;
-                audio.playBounce();
+            // Bounce Walls
+            if (orb.x - orb.radius < 0) {
+                orb.x = orb.radius;
+                orb.velocityX *= -1;
+            } else if (orb.x + orb.radius > state.width) {
+                orb.x = state.width - orb.radius;
+                orb.velocityX *= -1;
             }
-        });
 
-        // Bounce Walls
-        if (orb.x - orb.radius < 0) {
-            orb.x = orb.radius;
-            orb.velocityX *= -1;
-        } else if (orb.x + orb.radius > state.width) {
-            orb.x = state.width - orb.radius;
-            orb.velocityX *= -1;
-        }
+            // Bounce Ceiling
+            if (orb.y - orb.radius < 0) {
+                orb.y = orb.radius;
+                orb.velocityY = Math.abs(orb.velocityY) * 0.85;
+            }
 
-        // Bounce Ceiling
-        if (orb.y - orb.radius < 0) {
-            orb.y = orb.radius;
-            orb.velocityY = Math.abs(orb.velocityY) * 0.85;
+            // Bounce Floor
+            if (orb.y + orb.radius > state.height - 4) {
+                orb.y = state.height - 4 - orb.radius;
+                orb.velocityY = -ORB_TYPES[orb.type].bounce;
+            }
         }
-
-        // Bounce Floor
-        if (orb.y + orb.radius > state.height - 4) {
-            orb.y = state.height - 4 - orb.radius;
-            orb.velocityY = -ORB_TYPES[orb.type].bounce;
-        }
-    });
+    }
 
     // Fliper Bounce od Dijagonalnog Zraka
     state.cables.forEach(cable => {
         state.orbs.forEach(orb => {
-            if (orb.inPortal) return;
-
-            // Računanje najkraće udaljenosti od centra kugle do zraka
             const dist = pointToSegmentDistance(orb.x, orb.y, cable.startX, cable.startY, cable.endX, cable.endY);
 
             if (dist < orb.radius + 4) {
                 audio.playBounce();
 
-                // Odbijanje pod uglom zraka
                 const bounceAngle = cable.angle + (orb.x < state.width / 2 ? -Math.PI / 4 : Math.PI / 4);
-                const speed = Math.hypot(orb.velocityX, orb.velocityY) + 80;
+                const speed = Math.hypot(orb.velocityX, orb.velocityY) + 90;
 
                 orb.velocityX = Math.sin(bounceAngle) * speed;
                 orb.velocityY = -Math.abs(Math.cos(bounceAngle) * speed);
@@ -399,6 +381,13 @@ function updateGame(delta, timestamp) {
             }
         });
     });
+
+    // Provera za prelazak na sledeći nivo
+    if (state.orbs.length === 0) {
+        setTimeout(() => {
+            showScreen("levelComplete");
+        }, 300);
+    }
 }
 
 function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
@@ -433,25 +422,40 @@ function renderGame() {
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
-    // 1. 4 CORNER PORTALS
-    const portals = getCornerPortals();
-    portals.forEach(p => {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(state.portalAngle);
-        ctx.beginPath();
-        ctx.arc(0, 0, 22, 0, Math.PI * 2);
-        ctx.strokeStyle = "#9c4dff";
-        ctx.lineWidth = 3.5;
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(0, 0, 10, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(156, 77, 255, 0.5)";
-        ctx.fill();
-        ctx.restore();
-    });
+    // 1. RENDER CRNA RUPA U CENTRU (BLACK HOLE VORTEX)
+    const bh = state.blackHole;
+    ctx.save();
+    ctx.translate(bh.x, bh.y);
 
-    // 2. BILIJARSKI LASERSKI NIŠAN (AIMING SIGHT LINE)
+    // Outer Neon Gravitational Aura
+    ctx.beginPath();
+    ctx.arc(0, 0, bh.radius + 10, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(156, 77, 255, 0.4)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Rotating Vortex Spiral
+    ctx.rotate(bh.angle);
+    ctx.beginPath();
+    ctx.arc(0, 0, bh.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = "#ff2fcf";
+    ctx.lineWidth = 3.5;
+    ctx.shadowColor = "#ff2fcf";
+    ctx.shadowBlur = 18;
+    ctx.stroke();
+
+    // Inner Black Hole Void Center
+    ctx.beginPath();
+    ctx.arc(0, 0, bh.radius * 0.65, 0, Math.PI * 2);
+    ctx.fillStyle = "#000000";
+    ctx.fill();
+    ctx.strokeStyle = "#00f5ff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore();
+
+    // 2. BILIJARSKI LASERSKI NIŠAN
     if (state.player && state.cables.length === 0) {
         const startX = state.player.x + state.player.width / 2;
         const startY = state.player.y;
@@ -468,7 +472,6 @@ function renderGame() {
         ctx.lineTo(targetX, targetY);
         ctx.stroke();
 
-        // Ciljni krug na kraju nišana
         ctx.setLineDash([]);
         ctx.beginPath();
         ctx.arc(targetX, targetY, 5, 0, Math.PI * 2);
@@ -477,7 +480,7 @@ function renderGame() {
         ctx.restore();
     }
 
-    // 3. DIJAGONALNI ZRAK (HARPOON BEAM)
+    // 3. DIJAGONALNI ZRAK
     state.cables.forEach(cable => {
         ctx.save();
         ctx.strokeStyle = "#00f5ff";
@@ -498,10 +501,8 @@ function renderGame() {
 
     // 4. RABBIT ORBS
     state.orbs.forEach(o => {
-        if (o.inPortal) return;
-
         const theme = o.theme || RABBIT_THEMES[0];
-        const r = o.radius;
+        const r = Math.max(2, o.radius);
 
         ctx.save();
         ctx.translate(o.x, o.y);
@@ -534,11 +535,9 @@ function renderGame() {
         ctx.save();
         ctx.translate(state.player.x + state.player.width / 2, state.player.y + state.player.height / 2);
 
-        // Baza topa
         ctx.fillStyle = "#ff2fcf";
         ctx.fillRect(-state.player.width / 2, -state.player.height / 2, state.player.width, state.player.height);
 
-        // Rotirajuća cevi topa usmerena u pravcu nišana
         ctx.rotate(state.aimAngle);
         ctx.fillStyle = "#00f5ff";
         ctx.fillRect(-4, -18, 8, 18);
