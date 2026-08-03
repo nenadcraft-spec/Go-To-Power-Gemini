@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v1.3.0
-   HYBRID PANG ENGINE WITH BOUNDED CANVAS RESIZING
+   WHR: POWER WTF UP v1.3.1
+   CONTROL DECK & PANG CANVAS OFFSET ENGINE
 ========================================================= */
 
 const DOM = {
@@ -67,7 +67,7 @@ const GAME_CONFIG = {
     startingLives: 3,
     playerWidth: 50,
     playerHeight: 24,
-    playerSpeed: 480,
+    playerSpeed: 500,
     cableSpeed: 1200,
     gravity: 780,
     shootDelay: 350
@@ -103,7 +103,7 @@ const state = {
     orbs: []
 };
 
-/* JOYSTICK ENGINE */
+/* JOYSTICK ENGINE WITH EXTENDED RANGE */
 const joystick = {
     zone: document.getElementById("joystickZone"),
     base: document.getElementById("joystickBase"),
@@ -111,7 +111,7 @@ const joystick = {
     active: false,
     touchId: null,
     startX: 0,
-    maxRadius: 40
+    maxRadius: 50 // Povećan opseg za lakše i preciznije klizanje
 };
 
 function initJoystick() {
@@ -157,10 +157,10 @@ function initJoystick() {
 
         const intensity = deltaX / joystick.maxRadius;
 
-        if (intensity < -0.15) {
+        if (intensity < -0.12) {
             state.touch.left = true;
             state.touch.right = false;
-        } else if (intensity > 0.15) {
+        } else if (intensity > 0.12) {
             state.touch.right = true;
             state.touch.left = false;
         } else {
@@ -208,7 +208,7 @@ function resizeCanvas() {
     DOM.canvas.height = rect.height;
 
     if (state.player) {
-        state.player.y = state.height - state.player.height - 8;
+        state.player.y = state.height - state.player.height - 10;
         state.player.x = Math.min(Math.max(0, state.player.x), state.width - state.player.width);
     }
 }
@@ -216,7 +216,7 @@ function resizeCanvas() {
 function createPlayer() {
     return {
         x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
-        y: state.height - GAME_CONFIG.playerHeight - 8,
+        y: state.height - GAME_CONFIG.playerHeight - 10,
         width: GAME_CONFIG.playerWidth,
         height: GAME_CONFIG.playerHeight
     };
