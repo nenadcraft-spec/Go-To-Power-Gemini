@@ -861,6 +861,11 @@ class Game {
     this.netOverlayTimer = null;
     this.lobbyTimer = null;
     this.hudCorruptInterval = null;
+    this.virusDueAt = 0;
+    this.virusRemaining = 0;
+    this.panicTimer = null;
+    this.panicDueAt = 0;
+    this.panicRemaining = 0;
 
     this.goodDueAt = 0;
     this.hazardDueAt = 0;
@@ -1035,12 +1040,18 @@ class Game {
 
     clearTimeout(this.freezeTimer);
     clearTimeout(this.virusTimer);
+    clearTimeout(this.panicTimer);
     clearTimeout(this.monoTimer);
     clearTimeout(this.netOverlayTimer);
     clearTimeout(this.lobbyTimer);
     clearInterval(this.hudCorruptInterval);
     this.lobbyTimer = null;
     this.hudCorruptInterval = null;
+    this.virusDueAt = 0;
+    this.virusRemaining = 0;
+    this.panicTimer = null;
+    this.panicDueAt = 0;
+    this.panicRemaining = 0;
     this.audio.stopLobby();
 
     if (this.music) {
@@ -1060,8 +1071,8 @@ class Game {
     this.isNetOverlayActive = false;
     this.lastBlackHoleSpawnIndex = -1;
 
-    this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow", "is-virus", "is-anti-cheat", "is-cyber-netted", "is-void-collapsing");
-    this.e.shell.classList.remove("is-panic-impact", "is-monochrome");
+    this.e.stage.classList.remove("is-frozen", "is-time-rush", "is-time-slow", "is-virus", "is-anti-cheat", "is-cyber-netted", "is-void-collapsing", "is-panic-impact");
+    this.e.shell.classList.remove("is-monochrome");
     this.e.stars.classList.remove("is-reverse");
 
     this.score = 0;
@@ -1584,39 +1595,63 @@ class Game {
   }
 
   /* BLACK HACKER — SYSTEM BREACH MOĆ IMPLEMENTACIJA */
+  startHudCorruption() {
+    const symbols = ["#", "&", "$", "%", "@", "!", "*", "?", "X", "0"];
+    clearInterval(this.hudCorruptInterval);
+    this.hudCorruptInterval = setInterval(() => {
+      this.e.score.textContent = Array.from({ length: 8 }, () => symbols[Math.floor(Math.random() * symbols.length)]).join("");
+      this.e.time.textContent = Array.from({ length: 4 }, () => symbols[Math.floor(Math.random() * symbols.length)]).join("");
+      this.e.lives.textContent = `${symbols[Math.floor(Math.random() * symbols.length)]}${symbols[Math.floor(Math.random() * symbols.length)]}/10`;
+    }, 80);
+  }
+
+  recoverSystemBreach() {
+    clearTimeout(this.virusTimer);
+    clearTimeout(this.panicTimer);
+    clearInterval(this.hudCorruptInterval);
+    this.virusTimer = null;
+    this.hudCorruptInterval = null;
+    this.virusDueAt = 0;
+    this.virusRemaining = 0;
+    this.panicTimer = null;
+    this.panicDueAt = 0;
+    this.panicRemaining = 0;
+    this.isVirusActive = false;
+    this.e.stage.classList.remove("is-virus", "is-panic-impact");
+    this.e.stars.classList.remove("is-reverse");
+    this.update();
+    if (this.state === "playing") this.setStatus("SYSTEM RECOVERED", "normal");
+  }
+
   applySystemBreach() {
     this.audio.blackHacker();
     this.isVirusActive = true;
     this.e.stage.classList.add("is-virus");
     this.e.stars.classList.add("is-reverse");
     
-    // Potres ekrana
-    this.e.shell.classList.remove("is-panic-impact");
-    requestAnimationFrame(() => this.e.shell.classList.add("is-panic-impact"));
-    setTimeout(() => this.e.shell.classList.remove("is-panic-impact"), 650);
+    // Potres samo arene: HUD i kontrole ostaju mirni na mobilnom 9:16.
+    this.e.stage.classList.remove("is-panic-impact");
+    requestAnimationFrame(() => this.e.stage.classList.add("is-panic-impact"));
+    clearTimeout(this.panicTimer);
+    this.panicRemaining = 580;
+    this.panicDueAt = performance.now() + this.panicRemaining;
+    this.panicTimer = setTimeout(() => {
+      this.e.stage.classList.remove("is-panic-impact");
+      this.panicTimer = null;
+      this.panicDueAt = 0;
+      this.panicRemaining = 0;
+    }, this.panicRemaining);
 
-    // Koruptovani HUD brojevi na 2 sekunde
-    const symbols = ["#", "&", "$", "%", "@", "!", "*", "?", "X", "0"];
-    clearInterval(this.hudCorruptInterval);
-    this.hudCorruptInterval = setInterval(() => {
-      this.e.score.textContent = Array.from({length: 8}, () => symbols[Math.floor(Math.random()*symbols.length)]).join("");
-      this.e.time.textContent = Array.from({length: 4}, () => symbols[Math.floor(Math.random()*symbols.length)]).join("");
-      this.e.lives.textContent = `${symbols[Math.floor(Math.random()*symbols.length)]}${symbols[Math.floor(Math.random()*symbols.length)]}/10`;
-    }, 80);
+    // Korumpovani HUD brojevi na 2 sekunde.
+    this.startHudCorruption();
 
     // Stvaranje dodatne stvarni Bezborne zamke na terenu!
     this.spawn("decoy", "hazard");
 
     clearTimeout(this.virusTimer);
-    this.virusTimer = setTimeout(() => {
-      clearInterval(this.hudCorruptInterval);
-      this.hudCorruptInterval = null;
-      this.isVirusActive = false;
-      this.e.stage.classList.remove("is-virus");
-      this.e.stars.classList.remove("is-reverse");
-      this.update();
-      if (this.state === "playing") this.setStatus("SYSTEM RECOVERED", "normal");
-    }, CONFIG.hackerVirusDuration);
+    this.virusRemaining = CONFIG.hackerVirusDuration;
+    this.virusDueAt = performance.now() + this.virusRemaining;
+    this.virusTimer = setTimeout(() => this.recoverSystemBreach(), this.virusRemaining);
   }
 
   hit(id, type, button, x, y) {
@@ -1854,12 +1889,19 @@ class Game {
     requestAnimationFrame(() => this.e.stage.classList.add("is-anti-cheat"));
 
     clearTimeout(this.virusTimer);
+    clearTimeout(this.panicTimer);
     clearInterval(this.hudCorruptInterval);
+    this.virusTimer = null;
     this.hudCorruptInterval = null;
+    this.virusDueAt = 0;
+    this.virusRemaining = 0;
+    this.panicTimer = null;
+    this.panicDueAt = 0;
+    this.panicRemaining = 0;
     this.isVirusActive = false;
 
     this.e.stage.classList.remove("is-virus");
-    this.e.shell.classList.remove("is-panic-impact");
+    this.e.stage.classList.remove("is-panic-impact");
     this.e.stars.classList.remove("is-reverse");
 
     this.purgeTargets(["decoy", "redrabbit", "net", "hacker"]);
@@ -1995,6 +2037,24 @@ class Game {
     this.heroRemaining = this.heroDueAt ? Math.max(1, this.heroDueAt - now) : this.heroDelay();
     this.blackHoleRemaining = this.blackHoleDueAt ? Math.max(1, this.blackHoleDueAt - now) : this.blackHoleDelay();
 
+    if (this.isVirusActive) {
+      this.virusRemaining = this.virusDueAt
+        ? Math.max(1, this.virusDueAt - now)
+        : Math.max(1, this.virusRemaining || CONFIG.hackerVirusDuration);
+      clearTimeout(this.virusTimer);
+      clearInterval(this.hudCorruptInterval);
+      this.virusTimer = null;
+      this.hudCorruptInterval = null;
+    }
+
+    if (this.e.stage.classList.contains("is-panic-impact")) {
+      this.panicRemaining = this.panicDueAt
+        ? Math.max(1, this.panicDueAt - now)
+        : Math.max(1, this.panicRemaining || 580);
+      clearTimeout(this.panicTimer);
+      this.panicTimer = null;
+    }
+
     clearTimeout(this.goodSpawnTimer);
     clearTimeout(this.hazardSpawnTimer);
     clearTimeout(this.hackerSpawnTimer);
@@ -2009,7 +2069,7 @@ class Game {
       target.remaining = Math.max(1, this.targetRemaining(target, now));
     }
 
-    this.e.layer.getAnimations({ subtree: true }).forEach((anim) => anim.pause());
+    this.e.stage.getAnimations({ subtree: true }).forEach((anim) => anim.pause());
     this.show(this.e.pauseO, true);
     this.e.pause.disabled = true;
     this.setStatus("SYSTEM SUSPENDED", "warning");
@@ -2034,7 +2094,25 @@ class Game {
       if (target.type === "blackhole") this.startBlackHoleSystems(id, target);
     }
 
-    this.e.layer.getAnimations({ subtree: true }).forEach((anim) => anim.play());
+    if (this.isVirusActive) {
+      this.startHudCorruption();
+      this.virusRemaining = Math.max(1, this.virusRemaining || CONFIG.hackerVirusDuration);
+      this.virusDueAt = now + this.virusRemaining;
+      this.virusTimer = setTimeout(() => this.recoverSystemBreach(), this.virusRemaining);
+    }
+
+    if (this.e.stage.classList.contains("is-panic-impact")) {
+      this.panicRemaining = Math.max(1, this.panicRemaining || 580);
+      this.panicDueAt = now + this.panicRemaining;
+      this.panicTimer = setTimeout(() => {
+        this.e.stage.classList.remove("is-panic-impact");
+        this.panicTimer = null;
+        this.panicDueAt = 0;
+        this.panicRemaining = 0;
+      }, this.panicRemaining);
+    }
+
+    this.e.stage.getAnimations({ subtree: true }).forEach((anim) => anim.play());
     this.raf = requestAnimationFrame((time) => this.loop(time));
 
     this.scheduleGood(Math.max(1, this.goodRemaining || this.goodDelay()));
