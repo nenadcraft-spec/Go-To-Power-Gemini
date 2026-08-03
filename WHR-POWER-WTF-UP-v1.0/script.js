@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v3.2.0
-   ONE-HIT BULLET DESTRUCT & IMPULSE ENGINE
+   WHR: POWER WTF UP v3.3.0
+   RAPID FIRE (0.5s Cooldown) + PC MOUSE CONTROL ENGINE
 ========================================================= */
 
 const DOM = {
@@ -38,11 +38,11 @@ class AudioEngine {
         const gain = this.ctx.createGain();
         osc.type = "sawtooth";
         osc.frequency.setValueAtTime(900, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
         osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.15);
     }
     playBounce() {
         if (!this.ctx) return;
@@ -91,7 +91,7 @@ const GAME_CONFIG = {
     laserSpeed: 900,
     laserLength: 32,
     laserDuration: 5.0,
-    shootCooldown: 2.0,
+    shootCooldown: 0.5,    // BRZI SPRINT: Pucanje svakih 0.5 sec!
     gravity: 580
 };
 
@@ -118,6 +118,7 @@ const state = {
     aimAngle: 0,
     keys: { left: false, right: false, shoot: false },
     touch: { left: false, right: false, shoot: false },
+    mouse: { x: 0, y: 0, isDown: false },
     player: null,
     lasers: [],
     orbs: [],
@@ -285,10 +286,12 @@ function updateGame(delta) {
         }
     }
 
+    // KONTROLA PREKO TASTATURE
     if (state.keys.left) state.aimAngle = Math.max(-Math.PI / 2.6, state.aimAngle - GAME_CONFIG.aimSpeed * delta);
     if (state.keys.right) state.aimAngle = Math.min(Math.PI / 2.6, state.aimAngle + GAME_CONFIG.aimSpeed * delta);
 
-    if ((state.keys.shoot || state.touch.shoot) && state.cooldownTimer === 0) tryShoot();
+    // PUJANJE (TASTATURA / TAČ / LEVI KLIK MIŠA)
+    if ((state.keys.shoot || state.touch.shoot || state.mouse.isDown) && state.cooldownTimer === 0) tryShoot();
 
     for (let i = state.lasers.length - 1; i >= 0; i--) {
         const laser = state.lasers[i];
@@ -440,7 +443,6 @@ function updateGame(delta) {
         }
     }
 
-    // SUDAR METKA I ZECA (ODBIJANJE ZECA + AKTIVACIJA MOĆI + NESTANAK METKA!)
     for (let lIdx = state.lasers.length - 1; lIdx >= 0; lIdx--) {
         const laser = state.lasers[lIdx];
         let hitDetected = false;
@@ -455,21 +457,18 @@ function updateGame(delta) {
                 audio.playBounce();
                 audio.playPower();
 
-                // 1. ZEC SE ODBIJA OD METKA (Kinetički impuls)
                 const lSpeed = Math.hypot(laser.vx, laser.vy);
                 const dirX = laser.vx / lSpeed;
                 const dirY = laser.vy / lSpeed;
                 orb.velocityX = dirX * 720;
                 orb.velocityY = dirY * 720;
 
-                // 2. AKTIVIRA SE MOĆ ZECA
                 triggerRabbitPower(orb, oIdx);
 
                 orb.powerGlow = 1.0;
                 state.score += 50;
                 updateHUD();
 
-                // 3. METAK NESTAJE NAKON POGOTKA!
                 hitDetected = true;
                 break;
             }
@@ -743,6 +742,37 @@ function handleKeyUp(e) {
     if (e.code === "Space") state.keys.shoot = false;
 }
 
+/* EVENT LISTENERI ZA MIŠ NA PC-U (NIŠANJENJE + LEVI KLIK) */
+function handleMouseMove(e) {
+    if (!DOM.canvas || !state.player) return;
+    const rect = DOM.canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const playerCenterX = state.player.x + state.player.width / 2;
+    const playerCenterY = state.player.y;
+
+    // Proračun ugla u odnosu na poziciju kursora miša
+    const dx = mouseX - playerCenterX;
+    const dy = playerCenterY - mouseY; // Invertovana Y osa na platnu
+
+    let angle = Math.atan2(dx, dy);
+    state.aimAngle = Math.max(-Math.PI / 2.6, Math.min(Math.PI / 2.6, angle));
+}
+
+function handleMouseDown(e) {
+    if (e.button === 0) { // Levi klik miša
+        audio.init();
+        state.mouse.isDown = true;
+    }
+}
+
+function handleMouseUp(e) {
+    if (e.button === 0) {
+        state.mouse.isDown = false;
+    }
+}
+
 function init() {
     initJoystick();
     bindShootControl(DOM.buttons.shoot);
@@ -751,6 +781,12 @@ function init() {
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    
+    // Slushaci za miša na PC-u
+    DOM.canvas.addEventListener("mousemove", handleMouseMove);
+    DOM.canvas.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mouseup", handleMouseUp);
+
     window.addEventListener("resize", resizeCanvas);
 
     showScreen("start");
