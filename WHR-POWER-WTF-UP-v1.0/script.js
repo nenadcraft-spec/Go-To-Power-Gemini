@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v1.5.0
-   7 RABBIT ORBS & FIXED START ENGINE
+   WHR: POWER WTF UP v1.6.0
+   AUDIO SYNTH ENGINE & NEON PARTICLE SYSTEM
 ========================================================= */
 
 const DOM = {
@@ -45,24 +45,70 @@ const DOM = {
 
 const ctx = DOM.canvas.getContext("2d", { alpha: true });
 
+/* PROCEDURAL WEB AUDIO SYNTH ENGINE (NO EXTERNAL FILES) */
+class AudioEngine {
+    constructor() {
+        this.ctx = null;
+    }
+
+    init() {
+        if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                this.ctx = new AudioCtx();
+            }
+        }
+    }
+
+    playShoot() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+    }
+
+    playExplode() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.25);
+    }
+}
+
+const audio = new AudioEngine();
+
 const GAME_CONFIG = {
     startingLives: 3,
     playerWidth: 50,
     playerHeight: 24,
-    playerSpeed: 750, // Ultra brza reakcija igrača
+    playerSpeed: 750,
     cableSpeed: 1300,
-    gravity: 620,     // Pojačana fizika odskoka
+    gravity: 620,
     shootDelay: 300
 };
 
-// High Bounce Config
 const ORB_TYPES = {
     large: { radius: 42, speedX: 160, bounce: 880, score: 100, next: "medium" },
     medium: { radius: 26, speedX: 200, bounce: 760, score: 180, next: "small" },
     small: { radius: 15, speedX: 250, bounce: 640, score: 300, next: null }
 };
 
-// 7 ZEC KLASA ZA KUGLU
 const RABBIT_THEMES = [
     { name: "White Hacker", main: "#00f5ff", eye: "#32ff9b" },
     { name: "Black Hacker", main: "#ff2fcf", eye: "#ff315d" },
@@ -83,7 +129,6 @@ const state = {
     width: 600,
     height: 800,
     score: 0,
-    bestScore: 0,
     level: 1,
     lives: GAME_CONFIG.startingLives,
     lastShotTime: 0,
@@ -92,7 +137,7 @@ const state = {
     player: null,
     cables: [],
     orbs: [],
-    powerUps: []
+    particles: []
 };
 
 /* JOYSTICK ENGINE WITH MAX SENSITIVITY */
@@ -111,6 +156,7 @@ function initJoystick() {
 
     function handleStart(e) {
         e.preventDefault();
+        audio.init();
         if (joystick.active) return;
 
         const touch = e.changedTouches ? e.changedTouches[0] : e;
@@ -147,7 +193,6 @@ function initJoystick() {
 
         joystick.stick.style.transform = `translateX(${deltaX}px)`;
 
-        // Minimalni Deadzone (2px) - Instant Reakcija
         if (deltaX < -2) {
             state.touch.left = true;
             state.touch.right = false;
@@ -219,12 +264,13 @@ function resetGameState() {
     state.lives = GAME_CONFIG.startingLives;
     state.cables = [];
     state.orbs = [];
-    state.powerUps = [];
+    state.particles = [];
     state.player = createPlayer();
     updateHUD();
 }
 
 function startNewGame() {
+    audio.init();
     showScreen("game");
     window.requestAnimationFrame(() => {
         resizeCanvas();
@@ -239,6 +285,7 @@ function startLevel(levelNumber) {
     state.paused = false;
     state.orbs = [];
     state.cables = [];
+    state.particles = [];
     createLevelOrbs(levelNumber);
     state.running = true;
     state.lastTimestamp = performance.now();
@@ -259,6 +306,23 @@ function createLevelOrbs(levelNumber) {
             velocityX: ORB_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
             velocityY: -ORB_TYPES.large.bounce * 0.3,
             theme: theme
+        });
+    }
+}
+
+function createParticles(x, y, color) {
+    for (let i = 0; i < 12; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 100 + Math.random() * 200;
+        state.particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            radius: 2 + Math.random() * 3,
+            color: color,
+            alpha: 1.0,
+            life: 0.4
         });
     }
 }
@@ -286,7 +350,7 @@ function updateGame(delta, timestamp) {
         tryShoot(timestamp);
     }
 
-    // Cables
+    // Cables Update
     for (let i = state.cables.length - 1; i >= 0; i--) {
         const cable = state.cables[i];
         cable.height += GAME_CONFIG.cableSpeed * delta;
@@ -296,13 +360,12 @@ function updateGame(delta, timestamp) {
         }
     }
 
-    // High Bounce Orbs Physics
+    // Orbs Physics
     state.orbs.forEach(orb => {
         orb.velocityY += GAME_CONFIG.gravity * delta;
         orb.x += orb.velocityX * delta;
         orb.y += orb.velocityY * delta;
 
-        // Odbijanje od bočnih zidova
         if (orb.x - orb.radius < 0) {
             orb.x = orb.radius;
             orb.velocityX *= -1;
@@ -311,20 +374,30 @@ function updateGame(delta, timestamp) {
             orb.velocityX *= -1;
         }
 
-        // Odbijanje od PLAFONA
         if (orb.y - orb.radius < 0) {
             orb.y = orb.radius;
             orb.velocityY = Math.abs(orb.velocityY) * 0.8;
         }
 
-        // Odbijanje od PODA (skok do visina)
         if (orb.y + orb.radius > state.height - 4) {
             orb.y = state.height - 4 - orb.radius;
             orb.velocityY = -ORB_TYPES[orb.type].bounce;
         }
     });
 
-    // Cable vs Orb Collisions
+    // Particles Update
+    for (let pIdx = state.particles.length - 1; pIdx >= 0; pIdx--) {
+        const p = state.particles[pIdx];
+        p.x += p.vx * delta;
+        p.y += p.vy * delta;
+        p.alpha -= delta / p.life;
+
+        if (p.alpha <= 0) {
+            state.particles.splice(pIdx, 1);
+        }
+    }
+
+    // Collisions
     for (let cIdx = state.cables.length - 1; cIdx >= 0; cIdx--) {
         const cable = state.cables[cIdx];
         const cableX = cable.x;
@@ -355,6 +428,9 @@ function updateGame(delta, timestamp) {
 }
 
 function destroyOrb(idx, orb) {
+    audio.playExplode();
+    createParticles(orb.x, orb.y, orb.theme ? orb.theme.main : "#00f5ff");
+
     state.orbs.splice(idx, 1);
     state.score += ORB_TYPES[orb.type].score;
     updateHUD();
@@ -378,6 +454,7 @@ function tryShoot(timestamp) {
     if (state.cables.length >= 1) return;
     if (timestamp - state.lastShotTime < GAME_CONFIG.shootDelay) return;
 
+    audio.playShoot();
     state.lastShotTime = timestamp;
     state.cables.push({
         x: state.player.x + state.player.width / 2,
@@ -417,14 +494,13 @@ function renderGame() {
         ctx.fill();
     });
 
-    // Render 7 RABBIT ORBS GRAPHICS
+    // Render 7 RABBIT ORBS
     state.orbs.forEach(o => {
         const theme = o.theme || RABBIT_THEMES[0];
         
         ctx.save();
         ctx.translate(o.x, o.y);
 
-        // Orb Body
         ctx.beginPath();
         ctx.arc(0, 0, o.radius, 0, Math.PI * 2);
         ctx.fillStyle = theme.main;
@@ -435,14 +511,12 @@ function renderGame() {
         ctx.strokeStyle = "#ffffff";
         ctx.stroke();
 
-        // Rabbit Ears inside Orb
         const earW = o.radius * 0.22;
         const earH = o.radius * 0.55;
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(-earW - 3, -o.radius * 0.8, earW, earH);
         ctx.fillRect(3, -o.radius * 0.8, earW, earH);
 
-        // Cyber Eyes
         ctx.fillStyle = theme.eye;
         ctx.shadowColor = theme.eye;
         ctx.shadowBlur = 8;
@@ -451,6 +525,19 @@ function renderGame() {
         ctx.arc(o.radius * 0.3, -o.radius * 0.1, o.radius * 0.15, 0, Math.PI * 2);
         ctx.fill();
 
+        ctx.restore();
+    });
+
+    // Render Particles
+    state.particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 10;
+        ctx.fill();
         ctx.restore();
     });
 
@@ -482,12 +569,13 @@ function showScreen(name) {
 
 function bindShootControl(btn) {
     if (!btn) return;
-    btn.addEventListener("pointerdown", e => { e.preventDefault(); state.touch.shoot = true; });
+    btn.addEventListener("pointerdown", e => { e.preventDefault(); audio.init(); state.touch.shoot = true; });
     btn.addEventListener("pointerup", e => { e.preventDefault(); state.touch.shoot = false; });
     btn.addEventListener("pointercancel", e => { e.preventDefault(); state.touch.shoot = false; });
 }
 
 function handleKeyDown(e) {
+    audio.init();
     if (e.code === "ArrowLeft" || e.code === "KeyA") state.keys.left = true;
     if (e.code === "ArrowRight" || e.code === "KeyD") state.keys.right = true;
     if (e.code === "Space") state.keys.shoot = true;
