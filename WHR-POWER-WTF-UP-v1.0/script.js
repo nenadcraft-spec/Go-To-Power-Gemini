@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v1.7.0
-   AUDIO SYNTH ENGINE, NEON PARTICLES & RABBIT AVATARS
+   WHR: POWER WTF UP v1.8.0
+   PINBALL HARPOON-BOUNCER PHYSICS & RABBIT ORB REFLECTION
 ========================================================= */
 
 const DOM = {
@@ -66,28 +66,28 @@ class AudioEngine {
         const gain = this.ctx.createGain();
         osc.type = "sawtooth";
         osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
+        osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.12);
         gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.15);
+        osc.stop(this.ctx.currentTime + 0.12);
     }
 
-    playExplode() {
+    playBounce() {
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = "square";
-        osc.frequency.setValueAtTime(220, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.25);
+        osc.stop(this.ctx.currentTime + 0.1);
     }
 }
 
@@ -104,9 +104,9 @@ const GAME_CONFIG = {
 };
 
 const ORB_TYPES = {
-    large: { radius: 42, speedX: 160, bounce: 880, score: 100, next: "medium" },
-    medium: { radius: 26, speedX: 200, bounce: 760, score: 180, next: "small" },
-    small: { radius: 15, speedX: 250, bounce: 640, score: 300, next: null }
+    large: { radius: 42, speedX: 160, bounce: 880, score: 100 },
+    medium: { radius: 26, speedX: 200, bounce: 760, score: 180 },
+    small: { radius: 15, speedX: 250, bounce: 640, score: 300 }
 };
 
 const RABBIT_THEMES = [
@@ -295,25 +295,27 @@ function startLevel(levelNumber) {
 }
 
 function createLevelOrbs(levelNumber) {
-    const count = Math.min(1 + Math.floor(levelNumber / 2), 5);
+    const count = Math.min(2 + Math.floor(levelNumber / 2), 6);
     for (let i = 0; i < count; i++) {
         const theme = RABBIT_THEMES[i % RABBIT_THEMES.length];
+        const typeKeys = ["large", "medium", "small"];
+        const orbType = typeKeys[i % 3];
         state.orbs.push({
             x: (state.width / (count + 1)) * (i + 1),
             y: 60 + Math.random() * 80,
-            radius: ORB_TYPES.large.radius,
-            type: "large",
-            velocityX: ORB_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
-            velocityY: -ORB_TYPES.large.bounce * 0.3,
+            radius: ORB_TYPES[orbType].radius,
+            type: orbType,
+            velocityX: ORB_TYPES[orbType].speedX * (i % 2 === 0 ? 1 : -1),
+            velocityY: -ORB_TYPES[orbType].bounce * 0.3,
             theme: theme
         });
     }
 }
 
 function createParticles(x, y, color) {
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 10; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 100 + Math.random() * 200;
+        const speed = 120 + Math.random() * 180;
         state.particles.push({
             x: x,
             y: y,
@@ -322,7 +324,7 @@ function createParticles(x, y, color) {
             radius: 2 + Math.random() * 3,
             color: color,
             alpha: 1.0,
-            life: 0.4
+            life: 0.35
         });
     }
 }
@@ -350,7 +352,7 @@ function updateGame(delta, timestamp) {
         tryShoot(timestamp);
     }
 
-    // Cables Update
+    // Cables / Harpoon Update
     for (let i = state.cables.length - 1; i >= 0; i--) {
         const cable = state.cables[i];
         cable.height += GAME_CONFIG.cableSpeed * delta;
@@ -360,12 +362,13 @@ function updateGame(delta, timestamp) {
         }
     }
 
-    // Orbs Physics
+    // Orbs Physics & Wall Bounces
     state.orbs.forEach(orb => {
         orb.velocityY += GAME_CONFIG.gravity * delta;
         orb.x += orb.velocityX * delta;
         orb.y += orb.velocityY * delta;
 
+        // Odbijanje od zidova
         if (orb.x - orb.radius < 0) {
             orb.x = orb.radius;
             orb.velocityX *= -1;
@@ -374,15 +377,49 @@ function updateGame(delta, timestamp) {
             orb.velocityX *= -1;
         }
 
+        // Odbijanje od plafona
         if (orb.y - orb.radius < 0) {
             orb.y = orb.radius;
-            orb.velocityY = Math.abs(orb.velocityY) * 0.8;
+            orb.velocityY = Math.abs(orb.velocityY) * 0.85;
         }
 
+        // Odbijanje od poda
         if (orb.y + orb.radius > state.height - 4) {
             orb.y = state.height - 4 - orb.radius;
             orb.velocityY = -ORB_TYPES[orb.type].bounce;
         }
+    });
+
+    // FLIPER FIZIKA ODBIJANJA OD ZRAKA (HARPUN NE UNISTAVA NEGO ODBIJA)
+    state.cables.forEach(cable => {
+        const cableX = cable.x;
+        const cableTopY = state.height - cable.height;
+
+        state.orbs.forEach(orb => {
+            if (orb.y >= cableTopY - orb.radius && orb.y <= state.height) {
+                const distX = Math.abs(orb.x - cableX);
+
+                if (distX < orb.radius + 4) {
+                    audio.playBounce();
+                    createParticles(orb.x, orb.y, "#00f5ff");
+
+                    // Smer odbijanja zavisno sa koje strane zraka udara
+                    if (orb.x < cableX) {
+                        orb.velocityX = -Math.abs(orb.velocityX) - 60;
+                        orb.x = cableX - orb.radius - 5;
+                    } else {
+                        orb.velocityX = Math.abs(orb.velocityX) + 60;
+                        orb.x = cableX + orb.radius + 5;
+                    }
+
+                    // Vertikalni odbojnik boost
+                    orb.velocityY = -Math.abs(orb.velocityY) * 1.1 - 150;
+
+                    state.score += 25;
+                    updateHUD();
+                }
+            }
+        });
     });
 
     // Particles Update
@@ -395,58 +432,6 @@ function updateGame(delta, timestamp) {
         if (p.alpha <= 0) {
             state.particles.splice(pIdx, 1);
         }
-    }
-
-    // Collisions
-    for (let cIdx = state.cables.length - 1; cIdx >= 0; cIdx--) {
-        const cable = state.cables[cIdx];
-        const cableX = cable.x;
-        const cableTopY = state.height - cable.height;
-
-        for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
-            const orb = state.orbs[oIdx];
-
-            const closestY = Math.max(cableTopY, Math.min(state.height, orb.y));
-            const distX = orb.x - cableX;
-            const distY = orb.y - closestY;
-            const distance = Math.hypot(distX, distY);
-
-            if (distance < orb.radius + 3) {
-                state.cables.splice(cIdx, 1);
-                destroyOrb(oIdx, orb);
-                break;
-            }
-        }
-    }
-
-    if (state.orbs.length === 0 && !state.levelComplete) {
-        state.levelComplete = true;
-        setTimeout(() => {
-            showScreen("levelComplete");
-        }, 500);
-    }
-}
-
-function destroyOrb(idx, orb) {
-    audio.playExplode();
-    createParticles(orb.x, orb.y, orb.theme ? orb.theme.main : "#00f5ff");
-
-    state.orbs.splice(idx, 1);
-    state.score += ORB_TYPES[orb.type].score;
-    updateHUD();
-
-    const next = ORB_TYPES[orb.type].next;
-    if (next) {
-        const cfg = ORB_TYPES[next];
-        const theme = orb.theme;
-        state.orbs.push({
-            x: orb.x - 10, y: orb.y, radius: cfg.radius, type: next,
-            velocityX: -cfg.speedX, velocityY: -cfg.bounce * 0.6, theme: theme
-        });
-        state.orbs.push({
-            x: orb.x + 10, y: orb.y, radius: cfg.radius, type: next,
-            velocityX: cfg.speedX, velocityY: -cfg.bounce * 0.6, theme: theme
-        });
     }
 }
 
@@ -465,35 +450,33 @@ function tryShoot(timestamp) {
 function renderGame() {
     ctx.clearRect(0, 0, state.width, state.height);
 
-    // 1. HARPOON CABLES
+    // 1. NEON FLIPER HARPOON BOUNCER
     state.cables.forEach(cable => {
         const startY = state.height;
         const topY = state.height - cable.height;
 
         ctx.save();
         ctx.strokeStyle = "#00f5ff";
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 5;
         ctx.shadowColor = "#00f5ff";
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 18;
 
         ctx.beginPath();
         ctx.moveTo(cable.x, startY);
 
         for (let y = startY; y > topY; y -= 10) {
-            const offsetX = Math.sin(y * 0.15) * 4;
+            const offsetX = Math.sin(y * 0.2) * 5;
             ctx.lineTo(cable.x + offsetX, y);
         }
         ctx.lineTo(cable.x, topY);
         ctx.stroke();
 
+        // High Voltage Energy Tip
         ctx.fillStyle = "#ff2fcf";
         ctx.shadowColor = "#ff2fcf";
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 20;
         ctx.beginPath();
-        ctx.moveTo(cable.x - 7, topY + 8);
-        ctx.lineTo(cable.x + 7, topY + 8);
-        ctx.lineTo(cable.x, topY - 6);
-        ctx.closePath();
+        ctx.arc(cable.x, topY, 8, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
     });
@@ -508,7 +491,7 @@ function renderGame() {
 
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(5, 4, 10, 0.85)";
+        ctx.fillStyle = "rgba(5, 4, 10, 0.88)";
         ctx.fill();
         ctx.lineWidth = 3;
         ctx.strokeStyle = theme.main;
@@ -584,7 +567,7 @@ function renderGame() {
         ctx.save();
         ctx.shadowColor = "#ff2fcf";
         ctx.shadowBlur = 15;
-        ctx.fillStyle = "linear-gradient(135deg, #ff2fcf, #00f5ff)";
+        ctx.fillStyle = "#ff2fcf";
         ctx.fillRect(state.player.x, state.player.y, state.player.width, state.player.height);
 
         ctx.fillStyle = "#ffffff";
