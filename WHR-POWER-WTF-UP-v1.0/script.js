@@ -301,17 +301,19 @@ function showScreen(name) {
     });
 }
 
-function bindHoldControl(btn, key) {
+function bindShootControl(btn) {
     if (!btn) return;
-    btn.addEventListener("pointerdown", e => { e.preventDefault(); state.touch[key] = true; });
-    btn.addEventListener("pointerup", e => { e.preventDefault(); state.touch[key] = false; });
-    btn.addEventListener("pointercancel", e => { e.preventDefault(); state.touch[key] = false; });
+    btn.addEventListener("pointerdown", e => { e.preventDefault(); state.touch.shoot = true; });
+    btn.addEventListener("pointerup", e => { e.preventDefault(); state.touch.shoot = false; });
+    btn.addEventListener("pointercancel", e => { e.preventDefault(); state.touch.shoot = false; });
 }
 
 function init() {
-    bindHoldControl(DOM.buttons.moveLeft, "left");
-    bindHoldControl(DOM.buttons.moveRight, "right");
-    bindHoldControl(DOM.buttons.shoot, "shoot");
+    // Inicijalizujemo nov klizajući džojstik za kretanje
+    initJoystick();
+
+    // Inicijalizujemo taster za pucanje (FIRE)
+    bindShootControl(DOM.buttons.shoot);
 
     DOM.buttons.start?.addEventListener("click", startNewGame);
     DOM.buttons.nextLevel?.addEventListener("click", () => {
