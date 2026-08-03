@@ -1,29 +1,24 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v2.5.0
-   CORNER ALIGNED BLACK HOLES & LASER BOUNDARY REFLECTION
+   WHR: POWER WTF UP v2.6.0
+   CLEAN CORNER PORTALS & ACCURATE PIXEL CANVAS
 ========================================================= */
 
 const DOM = {
     gameApp: document.getElementById("gameApp"),
     screens: {
         start: document.getElementById("startScreen"),
-        howToPlay: document.getElementById("howToPlayScreen"),
-        game: document.getElementById("gameScreen"),
-        levelComplete: document.getElementById("levelCompleteScreen"),
-        gameOver: document.getElementById("gameOverScreen")
+        game: document.getElementById("gameScreen")
     },
     buttons: {
         start: document.getElementById("startButton"),
-        shoot: document.getElementById("shootButton"),
-        playAgain: document.getElementById("playAgainButton")
+        shoot: document.getElementById("shootButton")
     },
     canvas: document.getElementById("gameCanvas"),
     gameStage: document.getElementById("gameStage"),
     hud: {
-        score: document.getElementById("scoreValue"),
-        bestScore: document.getElementById("bestScoreValue")
+        score: document.getElementById("scoreValue")
     }
 };
 
@@ -85,8 +80,8 @@ class AudioEngine {
 const audio = new AudioEngine();
 
 const GAME_CONFIG = {
-    playerWidth: 44,
-    playerHeight: 20,
+    playerWidth: 40,
+    playerHeight: 18,
     aimSpeed: 1.8,
     laserSpeed: 750,
     laserLength: 150,
@@ -96,10 +91,9 @@ const GAME_CONFIG = {
 };
 
 const ORB_TYPES = {
-    large: { radius: 28, speedX: 160, bounce: 820 }
+    large: { radius: 26, bounce: 820 }
 };
 
-/* SVIH 7 UNIKATNIH CYBER ZEČEVA */
 const RABBIT_THEMES = [
     { name: "White Hacker", main: "#00f5ff", eye: "#32ff9b" },
     { name: "Black Hacker", main: "#ff2fcf", eye: "#ff315d" },
@@ -195,33 +189,31 @@ function initJoystick() {
     window.addEventListener("touchcancel", handleEnd, { passive: false });
 }
 
-/* TAČNO PORAVNANJE ZASLONA I CRNIH RUPA U SAMIM ĆOŠKOVIMA ARENE */
 function resizeCanvas() {
     if (!DOM.canvas || !DOM.gameStage) return;
 
     const rect = DOM.gameStage.getBoundingClientRect();
-    
-    // Fiksiranje rezolucije platna sa pravim pikselima
+
     DOM.canvas.width = Math.floor(rect.width);
     DOM.canvas.height = Math.floor(rect.height);
 
     state.width = DOM.canvas.width;
     state.height = DOM.canvas.height;
 
-    // TAČNE KOORDINATE CRNIH RUPA U SAMIM UGLOVIMA PLATNA
-    const radius = Math.min(state.width, state.height) * 0.06; // Dinamički radijus
-    const offset = radius + 6; // Odmak od same ivice zida
+    // CS TAČNO U UGLOVIMA PLATNA
+    const radius = Math.max(18, Math.min(state.width, state.height) * 0.055);
+    const offset = radius + 4;
 
     state.blackHoles = [
-        { id: 0, x: offset, y: offset, radius: radius, dirX: 1, dirY: 1 },                             // Top-Left
-        { id: 1, x: state.width - offset, y: offset, radius: radius, dirX: -1, dirY: 1 },              // Top-Right
-        { id: 2, x: offset, y: state.height - offset, radius: radius, dirX: 1, dirY: -1 },             // Bottom-Left
-        { id: 3, x: state.width - offset, y: state.height - offset, radius: radius, dirX: -1, dirY: -1 } // Bottom-Right
+        { id: 0, x: offset, y: offset, radius: radius, dirX: 1, dirY: 1 },
+        { id: 1, x: state.width - offset, y: offset, radius: radius, dirX: -1, dirY: 1 },
+        { id: 2, x: offset, y: state.height - offset, radius: radius, dirX: 1, dirY: -1 },
+        { id: 3, x: state.width - offset, y: state.height - offset, radius: radius, dirX: -1, dirY: -1 }
     ];
 
     state.player = {
         x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
-        y: state.height - GAME_CONFIG.playerHeight - 4,
+        y: state.height - GAME_CONFIG.playerHeight - 2,
         width: GAME_CONFIG.playerWidth,
         height: GAME_CONFIG.playerHeight
     };
@@ -238,12 +230,12 @@ function startNewGame() {
         state.lasers = [];
         state.orbs = [];
 
-        // SPAWNUJEMO ODMAH SVIH 7 UNIKATNIH ZEČEVA
+        // 7 CYBER ZEČEVA
         for (let i = 0; i < 7; i++) {
             const theme = RABBIT_THEMES[i];
             state.orbs.push({
                 x: (state.width / 8) * (i + 1),
-                y: 60 + Math.random() * (state.height * 0.25),
+                y: 50 + Math.random() * (state.height * 0.2),
                 radius: ORB_TYPES.large.radius,
                 type: "large",
                 velocityX: (i % 2 === 0 ? 1 : -1) * (140 + i * 15),
@@ -290,7 +282,7 @@ function updateGame(delta) {
         tryShoot();
     }
 
-    // AŽURIRANJE I SVI ZIDOVI ZA LASER (BEZ PROLASKAM KROZ POD)
+    // AŽURIRANJE LASERA SA SVIH 4 STRANE
     for (let i = state.lasers.length - 1; i >= 0; i--) {
         const laser = state.lasers[i];
         laser.life -= delta;
@@ -304,29 +296,18 @@ function updateGame(delta) {
             laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
         }
 
-        // ODBIJANJE OD SVIH 4 ZIDA (Levo, Desno, Plafon, Pod)
-        if (laser.headX <= 0) {
-            laser.headX = 0;
-            laser.vx = Math.abs(laser.vx);
-        } else if (laser.headX >= state.width) {
-            laser.headX = state.width;
-            laser.vx = -Math.abs(laser.vx);
-        }
+        if (laser.headX <= 0) { laser.headX = 0; laser.vx = Math.abs(laser.vx); }
+        else if (laser.headX >= state.width) { laser.headX = state.width; laser.vx = -Math.abs(laser.vx); }
 
-        if (laser.headY <= 0) {
-            laser.headY = 0;
-            laser.vy = Math.abs(laser.vy);
-        } else if (laser.headY >= state.height) { // ZATVOREN POD - LASER VIŠE NE PROLAZI DOLO!
-            laser.headY = state.height;
-            laser.vy = -Math.abs(laser.vy);
-        }
+        if (laser.headY <= 0) { laser.headY = 0; laser.vy = Math.abs(laser.vy); }
+        else if (laser.headY >= state.height) { laser.headY = state.height; laser.vy = -Math.abs(laser.vy); }
 
         if (laser.life <= 0) {
             state.lasers.splice(i, 1);
         }
     }
 
-    // Fizika Kugli & 33.3% Portal Teleport
+    // ORB FIZIKA & PORTALI
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
 
@@ -338,9 +319,9 @@ function updateGame(delta) {
                 const otherHoles = state.blackHoles.filter(h => h.id !== orb.entryHoleId);
                 const exitHole = otherHoles[Math.floor(Math.random() * otherHoles.length)];
 
-                const speed = 500;
-                orb.x = exitHole.x + exitHole.dirX * (orb.radius + 8);
-                orb.y = exitHole.y + exitHole.dirY * (orb.radius + 8);
+                const speed = 480;
+                orb.x = exitHole.x + exitHole.dirX * (orb.radius + 6);
+                orb.y = exitHole.y + exitHole.dirY * (orb.radius + 6);
 
                 orb.velocityX = exitHole.dirX * speed * 0.7071;
                 orb.velocityY = exitHole.dirY * speed * 0.7071;
@@ -366,44 +347,24 @@ function updateGame(delta) {
             }
         });
 
-        // Bounce Walls
-        if (orb.x - orb.radius < 0) {
-            orb.x = orb.radius;
-            orb.velocityX *= -1;
-        } else if (orb.x + orb.radius > state.width) {
-            orb.x = state.width - orb.radius;
-            orb.velocityX *= -1;
-        }
+        if (orb.x - orb.radius < 0) { orb.x = orb.radius; orb.velocityX *= -1; }
+        else if (orb.x + orb.radius > state.width) { orb.x = state.width - orb.radius; orb.velocityX *= -1; }
 
-        // Bounce Ceiling
-        if (orb.y - orb.radius < 0) {
-            orb.y = orb.radius;
-            orb.velocityY = Math.abs(orb.velocityY) * 0.85;
-        }
-
-        // Bounce Floor
-        if (orb.y + orb.radius > state.height - 4) {
-            orb.y = state.height - 4 - orb.radius;
-            orb.velocityY = -ORB_TYPES.large.bounce;
-        }
+        if (orb.y - orb.radius < 0) { orb.y = orb.radius; orb.velocityY = Math.abs(orb.velocityY) * 0.85; }
+        if (orb.y + orb.radius > state.height - 2) { orb.y = state.height - 2 - orb.radius; orb.velocityY = -ORB_TYPES.large.bounce; }
     }
 
-    // Fliper Bounce od Laser-Zmije
+    // BOUNCE OD LASERA
     state.lasers.forEach(laser => {
         state.orbs.forEach(orb => {
             if (orb.inHole) return;
-
             const dist = pointToSegmentDistance(orb.x, orb.y, laser.tailX, laser.tailY, laser.headX, laser.headY);
-
-            if (dist < orb.radius + 6) {
+            if (dist < orb.radius + 4) {
                 audio.playBounce();
-
                 const bounceAngle = Math.atan2(laser.vy, laser.vx) + Math.PI / 2;
-                const speed = Math.hypot(orb.velocityX, orb.velocityY) + 100;
-
+                const speed = Math.hypot(orb.velocityX, orb.velocityY) + 90;
                 orb.velocityX = Math.cos(bounceAngle) * speed;
                 orb.velocityY = Math.sin(bounceAngle) * speed;
-
                 state.score += 25;
                 updateHUD();
             }
@@ -421,24 +382,16 @@ function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
 
 function tryShoot() {
     if (state.cooldownTimer > 0) return;
-
     audio.playShoot();
     state.cooldownTimer = GAME_CONFIG.shootCooldown;
-
     const startX = state.player.x + state.player.width / 2;
     const startY = state.player.y;
-
     const vx = Math.sin(state.aimAngle) * GAME_CONFIG.laserSpeed;
     const vy = -Math.cos(state.aimAngle) * GAME_CONFIG.laserSpeed;
 
     state.lasers.push({
-        headX: startX,
-        headY: startY,
-        tailX: startX,
-        tailY: startY,
-        vx: vx,
-        vy: vy,
-        life: GAME_CONFIG.laserDuration
+        headX: startX, headY: startY, tailX: startX, tailY: startY,
+        vx: vx, vy: vy, life: GAME_CONFIG.laserDuration
     });
 }
 
@@ -446,90 +399,66 @@ function renderGame() {
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
-    // 1. CRTANJE 4 CRNE RUPE TAČNO U ĆOŠKOVIMA
+    // 1. RUPE U ĆOŠKOVIMA
     state.blackHoles.forEach(bh => {
         ctx.save();
         ctx.translate(bh.x, bh.y);
-
         ctx.rotate(state.holeAngle);
         ctx.beginPath();
         ctx.arc(0, 0, bh.radius, 0, Math.PI * 2);
         ctx.strokeStyle = "#9c4dff";
-        ctx.lineWidth = 3.5;
+        ctx.lineWidth = 3;
         ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(0, 0, bh.radius + 5, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(0, 245, 255, 0.4)";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
         ctx.beginPath();
         ctx.arc(0, 0, bh.radius * 0.6, 0, Math.PI * 2);
         ctx.fillStyle = "#000000";
         ctx.fill();
-
         ctx.restore();
     });
 
-    // 2. BILIJARSKI LASERSKI NIŠAN
+    // 2. NIŠAN
     if (state.player && state.cooldownTimer === 0) {
         const startX = state.player.x + state.player.width / 2;
         const startY = state.player.y;
-        const aimLength = 220;
+        const aimLength = 180;
         const targetX = startX + Math.sin(state.aimAngle) * aimLength;
         const targetY = startY - Math.cos(state.aimAngle) * aimLength;
 
         ctx.save();
-        ctx.setLineDash([6, 6]);
-        ctx.strokeStyle = "rgba(0, 245, 255, 0.7)";
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "rgba(0, 245, 255, 0.6)";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.lineTo(targetX, targetY);
         ctx.stroke();
-
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        ctx.arc(targetX, targetY, 5, 0, Math.PI * 2);
-        ctx.fillStyle = "#00f5ff";
-        ctx.fill();
         ctx.restore();
     }
 
-    // 3. CRTANJE LASER-ZMIJE
+    // 3. LASER ZMIJA
     state.lasers.forEach(laser => {
         ctx.save();
         ctx.strokeStyle = "#00f5ff";
-        ctx.lineWidth = 6;
-        ctx.shadowColor = "#00f5ff";
-        ctx.shadowBlur = 15;
-
+        ctx.lineWidth = 5;
         ctx.beginPath();
         ctx.moveTo(laser.tailX, laser.tailY);
         ctx.lineTo(laser.headX, laser.headY);
         ctx.stroke();
-
         ctx.fillStyle = "#ff2fcf";
-        ctx.shadowColor = "#ff2fcf";
-        ctx.shadowBlur = 20;
         ctx.beginPath();
-        ctx.arc(laser.headX, laser.headY, 7, 0, Math.PI * 2);
+        ctx.arc(laser.headX, laser.headY, 6, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.restore();
     });
 
-    // 4. CRTANJE SVIH 7 VRSTA RABBIT ORBS
+    // 4. ZEČEVI
     state.orbs.forEach(o => {
         if (o.inHole) return;
-
         const theme = o.theme || RABBIT_THEMES[0];
         const r = o.radius;
 
         ctx.save();
         ctx.translate(o.x, o.y);
-
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 2);
         ctx.lineWidth = 3;
@@ -538,33 +467,27 @@ function renderGame() {
 
         ctx.lineWidth = 2;
         ctx.strokeStyle = theme.main;
-
         ctx.beginPath();
         ctx.ellipse(-r * 0.35, -r * 0.6, r * 0.18, r * 0.4, -0.2, 0, Math.PI * 2);
         ctx.stroke();
-
         ctx.beginPath();
         ctx.ellipse(r * 0.35, -r * 0.6, r * 0.18, r * 0.4, 0.2, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.fillStyle = theme.eye;
         ctx.fillRect(-r * 0.4, -r * 0.1, r * 0.8, r * 0.25);
-
         ctx.restore();
     });
 
-    // 5. FIKSIRANI TOP
+    // 5. TOP
     if (state.player) {
         ctx.save();
         ctx.translate(state.player.x + state.player.width / 2, state.player.y + state.player.height / 2);
-
         ctx.fillStyle = state.cooldownTimer > 0 ? "rgba(255, 47, 207, 0.4)" : "#ff2fcf";
         ctx.fillRect(-state.player.width / 2, -state.player.height / 2, state.player.width, state.player.height);
-
         ctx.rotate(state.aimAngle);
         ctx.fillStyle = state.cooldownTimer > 0 ? "#8993ad" : "#00f5ff";
-        ctx.fillRect(-4, -18, 8, 18);
-
+        ctx.fillRect(-3, -16, 6, 16);
         ctx.restore();
     }
 }
@@ -607,7 +530,6 @@ function init() {
     bindShootControl(DOM.buttons.shoot);
 
     DOM.buttons.start?.addEventListener("click", startNewGame);
-    DOM.buttons.playAgain?.addEventListener("click", startNewGame);
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
