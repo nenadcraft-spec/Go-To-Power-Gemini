@@ -625,15 +625,25 @@ button {
   animation: levelup 0.65s;
 }
 
-/* VOID COLLAPSE GAME OVER ANIMACIJA */
+/* VOID COLLAPSE SINGULARNOST ANIMACIJA */
 .game-stage.is-void-collapsing {
-  animation: void-collapse 1.2s ease-in-out forwards;
+  animation: void-collapse 1.1s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+.target.is-void-pulled {
+  pointer-events: none;
+  animation: target-void-suck 0.9s ease-in forwards !important;
 }
 
 @keyframes void-collapse {
   0% { transform: scale(1); filter: brightness(1) hue-rotate(0deg); }
-  50% { transform: scale(0.95); filter: brightness(2) hue-rotate(180deg); }
-  100% { transform: scale(0.01) rotate(720deg); opacity: 0; filter: brightness(5); }
+  50% { transform: scale(0.92); filter: brightness(2.5) hue-rotate(180deg); }
+  100% { transform: scale(0) rotate(1080deg); opacity: 0; filter: brightness(10); }
+}
+
+@keyframes target-void-suck {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0.01) rotate(720deg); opacity: 0; }
 }
 
 .particle-canvas {
