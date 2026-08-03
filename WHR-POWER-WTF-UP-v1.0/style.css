@@ -1,39 +1,30 @@
 /* =========================================================
-   WHR: POWER WTF UP v2.5.0
-   RESPONSIVE CANVAS & FLEX ARENA FIX
+   WHR: POWER WTF UP v2.6.0
+   RESPONSIVE FIX FOR 16:9 LANDSCAPE & PC
 ========================================================= */
 
 :root {
-    --color-bg: #05040a;
-    --color-panel: rgba(10, 8, 20, 0.92);
-    --color-white: #f8fbff;
-    --color-text: #e8efff;
-    --color-muted: #8993ad;
-
+    --color-bg: #020205;
     --color-cyan: #00f5ff;
     --color-purple: #9c4dff;
     --color-pink: #ff2fcf;
-    --color-red: #ff315d;
-
-    --radius-small: 8px;
-    --radius-medium: 14px;
-    --radius-large: 18px;
-
-    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --color-white: #ffffff;
+    --color-muted: #8993ad;
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 *, *::before, *::after {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 html, body {
     width: 100%;
     height: 100%;
     height: 100dvh;
-    margin: 0;
-    padding: 0;
     background: var(--color-bg);
-    color: var(--color-text);
+    color: var(--color-white);
     font-family: var(--font-main);
     overflow: hidden;
     touch-action: none !important;
@@ -41,26 +32,22 @@ html, body {
     -webkit-user-select: none;
 }
 
-/* ARKADNI KONTEJNER */
 .game-app {
     position: relative;
     width: 100vw;
     height: 100dvh;
-    max-width: 950px;
+    max-width: 900px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: radial-gradient(circle at 50% 30%, rgba(45, 22, 88, 0.5), #020205 92%);
+    background: #020205;
     border: 2px solid var(--color-cyan);
-    box-shadow: 0 0 20px rgba(0, 245, 255, 0.35);
 }
 
-/* SCREENS */
 .screen {
     position: absolute;
     inset: 0;
-    z-index: 1;
     display: none !important;
     width: 100%;
     height: 100%;
@@ -73,50 +60,75 @@ html, body {
     z-index: 10;
 }
 
-/* START SCREEN */
+/* LOBBY / START SCREEN CLEANUP */
 .start-screen {
     align-items: center;
     justify-content: center;
     text-align: center;
+    background: radial-gradient(circle at 50% 40%, rgba(45, 22, 88, 0.8), #020205 90%);
 }
 
 .start-screen__content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     width: 100%;
-    max-width: 380px;
+    max-width: 320px;
 }
+
+.brand-mark {
+    position: relative;
+    width: 40px;
+    height: 44px;
+}
+.brand-mark__ear {
+    position: absolute; top: 0; width: 10px; height: 24px;
+    border: 3px solid var(--color-white); border-radius: 80% 80% 40% 40%;
+}
+.brand-mark__ear--left { left: 4px; transform: rotate(-10deg); }
+.brand-mark__ear--right { right: 4px; transform: rotate(10deg); }
+.brand-mark__head {
+    position: absolute; left: 50%; bottom: 0; width: 32px; height: 24px;
+    transform: translateX(-50%); border: 3px solid var(--color-white); border-radius: 50%;
+}
+.brand-mark__eye { position: absolute; top: 7px; width: 4px; height: 4px; background: var(--color-pink); }
+.brand-mark__eye--left { left: 5px; }
+.brand-mark__eye--right { right: 5px; }
 
 .game-title {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    margin: 0;
-    line-height: 0.9;
+    line-height: 1;
 }
-
+.game-title__small { color: var(--color-muted); font-size: 0.7rem; letter-spacing: 0.2em; }
 .game-title__main { font-size: 1.8rem; font-weight: 900; }
-.game-title__wtf { font-size: 2.3rem; font-weight: 900; color: var(--color-pink); }
+.game-title__wtf { font-size: 2.2rem; font-weight: 900; color: var(--color-pink); }
 
 .button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
-    min-height: 42px;
-    padding: 4px 12px;
-    border-radius: var(--radius-small);
-    border: 1px solid var(--color-cyan);
-    background: linear-gradient(135deg, rgba(0, 245, 255, 0.25), rgba(67, 41, 255, 0.45));
-    color: var(--color-white);
-    font-weight: 800;
-    font-size: 0.9rem;
+    min-height: 44px;
+    border-radius: 10px;
+    border: 2px solid var(--color-cyan);
+    background: linear-gradient(135deg, rgba(0, 245, 255, 0.3), rgba(156, 77, 255, 0.5));
+    color: #fff;
+    font-weight: 900;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
     cursor: pointer;
 }
 
-/* GAME SCREEN HUD & ARENA */
+.start-screen__records { width: 100%; }
+.record-card {
+    padding: 6px;
+    border: 1px solid rgba(0, 245, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+}
+.record-card__label { display: block; font-size: 0.6rem; color: var(--color-muted); }
+.record-card__value { font-size: 1rem; color: var(--color-cyan); font-weight: 900; }
+
+/* GAMEPLAY SCREEN */
 .game-screen {
     display: flex;
     flex-direction: column;
@@ -125,69 +137,58 @@ html, body {
 }
 
 .hud {
-    flex: 0 0 auto;
-    padding: 4px 10px;
+    flex: 0 0 34px;
+    height: 34px;
+    padding: 2px 8px;
     border: 1px solid var(--color-cyan);
-    border-radius: var(--radius-medium);
+    border-radius: 8px;
     background: rgba(10, 8, 20, 0.95);
-    z-index: 20;
-}
-
-.hud__row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
-
+.hud__row { width: 100%; display: flex; justify-content: space-between; align-items: center; }
 .hud-stat { display: flex; flex-direction: column; }
-.hud-stat__label { font-size: 0.5rem; color: var(--color-muted); font-weight: 800; }
-.hud-stat__value { font-size: 0.85rem; font-weight: 900; color: #fff; }
+.hud-stat__label { font-size: 0.45rem; color: var(--color-muted); font-weight: 800; }
+.hud-stat__value { font-size: 0.75rem; font-weight: 900; color: #fff; }
 
-/* ARENA CANVAS - POPUNJAVA CEO SLOBODAN PROSTOR */
+/* ARENA CANVAS - DINAMIČKA VISINA */
 .game-stage {
     position: relative;
     flex: 1 1 auto;
     width: 100%;
-    margin: 4px 0;
+    margin: 2px 0;
     border: 1px solid var(--color-cyan);
-    border-radius: var(--radius-medium);
+    border-radius: 8px;
     overflow: hidden;
     background: #020205;
-    z-index: 10;
 }
 
 #gameCanvas {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     display: block;
 }
 
-/* KONTROLE DNU */
+/* MOBILE CONTROLS */
 .mobile-controls {
-    display: flex !important;
-    flex: 0 0 65px;
-    height: 65px;
+    flex: 0 0 54px;
+    height: 54px;
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 8px;
-    box-sizing: border-box;
+    padding: 2px 6px;
     background: rgba(8, 5, 20, 0.98);
     border: 1px solid rgba(0, 245, 255, 0.4);
-    border-radius: var(--radius-medium);
-    z-index: 20;
+    border-radius: 8px;
 }
 
 .joystick-zone {
-    position: relative;
     flex: 1 1 auto;
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding-right: 8px;
     touch-action: none;
 }
 
@@ -195,9 +196,9 @@ html, body {
     position: relative;
     width: 100%;
     max-width: 220px;
-    height: 38px;
+    height: 32px;
     border: 2px solid var(--color-cyan);
-    border-radius: 19px;
+    border-radius: 16px;
     background: rgba(0, 245, 255, 0.12);
     display: flex;
     align-items: center;
@@ -206,8 +207,8 @@ html, body {
 
 .joystick-stick {
     position: absolute;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border: 2px solid #ffffff;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #ffffff, var(--color-cyan) 50%, var(--color-purple) 90%);
@@ -215,37 +216,26 @@ html, body {
 }
 
 .control-button--shoot {
-    flex: 0 0 75px;
-    height: 42px;
+    flex: 0 0 70px;
+    height: 38px;
     border: 2px solid var(--color-pink);
-    background: linear-gradient(135deg, rgba(255, 47, 207, 0.45), rgba(120, 10, 60, 0.7));
+    background: linear-gradient(135deg, rgba(255, 47, 207, 0.5), rgba(120, 10, 60, 0.8));
     color: #ffffff;
-    border-radius: 12px;
+    border-radius: 8px;
     font-weight: 900;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     touch-action: none;
 }
 
-/* LANDSCAPE (16:9) OPTIMIZACIJA */
-@media (max-height: 520px) and (orientation: landscape) {
-    .hud { padding: 2px 8px; }
-    .hud-stat__label { font-size: 0.4rem; }
-    .hud-stat__value { font-size: 0.7rem; }
-    
-    .mobile-controls {
-        flex: 0 0 44px;
-        height: 44px;
-        padding: 2px 6px;
-    }
-    .joystick-base { height: 28px; }
-    .joystick-stick { width: 24px; height: 24px; }
-    .control-button--shoot { height: 32px; font-size: 0.7rem; flex: 0 0 65px; }
-    .game-footer { display: none; }
-}
+/* 16:9 LANDSCAPE SMANJIVANJE CONTROLLERA DA ARENA DOBIJE MAKSIMUM PROSTORA */
+@media (max-height: 480px) and (orientation: landscape) {
+    .hud { flex: 0 0 26px; height: 26px; padding: 1px 6px; }
+    .hud-stat__label { font-size: 0.38rem; }
+    .hud-stat__value { font-size: 0.65rem; }
 
-.game-footer {
-    text-align: center;
-    font-size: 0.55rem;
-    color: var(--color-muted);
+    .mobile-controls { flex: 0 0 38px; height: 38px; padding: 1px 4px; }
+    .joystick-base { height: 24px; }
+    .joystick-stick { width: 20px; height: 20px; }
+    .control-button--shoot { height: 30px; font-size: 0.65rem; flex: 0 0 60px; }
 }
