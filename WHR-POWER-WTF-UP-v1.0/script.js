@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v2.4.0
-   7 RABBIT THEMES & LASER-SNAKE PROJECTILE WITH 4s COOLDOWN
+   WHR: POWER WTF UP v2.5.0
+   CORNER ALIGNED BLACK HOLES & LASER BOUNDARY REFLECTION
 ========================================================= */
 
 const DOM = {
@@ -16,31 +16,20 @@ const DOM = {
     },
     buttons: {
         start: document.getElementById("startButton"),
-        howToPlay: document.getElementById("howToPlayButton"),
-        closeHowToPlay: document.getElementById("closeHowToPlayButton"),
-        instructionsStart: document.getElementById("instructionsStartButton"),
-        pause: document.getElementById("pauseButton"),
-        resume: document.getElementById("resumeButton"),
-        restartFromPause: document.getElementById("restartFromPauseButton"),
-        quitFromPause: document.getElementById("quitFromPauseButton"),
-        nextLevel: document.getElementById("nextLevelButton"),
-        playAgain: document.getElementById("playAgainButton"),
-        gameOverMenu: document.getElementById("gameOverMenuButton"),
-        shoot: document.getElementById("shootButton")
+        shoot: document.getElementById("shootButton"),
+        playAgain: document.getElementById("playAgainButton")
     },
     canvas: document.getElementById("gameCanvas"),
     gameStage: document.getElementById("gameStage"),
     hud: {
         score: document.getElementById("scoreValue"),
-        bestScore: document.getElementById("bestScoreValue"),
-        level: document.getElementById("levelValue"),
-        combo: document.getElementById("comboValue")
+        bestScore: document.getElementById("bestScoreValue")
     }
 };
 
 const ctx = DOM.canvas.getContext("2d");
 
-/* AUDIO ENGINE */
+/* AUDIO SYNTH */
 class AudioEngine {
     constructor() { this.ctx = null; }
     init() {
@@ -97,22 +86,20 @@ const audio = new AudioEngine();
 
 const GAME_CONFIG = {
     playerWidth: 44,
-    playerHeight: 22,
+    playerHeight: 20,
     aimSpeed: 1.8,
-    laserSpeed: 750,      // Brzina kretanja laser-zmije
-    laserLength: 160,     // Dužina laserskog metka
-    laserDuration: 5.0,   // Trajanje metka 5 sekundi
-    shootCooldown: 4.0,   // Cooldown pucanja 4 sekunde
+    laserSpeed: 750,
+    laserLength: 150,
+    laserDuration: 5.0,
+    shootCooldown: 4.0,
     gravity: 580
 };
 
 const ORB_TYPES = {
-    large: { radius: 30, speedX: 160, bounce: 820 },
-    medium: { radius: 20, speedX: 200, bounce: 720 },
-    small: { radius: 13, speedX: 240, bounce: 620 }
+    large: { radius: 28, speedX: 160, bounce: 820 }
 };
 
-/* SVIH 7 CYBER ZEČEVA */
+/* SVIH 7 UNIKATNIH CYBER ZEČEVA */
 const RABBIT_THEMES = [
     { name: "White Hacker", main: "#00f5ff", eye: "#32ff9b" },
     { name: "Black Hacker", main: "#ff2fcf", eye: "#ff315d" },
@@ -130,7 +117,6 @@ const state = {
     width: 600,
     height: 800,
     score: 0,
-    level: 1,
     cooldownTimer: 0,
     aimAngle: 0,
     keys: { left: false, right: false, shoot: false },
@@ -209,28 +195,33 @@ function initJoystick() {
     window.addEventListener("touchcancel", handleEnd, { passive: false });
 }
 
+/* TAČNO PORAVNANJE ZASLONA I CRNIH RUPA U SAMIM ĆOŠKOVIMA ARENE */
 function resizeCanvas() {
     if (!DOM.canvas || !DOM.gameStage) return;
 
     const rect = DOM.gameStage.getBoundingClientRect();
-    state.width = rect.width;
-    state.height = rect.height;
+    
+    // Fiksiranje rezolucije platna sa pravim pikselima
+    DOM.canvas.width = Math.floor(rect.width);
+    DOM.canvas.height = Math.floor(rect.height);
 
-    DOM.canvas.width = rect.width;
-    DOM.canvas.height = rect.height;
+    state.width = DOM.canvas.width;
+    state.height = DOM.canvas.height;
 
-    const r = 30;
-    const padding = 34;
+    // TAČNE KOORDINATE CRNIH RUPA U SAMIM UGLOVIMA PLATNA
+    const radius = Math.min(state.width, state.height) * 0.06; // Dinamički radijus
+    const offset = radius + 6; // Odmak od same ivice zida
+
     state.blackHoles = [
-        { id: 0, x: padding, y: padding, radius: r, dirX: 1, dirY: 1 },
-        { id: 1, x: state.width - padding, y: padding, radius: r, dirX: -1, dirY: 1 },
-        { id: 2, x: padding, y: state.height - padding - 30, radius: r, dirX: 1, dirY: -1 },
-        { id: 3, x: state.width - padding, y: state.height - padding - 30, radius: r, dirX: -1, dirY: -1 }
+        { id: 0, x: offset, y: offset, radius: radius, dirX: 1, dirY: 1 },                             // Top-Left
+        { id: 1, x: state.width - offset, y: offset, radius: radius, dirX: -1, dirY: 1 },              // Top-Right
+        { id: 2, x: offset, y: state.height - offset, radius: radius, dirX: 1, dirY: -1 },             // Bottom-Left
+        { id: 3, x: state.width - offset, y: state.height - offset, radius: radius, dirX: -1, dirY: -1 } // Bottom-Right
     ];
 
     state.player = {
         x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
-        y: state.height - GAME_CONFIG.playerHeight - 8,
+        y: state.height - GAME_CONFIG.playerHeight - 4,
         width: GAME_CONFIG.playerWidth,
         height: GAME_CONFIG.playerHeight
     };
@@ -242,43 +233,32 @@ function startNewGame() {
     window.requestAnimationFrame(() => {
         resizeCanvas();
         state.score = 0;
-        state.level = 1;
         state.aimAngle = 0;
         state.cooldownTimer = 0;
         state.lasers = [];
         state.orbs = [];
+
+        // SPAWNUJEMO ODMAH SVIH 7 UNIKATNIH ZEČEVA
+        for (let i = 0; i < 7; i++) {
+            const theme = RABBIT_THEMES[i];
+            state.orbs.push({
+                x: (state.width / 8) * (i + 1),
+                y: 60 + Math.random() * (state.height * 0.25),
+                radius: ORB_TYPES.large.radius,
+                type: "large",
+                velocityX: (i % 2 === 0 ? 1 : -1) * (140 + i * 15),
+                velocityY: -50,
+                theme: theme,
+                inHole: false,
+                holeTimer: 0
+            });
+        }
+
         updateHUD();
-        startLevel(1);
+        state.running = true;
+        state.lastTimestamp = performance.now();
+        window.requestAnimationFrame(gameLoop);
     });
-}
-
-function startLevel(levelNumber) {
-    state.level = levelNumber;
-    state.paused = false;
-    state.orbs = [];
-    state.lasers = [];
-    state.cooldownTimer = 0;
-
-    // SPAWNUJEMO SVIH 7 VRSTA ZEČEVA
-    const count = Math.min(3 + levelNumber, 7);
-    for (let i = 0; i < count; i++) {
-        const theme = RABBIT_THEMES[i % RABBIT_THEMES.length];
-        state.orbs.push({
-            x: (state.width / (count + 1)) * (i + 1),
-            y: 70 + Math.random() * 50,
-            radius: ORB_TYPES.large.radius,
-            type: "large",
-            velocityX: ORB_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
-            velocityY: -60,
-            theme: theme,
-            inHole: false,
-            holeTimer: 0
-        });
-    }
-
-    state.running = true;
-    state.lastTimestamp = performance.now();
-    window.requestAnimationFrame(gameLoop);
 }
 
 function gameLoop(timestamp) {
@@ -298,7 +278,6 @@ function gameLoop(timestamp) {
 function updateGame(delta) {
     state.holeAngle += delta * 4;
 
-    // Odbrojavanje Cooldown-a (4 sekunde)
     if (state.cooldownTimer > 0) {
         state.cooldownTimer -= delta;
         if (state.cooldownTimer < 0) state.cooldownTimer = 0;
@@ -311,37 +290,43 @@ function updateGame(delta) {
         tryShoot();
     }
 
-    // AŽURIRANJE LASER-ZMIJE METKA
+    // AŽURIRANJE I SVI ZIDOVI ZA LASER (BEZ PROLASKAM KROZ POD)
     for (let i = state.lasers.length - 1; i >= 0; i--) {
         const laser = state.lasers[i];
         laser.life -= delta;
 
-        // Kretanje glave zmije napred
         laser.headX += laser.vx * delta;
         laser.headY += laser.vy * delta;
 
-        // Rep prati glavu na rastojanju laserLength
         const currentLen = Math.hypot(laser.headX - laser.tailX, laser.headY - laser.tailY);
         if (currentLen > GAME_CONFIG.laserLength) {
             laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
             laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
         }
 
-        // Odbijanje glave lasera od zidova
-        if (laser.headX <= 0 || laser.headX >= state.width) {
-            laser.vx *= -1;
-        }
-        if (laser.headY <= 0) {
-            laser.vy *= -1;
+        // ODBIJANJE OD SVIH 4 ZIDA (Levo, Desno, Plafon, Pod)
+        if (laser.headX <= 0) {
+            laser.headX = 0;
+            laser.vx = Math.abs(laser.vx);
+        } else if (laser.headX >= state.width) {
+            laser.headX = state.width;
+            laser.vx = -Math.abs(laser.vx);
         }
 
-        // Isteklo 5 sekundi trajanja
+        if (laser.headY <= 0) {
+            laser.headY = 0;
+            laser.vy = Math.abs(laser.vy);
+        } else if (laser.headY >= state.height) { // ZATVOREN POD - LASER VIŠE NE PROLAZI DOLO!
+            laser.headY = state.height;
+            laser.vy = -Math.abs(laser.vy);
+        }
+
         if (laser.life <= 0) {
             state.lasers.splice(i, 1);
         }
     }
 
-    // Fizika Kugli Zečeva & 33.3% Portal Teleport
+    // Fizika Kugli & 33.3% Portal Teleport
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
 
@@ -353,9 +338,9 @@ function updateGame(delta) {
                 const otherHoles = state.blackHoles.filter(h => h.id !== orb.entryHoleId);
                 const exitHole = otherHoles[Math.floor(Math.random() * otherHoles.length)];
 
-                const speed = 520;
-                orb.x = exitHole.x + exitHole.dirX * (orb.radius + 10);
-                orb.y = exitHole.y + exitHole.dirY * (orb.radius + 10);
+                const speed = 500;
+                orb.x = exitHole.x + exitHole.dirX * (orb.radius + 8);
+                orb.y = exitHole.y + exitHole.dirY * (orb.radius + 8);
 
                 orb.velocityX = exitHole.dirX * speed * 0.7071;
                 orb.velocityY = exitHole.dirY * speed * 0.7071;
@@ -399,11 +384,11 @@ function updateGame(delta) {
         // Bounce Floor
         if (orb.y + orb.radius > state.height - 4) {
             orb.y = state.height - 4 - orb.radius;
-            orb.velocityY = -ORB_TYPES[orb.type].bounce;
+            orb.velocityY = -ORB_TYPES.large.bounce;
         }
     }
 
-    // Fliper Bounce od Laser-Zmije Metka
+    // Fliper Bounce od Laser-Zmije
     state.lasers.forEach(laser => {
         state.orbs.forEach(orb => {
             if (orb.inHole) return;
@@ -413,14 +398,13 @@ function updateGame(delta) {
             if (dist < orb.radius + 6) {
                 audio.playBounce();
 
-                // Odbijanje pod uglom udara lasera
                 const bounceAngle = Math.atan2(laser.vy, laser.vx) + Math.PI / 2;
-                const speed = Math.hypot(orb.velocityX, orb.velocityY) + 110;
+                const speed = Math.hypot(orb.velocityX, orb.velocityY) + 100;
 
                 orb.velocityX = Math.cos(bounceAngle) * speed;
                 orb.velocityY = Math.sin(bounceAngle) * speed;
 
-                state.score += 35;
+                state.score += 25;
                 updateHUD();
             }
         });
@@ -439,7 +423,7 @@ function tryShoot() {
     if (state.cooldownTimer > 0) return;
 
     audio.playShoot();
-    state.cooldownTimer = GAME_CONFIG.shootCooldown; // ZAKLJUČAVANJE NA 4 SEKUNDE
+    state.cooldownTimer = GAME_CONFIG.shootCooldown;
 
     const startX = state.player.x + state.player.width / 2;
     const startY = state.player.y;
@@ -454,7 +438,7 @@ function tryShoot() {
         tailY: startY,
         vx: vx,
         vy: vy,
-        life: GAME_CONFIG.laserDuration // 5 SEKUNDI TRAJANJA
+        life: GAME_CONFIG.laserDuration
     });
 }
 
@@ -462,7 +446,7 @@ function renderGame() {
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
-    // 1. RENDER 4 CORNER PORTALI
+    // 1. CRTANJE 4 CRNE RUPE TAČNO U ĆOŠKOVIMA
     state.blackHoles.forEach(bh => {
         ctx.save();
         ctx.translate(bh.x, bh.y);
@@ -475,7 +459,7 @@ function renderGame() {
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(0, 0, bh.radius + 6, 0, Math.PI * 2);
+        ctx.arc(0, 0, bh.radius + 5, 0, Math.PI * 2);
         ctx.strokeStyle = "rgba(0, 245, 255, 0.4)";
         ctx.lineWidth = 2;
         ctx.stroke();
@@ -488,7 +472,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 2. BILIJARSKI LASERSKI NIŠAN (SAMO KAD NEMA COOLDOWN-A)
+    // 2. BILIJARSKI LASERSKI NIŠAN
     if (state.player && state.cooldownTimer === 0) {
         const startX = state.player.x + state.player.width / 2;
         const startY = state.player.y;
@@ -513,7 +497,7 @@ function renderGame() {
         ctx.restore();
     }
 
-    // 3. CRTANJE LASER-ZMIJE METKA (5 SEC TRAJANJE)
+    // 3. CRTANJE LASER-ZMIJE
     state.lasers.forEach(laser => {
         ctx.save();
         ctx.strokeStyle = "#00f5ff";
@@ -526,7 +510,6 @@ function renderGame() {
         ctx.lineTo(laser.headX, laser.headY);
         ctx.stroke();
 
-        // Glow Head
         ctx.fillStyle = "#ff2fcf";
         ctx.shadowColor = "#ff2fcf";
         ctx.shadowBlur = 20;
@@ -570,12 +553,11 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 5. FIKSIRANI TOP SA COOLDOWN INDIKATOROM
+    // 5. FIKSIRANI TOP
     if (state.player) {
         ctx.save();
         ctx.translate(state.player.x + state.player.width / 2, state.player.y + state.player.height / 2);
 
-        // Boja topa zavisi od toga da li je u cooldownu (4 sekunde)
         ctx.fillStyle = state.cooldownTimer > 0 ? "rgba(255, 47, 207, 0.4)" : "#ff2fcf";
         ctx.fillRect(-state.player.width / 2, -state.player.height / 2, state.player.width, state.player.height);
 
@@ -589,7 +571,6 @@ function renderGame() {
 
 function updateHUD() {
     if (DOM.hud.score) DOM.hud.score.textContent = String(state.score).padStart(6, "0");
-    if (DOM.hud.level) DOM.hud.level.textContent = String(state.level).padStart(2, "0");
 }
 
 function showScreen(name) {
@@ -626,11 +607,6 @@ function init() {
     bindShootControl(DOM.buttons.shoot);
 
     DOM.buttons.start?.addEventListener("click", startNewGame);
-    DOM.buttons.instructionsStart?.addEventListener("click", startNewGame);
-    DOM.buttons.nextLevel?.addEventListener("click", () => {
-        showScreen("game");
-        startLevel(state.level + 1);
-    });
     DOM.buttons.playAgain?.addEventListener("click", startNewGame);
 
     window.addEventListener("keydown", handleKeyDown);
