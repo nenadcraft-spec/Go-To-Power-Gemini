@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v2.2.0
-   BLACK HOLE VORTEX & BILLIARD ANGLE MECHANICS
+   WHR: POWER WTF UP v2.3.1
+   PURE 4-CORNER TELEPORT (33% EQUAL CHANCE, NO DESTRUCTION)
 ========================================================= */
 
 const DOM = {
@@ -85,14 +85,14 @@ class AudioEngine {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+        osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.3);
+        osc.stop(this.ctx.currentTime + 0.25);
     }
 }
 
@@ -136,7 +136,8 @@ const state = {
     player: null,
     cables: [],
     orbs: [],
-    blackHole: { x: 0, y: 0, radius: 34, angle: 0 }
+    blackHoles: [],
+    holeAngle: 0
 };
 
 /* JOYSTICK ENGINE */
@@ -216,11 +217,15 @@ function resizeCanvas() {
     DOM.canvas.width = rect.width;
     DOM.canvas.height = rect.height;
 
-    // Centrirana Crna Rupa u Sredini Arene
-    state.blackHole.x = state.width / 2;
-    state.blackHole.y = state.height * 0.42;
+    const r = 30;
+    const padding = 34;
+    state.blackHoles = [
+        { id: 0, x: padding, y: padding, radius: r, dirX: 1, dirY: 1 },
+        { id: 1, x: state.width - padding, y: padding, radius: r, dirX: -1, dirY: 1 },
+        { id: 2, x: padding, y: state.height - padding - 30, radius: r, dirX: 1, dirY: -1 },
+        { id: 3, x: state.width - padding, y: state.height - padding - 30, radius: r, dirX: -1, dirY: -1 }
+    ];
 
-    // Top zakucan u dnu
     state.player = {
         x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
         y: state.height - GAME_CONFIG.playerHeight - 8,
@@ -255,14 +260,14 @@ function startLevel(levelNumber) {
         const theme = RABBIT_THEMES[i % RABBIT_THEMES.length];
         state.orbs.push({
             x: (state.width / (count + 1)) * (i + 1),
-            y: 50 + Math.random() * 40,
+            y: 70 + Math.random() * 40,
             radius: ORB_TYPES.large.radius,
-            originalRadius: ORB_TYPES.large.radius,
             type: "large",
             velocityX: ORB_TYPES.large.speedX * (i % 2 === 0 ? 1 : -1),
             velocityY: -60,
             theme: theme,
-            beingSucked: false
+            inHole: false,
+            holeTimer: 0
         });
     }
 
@@ -286,7 +291,7 @@ function gameLoop(timestamp) {
 }
 
 function updateGame(delta, timestamp) {
-    state.blackHole.angle += delta * 4;
+    state.holeAngle += delta * 4;
 
     if (state.keys.left) state.aimAngle = Math.max(-Math.PI / 2.6, state.aimAngle - GAME_CONFIG.aimSpeed * delta);
     if (state.keys.right) state.aimAngle = Math.min(Math.PI / 2.6, state.aimAngle + GAME_CONFIG.aimSpeed * delta);
@@ -307,64 +312,77 @@ function updateGame(delta, timestamp) {
         }
     }
 
-    // Fizika Kugli & Usisavanje u Crnu Rupu
+    // Fizika Kugli & 33.3% Portal Teleport
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
 
-        // Gravitacija Crne Rupe
-        const distToBH = Math.hypot(orb.x - state.blackHole.x, orb.y - state.blackHole.y);
+        // Ako je u rupi (1 sekunda zadržavanja)
+        if (orb.inHole) {
+            orb.holeTimer -= delta;
+            if (orb.holeTimer <= 0) {
+                orb.inHole = false;
 
-        if (distToBH < state.blackHole.radius + orb.radius + 15) {
-            orb.beingSucked = true;
-            // Privlačenje ka centru
-            const angleBH = Math.atan2(state.blackHole.y - orb.y, state.blackHole.x - orb.x);
-            orb.x += Math.cos(angleBH) * 220 * delta;
-            orb.y += Math.sin(angleBH) * 220 * delta;
-            orb.radius -= delta * 35; // Smanjivanje dok je guta
+                // Odabir jedne od ostale 3 rupe (33.3% šanse za svaku)
+                const otherHoles = state.blackHoles.filter(h => h.id !== orb.entryHoleId);
+                const exitHole = otherHoles[Math.floor(Math.random() * otherHoles.length)];
 
-            // Potpuno uništenje kada stigne u sam centar!
-            if (distToBH < 12 || orb.radius <= 4) {
-                audio.playBlackHoleSuck();
-                state.orbs.splice(oIdx, 1);
-                state.score += 150;
-                updateHUD();
-                continue;
+                const speed = 520;
+                orb.x = exitHole.x + exitHole.dirX * (orb.radius + 10);
+                orb.y = exitHole.y + exitHole.dirY * (orb.radius + 10);
+
+                // Lansiranje pod uglom od 45 stepeni
+                orb.velocityX = exitHole.dirX * speed * 0.7071;
+                orb.velocityY = exitHole.dirY * speed * 0.7071;
+
+                audio.playBounce();
             }
-        } else {
-            orb.beingSucked = false;
+            continue;
         }
 
-        if (!orb.beingSucked) {
-            orb.velocityY += GAME_CONFIG.gravity * delta;
-            orb.x += orb.velocityX * delta;
-            orb.y += orb.velocityY * delta;
+        orb.velocityY += GAME_CONFIG.gravity * delta;
+        orb.x += orb.velocityX * delta;
+        orb.y += orb.velocityY * delta;
 
-            // Bounce Walls
-            if (orb.x - orb.radius < 0) {
-                orb.x = orb.radius;
-                orb.velocityX *= -1;
-            } else if (orb.x + orb.radius > state.width) {
-                orb.x = state.width - orb.radius;
-                orb.velocityX *= -1;
+        // Provera ulaska u rupu
+        state.blackHoles.forEach(bh => {
+            const dist = Math.hypot(orb.x - bh.x, orb.y - bh.y);
+            if (dist < bh.radius) {
+                orb.inHole = true;
+                orb.entryHoleId = bh.id;
+                orb.holeTimer = 1.0; // TAČNO 1 SEKUNDA
+                orb.x = bh.x;
+                orb.y = bh.y;
+                audio.playBlackHoleSuck();
             }
+        });
 
-            // Bounce Ceiling
-            if (orb.y - orb.radius < 0) {
-                orb.y = orb.radius;
-                orb.velocityY = Math.abs(orb.velocityY) * 0.85;
-            }
+        // Bounce Walls
+        if (orb.x - orb.radius < 0) {
+            orb.x = orb.radius;
+            orb.velocityX *= -1;
+        } else if (orb.x + orb.radius > state.width) {
+            orb.x = state.width - orb.radius;
+            orb.velocityX *= -1;
+        }
 
-            // Bounce Floor
-            if (orb.y + orb.radius > state.height - 4) {
-                orb.y = state.height - 4 - orb.radius;
-                orb.velocityY = -ORB_TYPES[orb.type].bounce;
-            }
+        // Bounce Ceiling
+        if (orb.y - orb.radius < 0) {
+            orb.y = orb.radius;
+            orb.velocityY = Math.abs(orb.velocityY) * 0.85;
+        }
+
+        // Bounce Floor
+        if (orb.y + orb.radius > state.height - 4) {
+            orb.y = state.height - 4 - orb.radius;
+            orb.velocityY = -ORB_TYPES[orb.type].bounce;
         }
     }
 
     // Fliper Bounce od Dijagonalnog Zraka
     state.cables.forEach(cable => {
         state.orbs.forEach(orb => {
+            if (orb.inHole) return;
+
             const dist = pointToSegmentDistance(orb.x, orb.y, cable.startX, cable.startY, cable.endX, cable.endY);
 
             if (dist < orb.radius + 4) {
@@ -381,13 +399,6 @@ function updateGame(delta, timestamp) {
             }
         });
     });
-
-    // Provera za prelazak na sledeći nivo
-    if (state.orbs.length === 0) {
-        setTimeout(() => {
-            showScreen("levelComplete");
-        }, 300);
-    }
 }
 
 function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
@@ -422,38 +433,31 @@ function renderGame() {
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
-    // 1. RENDER CRNA RUPA U CENTRU (BLACK HOLE VORTEX)
-    const bh = state.blackHole;
-    ctx.save();
-    ctx.translate(bh.x, bh.y);
+    // 1. RENDER 4 CORNER BLACK HOLES
+    state.blackHoles.forEach(bh => {
+        ctx.save();
+        ctx.translate(bh.x, bh.y);
 
-    // Outer Neon Gravitational Aura
-    ctx.beginPath();
-    ctx.arc(0, 0, bh.radius + 10, 0, Math.PI * 2);
-    ctx.strokeStyle = "rgba(156, 77, 255, 0.4)";
-    ctx.lineWidth = 4;
-    ctx.stroke();
+        ctx.rotate(state.holeAngle);
+        ctx.beginPath();
+        ctx.arc(0, 0, bh.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = "#9c4dff";
+        ctx.lineWidth = 3.5;
+        ctx.stroke();
 
-    // Rotating Vortex Spiral
-    ctx.rotate(bh.angle);
-    ctx.beginPath();
-    ctx.arc(0, 0, bh.radius, 0, Math.PI * 2);
-    ctx.strokeStyle = "#ff2fcf";
-    ctx.lineWidth = 3.5;
-    ctx.shadowColor = "#ff2fcf";
-    ctx.shadowBlur = 18;
-    ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, bh.radius + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(0, 245, 255, 0.4)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
-    // Inner Black Hole Void Center
-    ctx.beginPath();
-    ctx.arc(0, 0, bh.radius * 0.65, 0, Math.PI * 2);
-    ctx.fillStyle = "#000000";
-    ctx.fill();
-    ctx.strokeStyle = "#00f5ff";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, bh.radius * 0.6, 0, Math.PI * 2);
+        ctx.fillStyle = "#000000";
+        ctx.fill();
 
-    ctx.restore();
+        ctx.restore();
+    });
 
     // 2. BILIJARSKI LASERSKI NIŠAN
     if (state.player && state.cables.length === 0) {
@@ -485,8 +489,6 @@ function renderGame() {
         ctx.save();
         ctx.strokeStyle = "#00f5ff";
         ctx.lineWidth = 5;
-        ctx.shadowColor = "#00f5ff";
-        ctx.shadowBlur = 15;
         ctx.beginPath();
         ctx.moveTo(cable.startX, cable.startY);
         ctx.lineTo(cable.endX, cable.endY);
@@ -501,8 +503,10 @@ function renderGame() {
 
     // 4. RABBIT ORBS
     state.orbs.forEach(o => {
+        if (o.inHole) return;
+
         const theme = o.theme || RABBIT_THEMES[0];
-        const r = Math.max(2, o.radius);
+        const r = o.radius;
 
         ctx.save();
         ctx.translate(o.x, o.y);
