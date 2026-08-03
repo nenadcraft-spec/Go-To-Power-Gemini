@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="WHR: POWER WTF UP — Cyberpunk Pang arcade game.">
+    <meta name="description" content="WHR: POWER WTF UP v1.4.0 — Cyberpunk Pang-style arcade game featuring WHR Guardian Lore.">
     <meta name="theme-color" content="#05040a">
-    <title>WHR: POWER WTF UP v1.3.0</title>
+    <title>WHR: POWER WTF UP v1.4.0</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,11 +21,10 @@
         <div class="background-grid"></div>
         <div class="background-glow background-glow--one"></div>
         <div class="background-glow background-glow--two"></div>
-        <div class="background-noise"></div>
         <div class="scanlines"></div>
     </div>
 
-    <!-- GAME APPLICATION (CENTERED ARCADE CONTAINER) -->
+    <!-- MAIN CENTERED ARCADE CONTAINER -->
     <main id="gameApp" class="game-app">
 
         <!-- START SCREEN -->
@@ -41,7 +40,7 @@
                     </span>
                 </div>
 
-                <p class="start-screen__eyebrow">WHITE HAT RABBIT ARCADE</p>
+                <p class="start-screen__eyebrow">WHITE HAT RABBIT STUDIOS</p>
 
                 <h1 id="gameTitle" class="game-title">
                     <span class="game-title__small">WHR:</span>
@@ -51,12 +50,12 @@
                 </h1>
 
                 <p class="game-subtitle">
-                    Control the WHR Guardian. Slice Rabbit Anomalies with Neo-Rope &amp; survive the WTF chaos!
+                    Control the WHR Guardian. Slice Anomalies with Neo-Rope &amp; unleash White Hacker Powers!
                 </p>
 
                 <div class="system-status" aria-label="System status">
                     <span class="system-status__light"></span>
-                    <span class="system-status__text">WHR ENGINE v1.3 ACTIVE</span>
+                    <span class="system-status__text">WHR ENGINE v1.4 ACTIVE</span>
                 </div>
 
                 <div class="menu-button-group">
@@ -90,7 +89,7 @@
                     </div>
                 </div>
 
-                <p class="start-screen__warning">EXPECT THE UNEXPECTED</p>
+                <p class="start-screen__warning">NO AIMBOT // TRUE GODLIKE REFLEXES</p>
 
             </div>
         </section>
@@ -110,8 +109,8 @@
                     <article class="instruction-card">
                         <span class="instruction-card__number">01</span>
                         <div>
-                            <h3>MOVE</h3>
-                            <p>Keyboard: <strong>A / D</strong> or Arrows. Mobile: Slide joystick or buttons.</p>
+                            <h3>MOVE GUARDIAN</h3>
+                            <p>PC: <strong>A / D</strong> or Arrows. Mobile: Slide the neon joystick left and right.</p>
                         </div>
                     </article>
 
@@ -119,23 +118,23 @@
                         <span class="instruction-card__number">02</span>
                         <div>
                             <h3>NEO-ROPE HOOK</h3>
-                            <p>Press <strong>SPACEBAR</strong> or tap <strong>FIRE</strong> to shoot vertical Pang cables upward.</p>
+                            <p>Press <strong>SPACEBAR</strong> or tap <strong>FIRE</strong> to shoot vertical harpoon ropes.</p>
                         </div>
                     </article>
 
                     <article class="instruction-card">
                         <span class="instruction-card__number">03</span>
                         <div>
-                            <h3>SPLIT ORBS</h3>
-                            <p>Orbs split into smaller ones on hit. Destroy all fragments!</p>
+                            <h3>SPLIT ANOMALIES</h3>
+                            <p>Orbs split into smaller fragments when hit. Clear all to complete the level!</p>
                         </div>
                     </article>
 
                     <article class="instruction-card">
                         <span class="instruction-card__number">04</span>
                         <div>
-                            <h3>WTF POWERS</h3>
-                            <p>Collect falling items for shields, rapid ropes, and freeze fields!</p>
+                            <h3>WHR POWER-UPS</h3>
+                            <p>Collect falling Cyber-Items for Shields, Freeze Time, and Double Cables!</p>
                         </div>
                     </article>
                 </div>
@@ -187,15 +186,10 @@
                 </div>
             </header>
 
-            <!-- ARENA CONTAINER -->
+            <!-- MAIN ARENA STAGE -->
             <div id="gameStage" class="game-stage">
                 <canvas id="gameCanvas" tabindex="0"></canvas>
                 
-                <div id="screenFlash" class="screen-flash" aria-hidden="true"></div>
-                <div id="earthquakeOverlay" class="earthquake-overlay" aria-hidden="true">
-                    <span>SEISMIC ANOMALY</span>
-                </div>
-
                 <div id="levelAnnouncement" class="level-announcement" aria-live="assertive">
                     <span class="level-announcement__small">ENTERING</span>
                     <strong id="levelAnnouncementValue" class="level-announcement__main">LEVEL 01</strong>
@@ -224,7 +218,7 @@
                 </div>
             </div>
 
-            <!-- INTEGRATED MOBILE TOUCH CONTROLS -->
+            <!-- EXPANDED SLIDER CONTROL DECK FOR MOBILE -->
             <div id="mobileControls" class="mobile-controls">
                 <div id="joystickZone" class="joystick-zone">
                     <div id="joystickBase" class="joystick-base">
@@ -240,7 +234,7 @@
             <footer class="game-footer">
                 <div class="game-footer__controls">
                     <span><kbd>A</kbd><kbd>D</kbd> MOVE</span>
-                    <span><kbd>SPACE</kbd> FIRE ROPE</span>
+                    <span><kbd>SPACE</kbd> FIRE HARPOON</span>
                     <span><kbd>P</kbd> PAUSE</span>
                 </div>
             </footer>
@@ -307,8 +301,6 @@
         <section id="whiteHatProtocolModal" class="white-hat-modal" aria-labelledby="whiteHatProtocolTitle" aria-hidden="true">
             <div class="white-hat-modal__backdrop" data-close-white-hat></div>
             <div class="white-hat-terminal" role="dialog" aria-modal="true">
-                <div class="white-hat-terminal__scanline"></div>
-
                 <header class="white-hat-terminal__header">
                     <div class="white-hat-terminal__identity">
                         <span class="white-hat-terminal__signal"></span>
@@ -354,15 +346,16 @@
         "use strict";
         const updatesData = [
             {
-                id: 9,
-                title: "WHR v1.3.0 Unified Centered Arena!",
+                id: 10,
+                title: "WHR v1.4.0 Power-Up Drops & Neon Controls!",
                 date: "August 3, 2026",
-                version: "v1.3.0",
-                tags: ["game", "fix"],
+                version: "v1.4.0",
+                tags: ["game", "feature"],
                 changes: [
-                    "Centered Arcade Container fix for both PC & Mobile.",
-                    "Arena aspect ratio unified: No more pushed text or split screens.",
-                    "Pang cable harpoon and physics aligned to arena dimensions."
+                    "Added falling WTF Power-Up Drops (Shields, Freeze Time, Rapid Cables).",
+                    "Expanded Neon Slider Track for comfortable mobile play.",
+                    "Centered Arcade Container with perfect 9:16 and 16:9 viewports.",
+                    "Cleaned up UI overlays and text announcement z-indexes."
                 ]
             }
         ];
