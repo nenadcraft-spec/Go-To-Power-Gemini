@@ -1,8 +1,11 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v4.2.1
-   MASTER RAPID ARCADE BALANCE ENGINE
+   WHR: POWER WTF UP v5.0.0
+   DIRECT TAP / CLICK REFLEX ENGINE
+   - Mobile: Direct Finger Tap on Rabbits
+   - PC: Custom Crosshair & Direct Mouse Click
+   - Complete 7 Cyber Rabbit Reaction Chain
 ========================================================= */
 
 const DOM = {
@@ -12,8 +15,7 @@ const DOM = {
         game: document.getElementById("gameScreen")
     },
     buttons: {
-        start: document.getElementById("startButton"),
-        shoot: document.getElementById("shootButton")
+        start: document.getElementById("startButton")
     },
     canvas: document.getElementById("gameCanvas"),
     gameStage: document.getElementById("gameStage"),
@@ -32,29 +34,17 @@ class AudioEngine {
             if (AudioCtx) this.ctx = new AudioCtx();
         }
     }
-    playShoot() {
+    playHit() {
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(900, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
         osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.15);
-    }
-    playBounce() {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(350, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(750, this.ctx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.22, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-        osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.1);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.12);
     }
     playPower() {
         if (!this.ctx) return;
@@ -62,11 +52,11 @@ class AudioEngine {
         const gain = this.ctx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.25);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.2);
         gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
         osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.25);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
     }
     playPortal() {
         if (!this.ctx) return;
@@ -75,7 +65,7 @@ class AudioEngine {
         osc.type = "sine";
         osc.frequency.setValueAtTime(200, this.ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
         osc.connect(gain); gain.connect(this.ctx.destination);
         osc.start(); osc.stop(this.ctx.currentTime + 0.2);
@@ -85,17 +75,11 @@ class AudioEngine {
 const audio = new AudioEngine();
 
 const GAME_CONFIG = {
-    playerWidth: 40,
-    playerHeight: 18,
-    aimSpeed: 1.8,
     laserSpeed: 900,
-    laserLength: 32,
-    laserDuration: 5.0,
-    shootCooldown: 0.5,
     gravity: 580
 };
 
-const ORB_TYPES = { large: { radius: 26, bounce: 820 } };
+const ORB_TYPES = { large: { radius: 28, bounce: 820 } };
 
 const RABBIT_THEMES = [
     { id: "white", name: "White Hacker", main: "#00f5ff", eye: "#32ff9b" },
@@ -114,72 +98,15 @@ const state = {
     width: 600,
     height: 800,
     score: 0,
-    cooldownTimer: 0,
-    aimAngle: 0,
-    keys: { left: false, right: false, shoot: false },
-    touch: { left: false, right: false, shoot: false },
-    mouse: { x: 0, y: 0, isDown: false },
-    player: null,
+    mouse: { x: -100, y: -100, active: false },
     lasers: [],
     orbs: [],
     blackHoles: [],
     holeAngle: 0,
     globalFreezeTimer: 0,
     globalSpeedMultiplier: 1.0,
-    pendingRespawns: [],
-    hasShotgunCharged: false
+    pendingRespawns: []
 };
-
-const joystick = {
-    zone: document.getElementById("joystickZone"),
-    base: document.getElementById("joystickBase"),
-    stick: document.getElementById("joystickStick"),
-    active: false,
-    touchId: null,
-    startX: 0,
-    maxRadius: 65
-};
-
-function initJoystick() {
-    if (!joystick.zone || !joystick.base || !joystick.stick) return;
-
-    function handleStart(e) {
-        e.preventDefault(); audio.init();
-        if (joystick.active) return;
-        const touch = e.changedTouches ? e.changedTouches[0] : e;
-        joystick.active = true;
-        joystick.touchId = touch.identifier ?? "mouse";
-        const rect = joystick.base.getBoundingClientRect();
-        joystick.startX = rect.left + rect.width / 2;
-        handleMove(e);
-    }
-
-    function handleMove(e) {
-        if (!joystick.active) return;
-        let touch = null;
-        if (e.changedTouches) {
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === joystick.touchId) { touch = e.changedTouches[i]; break; }
-            }
-        } else touch = e;
-        if (!touch) return;
-        let deltaX = touch.clientX - joystick.startX;
-        deltaX = Math.max(-joystick.maxRadius, Math.min(joystick.maxRadius, deltaX));
-        joystick.stick.style.transform = `translateX(${deltaX}px)`;
-        state.aimAngle = (deltaX / joystick.maxRadius) * (Math.PI / 2.6);
-    }
-
-    function handleEnd() {
-        if (!joystick.active) return;
-        joystick.active = false; joystick.touchId = null;
-        joystick.stick.style.transform = `translateX(0px)`;
-    }
-
-    joystick.zone.addEventListener("touchstart", handleStart, { passive: false });
-    window.addEventListener("touchmove", handleMove, { passive: false });
-    window.addEventListener("touchend", handleEnd, { passive: false });
-    window.addEventListener("touchcancel", handleEnd, { passive: false });
-}
 
 function resizeCanvas() {
     if (!DOM.canvas || !DOM.gameStage) return;
@@ -198,13 +125,6 @@ function resizeCanvas() {
         { id: 2, x: offset, y: state.height - offset, radius: radius, dirX: 1, dirY: -1 },
         { id: 3, x: state.width - offset, y: state.height - offset, radius: radius, dirX: -1, dirY: -1 }
     ];
-
-    state.player = {
-        x: state.width / 2 - GAME_CONFIG.playerWidth / 2,
-        y: state.height - GAME_CONFIG.playerHeight - 2,
-        width: GAME_CONFIG.playerWidth,
-        height: GAME_CONFIG.playerHeight
-    };
 }
 
 function startNewGame() {
@@ -212,14 +132,13 @@ function startNewGame() {
     showScreen("game");
     window.requestAnimationFrame(() => {
         resizeCanvas();
-        state.score = 0; state.aimAngle = 0; state.cooldownTimer = 0;
+        state.score = 0;
         state.globalFreezeTimer = 0; state.globalSpeedMultiplier = 1.0;
-        state.hasShotgunCharged = false;
         state.lasers = []; state.orbs = []; state.pendingRespawns = [];
 
         for (let i = 0; i < 7; i++) {
             const theme = RABBIT_THEMES[i];
-            state.orbs.push(createRabbitObject(theme, (state.width / 8) * (i + 1), 50 + Math.random() * (state.height * 0.2)));
+            state.orbs.push(createRabbitObject(theme, (state.width / 8) * (i + 1), 60 + Math.random() * (state.height * 0.3)));
         }
 
         updateHUD();
@@ -233,8 +152,8 @@ function createRabbitObject(theme, x, y) {
     return {
         x: x, y: y,
         radius: ORB_TYPES.large.radius,
-        velocityX: (Math.random() > 0.5 ? 1 : -1) * 150,
-        velocityY: -50,
+        velocityX: (Math.random() > 0.5 ? 1 : -1) * 160,
+        velocityY: -60,
         theme: theme,
         inHole: false,
         holeTimer: 0,
@@ -258,16 +177,12 @@ function gameLoop(timestamp) {
 function updateGame(delta) {
     state.holeAngle += delta * 4;
 
-    if (state.cooldownTimer > 0) {
-        state.cooldownTimer -= delta;
-        if (state.cooldownTimer < 0) state.cooldownTimer = 0;
-    }
-
     if (state.globalFreezeTimer > 0) {
         state.globalFreezeTimer -= delta;
         if (state.globalFreezeTimer < 0) state.globalFreezeTimer = 0;
     }
 
+    // RESPAWN SVEŽIH ZEČEVA KROZ CRNE RUPE
     for (let rIdx = state.pendingRespawns.length - 1; rIdx >= 0; rIdx--) {
         const item = state.pendingRespawns[rIdx];
         item.delay -= delta;
@@ -286,23 +201,19 @@ function updateGame(delta) {
 
             state.orbs.push(newOrb);
             state.pendingRespawns.splice(rIdx, 1);
-            audio.playBounce();
+            audio.playPortal();
         }
     }
 
-    if (state.keys.left) state.aimAngle = Math.max(-Math.PI / 2.6, state.aimAngle - GAME_CONFIG.aimSpeed * delta);
-    if (state.keys.right) state.aimAngle = Math.min(Math.PI / 2.6, state.aimAngle + GAME_CONFIG.aimSpeed * delta);
-
-    if ((state.keys.shoot || state.touch.shoot || state.mouse.isDown) && state.cooldownTimer === 0) tryShoot();
-
+    // UPDATE LASERA OD GOLDEN ZECA
     for (let i = state.lasers.length - 1; i >= 0; i--) {
         const laser = state.lasers[i];
         laser.life -= delta;
         laser.headX += laser.vx * delta;
         laser.headY += laser.vy * delta;
 
-        laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
-        laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * GAME_CONFIG.laserLength;
+        laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * 35;
+        laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * 35;
 
         if (laser.headX <= 0) { laser.headX = 0; laser.vx = Math.abs(laser.vx); }
         else if (laser.headX >= state.width) { laser.headX = state.width; laser.vx = -Math.abs(laser.vx); }
@@ -313,6 +224,7 @@ function updateGame(delta) {
         if (laser.life <= 0) state.lasers.splice(i, 1);
     }
 
+    // ODBIJANJE IZMEĐU ZEČEVA
     for (let i = 0; i < state.orbs.length; i++) {
         for (let j = i + 1; j < state.orbs.length; j++) {
             const o1 = state.orbs[i];
@@ -336,13 +248,13 @@ function updateGame(delta) {
                 if (o1.theme.id === "white") {
                     o2.x += Math.cos(angle) * overlap;
                     o2.y += Math.sin(angle) * overlap;
-                    o2.velocityX = Math.cos(angle) * 400;
-                    o2.velocityY = Math.sin(angle) * 400;
+                    o2.velocityX = Math.cos(angle) * 420;
+                    o2.velocityY = Math.sin(angle) * 420;
                 } else if (o2.theme.id === "white") {
                     o1.x -= Math.cos(angle) * overlap;
                     o1.y -= Math.sin(angle) * overlap;
-                    o1.velocityX = -Math.cos(angle) * 400;
-                    o1.velocityY = -Math.sin(angle) * 400;
+                    o1.velocityX = -Math.cos(angle) * 420;
+                    o1.velocityY = -Math.sin(angle) * 420;
                 } else {
                     o1.x -= Math.cos(angle) * (overlap / 2);
                     o1.y -= Math.sin(angle) * (overlap / 2);
@@ -360,6 +272,7 @@ function updateGame(delta) {
         }
     }
 
+    // FIZIKA ZEČEVA I VOID GRAVITACIJA
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
 
@@ -408,7 +321,7 @@ function updateGame(delta) {
                 orb.y = exitHole.y + exitHole.dirY * (orb.radius + 6);
                 orb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
                 orb.velocityY = exitHole.dirY * speed * Math.sin(rad39);
-                audio.playBounce();
+                audio.playPortal();
             }
             continue;
         }
@@ -445,81 +358,76 @@ function updateGame(delta) {
             orb.velocityY = -ORB_TYPES.large.bounce;
         }
     }
+}
 
-    for (let lIdx = state.lasers.length - 1; lIdx >= 0; lIdx--) {
-        const laser = state.lasers[lIdx];
-        let hitDetected = false;
+/* GLAVNI TOUCH / CLICK INTERAKCIJSKI MEHANIZAM */
+function handleTargetInteraction(clientX, clientY) {
+    if (!state.running || !DOM.canvas) return;
+    const rect = DOM.canvas.getBoundingClientRect();
+    const clickX = clientY !== undefined ? clientX - rect.left : clientX;
+    const clickY = clientY !== undefined ? clientY - rect.top : clientY;
 
-        for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
-            const orb = state.orbs[oIdx];
-            if (orb.inHole) continue;
+    for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
+        const orb = state.orbs[oIdx];
+        if (orb.inHole) continue;
 
-            if (orb.theme.id === "void" && orb.isPhantom) continue;
-            if (orb.theme.id === "gold" && laser.isGoldenRazor) continue;
+        // VOID PHANTOM PROPUŠTA DODIR
+        if (orb.theme.id === "void" && orb.isPhantom) continue;
 
-            const dist = pointToSegmentDistance(orb.x, orb.y, laser.tailX, laser.tailY, laser.headX, laser.headY);
+        const dist = Math.hypot(orb.x - clickX, orb.y - clickY);
 
-            if (dist < orb.radius + 4) {
-                audio.playBounce();
-                audio.playPower();
+        if (dist <= orb.radius + 12) { // 12px tolerancija za lakši tap prstom!
+            audio.playHit();
+            audio.playPower();
 
-                const lSpeed = Math.hypot(laser.vx, laser.vy);
-                const dirX = laser.vx / lSpeed;
-                const dirY = laser.vy / lSpeed;
-                orb.velocityX = dirX * 720;
-                orb.velocityY = dirY * 720;
+            // Smer impulsa od dodira
+            const angle = Math.atan2(orb.y - clickY, orb.x - clickX);
+            orb.velocityX = Math.cos(angle) * 650;
+            orb.velocityY = Math.sin(angle) * 650;
 
-                triggerRabbitPower(orb, oIdx);
+            triggerRabbitPower(orb, oIdx);
 
-                orb.powerGlow = 1.0;
-                state.score += 50;
-                updateHUD();
-
-                hitDetected = true;
-                break;
-            }
-        }
-
-        if (hitDetected) {
-            state.lasers.splice(lIdx, 1);
+            orb.powerGlow = 1.0;
+            state.score += 100;
+            updateHUD();
+            break; // Jedan dodir pogadja jednog zeca
         }
     }
 }
 
 function triggerRabbitPower(orb, orbIndex) {
     switch (orb.theme.id) {
-        case "white":
+        case "white": // EMP Pulse
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
                     if (d < 220) {
-                        other.velocityX += (other.x - orb.x) * 4.0;
-                        other.velocityY += (other.y - orb.y) * 4.0;
+                        other.velocityX += (other.x - orb.x) * 4.5;
+                        other.velocityY += (other.y - orb.y) * 4.5;
                     }
                 }
             });
-            state.hasShotgunCharged = true;
             break;
 
-        case "black":
+        case "black": // Hacker Teleport Swap
             orb.x = 40 + Math.random() * (state.width - 80);
             orb.y = 40 + Math.random() * (state.height * 0.4);
-            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 350;
-            orb.velocityY = -150;
+            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 380;
+            orb.velocityY = -180;
             break;
 
-        case "blue":
+        case "blue": // Flash Freeze na 0.8s
             state.globalFreezeTimer = 0.8;
             break;
 
-        case "gold":
+        case "gold": // Split Razor Lasers
             if (!orb.goldCooldown || orb.goldCooldown <= 0) {
-                orb.goldCooldown = 1.5;
+                orb.goldCooldown = 1.2;
                 spawnGoldenRazorLasers(orb.x, orb.y, orb.radius);
             }
             break;
 
-        case "red":
+        case "red": // Boomerang Surge Explosion
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
@@ -533,7 +441,7 @@ function triggerRabbitPower(orb, orbIndex) {
             state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
             break;
 
-        case "green":
+        case "green": // Matrix Slow 50%
             const currentSlowBase = state.globalSpeedMultiplier;
             state.globalSpeedMultiplier *= 0.5;
             state.orbs.splice(orbIndex, 1);
@@ -544,9 +452,9 @@ function triggerRabbitPower(orb, orbIndex) {
             }, 1500);
             break;
 
-        case "void":
-            orb.velocityX *= 1.8;
-            orb.velocityY *= 1.8;
+        case "void": // Turbo boost
+            orb.velocityX *= 1.9;
+            orb.velocityY *= 1.9;
             break;
     }
 }
@@ -564,47 +472,9 @@ function spawnGoldenRazorLasers(x, y, radius) {
 
         state.lasers.push({
             headX: startX, headY: startY, tailX: startX, tailY: startY,
-            vx: vx, vy: vy, life: 1.2,
-            isGoldenRazor: true
+            vx: vx, vy: vy, life: 1.2
         });
     });
-}
-
-function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
-    const l2 = (x2 - x1) ** 2 + (y2 - y1) ** 2;
-    if (l2 === 0) return Math.hypot(px - x1, py - y1);
-    let t = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / l2;
-    t = Math.max(0, Math.min(1, t));
-    return Math.hypot(px - (x1 + t * (x2 - x1)), py - (y1 + t * (y2 - y1)));
-}
-
-function tryShoot() {
-    if (state.cooldownTimer > 0) return;
-    audio.playShoot();
-    state.cooldownTimer = GAME_CONFIG.shootCooldown;
-    const startX = state.player.x + state.player.width / 2;
-    const startY = state.player.y;
-
-    if (state.hasShotgunCharged) {
-        state.hasShotgunCharged = false;
-        const angles = [state.aimAngle - 0.18, state.aimAngle + 0.18];
-
-        angles.forEach(ang => {
-            const vx = Math.sin(ang) * GAME_CONFIG.laserSpeed;
-            const vy = -Math.cos(ang) * GAME_CONFIG.laserSpeed;
-            state.lasers.push({
-                headX: startX, headY: startY, tailX: startX, tailY: startY,
-                vx: vx, vy: vy, life: GAME_CONFIG.laserDuration
-            });
-        });
-    } else {
-        const vx = Math.sin(state.aimAngle) * GAME_CONFIG.laserSpeed;
-        const vy = -Math.cos(state.aimAngle) * GAME_CONFIG.laserSpeed;
-        state.lasers.push({
-            headX: startX, headY: startY, tailX: startX, tailY: startY,
-            vx: vx, vy: vy, life: GAME_CONFIG.laserDuration
-        });
-    }
 }
 
 function renderGame() {
@@ -612,6 +482,7 @@ function renderGame() {
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
+    // CRNE RUPE
     state.blackHoles.forEach(bh => {
         ctx.save();
         ctx.translate(bh.x, bh.y);
@@ -628,79 +499,19 @@ function renderGame() {
         ctx.restore();
     });
 
-    if (state.player && state.cooldownTimer === 0) {
-        const startX = state.player.x + state.player.width / 2;
-        const startY = state.player.y;
-        const aimLength = 180;
-
-        if (state.hasShotgunCharged) {
-            [-0.18, 0.18].forEach(off => {
-                const targetX = startX + Math.sin(state.aimAngle + off) * aimLength;
-                const targetY = startY - Math.cos(state.aimAngle + off) * aimLength;
-                ctx.save();
-                ctx.setLineDash([4, 4]);
-                ctx.strokeStyle = "#32ff9b";
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(targetX, targetY);
-                ctx.stroke();
-                ctx.restore();
-            });
-        } else {
-            const targetX = startX + Math.sin(state.aimAngle) * aimLength;
-            const targetY = startY - Math.cos(state.aimAngle) * aimLength;
-            ctx.save();
-            ctx.setLineDash([5, 5]);
-            ctx.strokeStyle = "rgba(0, 245, 255, 0.6)";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(targetX, targetY);
-            ctx.stroke();
-            ctx.restore();
-        }
-    }
-
+    // LASERI OD GOLDEN ZECA
     state.lasers.forEach(laser => {
         ctx.save();
-        const angle = Math.atan2(laser.vy, laser.vx);
-
-        ctx.strokeStyle = laser.isGoldenRazor ? "#ffe45c" : "#00f5ff";
+        ctx.strokeStyle = "#ffe45c";
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(laser.tailX, laser.tailY);
         ctx.lineTo(laser.headX, laser.headY);
         ctx.stroke();
-
-        ctx.save();
-        ctx.translate(laser.headX, laser.headY);
-        ctx.rotate(angle);
-        ctx.fillStyle = laser.isGoldenRazor ? "#ff9100" : "#ff2fcf";
-        ctx.beginPath();
-        ctx.moveTo(6, 0);
-        ctx.lineTo(-6, -4);
-        ctx.lineTo(-6, 4);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-
-        ctx.save();
-        ctx.translate(laser.tailX, laser.tailY);
-        ctx.rotate(angle);
-        ctx.strokeStyle = laser.isGoldenRazor ? "#ff9100" : "#ff2fcf";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(-6, -5);
-        ctx.moveTo(0, 0);
-        ctx.lineTo(-6, 5);
-        ctx.stroke();
-        ctx.restore();
-
         ctx.restore();
     });
 
+    // SVI ZEČEVI
     state.orbs.forEach(o => {
         if (o.inHole) return;
         const theme = o.theme || RABBIT_THEMES[0];
@@ -750,14 +561,18 @@ function renderGame() {
         ctx.restore();
     });
 
-    if (state.player) {
+    // CUSTOM CROSSHAIR MEČA NA PC-U
+    if (state.mouse.active) {
         ctx.save();
-        ctx.translate(state.player.x + state.player.width / 2, state.player.y + state.player.height / 2);
-        ctx.fillStyle = state.hasShotgunCharged ? "#32ff9b" : (state.cooldownTimer > 0 ? "rgba(255, 47, 207, 0.4)" : "#ff2fcf");
-        ctx.fillRect(-state.player.width / 2, -state.player.height / 2, state.player.width, state.player.height);
-        ctx.rotate(state.aimAngle);
-        ctx.fillStyle = state.hasShotgunCharged ? "#32ff9b" : (state.cooldownTimer > 0 ? "#8993ad" : "#00f5ff");
-        ctx.fillRect(-3, -16, 6, 16);
+        ctx.strokeStyle = "#00f5ff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(state.mouse.x, state.mouse.y, 14, 0, Math.PI * 2);
+        ctx.moveTo(state.mouse.x - 20, state.mouse.y);
+        ctx.lineTo(state.mouse.x + 20, state.mouse.y);
+        ctx.moveTo(state.mouse.x, state.mouse.y - 20);
+        ctx.lineTo(state.mouse.x, state.mouse.y + 20);
+        ctx.stroke();
         ctx.restore();
     }
 }
@@ -775,71 +590,44 @@ function showScreen(name) {
     });
 }
 
-function bindShootControl(btn) {
-    if (!btn) return;
-    btn.addEventListener("pointerdown", e => { e.preventDefault(); audio.init(); state.touch.shoot = true; });
-    btn.addEventListener("pointerup", e => { e.preventDefault(); state.touch.shoot = false; });
-    btn.addEventListener("pointercancel", e => { e.preventDefault(); state.touch.shoot = false; });
-}
+function initEvents() {
+    if (!DOM.canvas) return;
 
-function handleKeyDown(e) {
-    audio.init();
-    if (e.code === "ArrowLeft" || e.code === "KeyA") state.keys.left = true;
-    if (e.code === "ArrowRight" || e.code === "KeyD") state.keys.right = true;
-    if (e.code === "Space") state.keys.shoot = true;
-}
-
-function handleKeyUp(e) {
-    if (e.code === "ArrowLeft" || e.code === "KeyA") state.keys.left = false;
-    if (e.code === "ArrowRight" || e.code === "KeyD") state.keys.right = false;
-    if (e.code === "Space") state.keys.shoot = false;
-}
-
-function handleMouseMove(e) {
-    if (!DOM.canvas || !state.player) return;
-    const rect = DOM.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    const playerCenterX = state.player.x + state.player.width / 2;
-    const playerCenterY = state.player.y;
-
-    const dx = mouseX - playerCenterX;
-    const dy = playerCenterY - mouseY;
-
-    let angle = Math.atan2(dx, dy);
-    state.aimAngle = Math.max(-Math.PI / 2.6, Math.min(Math.PI / 2.6, angle));
-}
-
-function handleMouseDown(e) {
-    if (e.button === 0) {
+    // TOUCH EVENTI (TELEFON)
+    DOM.canvas.addEventListener("touchstart", e => {
+        e.preventDefault();
         audio.init();
-        state.mouse.isDown = true;
-    }
-}
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            handleTargetInteraction(touch.clientX, touch.clientY);
+        }
+    }, { passive: false });
 
-function handleMouseUp(e) {
-    if (e.button === 0) {
-        state.mouse.isDown = false;
-    }
+    // MOUSE EVENTI (PC)
+    DOM.canvas.addEventListener("mousemove", e => {
+        const rect = DOM.canvas.getBoundingClientRect();
+        state.mouse.x = e.clientX - rect.left;
+        state.mouse.y = e.clientY - rect.top;
+        state.mouse.active = true;
+    });
+
+    DOM.canvas.addEventListener("mouseleave", () => {
+        state.mouse.active = false;
+    });
+
+    DOM.canvas.addEventListener("mousedown", e => {
+        if (e.button === 0) {
+            audio.init();
+            handleTargetInteraction(e.clientX, e.clientY);
+        }
+    });
+
+    DOM.buttons.start?.addEventListener("click", startNewGame);
+    window.addEventListener("resize", resizeCanvas);
 }
 
 function init() {
-    initJoystick();
-    bindShootControl(DOM.buttons.shoot);
-
-    DOM.buttons.start?.addEventListener("click", startNewGame);
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-
-    if (DOM.canvas) {
-        DOM.canvas.addEventListener("mousemove", handleMouseMove);
-        DOM.canvas.addEventListener("mousedown", handleMouseDown);
-    }
-    window.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("resize", resizeCanvas);
-
+    initEvents();
     showScreen("start");
     resizeCanvas();
 }
