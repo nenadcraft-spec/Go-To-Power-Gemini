@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v2.8.0
-   KNOCKBACK IMPULSE & SPECIAL RABBIT POWERS ON LASER IMPACT
+   WHR: POWER WTF UP v3.0.0
+   THE ULTIMATE 7-RABBIT UNIQUE POWER REACTION ENGINE
 ========================================================= */
 
 const DOM = {
@@ -24,7 +24,6 @@ const DOM = {
 
 const ctx = DOM.canvas.getContext("2d");
 
-/* AUDIO SYNTH */
 class AudioEngine {
     constructor() { this.ctx = null; }
     init() {
@@ -39,13 +38,11 @@ class AudioEngine {
         const gain = this.ctx.createGain();
         osc.type = "sawtooth";
         osc.frequency.setValueAtTime(900, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.25);
+        osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.2);
         gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.25);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
     }
     playBounce() {
         if (!this.ctx) return;
@@ -53,27 +50,23 @@ class AudioEngine {
         const gain = this.ctx.createGain();
         osc.type = "triangle";
         osc.frequency.setValueAtTime(350, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(750, this.ctx.currentTime + 0.12);
-        gain.gain.setValueAtTime(0.22, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(750, this.ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.1);
     }
     playPower() {
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(500, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.25);
         gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.2);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.25);
     }
     playPortal() {
         if (!this.ctx) return;
@@ -81,13 +74,11 @@ class AudioEngine {
         const gain = this.ctx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(200, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.25);
+        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.2);
         gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.25);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
     }
 }
 
@@ -104,11 +95,8 @@ const GAME_CONFIG = {
     gravity: 580
 };
 
-const ORB_TYPES = {
-    large: { radius: 26, bounce: 820 }
-};
+const ORB_TYPES = { large: { radius: 26, bounce: 820 } };
 
-/* SVIH 7 UNIKATNIH ZEČEVA SA DEFINISANIM MOĆIMA */
 const RABBIT_THEMES = [
     { id: "white", name: "White Hacker", main: "#00f5ff", eye: "#32ff9b" },
     { id: "black", name: "Black Hacker", main: "#ff2fcf", eye: "#ff315d" },
@@ -134,7 +122,10 @@ const state = {
     lasers: [],
     orbs: [],
     blackHoles: [],
-    holeAngle: 0
+    holeAngle: 0,
+    globalFreezeTimer: 0,
+    globalSpeedMultiplier: 1.0,
+    pendingRespawns: []
 };
 
 /* JOYSTICK ENGINE */
@@ -152,14 +143,11 @@ function initJoystick() {
     if (!joystick.zone || !joystick.base || !joystick.stick) return;
 
     function handleStart(e) {
-        e.preventDefault();
-        audio.init();
+        e.preventDefault(); audio.init();
         if (joystick.active) return;
-
         const touch = e.changedTouches ? e.changedTouches[0] : e;
         joystick.active = true;
         joystick.touchId = touch.identifier ?? "mouse";
-
         const rect = joystick.base.getBoundingClientRect();
         joystick.startX = rect.left + rect.width / 2;
         handleMove(e);
@@ -167,34 +155,22 @@ function initJoystick() {
 
     function handleMove(e) {
         if (!joystick.active) return;
-
         let touch = null;
         if (e.changedTouches) {
             for (let i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === joystick.touchId) {
-                    touch = e.changedTouches[i];
-                    break;
-                }
+                if (e.changedTouches[i].identifier === joystick.touchId) { touch = e.changedTouches[i]; break; }
             }
-        } else {
-            touch = e;
-        }
-
+        } else touch = e;
         if (!touch) return;
-
         let deltaX = touch.clientX - joystick.startX;
         deltaX = Math.max(-joystick.maxRadius, Math.min(joystick.maxRadius, deltaX));
-
         joystick.stick.style.transform = `translateX(${deltaX}px)`;
-
-        const normalized = deltaX / joystick.maxRadius;
-        state.aimAngle = normalized * (Math.PI / 2.6);
+        state.aimAngle = (deltaX / joystick.maxRadius) * (Math.PI / 2.6);
     }
 
-    function handleEnd(e) {
+    function handleEnd() {
         if (!joystick.active) return;
-        joystick.active = false;
-        joystick.touchId = null;
+        joystick.active = false; joystick.touchId = null;
         joystick.stick.style.transform = `translateX(0px)`;
     }
 
@@ -206,12 +182,9 @@ function initJoystick() {
 
 function resizeCanvas() {
     if (!DOM.canvas || !DOM.gameStage) return;
-
     const rect = DOM.gameStage.getBoundingClientRect();
-
     DOM.canvas.width = Math.floor(rect.width);
     DOM.canvas.height = Math.floor(rect.height);
-
     state.width = DOM.canvas.width;
     state.height = DOM.canvas.height;
 
@@ -238,27 +211,14 @@ function startNewGame() {
     showScreen("game");
     window.requestAnimationFrame(() => {
         resizeCanvas();
-        state.score = 0;
-        state.aimAngle = 0;
-        state.cooldownTimer = 0;
-        state.lasers = [];
-        state.orbs = [];
+        state.score = 0; state.aimAngle = 0; state.cooldownTimer = 0;
+        state.globalFreezeTimer = 0; state.globalSpeedMultiplier = 1.0;
+        state.lasers = []; state.orbs = []; state.pendingRespawns = [];
 
+        // KREIRANJE 7 UNIKATNIH CYBER ZEČEVA
         for (let i = 0; i < 7; i++) {
             const theme = RABBIT_THEMES[i];
-            state.orbs.push({
-                x: (state.width / 8) * (i + 1),
-                y: 50 + Math.random() * (state.height * 0.2),
-                radius: ORB_TYPES.large.radius,
-                type: "large",
-                velocityX: (i % 2 === 0 ? 1 : -1) * (140 + i * 15),
-                velocityY: -50,
-                theme: theme,
-                inHole: false,
-                holeTimer: 0,
-                powerTimer: 0,
-                powerGlow: 0
-            });
+            state.orbs.push(createRabbitObject(theme, (state.width / 8) * (i + 1), 50 + Math.random() * (state.height * 0.2)));
         }
 
         updateHUD();
@@ -268,16 +228,29 @@ function startNewGame() {
     });
 }
 
+function createRabbitObject(theme, x, y) {
+    return {
+        x: x, y: y,
+        radius: ORB_TYPES.large.radius,
+        velocityX: (Math.random() > 0.5 ? 1 : -1) * 150,
+        velocityY: -50,
+        theme: theme,
+        inHole: false,
+        holeTimer: 0,
+        powerGlow: 0,
+        // VOID SHADOW SPECIJALNI TAJMERI (5s ciklus -> 3s slow -> 90% turbo)
+        voidStateTimer: 5.0,
+        isVoidSlow: false,
+        isVoidTurbo: false
+    };
+}
+
 function gameLoop(timestamp) {
     if (!state.running) return;
-
     const delta = Math.min(0.033, (timestamp - state.lastTimestamp) / 1000);
     state.lastTimestamp = timestamp;
 
-    if (!state.paused) {
-        updateGame(delta);
-    }
-
+    if (!state.paused) updateGame(delta);
     renderGame();
     window.requestAnimationFrame(gameLoop);
 }
@@ -290,18 +263,41 @@ function updateGame(delta) {
         if (state.cooldownTimer < 0) state.cooldownTimer = 0;
     }
 
+    // GLOBAL FREEZE (Blue Freeze moć)
+    if (state.globalFreezeTimer > 0) {
+        state.globalFreezeTimer -= delta;
+        if (state.globalFreezeTimer < 0) state.globalFreezeTimer = 0;
+    }
+
+    // TAJMER ZA RESPAWN ZEČEVA KOJI SU NESTALI PA SE VRAĆAJU KROZ CRNE RUPE (Red & Green)
+    for (let rIdx = state.pendingRespawns.length - 1; rIdx >= 0; rIdx--) {
+        const item = state.pendingRespawns[rIdx];
+        item.delay -= delta;
+        if (item.delay <= 0) {
+            // Iskače iz nasumične crne rupe
+            const exitHole = state.blackHoles[Math.floor(Math.random() * state.blackHoles.length)];
+            const newOrb = createRabbitObject(item.theme, exitHole.x, exitHole.y);
+            const speed = 520;
+            const rad39 = 39 * (Math.PI / 180);
+
+            newOrb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
+            newOrb.velocityY = exitHole.dirY * speed * Math.sin(rad39);
+
+            state.orbs.push(newOrb);
+            state.pendingRespawns.splice(rIdx, 1);
+            audio.playBounce();
+        }
+    }
+
     if (state.keys.left) state.aimAngle = Math.max(-Math.PI / 2.6, state.aimAngle - GAME_CONFIG.aimSpeed * delta);
     if (state.keys.right) state.aimAngle = Math.min(Math.PI / 2.6, state.aimAngle + GAME_CONFIG.aimSpeed * delta);
 
-    if ((state.keys.shoot || state.touch.shoot) && state.cooldownTimer === 0) {
-        tryShoot();
-    }
+    if ((state.keys.shoot || state.touch.shoot) && state.cooldownTimer === 0) tryShoot();
 
-    // LASER ZMIJA KRETANJE
+    // LASER ZMIJA UPDATE
     for (let i = state.lasers.length - 1; i >= 0; i--) {
         const laser = state.lasers[i];
         laser.life -= delta;
-
         laser.headX += laser.vx * delta;
         laser.headY += laser.vy * delta;
 
@@ -317,12 +313,61 @@ function updateGame(delta) {
         if (laser.headY <= 0) { laser.headY = 0; laser.vy = Math.abs(laser.vy); }
         else if (laser.headY >= state.height) { laser.headY = state.height; laser.vy = -Math.abs(laser.vy); }
 
-        if (laser.life <= 0) {
-            state.lasers.splice(i, 1);
+        if (laser.life <= 0) state.lasers.splice(i, 1);
+    }
+
+    // SUDARI MEĐU KUGLAMA: WHITE HACKER SHIELD & VOID SHADOW RULES
+    for (let i = 0; i < state.orbs.length; i++) {
+        for (let j = i + 1; j < state.orbs.length; j++) {
+            const o1 = state.orbs[i];
+            const o2 = state.orbs[j];
+            if (o1.inHole || o2.inHole) continue;
+
+            const dist = Math.hypot(o2.x - o1.x, o2.y - o1.y);
+            const minDist = o1.radius + o2.radius;
+
+            if (dist < minDist) {
+                // VOID SHADOW RULE: Od njega se samo Black/White Hacker odbija!
+                if (o1.theme.id === "void" || o2.theme.id === "void") {
+                    const other = o1.theme.id === "void" ? o2 : o1;
+                    if (other.theme.id !== "black" && other.theme.id !== "white") {
+                        continue; // Prolaze bez fizikalnog odbijanja ako nisu Hacker zečevi!
+                    }
+                }
+
+                // ODBIJANJE SA BELIM ZECOM (WHITE HACKER IS SOLID FORCEFIELD)
+                const angle = Math.atan2(o2.y - o1.y, o2.x - o1.x);
+                const overlap = minDist - dist;
+
+                if (o1.theme.id === "white") {
+                    o2.x += Math.cos(angle) * overlap;
+                    o2.y += Math.sin(angle) * overlap;
+                    o2.velocityX = Math.cos(angle) * 400;
+                    o2.velocityY = Math.sin(angle) * 400;
+                } else if (o2.theme.id === "white") {
+                    o1.x -= Math.cos(angle) * overlap;
+                    o1.y -= Math.sin(angle) * overlap;
+                    o1.velocityX = -Math.cos(angle) * 400;
+                    o1.velocityY = -Math.sin(angle) * 400;
+                } else {
+                    // Normalno elasticno odbijanje
+                    o1.x -= Math.cos(angle) * (overlap / 2);
+                    o1.y -= Math.sin(angle) * (overlap / 2);
+                    o2.x += Math.cos(angle) * (overlap / 2);
+                    o2.y += Math.sin(angle) * (overlap / 2);
+
+                    const tempVx = o1.velocityX;
+                    const tempVy = o1.velocityY;
+                    o1.velocityX = o2.velocityX;
+                    o1.velocityY = o2.velocityY;
+                    o2.velocityX = tempVx;
+                    o2.velocityY = tempVy;
+                }
+            }
         }
     }
 
-    // FIZIKA KUGLI, DURATION EFEKTI I PORTALI
+    // FIZIKA I CIKLUSI MOĆI ZA SVAKOG ZECA
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
 
@@ -331,50 +376,63 @@ function updateGame(delta) {
             if (orb.powerGlow < 0) orb.powerGlow = 0;
         }
 
-        if (orb.powerTimer > 0) {
-            orb.powerTimer -= delta;
-            if (orb.powerTimer <= 0) orb.powerTimer = 0;
+        // 💜 VOID SHADOW CIKLUS (5s -> 3s Slow -> 90% Turbo)
+        if (orb.theme.id === "void") {
+            orb.voidStateTimer -= delta;
+            if (orb.voidStateTimer <= 0) {
+                if (!orb.isVoidSlow && !orb.isVoidTurbo) {
+                    orb.isVoidSlow = true;
+                    orb.voidStateTimer = 3.0; // 3 sekunde usporenja za 70%
+                } else if (orb.isVoidSlow) {
+                    orb.isVoidSlow = false;
+                    orb.isVoidTurbo = true;
+                    orb.voidStateTimer = 2.5; // Turbo pogon +90%
+                    orb.velocityX *= 1.9;
+                    orb.velocityY *= 1.9;
+                } else {
+                    orb.isVoidTurbo = false;
+                    orb.voidStateTimer = 5.0; // Vraća se na standardni ciklusa od 5s
+                }
+            }
         }
 
         if (orb.inHole) {
             orb.holeTimer -= delta;
             if (orb.holeTimer <= 0) {
                 orb.inHole = false;
-
                 const otherHoles = state.blackHoles.filter(h => h.id !== orb.entryHoleId);
                 const exitHole = otherHoles[Math.floor(Math.random() * otherHoles.length)];
-
                 const speed = 480;
                 const rad39 = 39 * (Math.PI / 180);
-                const cos39 = Math.cos(rad39);
-                const sin39 = Math.sin(rad39);
 
                 orb.x = exitHole.x + exitHole.dirX * (orb.radius + 6);
                 orb.y = exitHole.y + exitHole.dirY * (orb.radius + 6);
-
-                orb.velocityX = exitHole.dirX * speed * cos39;
-                orb.velocityY = exitHole.dirY * speed * sin39;
-
+                orb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
+                orb.velocityY = exitHole.dirY * speed * Math.sin(rad39);
                 audio.playBounce();
             }
             continue;
         }
 
-        // Green Guardian Gravity prkosi graviti-ju dok stoji powerTimer
-        if (orb.theme.id === "green" && orb.powerTimer > 0) {
-            orb.velocityY = -220; // Leti na gore
-        } else if (orb.theme.id === "blue" && orb.powerTimer > 0) {
-            // Blue Freeze stasis - spora u mestu
-            orb.velocityX *= 0.85;
-            orb.velocityY *= 0.85;
-        } else {
-            orb.velocityY += GAME_CONFIG.gravity * delta;
+        // AKO JE AKTIVIRAN GLOBAL FREEZE - SVI ZEČEVI STOJE U MESTU OSIM AKO METAK POGODI
+        if (state.globalFreezeTimer > 0) {
+            continue;
         }
 
-        orb.x += orb.velocityX * delta;
-        orb.y += orb.velocityY * delta;
+        // FIZIKA BRZINE I MODIFIKATORI
+        let currentGravity = GAME_CONFIG.gravity;
+        let speedMult = state.globalSpeedMultiplier;
 
+        if (orb.theme.id === "void" && orb.isVoidSlow) speedMult *= 0.3; // 70% usporenje
+
+        orb.velocityY += currentGravity * delta;
+        orb.x += orb.velocityX * speedMult * delta;
+        orb.y += orb.velocityY * speedMult * delta;
+
+        // CRNE RUPE PORTALI (💜 VOID SHADOW IMA IMUNITET DA GA NE PROGUTA)
         state.blackHoles.forEach(bh => {
+            if (orb.theme.id === "void") return; // IMUNITET!
+
             const dist = Math.hypot(orb.x - bh.x, orb.y - bh.y);
             if (dist < bh.radius) {
                 orb.inHole = true;
@@ -386,20 +444,20 @@ function updateGame(delta) {
             }
         });
 
+        // ODBIJANJE OD ZIDOVA
         if (orb.x - orb.radius < 0) { orb.x = orb.radius; orb.velocityX *= -1; }
         else if (orb.x + orb.radius > state.width) { orb.x = state.width - orb.radius; orb.velocityX *= -1; }
 
         if (orb.y - orb.radius < 0) { orb.y = orb.radius; orb.velocityY = Math.abs(orb.velocityY) * 0.85; }
         if (orb.y + orb.radius > state.height - 2) {
             orb.y = state.height - 2 - orb.radius;
-            const bouncePower = (orb.theme.id === "red" && orb.powerTimer > 0) ? ORB_TYPES.large.bounce * 1.4 : ORB_TYPES.large.bounce;
-            orb.velocityY = -bouncePower;
+            orb.velocityY = -ORB_TYPES.large.bounce;
         }
     }
 
-    // LASER COLLISION: ZNATAN KNOCKBACK & AKTIVACIJA MOĆI!
+    // LASER POGODCI & AKTIVACIJA LANČANIH MOĆI!
     state.lasers.forEach(laser => {
-        state.orbs.forEach(orb => {
+        state.orbs.forEach((orb, oIdx) => {
             if (orb.inHole) return;
             const dist = pointToSegmentDistance(orb.x, orb.y, laser.tailX, laser.tailY, laser.headX, laser.headY);
 
@@ -407,59 +465,92 @@ function updateGame(delta) {
                 audio.playBounce();
                 audio.playPower();
 
-                // 1. ZNATAN IMPULS / KNOCKBACK OD METKA
+                // ZNATAN KINETIČKI KNOCKBACK
                 const lSpeed = Math.hypot(laser.vx, laser.vy);
                 const dirX = laser.vx / lSpeed;
                 const dirY = laser.vy / lSpeed;
+                orb.velocityX = dirX * 680;
+                orb.velocityY = dirY * 680;
 
-                const knockbackForce = 650; // Znatan odbitak
-                orb.velocityX = dirX * knockbackForce;
-                orb.velocityY = dirY * knockbackForce;
-
-                // 2. AKTIVACIJA POSEBNE MOĆI POGOĐENE KUGLE
-                activateOrbPower(orb);
+                // AKTIVACIJA UNIKATNIH MOĆI ZADATIH RULESET-OM
+                triggerRabbitPower(orb, oIdx);
 
                 orb.powerGlow = 1.0;
-                state.score += (orb.theme.id === "gold" ? 250 : 25);
+                state.score += 50;
                 updateHUD();
             }
         });
     });
 }
 
-function activateOrbPower(orb) {
+function triggerRabbitPower(orb, orbIndex) {
     switch (orb.theme.id) {
-        case "white": // EMP Pulse - pogura ostale
+        case "white": // EMP Pulse
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
-                    if (d < 180) {
-                        other.velocityX += (other.x - orb.x) * 3.5;
-                        other.velocityY += (other.y - orb.y) * 3.5;
+                    if (d < 220) {
+                        other.velocityX += (other.x - orb.x) * 4.0;
+                        other.velocityY += (other.y - orb.y) * 4.0;
                     }
                 }
             });
             break;
-        case "black": // Overclock Speed Boost
-            orb.velocityX *= 1.6;
-            orb.velocityY *= 1.6;
-            break;
-        case "blue": // Cryo Stasis (zamrzavanje na 2.5s)
-            orb.powerTimer = 2.5;
-            break;
-        case "gold": // Score Surge (daje 250 poena)
-            break;
-        case "red": // Super Bounce na 3 sekunde
-            orb.powerTimer = 3.0;
-            break;
-        case "green": // Anti-Gravity Lift na 2 sekunde
-            orb.powerTimer = 2.0;
-            break;
-        case "void": // Teleport Blink u gornji deo
+
+        case "black": // Hacker Teleport Swap
             orb.x = 40 + Math.random() * (state.width - 80);
-            orb.y = 50 + Math.random() * (state.height * 0.3);
+            orb.y = 40 + Math.random() * (state.height * 0.4);
+            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 350;
+            orb.velocityY = -150;
+            break;
+
+        case "blue": // Absolute Zero Stasis na 3s
+            state.globalFreezeTimer = 3.0;
+            break;
+
+        case "gold": // Split-Shot Trigger (2 nova metka izleću na 2s)
+            spawnSplitLasers(orb.x, orb.y);
+            break;
+
+        case "red": // Boomerang Explosion & Respawn za 3s
+            state.orbs.forEach(other => {
+                if (other !== orb && !other.inHole) {
+                    const d = Math.hypot(other.x - orb.x, other.y - orb.y);
+                    if (d < 250) {
+                        other.velocityX = (other.x - orb.x) * 5.0;
+                        other.velocityY = (other.y - orb.y) * 5.0;
+                    }
+                }
+            });
+            state.orbs.splice(orbIndex, 1);
+            state.pendingRespawns.push({ theme: orb.theme, delay: 3.0 });
+            break;
+
+        case "green": // Time-Warp Cycle: Uspori sve za 80%, nestane, pa iskače ubrzan za +10%
+            state.globalSpeedMultiplier = 0.2; // 80% usporenje
+            state.orbs.splice(orbIndex, 1);
+            state.pendingRespawns.push({ theme: orb.theme, delay: 2.5 });
+            setTimeout(() => { state.globalSpeedMultiplier = 1.1; }, 2500); // Ubrza sve za +10%
+            break;
+
+        case "void": // Void Shadow Turbo Trigger
+            orb.isVoidTurbo = true;
+            orb.velocityX *= 1.8;
+            orb.velocityY *= 1.8;
             break;
     }
+}
+
+function spawnSplitLasers(x, y) {
+    const angles = [Math.PI / 4, -Math.PI / 4];
+    angles.forEach(ang => {
+        const vx = Math.sin(ang) * GAME_CONFIG.laserSpeed;
+        const vy = -Math.cos(ang) * GAME_CONFIG.laserSpeed;
+        state.lasers.push({
+            headX: x, headY: y, tailX: x, tailY: y,
+            vx: vx, vy: vy, life: 2.0 // Traju 2 sekunde
+        });
+    });
 }
 
 function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
@@ -489,7 +580,7 @@ function renderGame() {
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
-    // 1. CORNER BLACK HOLES
+    // CRNE RUPE
     state.blackHoles.forEach(bh => {
         ctx.save();
         ctx.translate(bh.x, bh.y);
@@ -506,7 +597,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 2. NIŠAN
+    // NIŠAN
     if (state.player && state.cooldownTimer === 0) {
         const startX = state.player.x + state.player.width / 2;
         const startY = state.player.y;
@@ -525,7 +616,7 @@ function renderGame() {
         ctx.restore();
     }
 
-    // 3. LASER ZMIJA METAK
+    // LASER-ZMIJE METCI
     state.lasers.forEach(laser => {
         ctx.save();
         ctx.strokeStyle = "#00f5ff";
@@ -541,7 +632,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 4. RABBIT ORBS SA GLOW EFEKTOM PRI AKTIVACIJI MOĆI
+    // SVI UNIKATNI ZEČEVI
     state.orbs.forEach(o => {
         if (o.inHole) return;
         const theme = o.theme || RABBIT_THEMES[0];
@@ -579,7 +670,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // 5. TOP
+    // TOP
     if (state.player) {
         ctx.save();
         ctx.translate(state.player.x + state.player.width / 2, state.player.y + state.player.height / 2);
