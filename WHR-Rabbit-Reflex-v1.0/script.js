@@ -504,7 +504,6 @@ const CONFIG = {
   lives: 3,
   maxLives: 10,
   hitsPerLevel: 10,
-  maxLevel: 99,
 
   rabbitPoints: 250,
   goldenPoints: 1200,
@@ -565,13 +564,14 @@ const CONFIG = {
   blackHoleStartLevel: 5,
   blackHoleMinDelay: 10000,
   blackHoleMaxDelay: 15000,
-  blackHoleLife: 2000,
-  blackHoleCloneDelay: 1800,
+  blackHoleLife: 5000,
+  blackHoleChainDelay: 4800,
+  blackHoleMoveStartLevel: 10,
+  blackHoleBaseSpeed: 18,
+  blackHoleMaxSpeed: 40,
   blackHoleGravityRate: 70,
   blackHoleGravityRadius: 230,
   blackHoleGravityStep: 13,
-
-  maxCombo: 25,
 
   bestKey: "whr-rabbit-reflex-best-score",
   soundKey: "whr-rabbit-reflex-sound-enabled",
@@ -584,10 +584,10 @@ const TUTORIAL_STEPS = [
   { type: "life", group: "good", action: "click", title: "EXTRA LIFE", text: "KLIKNI METU! Dodaje +1 zivot u vasem sistemu (max 10)." },
   { type: "hero", group: "hero", action: "click", title: "BELI HAKER", text: "KLIKNI METU! Aktivira Anti-Cheat talas koji cisti sve pretnje!" },
   { type: "redrabbit", group: "hazard", action: "avoid", title: "CRVENI ZEC", text: "NE DIRAJ! Izbegavaj klik i sacekaj 3 sekunde da sam nestane." },
-  { type: "decoy", group: "hazard", action: "avoid", title: "BEZBOJNI ZEC", text: "NE DIRAJ! Virus zamka â€” pusti ga 3s bez klika." },
-  { type: "net", group: "hazard", action: "avoid", title: "CYBER MREZA", text: "NE DIRAJ! Prepreka mreze â€” sacekaj da sama istece." },
-  { type: "hacker", group: "hacker", action: "avoid", title: "CRNI HAKER", text: "NE DIRAJ! Opasna pretnja â€” izdrzi 3 sekunde bez klika!" },
-  { type: "blackhole", group: "blackhole", action: "observe", title: "CRNA RUPA", text: "POSMATRAJ! Ultra Boss â€” ne klikce se, posmatraj 3.5 sekunde!" },
+  { type: "decoy", group: "hazard", action: "avoid", title: "BEZBOJNI ZEC", text: "NE DIRAJ! Virus zamka — pusti ga 3s bez klika." },
+  { type: "net", group: "hazard", action: "avoid", title: "CYBER MREŽA", text: "NE DIRAJ! Prepreka mreže — sačekaj da sama istekne." },
+  { type: "hacker", group: "hacker", action: "avoid", title: "CRNI HAKER", text: "NE DIRAJ! Opasna pretnja — izdrži 3 sekunde bez klika!" },
+  { type: "blackhole", group: "blackhole", action: "observe", title: "CRNA RUPA", text: "POSMATRAJ! Ultra Boss — ne klikće se; gravitacija guta mete bez nagrade ili kazne." },
 ];
 
 const $ = (id) => {
@@ -777,7 +777,7 @@ class AudioFX {
     oscillator.stop(now + duration + 0.02);
   }
 
-  hit(combo) { this.playSample("normalHit", () => this.tone(480 + combo * 24, 0.09, "sine", 820 + combo * 24)); }
+  hit() { this.playSample("normalHit", () => this.tone(504, 0.09, "sine", 844)); }
   gold() { this.playSample("goldenRabbit", () => [660, 880, 1100].forEach((f, i) => setTimeout(() => this.tone(f, 0.13, "triangle", f * 1.1), i * 45))); }
   freeze() { [900, 700, 500].forEach((f, i) => setTimeout(() => this.tone(f, 0.15, "sine", f * 0.8), i * 50)); }
   red() { this.playSample("redRabbit", () => [200, 150, 100].forEach((f, i) => setTimeout(() => this.tone(f, 0.18, "sawtooth", f * 0.6), i * 60))); }
@@ -907,8 +907,6 @@ class Game {
       count: $("countdownValue"),
       score: $("scoreValue"),
       best: $("bestScoreValue"),
-      combo: $("comboValue"),
-      comboCard: $("comboCard"),
       level: $("levelValue"),
       time: $("timeValue"),
       timeCard: $("timeCard"),
@@ -923,7 +921,7 @@ class Game {
 
       finalScore: $("finalScoreValue"),
       finalBest: $("finalBestValue"),
-      finalCombo: $("finalComboValue"),
+      finalLevel: $("finalLevelValue"),
       finalAcc: $("finalAccuracyValue"),
       rank: $("resultRank"),
       record: $("newRecordMessage"),
@@ -1151,10 +1149,6 @@ class Game {
     this.level = 1;
     this.levelHits = 0;
 
-    this.comboCount = 0;
-    this.mult = 1;
-    this.maxCombo = 1;
-
     this.lives = CONFIG.lives;
     this.timeLeft = CONFIG.time;
 
@@ -1228,7 +1222,8 @@ class Game {
   loop(time) {
     if (this.state !== "playing") return;
 
-    let delta = Math.min(0.1, (time - (this.last || time)) / 1000);
+    const movementDelta = Math.min(0.1, (time - (this.last || time)) / 1000);
+    let delta = movementDelta;
     this.last = time;
 
     if (this.isFrozen) delta *= this.freezeScale;
@@ -1239,6 +1234,8 @@ class Game {
     this.e.timeCard.classList.toggle("is-critical", this.timeLeft <= 8);
 
     const now = performance.now();
+
+    this.updateBlackHoleMovement(movementDelta);
 
     for (const target of this.targets.values()) {
       const progress = clamp(this.targetRemaining(target, now) / target.maxLife, 0, 1);
@@ -1328,10 +1325,15 @@ class Game {
     this.blackHoleDueAt = performance.now() + delay;
     this.blackHoleSpawnTimer = setTimeout(() => {
       this.blackHoleDueAt = 0;
-      if (this.state === "playing" && this.level >= CONFIG.blackHoleStartLevel && this.countGroup("blackhole") === 0) {
+      if (this.state === "playing" && this.level >= CONFIG.blackHoleStartLevel && this.countGroup("blackhole") < 2) {
         this.spawn("blackhole", "blackhole");
       }
-      if (this.state === "playing") this.scheduleBlackHole();
+      if (this.state === "playing") {
+        const nextDelay = this.level >= CONFIG.blackHoleStartLevel
+          ? CONFIG.blackHoleChainDelay
+          : this.blackHoleDelay();
+        this.scheduleBlackHole(nextDelay);
+      }
     }, delay);
   }
 
@@ -1373,7 +1375,7 @@ class Game {
       if (!step) return 3000;
       if (step.action === "click") return 999999;
       if (step.action === "avoid") return 3000;
-      if (step.action === "observe") return 3500;
+      if (step.action === "observe") return CONFIG.blackHoleLife;
     }
 
     if (type === "hacker") return CONFIG.hackerLife;
@@ -1417,21 +1419,15 @@ class Game {
   findBlackHoleSpawnPosition(size, rect) {
     const margin = size / 2 + 18;
     const left = margin;
-    const centerX = rect.width / 2;
     const right = Math.max(margin, rect.width - margin);
     const top = margin;
-    const centerY = rect.height / 2;
     const bottom = Math.max(margin, rect.height - margin);
 
     const spawnPoints = [
-      { x: left, y: top },
-      { x: centerX, y: top },
-      { x: right, y: top },
-      { x: right, y: centerY },
-      { x: right, y: bottom },
-      { x: centerX, y: bottom },
-      { x: left, y: bottom },
-      { x: left, y: centerY },
+      { x: left, y: top, cornerIndex: 0 },
+      { x: right, y: top, cornerIndex: 1 },
+      { x: right, y: bottom, cornerIndex: 2 },
+      { x: left, y: bottom, cornerIndex: 3 },
     ];
 
     const availableIndexes = spawnPoints
@@ -1444,6 +1440,49 @@ class Game {
 
     this.lastBlackHoleSpawnIndex = nextIndex;
     return spawnPoints[nextIndex];
+  }
+
+  blackHoleSpeed() {
+    if (this.level < CONFIG.blackHoleMoveStartLevel) return 0;
+    return Math.min(
+      CONFIG.blackHoleMaxSpeed,
+      CONFIG.blackHoleBaseSpeed + (this.level - CONFIG.blackHoleMoveStartLevel) * 0.55
+    );
+  }
+
+  updateBlackHoleMovement(delta) {
+    const speed = this.blackHoleSpeed();
+    if (!speed || delta <= 0) return;
+
+    const rect = this.e.stage.getBoundingClientRect();
+    for (const target of this.targets.values()) {
+      if (target.type !== "blackhole") continue;
+
+      const margin = target.size / 2 + 18;
+      const width = Math.max(1, rect.width - margin * 2);
+      const height = Math.max(1, rect.height - margin * 2);
+      const perimeter = 2 * (width + height);
+      target.edgePosition = (target.edgePosition + target.edgeDirection * speed * delta + perimeter) % perimeter;
+
+      let position = target.edgePosition;
+      if (position <= width) {
+        target.x = margin + position;
+        target.y = margin;
+      } else if ((position -= width) <= height) {
+        target.x = rect.width - margin;
+        target.y = margin + position;
+      } else if ((position -= height) <= width) {
+        target.x = rect.width - margin - position;
+        target.y = rect.height - margin;
+      } else {
+        position -= width;
+        target.x = margin;
+        target.y = rect.height - margin - position;
+      }
+
+      target.element.style.left = `${target.x}px`;
+      target.element.style.top = `${target.y}px`;
+    }
   }
 
   playSpawnSound(type) {
@@ -1474,9 +1513,10 @@ class Game {
 
     const rect = this.e.stage.getBoundingClientRect();
     let { x, y } = this.findSpawnPosition(size, rect);
+    let cornerIndex = 0;
 
     if (type === "blackhole" && !options.spawnAt) {
-      ({ x, y } = this.findBlackHoleSpawnPosition(size, rect));
+      ({ x, y, cornerIndex } = this.findBlackHoleSpawnPosition(size, rect));
     }
 
     if (options.spawnAt) {
@@ -1548,16 +1588,18 @@ class Game {
     requestAnimationFrame(() => button.classList.add("is-spawned"));
 
     const target = {
-      element: button, type, group, life, maxLife: life, spawnAt, timerId, x, y,
+      element: button, type, group, life, maxLife: life, spawnAt, timerId, x, y, size,
       isClone: Boolean(options.isClone), cloneTimerId: null, cloneDueAt: 0, cloneRemaining: 0, cloneSpent: Boolean(options.isClone),
       portalTimerId: null, portalDueAt: 0, portalRemaining: 0, portalSpent: false, gravityTimerId: null,
+      edgePosition: cornerIndex === 0 ? 0 : cornerIndex === 1 ? Math.max(1, rect.width - size - 36) : cornerIndex === 2 ? Math.max(1, rect.width - size - 36) + Math.max(1, rect.height - size - 36) : 2 * Math.max(1, rect.width - size - 36) + Math.max(1, rect.height - size - 36),
+      edgeDirection: Math.random() < 0.5 ? -1 : 1,
     };
 
     this.targets.set(id, target);
 
     if (!this.isTutorial) {
       if (type === "hacker" && !target.isClone) this.startHackerCloneTimer(id, target, CONFIG.hackerCloneDelay);
-      if (type === "blackhole") this.startBlackHoleSystems(id, target, CONFIG.blackHoleCloneDelay);
+      if (type === "blackhole") this.startBlackHoleSystems(id, target);
     }
   }
 
@@ -1574,20 +1616,8 @@ class Game {
     }, delay);
   }
 
-  startBlackHoleSystems(id, target, cloneDelay) {
-    clearTimeout(target.portalTimerId);
+  startBlackHoleSystems(id, target) {
     clearInterval(target.gravityTimerId);
-    target.portalDueAt = performance.now() + cloneDelay;
-
-    target.portalTimerId = setTimeout(() => {
-      target.portalTimerId = null;
-      target.portalDueAt = 0;
-      if (this.state !== "playing" || !this.targets.has(id)) return;
-      target.element.classList.add("is-portal-spent");
-      target.portalSpent = true;
-      this.spawn("blackhole", "blackhole", { isChain: true });
-    }, cloneDelay);
-
     target.gravityTimerId = setInterval(() => this.applyBlackHoleGravity(id, target), CONFIG.blackHoleGravityRate);
   }
 
@@ -1636,12 +1666,12 @@ class Game {
   }
 
   /* =========================================
-     ZAVRÅ NA VAR-VERIFIKOVANA HIT METODA
+     ZAVRŠNA VAR-VERIFIKOVANA HIT METODA
      ========================================= */
 
   hit(id, type, button, x, y) {
     if (this.isTutorial) {
-      // VAR SOBA HOTFIX: ÄŒiÅ¡Ä‡enje svih tajmera pre ugradnje nove mete
+      // VAR SOBA HOTFIX: Čišćenje svih tajmera pre ugradnje nove mete
       const target = this.targets.get(id);
       clearTimeout(target?.timerId);
       clearTimeout(target?.cloneTimerId);
@@ -1656,16 +1686,16 @@ class Game {
         this.audio.hit(1);
         setTimeout(() => this.nextTutorialStep(), 300);
       } else {
-        // POGREÅ AN KLIK U TUTORIJALU - FULL FX SINKRONIZOVAN PAKAO
+        // POGREŠAN KLIK U TUTORIJALU - FULL FX SINKRONIZOVAN PAKAO
         button.remove();
         this.targets.delete(id);
         this.e.tutorialHud.classList.add("is-error");
         this.audio.bad();
 
-        // Demonstracija specifiÄnih vizuelnih posledica u zavisnosti od pretnje
+        // Demonstracija specifičnih vizuelnih posledica u zavisnosti od pretnje
         if (type === "redrabbit") {
           this.effect("is-damaged");
-          this.flash("GRESKA!", "CRVENI IMPACT // COMBO RESET!", "#ff325f");
+          this.flash("GREŠKA!", "CRVENI IMPACT!", "#ff325f");
           this.particles.burst(x, y, "#ff0033", 30);
         } else if (type === "decoy") {
           this.applyMonochrome(1500);
@@ -1683,7 +1713,7 @@ class Game {
           this.flash("GRESKA!", "NE SMES KLIKNUTI OVU METU!", "#ff325f");
         }
 
-        // VAR SOBA HOTFIX: Spavn tek na 1650ms nakon Å¡to se FX potpuno oÄisti
+        // VAR SOBA HOTFIX: Spawn tek na 1650ms nakon što se FX potpuno očisti
         setTimeout(() => this.spawnTutorialStep(), 1650);
       }
       return;
@@ -1718,7 +1748,6 @@ class Game {
     } else if (type === "decoy") {
       this.lives--;
       this.timeLeft = Math.max(0, this.timeLeft - CONFIG.decoyPenaltyTime);
-      this.breakCombo();
       this.applyMonochrome(CONFIG.decoyMonoDuration);
       this.flash("BEZBOJNI VIRUS", `LIFE -1 / -${CONFIG.decoyPenaltyTime}s`, "#ffffff");
       this.effect("is-damaged");
@@ -1733,7 +1762,6 @@ class Game {
     } else if (type === "redrabbit") {
       this.score = Math.max(0, this.score - CONFIG.redPenaltyPoints);
       this.timeLeft = Math.max(0, this.timeLeft - CONFIG.redPenaltyTime);
-      this.breakCombo();
       this.flash("RED RABBIT HIT!", `-${CONFIG.redPenaltyPoints} PTS / -${CONFIG.redPenaltyTime}s`, "#ff0033");
       this.effect("is-damaged");
       this.setStatus("CRITICAL ERROR!", "danger");
@@ -1754,19 +1782,18 @@ class Game {
       this.particles.burst(x, y, "#ff38c7", 22);
     } else if (type === "hero") {
       this.hits++;
-      this.advanceComboAndLevel();
+      this.advanceLevelProgress();
       this.applyAntiCheat(button, x, y);
       this.particles.burst(x, y, "#fff4dc", 24);
       this.particles.burst(x, y, "#ff7a00", 28);
     } else {
       this.hits++;
-      this.advanceComboAndLevel();
+      this.advanceLevelProgress();
 
       let points = CONFIG.rabbitPoints;
       if (type === "golden") points = CONFIG.goldenPoints;
       else if (type === "freeze") points = CONFIG.freezePoints;
 
-      points *= this.mult;
       this.score += points;
       if (type === "golden") {
         this.timeLeft += CONFIG.goldenBonus;
@@ -1790,10 +1817,7 @@ class Game {
     this.update();
   }
 
-  advanceComboAndLevel() {
-    this.comboCount++;
-    this.mult = Math.min(CONFIG.maxCombo, 1 + Math.floor(this.comboCount / 3));
-    this.maxCombo = Math.max(this.maxCombo, this.mult);
+  advanceLevelProgress() {
     this.levelHits++;
     if (this.levelHits >= CONFIG.hitsPerLevel) this.levelUp();
   }
@@ -1921,7 +1945,7 @@ class Game {
 
       const step = TUTORIAL_STEPS[this.tutorialCurrentIndex];
       if (step && (step.action === "avoid" || step.action === "observe")) {
-        // UspeÅ¡no izbegnut ili posmatran target u tutorijalu!
+        // Uspešno izbegnuta ili posmatrana meta u tutorijalu!
         this.e.tutorialHud.classList.add("is-success");
         this.audio.gold();
         this.nextTutorialStep();
@@ -1949,7 +1973,6 @@ class Game {
 
     if (target.type === "rabbit") {
       this.attempts++;
-      this.breakCombo();
       this.lives--;
       this.audio.bad();
       this.flash("TARGET ESCAPED", "LIFE -1", "#ff325f");
@@ -1991,15 +2014,14 @@ class Game {
 
   emptyTap() {
     this.taps++;
-    this.breakCombo();
     this.audio.bad();
-    this.flash("MISS", "COMBO RESET", "#8fa3b8");
+    this.flash("MISS", "TARGET NOT FOUND", "#8fa3b8");
     this.update();
   }
 
   levelUp() {
     this.levelHits = 0;
-    if (this.level < CONFIG.maxLevel) this.level++;
+    this.level++;
 
     if (this.music) this.music.setIntensity(this.level);
 
@@ -2007,11 +2029,6 @@ class Game {
     this.effect("is-level-up");
     this.flash(`LEVEL ${String(this.level).padStart(2, "0")}`, "RABBIT FLOW INCREASED!", "#ffd34d");
     this.setStatus("LEVEL ADVANCED", "normal");
-  }
-
-  breakCombo() {
-    this.comboCount = 0;
-    this.mult = 1;
   }
 
   removeAllTargets() {
@@ -2081,6 +2098,7 @@ class Game {
       target.life = remaining;
       target.spawnAt = now;
       target.timerId = setTimeout(() => this.miss(id), remaining);
+      if (target.type === "blackhole") this.startBlackHoleSystems(id, target);
     }
 
     this.e.layer.getAnimations({ subtree: true }).forEach((anim) => anim.play());
@@ -2131,7 +2149,7 @@ class Game {
 
     this.e.finalScore.textContent = pad(this.score);
     this.e.finalBest.textContent = pad(this.best);
-    this.e.finalCombo.textContent = `x${this.maxCombo}`;
+    this.e.finalLevel.textContent = String(this.level).padStart(2, "0");
     this.e.finalAcc.textContent = `${accuracy}%`;
     this.e.rank.textContent = this.rank();
 
@@ -2181,12 +2199,10 @@ class Game {
   update() {
     this.e.score.textContent = pad(this.score);
     this.e.best.textContent = pad(this.best);
-    this.e.combo.textContent = String(this.mult);
     this.e.level.textContent = String(this.level).padStart(2, "0");
     this.e.time.textContent = this.timeLeft.toFixed(1);
     this.e.lives.textContent = `${String(this.lives).padStart(2, "0")}/${String(CONFIG.maxLives).padStart(2, "0")}`;
 
-    this.e.comboCard.classList.toggle("is-hot", this.mult >= 3);
     this.e.timeCard.classList.toggle("is-critical", this.timeLeft <= 8);
     this.e.lives.closest(".hud-card--lives")?.classList.toggle("is-critical", this.lives <= 1);
 
