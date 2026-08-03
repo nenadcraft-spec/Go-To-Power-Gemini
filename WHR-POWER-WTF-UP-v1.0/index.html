@@ -246,16 +246,21 @@
                 </div>
             </div>
 
-            <!-- MOBILE TOUCH CONTROLS -->
-            <div id="mobileControls" class="mobile-controls" aria-label="Touch controls">
-                <div class="mobile-controls__movement">
-                    <button id="moveLeftButton" class="control-button control-button--move" type="button" aria-label="Move Left">
-                        <span aria-hidden="true">◀</span>
-                    </button>
-                    <button id="moveRightButton" class="control-button control-button--move" type="button" aria-label="Move Right">
-                        <span aria-hidden="true">▶</span>
-                    </button>
-                </div>
+            <!-- MOBILE TOUCH CONTROLS WITH JOYSTICK -->
+<div id="mobileControls" class="mobile-controls" aria-label="Touch Controls">
+    
+    <!-- VIRTUAL JOYSTICK AREA -->
+    <div id="joystickZone" class="joystick-zone">
+        <div id="joystickBase" class="joystick-base">
+            <div id="joystickStick" class="joystick-stick"></div>
+        </div>
+    </div>
+
+    <!-- SHOOT BUTTON -->
+    <button id="shootButton" class="control-button control-button--shoot" type="button" aria-label="Fire">
+        <span class="control-button__text">FIRE</span>
+    </button>
+</div>
 
                 <button id="shootButton" class="control-button control-button--shoot" type="button" aria-label="Fire">
                     <span class="control-button__text">FIRE</span>
