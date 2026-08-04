@@ -1,67 +1,30 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacija Ekosistema: Zečevi i Predatori</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Simulacija Ekosistema v1.6</h1>
+        
+        <div class="controls">
+            <button id="btnSpawnRabbit">Dodaj Zeca 🐇</button>
+            <button id="btnSpawnPredator">Dodaj Predatora 🦊</button>
+            <button id="btnTogglePause">Pauza / Pokreni ⏯️</button>
+        </div>
 
-body {
-    background-color: #1e1e24;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
+        <div class="stats">
+            <span>Broj zečeva: <strong id="statRabbits">0</strong></span> | 
+            <span>Broj predatora: <strong id="statPredators">0</strong></span> | 
+            <span>Generacija: <strong id="statGenerations">1</strong></span>
+        </div>
 
-.container {
-    text-align: center;
-    background-color: #2b2d42;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-}
+        <canvas id="simCanvas" width="800" height="500"></canvas>
+    </div>
 
-h1 {
-    margin-bottom: 15px;
-    font-size: 1.8rem;
-}
-
-.controls {
-    margin-bottom: 15px;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-button {
-    background-color: #4ea8de;
-    color: #fff;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s ease;
-}
-
-button:hover {
-    background-color: #5390d9;
-}
-
-.stats {
-    margin-bottom: 15px;
-    font-size: 1.1rem;
-    background: #3d405b;
-    padding: 8px;
-    border-radius: 6px;
-}
-
-/* Boja trave terena (RGB: 100, 160, 80) */
-canvas {
-    background-color: rgb(100, 160, 80);
-    border: 3px solid #fff;
-    border-radius: 8px;
-    display: block;
-    margin: 0 auto;
-}
+    <script src="script.js"></script>
+</body>
+</html>
