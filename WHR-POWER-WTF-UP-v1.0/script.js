@@ -1,26 +1,29 @@
 "use strict";
 
 /* =========================================================
-   WHR: POWER WTF UP v5.0.0
-   DIRECT TAP / CLICK REFLEX ENGINE
-   - Mobile: Direct Finger Tap on Rabbits
-   - PC: Custom Crosshair & Direct Mouse Click
-   - Complete 7 Cyber Rabbit Reaction Chain
+   WHR: ARENA SURVIVAL v5.1.1
+   PERFECTED REFLEX ENGINE WITH CAP BALANCING
 ========================================================= */
 
 const DOM = {
     gameApp: document.getElementById("gameApp"),
     screens: {
         start: document.getElementById("startScreen"),
-        game: document.getElementById("gameScreen")
+        game: document.getElementById("gameScreen"),
+        gameOver: document.getElementById("gameOverScreen")
     },
     buttons: {
-        start: document.getElementById("startButton")
+        start: document.getElementById("startButton"),
+        restart: document.getElementById("restartButton")
     },
     canvas: document.getElementById("gameCanvas"),
     gameStage: document.getElementById("gameStage"),
     hud: {
-        score: document.getElementById("scoreValue")
+        score: document.getElementById("scoreValue"),
+        lives: document.getElementById("livesValue"),
+        timer: document.getElementById("timerValue"),
+        level: document.getElementById("levelValue"),
+        finalScore: document.getElementById("finalScoreValue")
     }
 };
 
@@ -40,11 +43,23 @@ class AudioEngine {
         const gain = this.ctx.createGain();
         osc.type = "sawtooth";
         osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.1);
         gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
         osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.12);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.1);
+    }
+    playMiss() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
     }
     playPower() {
         if (!this.ctx) return;
@@ -64,11 +79,11 @@ class AudioEngine {
         const gain = this.ctx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(200, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.2);
+        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.15);
         gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
         osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.15);
     }
 }
 
@@ -76,7 +91,9 @@ const audio = new AudioEngine();
 
 const GAME_CONFIG = {
     laserSpeed: 900,
-    gravity: 580
+    baseGravity: 580,
+    maxLasers: 6,
+    maxSpeedCap: 2.2 // PLAFON BRZINE: Maksimalno 220% brzine bez obzira na dužinu igranja!
 };
 
 const ORB_TYPES = { large: { radius: 28, bounce: 820 } };
@@ -98,13 +115,17 @@ const state = {
     width: 600,
     height: 800,
     score: 0,
+    lives: 3,
+    timeLeft: 45.0,
+    level: 1,
     mouse: { x: -100, y: -100, active: false },
     lasers: [],
     orbs: [],
     blackHoles: [],
     holeAngle: 0,
     globalFreezeTimer: 0,
-    globalSpeedMultiplier: 1.0,
+    baseSpeedMultiplier: 1.0,
+    slowMotionTimer: 0,
     pendingRespawns: []
 };
 
@@ -133,7 +154,12 @@ function startNewGame() {
     window.requestAnimationFrame(() => {
         resizeCanvas();
         state.score = 0;
-        state.globalFreezeTimer = 0; state.globalSpeedMultiplier = 1.0;
+        state.lives = 3;
+        state.timeLeft = 45.0;
+        state.level = 1;
+        state.globalFreezeTimer = 0;
+        state.baseSpeedMultiplier = 1.0;
+        state.slowMotionTimer = 0;
         state.lasers = []; state.orbs = []; state.pendingRespawns = [];
 
         for (let i = 0; i < 7; i++) {
@@ -171,18 +197,32 @@ function gameLoop(timestamp) {
 
     if (!state.paused) updateGame(delta);
     renderGame();
-    window.requestAnimationFrame(gameLoop);
+
+    if (state.running) {
+        window.requestAnimationFrame(gameLoop);
+    }
 }
 
 function updateGame(delta) {
     state.holeAngle += delta * 4;
+
+    state.timeLeft -= delta;
+    if (state.timeLeft <= 0) {
+        state.timeLeft = 0;
+        triggerGameOver();
+        return;
+    }
 
     if (state.globalFreezeTimer > 0) {
         state.globalFreezeTimer -= delta;
         if (state.globalFreezeTimer < 0) state.globalFreezeTimer = 0;
     }
 
-    // RESPAWN SVEŽIH ZEČEVA KROZ CRNE RUPE
+    if (state.slowMotionTimer > 0) {
+        state.slowMotionTimer -= delta;
+        if (state.slowMotionTimer < 0) state.slowMotionTimer = 0;
+    }
+
     for (let rIdx = state.pendingRespawns.length - 1; rIdx >= 0; rIdx--) {
         const item = state.pendingRespawns[rIdx];
         item.delay -= delta;
@@ -195,8 +235,9 @@ function updateGame(delta) {
             newOrb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
             newOrb.velocityY = exitHole.dirY * speed * Math.sin(rad39);
 
+            // Green Guardian dodaje +0.10 uz gornju granicu!
             if (item.theme.id === "green") {
-                state.globalSpeedMultiplier *= 1.20;
+                state.baseSpeedMultiplier = Math.min(GAME_CONFIG.maxSpeedCap, state.baseSpeedMultiplier + 0.10);
             }
 
             state.orbs.push(newOrb);
@@ -205,7 +246,6 @@ function updateGame(delta) {
         }
     }
 
-    // UPDATE LASERA OD GOLDEN ZECA
     for (let i = state.lasers.length - 1; i >= 0; i--) {
         const laser = state.lasers[i];
         laser.life -= delta;
@@ -224,7 +264,6 @@ function updateGame(delta) {
         if (laser.life <= 0) state.lasers.splice(i, 1);
     }
 
-    // ODBIJANJE IZMEĐU ZEČEVA
     for (let i = 0; i < state.orbs.length; i++) {
         for (let j = i + 1; j < state.orbs.length; j++) {
             const o1 = state.orbs[i];
@@ -272,7 +311,6 @@ function updateGame(delta) {
         }
     }
 
-    // FIZIKA ZEČEVA I VOID GRAVITACIJA
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
 
@@ -328,12 +366,12 @@ function updateGame(delta) {
 
         if (state.globalFreezeTimer > 0) continue;
 
-        let currentGravity = GAME_CONFIG.gravity;
-        let speedMult = state.globalSpeedMultiplier;
+        let currentGravity = GAME_CONFIG.baseGravity + (state.level - 1) * 35;
+        let effectiveSpeedMult = state.baseSpeedMultiplier * (state.slowMotionTimer > 0 ? 0.5 : 1.0);
 
         orb.velocityY += currentGravity * delta;
-        orb.x += orb.velocityX * speedMult * delta;
-        orb.y += orb.velocityY * speedMult * delta;
+        orb.x += orb.velocityX * effectiveSpeedMult * delta;
+        orb.y += orb.velocityY * effectiveSpeedMult * delta;
 
         state.blackHoles.forEach(bh => {
             if (orb.theme.id === "void") return;
@@ -358,29 +396,30 @@ function updateGame(delta) {
             orb.velocityY = -ORB_TYPES.large.bounce;
         }
     }
+
+    updateHUD();
 }
 
-/* GLAVNI TOUCH / CLICK INTERAKCIJSKI MEHANIZAM */
 function handleTargetInteraction(clientX, clientY) {
     if (!state.running || !DOM.canvas) return;
     const rect = DOM.canvas.getBoundingClientRect();
-    const clickX = clientY !== undefined ? clientX - rect.left : clientX;
-    const clickY = clientY !== undefined ? clientY - rect.top : clientY;
+    const clickX = clientX - rect.left;
+    const clickY = clientY - rect.top;
+
+    let hitAny = false;
 
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
         if (orb.inHole) continue;
 
-        // VOID PHANTOM PROPUŠTA DODIR
         if (orb.theme.id === "void" && orb.isPhantom) continue;
 
         const dist = Math.hypot(orb.x - clickX, orb.y - clickY);
 
-        if (dist <= orb.radius + 12) { // 12px tolerancija za lakši tap prstom!
+        if (dist <= orb.radius + 12) {
             audio.playHit();
             audio.playPower();
 
-            // Smer impulsa od dodira
             const angle = Math.atan2(orb.y - clickY, orb.x - clickX);
             orb.velocityX = Math.cos(angle) * 650;
             orb.velocityY = Math.sin(angle) * 650;
@@ -389,15 +428,34 @@ function handleTargetInteraction(clientX, clientY) {
 
             orb.powerGlow = 1.0;
             state.score += 100;
-            updateHUD();
-            break; // Jedan dodir pogadja jednog zeca
+            state.timeLeft += 1.0;
+
+            // NIVO RASTE I DODATNO POJAČAVA BRZINU SVE DO MAX CAP-A
+            const nextLevel = Math.floor(state.score / 1000) + 1;
+            if (nextLevel > state.level) {
+                state.level = nextLevel;
+                state.baseSpeedMultiplier = Math.min(GAME_CONFIG.maxSpeedCap, state.baseSpeedMultiplier + 0.05);
+            }
+
+            hitAny = true;
+            break;
         }
     }
+
+    if (!hitAny) {
+        audio.playMiss();
+        state.lives--;
+        if (state.lives <= 0) {
+            state.lives = 0;
+            triggerGameOver();
+        }
+    }
+    updateHUD();
 }
 
 function triggerRabbitPower(orb, orbIndex) {
     switch (orb.theme.id) {
-        case "white": // EMP Pulse
+        case "white":
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
@@ -409,25 +467,25 @@ function triggerRabbitPower(orb, orbIndex) {
             });
             break;
 
-        case "black": // Hacker Teleport Swap
+        case "black":
             orb.x = 40 + Math.random() * (state.width - 80);
             orb.y = 40 + Math.random() * (state.height * 0.4);
             orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 380;
             orb.velocityY = -180;
             break;
 
-        case "blue": // Flash Freeze na 0.8s
+        case "blue":
             state.globalFreezeTimer = 0.8;
             break;
 
-        case "gold": // Split Razor Lasers
+        case "gold":
             if (!orb.goldCooldown || orb.goldCooldown <= 0) {
                 orb.goldCooldown = 1.2;
                 spawnGoldenRazorLasers(orb.x, orb.y, orb.radius);
             }
             break;
 
-        case "red": // Boomerang Surge Explosion
+        case "red":
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
@@ -441,18 +499,13 @@ function triggerRabbitPower(orb, orbIndex) {
             state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
             break;
 
-        case "green": // Matrix Slow 50%
-            const currentSlowBase = state.globalSpeedMultiplier;
-            state.globalSpeedMultiplier *= 0.5;
+        case "green":
+            state.slowMotionTimer = 1.5;
             state.orbs.splice(orbIndex, 1);
             state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
-
-            setTimeout(() => {
-                state.globalSpeedMultiplier = currentSlowBase;
-            }, 1500);
             break;
 
-        case "void": // Turbo boost
+        case "void":
             orb.velocityX *= 1.9;
             orb.velocityY *= 1.9;
             break;
@@ -460,6 +513,8 @@ function triggerRabbitPower(orb, orbIndex) {
 }
 
 function spawnGoldenRazorLasers(x, y, radius) {
+    if (state.lasers.length >= GAME_CONFIG.maxLasers) return;
+
     const angles = [Math.PI / 2.5, -Math.PI / 2.5];
     const offset = radius + 15;
 
@@ -477,12 +532,17 @@ function spawnGoldenRazorLasers(x, y, radius) {
     });
 }
 
+function triggerGameOver() {
+    state.running = false;
+    if (DOM.hud.finalScore) DOM.hud.finalScore.textContent = String(state.score);
+    showScreen("gameOver");
+}
+
 function renderGame() {
     if (!ctx) return;
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
-    // CRNE RUPE
     state.blackHoles.forEach(bh => {
         ctx.save();
         ctx.translate(bh.x, bh.y);
@@ -499,7 +559,6 @@ function renderGame() {
         ctx.restore();
     });
 
-    // LASERI OD GOLDEN ZECA
     state.lasers.forEach(laser => {
         ctx.save();
         ctx.strokeStyle = "#ffe45c";
@@ -511,7 +570,6 @@ function renderGame() {
         ctx.restore();
     });
 
-    // SVI ZEČEVI
     state.orbs.forEach(o => {
         if (o.inHole) return;
         const theme = o.theme || RABBIT_THEMES[0];
@@ -561,7 +619,6 @@ function renderGame() {
         ctx.restore();
     });
 
-    // CUSTOM CROSSHAIR MEČA NA PC-U
     if (state.mouse.active) {
         ctx.save();
         ctx.strokeStyle = "#00f5ff";
@@ -579,6 +636,9 @@ function renderGame() {
 
 function updateHUD() {
     if (DOM.hud.score) DOM.hud.score.textContent = String(state.score).padStart(6, "0");
+    if (DOM.hud.lives) DOM.hud.lives.textContent = "❤️".repeat(state.lives);
+    if (DOM.hud.timer) DOM.hud.timer.textContent = state.timeLeft.toFixed(1) + "s";
+    if (DOM.hud.level) DOM.hud.level.textContent = "LVL " + state.level;
 }
 
 function showScreen(name) {
@@ -593,7 +653,6 @@ function showScreen(name) {
 function initEvents() {
     if (!DOM.canvas) return;
 
-    // TOUCH EVENTI (TELEFON)
     DOM.canvas.addEventListener("touchstart", e => {
         e.preventDefault();
         audio.init();
@@ -603,7 +662,6 @@ function initEvents() {
         }
     }, { passive: false });
 
-    // MOUSE EVENTI (PC)
     DOM.canvas.addEventListener("mousemove", e => {
         const rect = DOM.canvas.getBoundingClientRect();
         state.mouse.x = e.clientX - rect.left;
@@ -623,6 +681,7 @@ function initEvents() {
     });
 
     DOM.buttons.start?.addEventListener("click", startNewGame);
+    DOM.buttons.restart?.addEventListener("click", startNewGame);
     window.addEventListener("resize", resizeCanvas);
 }
 
