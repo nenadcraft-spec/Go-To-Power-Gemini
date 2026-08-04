@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.5.0
-   NO MISS PENALTY ENGINE (LIVES LOST ONLY ON PHANTOM VOID)
+   WHR: ARENA SURVIVAL v5.6.0
+   NO MISS PENALTY + BALANCED SURVIVAL ENGINE
 ========================================================= */
 
 const DOM = {
@@ -14,8 +14,7 @@ const DOM = {
     },
     buttons: {
         start: document.getElementById("startButton"),
-        restart: document.getElementById("restartButton"),
-        shoot: document.getElementById("shootButton")
+        restart: document.getElementById("restartButton")
     },
     canvas: document.getElementById("gameCanvas"),
     gameStage: document.getElementById("gameStage"),
@@ -93,7 +92,6 @@ const audio = new AudioEngine();
 const GAME_CONFIG = {
     laserSpeed: 800,
     baseGravity: 420,
-    maxLasers: 6,
     maxSpeedCap: 2.0
 };
 
@@ -111,7 +109,7 @@ const RABBIT_THEMES = [
 
 const state = {
     running: false,
-    paused: false,
+    rafId: null,
     lastTimestamp: 0,
     width: 600,
     height: 800,
@@ -120,7 +118,7 @@ const state = {
     timeLeft: 45.0,
     level: 1,
     mouse: { x: -100, y: -100, active: false },
-    lasers: [],
+    vfxLasers: [],
     orbs: [],
     blackHoles: [],
     holeAngle: 0,
@@ -129,56 +127,6 @@ const state = {
     slowMotionTimer: 0,
     pendingRespawns: []
 };
-
-/* JOYSTICK ENGINE */
-const joystick = {
-    zone: document.getElementById("joystickZone"),
-    base: document.getElementById("joystickBase"),
-    stick: document.getElementById("joystickStick"),
-    active: false,
-    touchId: null,
-    startX: 0,
-    maxRadius: 60
-};
-
-function initJoystick() {
-    if (!joystick.zone || !joystick.base || !joystick.stick) return;
-
-    function handleStart(e) {
-        e.preventDefault(); audio.init();
-        if (joystick.active) return;
-        const touch = e.changedTouches ? e.changedTouches[0] : e;
-        joystick.active = true;
-        joystick.touchId = touch.identifier ?? "mouse";
-        const rect = joystick.base.getBoundingClientRect();
-        joystick.startX = rect.left + rect.width / 2;
-        handleMove(e);
-    }
-
-    function handleMove(e) {
-        if (!joystick.active) return;
-        let touch = null;
-        if (e.changedTouches) {
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                if (e.changedTouches[i].identifier === joystick.touchId) { touch = e.changedTouches[i]; break; }
-            }
-        } else touch = e;
-        if (!touch) return;
-        let deltaX = touch.clientX - joystick.startX;
-        deltaX = Math.max(-joystick.maxRadius, Math.min(joystick.maxRadius, deltaX));
-        joystick.stick.style.transform = `translateX(${deltaX}px)`;
-    }
-
-    function handleEnd() {
-        if (!joystick.active) return;
-        joystick.active = false; joystick.touchId = null;
-        joystick.stick.style.transform = `translateX(0px)`;
-    }
-
-    joystick.zone.addEventListener("touchstart", handleStart, { passive: false });
-    window.addEventListener("touchmove", handleMove, { passive: false });
-    window.addEventListener("touchend", handleEnd, { passive: false });
-}
 
 function resizeCanvas() {
     if (!DOM.canvas || !DOM.gameStage) return;
@@ -201,6 +149,11 @@ function resizeCanvas() {
 
 function startNewGame() {
     audio.init();
+    if (state.rafId) {
+        cancelAnimationFrame(state.rafId);
+        state.rafId = null;
+    }
+
     showScreen("game");
     window.requestAnimationFrame(() => {
         resizeCanvas();
@@ -211,7 +164,7 @@ function startNewGame() {
         state.globalFreezeTimer = 0;
         state.baseSpeedMultiplier = 1.0;
         state.slowMotionTimer = 0;
-        state.lasers = []; state.orbs = []; state.pendingRespawns = [];
+        state.vfxLasers = []; state.orbs = []; state.pendingRespawns = [];
 
         for (let i = 0; i < 7; i++) {
             const theme = RABBIT_THEMES[i];
@@ -221,7 +174,7 @@ function startNewGame() {
         updateHUD();
         state.running = true;
         state.lastTimestamp = performance.now();
-        window.requestAnimationFrame(gameLoop);
+        state.rafId = window.requestAnimationFrame(gameLoop);
     });
 }
 
@@ -235,7 +188,6 @@ function createRabbitObject(theme, x, y) {
         inHole: false,
         holeTimer: 0,
         powerGlow: 0,
-        goldCooldown: 0,
         voidStateTimer: 3.5,
         isPhantom: false
     };
@@ -246,11 +198,11 @@ function gameLoop(timestamp) {
     const delta = Math.min(0.033, (timestamp - state.lastTimestamp) / 1000);
     state.lastTimestamp = timestamp;
 
-    if (!state.paused) updateGame(delta);
+    updateGame(delta);
     renderGame();
 
     if (state.running) {
-        window.requestAnimationFrame(gameLoop);
+        state.rafId = window.requestAnimationFrame(gameLoop);
     }
 }
 
@@ -286,18 +238,15 @@ function updateGame(delta) {
             newOrb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
             newOrb.velocityY = exitHole.dirY * speed * Math.sin(rad39);
 
-            if (item.theme.id === "green") {
-                state.baseSpeedMultiplier = Math.min(GAME_CONFIG.maxSpeedCap, state.baseSpeedMultiplier + 0.08);
-            }
-
             state.orbs.push(newOrb);
             state.pendingRespawns.splice(rIdx, 1);
             audio.playPortal();
         }
     }
 
-    for (let i = state.lasers.length - 1; i >= 0; i--) {
-        const laser = state.lasers[i];
+    // VFX LASERI
+    for (let i = state.vfxLasers.length - 1; i >= 0; i--) {
+        const laser = state.vfxLasers[i];
         laser.life -= delta;
         laser.headX += laser.vx * delta;
         laser.headY += laser.vy * delta;
@@ -305,15 +254,10 @@ function updateGame(delta) {
         laser.tailX = laser.headX - (laser.vx / GAME_CONFIG.laserSpeed) * 35;
         laser.tailY = laser.headY - (laser.vy / GAME_CONFIG.laserSpeed) * 35;
 
-        if (laser.headX <= 0) { laser.headX = 0; laser.vx = Math.abs(laser.vx); }
-        else if (laser.headX >= state.width) { laser.headX = state.width; laser.vx = -Math.abs(laser.vx); }
-
-        if (laser.headY <= 0) { laser.headY = 0; laser.vy = Math.abs(laser.vy); }
-        else if (laser.headY >= state.height) { laser.headY = state.height; laser.vy = -Math.abs(laser.vy); }
-
-        if (laser.life <= 0) state.lasers.splice(i, 1);
+        if (laser.life <= 0) state.vfxLasers.splice(i, 1);
     }
 
+    // FIZIKA SUDARA ZEČEVA
     for (let i = 0; i < state.orbs.length; i++) {
         for (let j = i + 1; j < state.orbs.length; j++) {
             const o1 = state.orbs[i];
@@ -367,11 +311,6 @@ function updateGame(delta) {
         if (orb.powerGlow > 0) {
             orb.powerGlow -= delta * 2;
             if (orb.powerGlow < 0) orb.powerGlow = 0;
-        }
-
-        if (orb.goldCooldown > 0) {
-            orb.goldCooldown -= delta;
-            if (orb.goldCooldown < 0) orb.goldCooldown = 0;
         }
 
         if (orb.theme.id === "void") {
@@ -464,7 +403,7 @@ function handleTargetInteraction(clientX, clientY) {
 
         if (dist <= orb.radius + 14) {
             
-            // 💜 JEDINA KAZNA: POGODAK U PROVIDNOG LJUBIČASTOG ZECA!
+            // 💜 PHANTOM VOID: KAZNA!
             if (orb.theme.id === "void" && orb.isPhantom) {
                 audio.playMiss();
                 state.lives--;
@@ -476,7 +415,7 @@ function handleTargetInteraction(clientX, clientY) {
                 break;
             }
 
-            // POGODAK U VIDLJIVOG LJUBIČASTOG
+            // 👑 VIDLJIVI VOID: NAGRADA!
             if (orb.theme.id === "void") {
                 audio.playVoidJackpot();
                 const angle = Math.atan2(orb.y - clickY, orb.x - clickX);
@@ -485,15 +424,15 @@ function handleTargetInteraction(clientX, clientY) {
                 orb.powerGlow = 1.0;
 
                 state.score += 300;
-                state.timeLeft += 3.0;
+                state.timeLeft += 2.5; // Balansirana nagrada
                 if (state.lives < 3) state.lives++;
                 state.slowMotionTimer = 1.2;
             } 
-            // POGODAK U SUPPORT ZEČEVE
+            // 🐰 SUPPORT ZEČEVI
             else {
                 audio.playHit();
                 state.score += 50;
-                state.timeLeft += 0.5;
+                state.timeLeft += 0.2; // Strožiji survival balans (+0.2s umesto +0.5s)
 
                 triggerRabbitPower(orb, oIdx);
 
@@ -528,12 +467,26 @@ function triggerRabbitPower(orb, orbIndex) {
             });
             break;
 
+        case "black":
+            // ⬛ CRNI HAKER: TELEPORT & SHOCKWAVE (NEMA VIŠE BRKNOUT POWER)
+            orb.x = 40 + Math.random() * (state.width - 80);
+            orb.y = 40 + Math.random() * (state.height * 0.4);
+            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 300;
+            orb.velocityY = -100;
+            state.orbs.forEach(other => {
+                if (other !== orb && !other.inHole) {
+                    other.velocityX *= 1.3;
+                    other.velocityY *= 1.3;
+                }
+            });
+            break;
+
         case "blue":
             state.globalFreezeTimer = 0.8;
             break;
 
         case "gold":
-            spawnGoldenRazorLasers(orb.x, orb.y, orb.radius);
+            spawnGoldenRazorVfx(orb.x, orb.y, orb.radius);
             break;
 
         case "red":
@@ -551,15 +504,10 @@ function triggerRabbitPower(orb, orbIndex) {
         case "green":
             state.slowMotionTimer = 1.5;
             break;
-
-        case "black":
-            break;
     }
 }
 
-function spawnGoldenRazorLasers(x, y, radius) {
-    if (state.lasers.length >= GAME_CONFIG.maxLasers) return;
-
+function spawnGoldenRazorVfx(x, y, radius) {
     const angles = [Math.PI / 2.5, -Math.PI / 2.5];
     const offset = radius + 15;
 
@@ -570,15 +518,19 @@ function spawnGoldenRazorLasers(x, y, radius) {
         const startX = x + Math.sin(ang) * offset;
         const startY = y - Math.cos(ang) * offset;
 
-        state.lasers.push({
+        state.vfxLasers.push({
             headX: startX, headY: startY, tailX: startX, tailY: startY,
-            vx: vx, vy: vy, life: 1.2
+            vx: vx, vy: vy, life: 0.6
         });
     });
 }
 
 function triggerGameOver() {
     state.running = false;
+    if (state.rafId) {
+        cancelAnimationFrame(state.rafId);
+        state.rafId = null;
+    }
     if (DOM.hud.finalScore) DOM.hud.finalScore.textContent = String(state.score);
     showScreen("gameOver");
 }
@@ -604,7 +556,8 @@ function renderGame() {
         ctx.restore();
     });
 
-    state.lasers.forEach(laser => {
+    // RENDER VFX LASERA
+    state.vfxLasers.forEach(laser => {
         ctx.save();
         ctx.strokeStyle = "#ffe45c";
         ctx.lineWidth = 4;
@@ -732,7 +685,6 @@ function initEvents() {
 
 function init() {
     initEvents();
-    initJoystick();
     showScreen("start");
     resizeCanvas();
 }
