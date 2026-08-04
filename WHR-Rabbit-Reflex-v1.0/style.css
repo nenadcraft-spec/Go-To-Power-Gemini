@@ -1,206 +1,2006 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap");
+
+:root {
+  --bg: #04050d;
+  --panel: rgba(8, 12, 29, 0.88);
+  --white: #f4fbff;
+  --muted: #8fa3b8;
+  --cyan: #00f5ff;
+  --purple: #a855f7;
+  --pink: #ff38c7;
+  --red: #ff325f;
+  --gold: #ffd34d;
+  --green: #55ffb8;
+  --display: "Orbitron", sans-serif;
+  --body: "Rajdhani", sans-serif;
+}
+
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
-body, html {
-    width: 100%;
-    height: 100%;
-    background-color: #020205;
-    font-family: 'Courier New', Courier, monospace;
-    overflow: hidden;
-    color: #ffffff;
+html,
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--white);
+  touch-action: manipulation;
 }
 
-#gameApp {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+body {
+  font-family: var(--body);
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: none;
 }
 
-.screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: #020205;
-    z-index: 10;
+button {
+  font: inherit;
+  touch-action: manipulation;
 }
 
-.screen--active {
-    display: flex;
+.noscript-message {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: #050714;
 }
 
-#startScreen {
-    justify-content: center;
+.app-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.title {
-    font-size: 2.2rem;
-    color: #00f5ff;
-    text-shadow: 0 0 10px #00f5ff, 0 0 20px #ff2fcf;
-    margin-bottom: 10px;
-    text-align: center;
+/* ==============================
+   POZADINSKI SISTEM
+   ============================== */
+
+.background-system {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.subtitle {
-    font-size: 1.1rem;
-    color: #ff2fcf;
-    letter-spacing: 2px;
-    margin-bottom: 30px;
+.background-system__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      rgba(0, 245, 255, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 245, 255, 0.05) 1px,
+      transparent 1px
+    );
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle, #000, transparent 85%);
+  -webkit-mask-image: radial-gradient(circle, #000, transparent 85%);
 }
 
-.btn {
-    padding: 15px 35px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ffffff;
-    background: linear-gradient(45deg, #00f5ff, #ff2fcf);
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(0, 245, 255, 0.5);
-    transition: transform 0.1s ease;
+.background-system__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 3px,
+    rgba(255, 255, 255, 0.02) 4px
+  );
 }
 
-.btn:active {
-    transform: scale(0.95);
+.background-system__noise {
+  position: absolute;
+  inset: -40px;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-.btn--fire {
-    width: 120px;
-    height: 50px;
-    background: linear-gradient(45deg, #ff2fcf, #ff315d);
-    box-shadow: 0 0 15px rgba(255, 47, 207, 0.6);
-    border-radius: 12px;
+.background-system__glow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  filter: blur(110px);
+  opacity: 0.18;
 }
 
-#gameScreen {
-    justify-content: flex-start;
-    align-items: center;
+.background-system__glow--one {
+  top: -200px;
+  left: -180px;
+  background: var(--cyan);
 }
 
-/* ARENA FRAME - TVRDI STABILNI OKVIR */
-#arenaFrame {
-    width: min(100%, 600px);
-    height: 100%;
-    max-height: 900px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    border-left: 1px solid rgba(0, 245, 255, 0.2);
-    border-right: 1px solid rgba(0, 245, 255, 0.2);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+.background-system__glow--two {
+  right: -200px;
+  bottom: -220px;
+  background: var(--pink);
 }
 
-#hud {
-    width: 100%;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.8);
-    border-bottom: 2px solid #00f5ff;
-    z-index: 5;
-    flex-shrink: 0;
+/* ==============================
+   ZAGLAVLJE I BREND
+   ============================== */
+
+.game-header,
+.game-main,
+.game-footer {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
 }
 
-.hud-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
-.hud-label {
-    font-size: 0.65rem;
-    color: #8993ad;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
-.hud-value {
-    font-size: 1.1rem;
-    color: #32ff9b;
-    font-weight: bold;
-    text-shadow: 0 0 5px #32ff9b;
+.brand__mark {
+  position: relative;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 48px;
+  filter: drop-shadow(0 0 8px var(--cyan));
 }
 
-.hud-version {
-    font-size: 0.85rem;
-    color: #ff2fcf;
-    font-weight: bold;
+.brand__head {
+  position: absolute;
+  left: 9px;
+  bottom: 3px;
+  width: 28px;
+  height: 27px;
+  border: 2px solid var(--cyan);
+  border-radius: 45%;
 }
 
-#gameStage {
-    position: relative;
-    width: 100%;
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    min-height: 0;
+.brand__ear {
+  position: absolute;
+  top: 0;
+  width: 11px;
+  height: 30px;
+  border: 2px solid var(--cyan);
+  border-radius: 80% 80% 25% 25%;
 }
 
-#gameCanvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #020205;
+.brand__ear--left {
+  left: 10px;
+  transform: rotate(-12deg);
 }
 
-#controls {
-    width: 100%;
-    height: 90px;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.85);
-    border-top: 1px solid rgba(0, 245, 255, 0.3);
-    z-index: 5;
-    flex-shrink: 0;
+.brand__ear--right {
+  right: 8px;
+  transform: rotate(14deg);
 }
 
-#joystickZone {
-    width: 160px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+.brand__eye {
+  position: absolute;
+  right: 12px;
+  bottom: 16px;
+  width: 5px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 10px var(--pink);
 }
 
-#joystickBase {
-    width: 130px;
+.brand__copy {
+  min-width: 0;
+}
+
+.brand__eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font: 600 0.56rem var(--display);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+.brand__title {
+  margin: 2px 0 0;
+  font: 900 clamp(1rem, 4vw, 1.6rem) / 1 var(--display);
+  letter-spacing: 0.06em;
+}
+
+.brand__title span {
+  color: var(--cyan);
+  text-shadow: 0 0 14px var(--cyan);
+}
+
+/* ==============================
+   TASTERI U ZAGLAVLJU
+   ============================== */
+
+.header-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.icon-button {
+  min-width: 56px;
+  min-height: 46px;
+  border: 1px solid rgba(0, 245, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(7, 11, 25, 0.86);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.icon-button:hover:not(:disabled) {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.icon-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.icon-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.icon-button__icon {
+  display: block;
+  color: var(--cyan);
+  font: 700 0.9rem var(--display);
+}
+
+.icon-button__label {
+  font: 700 0.43rem var(--display);
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+/* ==============================
+   GLAVNI SADRÅ½AJ I HUD
+   ============================== */
+
+.game-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.hud {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 7px;
+}
+
+.hud-card {
+  position: relative;
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 245, 255, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 245, 255, 0.06),
+      transparent
+    ),
+    var(--panel);
+  overflow: hidden;
+}
+
+.hud-card__label {
+  display: block;
+  color: var(--muted);
+  font: 700 0.54rem var(--display);
+  letter-spacing: 0.12em;
+}
+
+.hud-card__value {
+  display: block;
+  font: 800 clamp(1rem, 5vw, 1.55rem) var(--display);
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-card--score .hud-card__value {
+  color: var(--cyan);
+}
+
+.hud-card--combo .hud-card__value {
+  color: var(--pink);
+}
+
+.hud-card--level .hud-card__value {
+  color: var(--gold);
+}
+
+.hud-card.is-updated {
+  animation: flash 0.28s ease;
+}
+
+.hud-card--combo.is-hot {
+  box-shadow: 0 0 18px rgba(255, 56, 199, 0.35);
+}
+
+/* ==============================
+   STATUS, Å½IVOTI I VREME
+   ============================== */
+
+.status-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  color: var(--muted);
+  font: 600 0.58rem var(--display);
+  letter-spacing: 0.08em;
+}
+
+.status-chip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+}
+
+.status-chip.is-danger .status-chip__dot {
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
+}
+
+.status-chip.is-warning .status-chip__dot {
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+}
+
+.lives {
+  display: flex;
+  gap: 5px;
+  color: var(--red);
+}
+
+.life {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.life--lost {
+  opacity: 0.2;
+  transform: scale(0.7);
+}
+
+.timer-display {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding-left: 9px;
+  border-left: 1px solid rgba(0, 245, 255, 0.18);
+}
+
+.timer-display__label {
+  font: 700 0.48rem var(--display);
+  color: var(--muted);
+}
+
+.timer-display strong {
+  min-width: 48px;
+  text-align: right;
+  font: 700 1rem var(--display);
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-display.is-critical strong {
+  color: var(--red);
+  text-shadow: 0 0 10px var(--red);
+  animation: pulse-red 0.6s infinite alternate;
+}
+
+/* ==============================
+   POLJE ZA IGRU
+   ============================== */
+
+.game-stage {
+  position: relative;
+  flex: 1;
+  min-height: 390px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  border-radius: 13px;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(22, 44, 78, 0.26),
+      transparent 65%
+    ),
+    linear-gradient(160deg, #0a1128, #02050e);
+  box-shadow:
+    inset 0 0 70px #000,
+    0 20px 60px rgba(0, 0, 0, 0.45);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.game-stage.is-hit {
+  animation: hit 0.22s;
+}
+
+.game-stage.is-damaged {
+  animation: damage 0.35s;
+}
+
+.game-stage.is-level-up {
+  animation: levelup 0.65s;
+}
+
+.particle-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.stage-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      rgba(0, 245, 255, 0.045) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 245, 255, 0.045) 1px,
+      transparent 1px
+    );
+  background-size: 38px 38px;
+}
+
+.stage-frame {
+  position: absolute;
+  inset: 8px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.stage-frame__corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: var(--cyan);
+}
+
+.stage-frame__corner--tl {
+  top: 0;
+  left: 0;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.stage-frame__corner--tr {
+  top: 0;
+  right: 0;
+  border-top: 2px solid;
+  border-right: 2px solid;
+}
+
+.stage-frame__corner--bl {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+}
+
+.stage-frame__corner--br {
+  right: 0;
+  bottom: 0;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+}
+
+.target-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+/* ==============================
+   OSNOVNA META
+   ============================== */
+
+.target {
+  --target-size: 86px;
+  --target-color: var(--cyan);
+
+  position: absolute;
+  width: var(--target-size);
+  height: var(--target-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--target-color);
+  transform: translate(-50%, -50%) scale(0);
+  cursor: pointer;
+  will-change: transform, opacity;
+}
+
+.target.is-spawned {
+  animation:
+    spawn 0.22s cubic-bezier(0.2, 1.55, 0.4, 1)
+    forwards;
+}
+
+.target.is-hit {
+  pointer-events: none;
+  animation: target-hit 0.22s forwards;
+}
+
+.target.is-expiring {
+  pointer-events: none;
+  animation: expire 0.18s forwards;
+}
+
+.target__ring {
+  position: absolute;
+  inset: 2px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  box-shadow: 0 0 12px currentColor;
+  animation: spin 2.2s linear infinite;
+}
+
+.target__ring::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed currentColor;
+  border-radius: 50%;
+  animation: spin 1.8s linear infinite reverse;
+}
+
+.target__timer {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(
+    currentColor calc(var(--life-progress, 1) * 1turn),
+    rgba(255, 255, 255, 0.07) 0
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3px),
+    #000 calc(100% - 2px)
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3px),
+    #000 calc(100% - 2px)
+  );
+}
+
+.target__rabbit {
+  position: absolute;
+  inset: 25%;
+  filter: drop-shadow(0 0 7px currentColor);
+}
+
+.target__rabbit-head {
+  position: absolute;
+  left: 15%;
+  bottom: 5%;
+  width: 70%;
+  height: 60%;
+  border: 2px solid currentColor;
+  border-radius: 44%;
+  background: rgba(5, 12, 26, 0.9);
+}
+
+.target__rabbit-ear {
+  position: absolute;
+  top: -5%;
+  width: 24%;
+  height: 55%;
+  border: 2px solid currentColor;
+  border-radius: 80% 80% 30% 30%;
+  background: #06101e;
+}
+
+.target__rabbit-ear--left {
+  left: 22%;
+  transform: rotate(-10deg);
+}
+
+.target__rabbit-ear--right {
+  right: 20%;
+  transform: rotate(12deg);
+}
+
+.target__rabbit-eye {
+  position: absolute;
+  right: 25%;
+  bottom: 33%;
+  width: 9%;
+  height: 7%;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.target__core {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    currentColor,
+    transparent 68%
+  );
+  opacity: 0.3;
+}
+
+/* ==============================
+   CRVENI MAMAC
+   ============================== */
+
+.target--decoy {
+  --target-color: var(--red);
+}
+
+.target--decoy .target__rabbit-head {
+  border-radius: 18%;
+  transform: rotate(45deg);
+}
+
+.target--decoy .target__rabbit-ear {
+  display: none;
+}
+
+.target--decoy .target__rabbit-eye {
+  left: 45%;
+  top: 45%;
+  width: 10%;
+  height: 10%;
+}
+
+/* ==============================
+   ZLATNI ZEC
+   ============================== */
+
+.target--golden {
+  --target-color: var(--gold);
+  filter: drop-shadow(0 0 12px var(--gold));
+}
+
+/* ==============================
+   CRVENI ZEC â€” OPASNA META
+   ============================== */
+
+.target--redrabbit {
+  --target-color: #ff0033;
+  filter: drop-shadow(0 0 18px #ff0033);
+}
+
+.target--redrabbit .target__ring,
+.target--redrabbit .target__timer {
+  color: #ff0033;
+}
+
+.target--redrabbit .target__rabbit {
+  color: #ff0033;
+  animation:
+    red-rabbit-pulse 0.4s ease-in-out
+    infinite alternate;
+}
+
+.target--redrabbit .target__rabbit-head,
+.target--redrabbit .target__rabbit-ear {
+  border-color: #ff0033;
+  background: linear-gradient(
+    145deg,
+    #ff174a,
+    #8f001d
+  );
+  box-shadow:
+    inset 0 0 10px rgba(255, 255, 255, 0.18),
+    0 0 13px #ff0033;
+}
+
+.target--redrabbit .target__rabbit-eye {
+  background: #ff6b7f;
+  box-shadow:
+    0 0 8px #ff0033,
+    0 0 14px rgba(255, 0, 51, 0.8);
+}
+
+.target--redrabbit .target__core {
+  background: radial-gradient(
+    circle,
+    #ff4d6d 0 20%,
+    #ff0033 42%,
+    transparent 70%
+  );
+  opacity: 0.55;
+}
+
+/* ==============================
+   CRNI ZEC HAKER — GLAVNI ZLIKOVAC
+   ============================== */
+
+.target--hacker {
+  --target-color: #8b5cff;
+  z-index: 4;
+  filter:
+    drop-shadow(-5px 0 9px rgba(0, 245, 255, 0.75))
+    drop-shadow(5px 0 10px rgba(255, 56, 199, 0.7))
+    drop-shadow(0 0 22px rgba(0, 0, 0, 1));
+}
+
+.target--hacker::before,
+.target--hacker::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 7%;
+  border-radius: 47% 53% 44% 56%;
+  background: conic-gradient(
+    from 30deg,
+    #020208,
+    #15102e,
+    #001e26,
+    #210016,
+    #020208
+  );
+  opacity: 0.88;
+  animation: hacker-void-spin 1.7s steps(8) infinite;
+}
+
+.target--hacker::after {
+  inset: 17%;
+  background: repeating-linear-gradient(
+    118deg,
+    #000 0 7px,
+    #120d26 7px 10px,
+    #001b20 10px 12px,
+    #000 12px 18px
+  );
+  mix-blend-mode: screen;
+  animation-duration: 0.43s;
+  animation-direction: reverse;
+}
+
+.target--hacker .target__ring {
+  border-color: transparent;
+  background:
+    linear-gradient(#03030a, #03030a) padding-box,
+    conic-gradient(
+      #00f5ff,
+      #080810 18%,
+      #ff38c7 36%,
+      #020204 54%,
+      #a855f7 72%,
+      #55ffb8
+    ) border-box;
+  box-shadow:
+    -5px 0 14px rgba(0, 245, 255, 0.55),
+    5px 0 15px rgba(255, 56, 199, 0.52),
+    inset 0 0 25px #000;
+  animation: hacker-ring-corrupt 0.54s steps(5) infinite;
+}
+
+.target--hacker .target__ring::before {
+  border-color: #7c3aed;
+  opacity: 0.72;
+  animation: spin 0.8s steps(6) infinite reverse;
+}
+
+.target--hacker .target__timer {
+  color: #ff38c7;
+  filter: drop-shadow(0 0 6px #00f5ff);
+}
+
+.target--hacker .target__rabbit {
+  inset: 20%;
+  animation: hacker-rabbit-corrupt 0.32s steps(3) infinite;
+}
+
+.target--hacker .target__rabbit-head,
+.target--hacker .target__rabbit-ear {
+  border-color: #080812;
+  background: linear-gradient(
+    135deg,
+    #000 0 38%,
+    #101329 39% 54%,
+    #160716 55% 68%,
+    #010105 69%
+  );
+  box-shadow:
+    inset -5px 0 7px rgba(0, 245, 255, 0.25),
+    inset 5px 0 8px rgba(255, 56, 199, 0.22),
+    0 0 4px #000,
+    0 0 13px #7c3aed;
+}
+
+.target--hacker .target__rabbit-eye {
+  right: 18%;
+  bottom: 31%;
+  width: 18%;
+  height: 9%;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #00f5ff 0 45%, #ff38c7 46% 100%);
+  box-shadow:
+    -4px 0 8px #00f5ff,
+    4px 0 9px #ff38c7;
+  animation: hacker-eye 0.24s steps(2) infinite;
+}
+
+.target--hacker .target__core {
+  background: radial-gradient(
+    circle,
+    #fff 0 4%,
+    #00f5ff 5% 13%,
+    #ff38c7 14% 22%,
+    #05000b 36% 54%,
+    transparent 70%
+  );
+  opacity: 0.78;
+  animation: hacker-core 0.65s steps(4) infinite;
+}
+
+.target__hacker-code {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: 4%;
+  padding: 2px 5px;
+  border: 1px solid rgba(0, 245, 255, 0.72);
+  background: #020207;
+  color: #55ffb8;
+  font: 900 0.43rem var(--display);
+  letter-spacing: 0.08em;
+  text-shadow: 2px 0 #ff38c7;
+  transform: translateX(-50%) skewX(-8deg);
+}
+
+.target__hacker-mask {
+  position: absolute;
+  z-index: 5;
+  left: 36%;
+  top: 45%;
+  width: 33%;
+  height: 14%;
+  border-top: 2px solid #00f5ff;
+  border-bottom: 2px solid #ff38c7;
+  background: #000;
+  opacity: 0.9;
+  transform: rotate(-5deg);
+}
+
+.target__hacker-glitch {
+  position: absolute;
+  z-index: 7;
+  left: 8%;
+  width: 84%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #00f5ff, #ff38c7, transparent);
+  opacity: 0.82;
+  pointer-events: none;
+  animation: hacker-scan 0.48s steps(5) infinite;
+}
+
+.target__hacker-glitch--one {
+  top: 30%;
+}
+
+.target__hacker-glitch--two {
+  top: 66%;
+  animation-delay: -0.23s;
+  animation-direction: reverse;
+}
+
+/* ==============================
+   LEDENI ZEC
+   ============================== */
+
+.target--freeze {
+  --target-color: #00f5ff;
+  filter: drop-shadow(0 0 16px #00f5ff);
+}
+
+.target--freeze .target__ring {
+  border-style: double;
+}
+
+/* Green Extra Life Rabbit */
+.target--life {
+  --target-color: #55ff88;
+  filter: drop-shadow(0 0 17px #30ff72);
+}
+
+.target--life .target__rabbit-head,
+.target--life .target__rabbit-ear {
+  border-color: #55ff88;
+  background: linear-gradient(145deg, #35e978, #075c32);
+  box-shadow: inset 0 0 9px rgba(255, 255, 255, .16), 0 0 13px #30ff72;
+}
+
+.target--life .target__rabbit-eye {
+  background: #d8ffe5;
+  box-shadow: 0 0 8px #55ff88;
+}
+
+.target--life .target__core {
+  background: radial-gradient(circle, #baffce 0 18%, #30ff72 40%, transparent 70%);
+  opacity: .6;
+}
+
+.target__life-plus {
+  position: absolute;
+  z-index: 3;
+  right: -4px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #d8ffe5;
+  border-radius: 50%;
+  background: #08703d;
+  color: #fff;
+  font: 900 .66rem var(--display);
+  box-shadow: 0 0 13px #30ff72;
+}
+
+/* ==============================
+   CYBER NET PREPREKA
+   ============================== */
+
+.target--net {
+  --target-color: #a855f7;
+  border-radius: 8px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid #a855f7;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
+.target__net-grid {
+  position: absolute;
+  inset: 4px;
+  background-image:
+    linear-gradient(
+      #a855f7 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      #a855f7 1px,
+      transparent 1px
+    );
+  background-size: 10px 10px;
+  opacity: 0.6;
+}
+
+.target__net-warning {
+  position: absolute;
+  right: 0;
+  bottom: 4px;
+  left: 0;
+  text-align: center;
+  color: #a855f7;
+  font: 800 0.5rem var(--display);
+}
+
+/* ==============================
+   FREEZE EFEKAT
+   ============================== */
+
+.game-stage.is-frozen {
+  border-color: #00f5ff;
+  box-shadow:
+    inset 0 0 90px rgba(0, 245, 255, 0.6),
+    0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* ==============================
+   NIÅ AN I PORUKE
+   ============================== */
+
+.crosshair {
+  position: absolute;
+  z-index: 15;
+  width: 34px;
+  height: 34px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+.crosshair span {
+  position: absolute;
+  background: var(--cyan);
+}
+
+.crosshair__horizontal {
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+}
+
+.crosshair__vertical {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+}
+
+.crosshair__circle {
+  inset: 8px;
+  border: 1px solid var(--cyan);
+  border-radius: 50%;
+  background: transparent !important;
+}
+
+.floating-message {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  top: 35%;
+  display: grid;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+.floating-message.is-visible {
+  animation: floating-message 0.8s ease-out;
+}
+
+.floating-message__main {
+  font: 900 clamp(1.2rem, 5vw, 2.3rem) var(--display);
+  text-shadow: 0 0 18px currentColor;
+}
+
+.floating-message__sub {
+  color: var(--muted);
+  font: 700 0.65rem var(--display);
+}
+
+/* ==============================
+   OVERLAY EKRANI
+   ============================== */
+
+.stage-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  overflow-y: auto;
+  background: rgba(2, 4, 12, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
+}
+
+.stage-overlay--visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.start-panel,
+.modal-panel {
+  width: min(560px, 100%);
+  padding: 24px;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  border-radius: 14px;
+  background: linear-gradient(
+    145deg,
+    rgba(9, 15, 36, 0.97),
+    rgba(3, 7, 18, 0.97)
+  );
+  text-align: center;
+  box-shadow: 0 0 35px rgba(0, 245, 255, 0.1);
+}
+
+.start-panel__version,
+.modal-panel__eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font: 700 0.58rem var(--display);
+  letter-spacing: 0.12em;
+}
+
+.start-panel__title,
+.modal-panel h2 {
+  margin: 12px 0;
+  font: 900 clamp(1.8rem, 8vw, 3.7rem) var(--display);
+}
+
+.start-panel__title span {
+  color: var(--cyan);
+  text-shadow: 0 0 18px rgba(0, 245, 255, 0.65);
+}
+
+.start-panel__description,
+.modal-panel p {
+  color: #b9c8d7;
+  font-size: 1rem;
+}
+
+/* ==============================
+   VELIKI ZEC NA POÄŒETNOM EKRANU
+   ============================== */
+
+.start-panel__rabbit {
+  position: relative;
+  width: 90px;
+  height: 86px;
+  margin: 12px auto;
+}
+
+.start-panel__face {
+  position: absolute;
+  left: 20px;
+  bottom: 0;
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--cyan);
+  border-radius: 45%;
+  box-shadow: 0 0 14px rgba(0, 245, 255, 0.4);
+}
+
+.start-panel__ear {
+  position: absolute;
+  top: 0;
+  width: 20px;
+  height: 48px;
+  border: 2px solid var(--cyan);
+  border-radius: 80% 80% 25% 25%;
+}
+
+.start-panel__ear--left {
+  left: 24px;
+  transform: rotate(-12deg);
+}
+
+.start-panel__ear--right {
+  right: 22px;
+  transform: rotate(12deg);
+}
+
+.start-panel__eye {
+  position: absolute;
+  top: 20px;
+  width: 6px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pink);
+}
+
+.start-panel__eye--left {
+  left: 13px;
+}
+
+.start-panel__eye--right {
+  right: 13px;
+}
+
+.start-panel__nose {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  width: 6px;
+  height: 5px;
+  background: var(--cyan);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* ==============================
+   UPUTSTVA
+   ============================== */
+
+.instruction-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.instruction-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgba(0, 245, 255, 0.12);
+  border-radius: 8px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.instruction-card strong {
+  display: block;
+  font: 700 0.7rem var(--display);
+}
+
+.instruction-card small {
+  color: var(--muted);
+}
+
+.instruction-card__symbol {
+  font: 900 1.4rem var(--display);
+}
+
+.instruction-card__symbol--rabbit {
+  color: var(--cyan);
+}
+
+.instruction-card__symbol--decoy {
+  color: var(--red);
+}
+
+.instruction-card__symbol--gold {
+  color: var(--gold);
+}
+
+/* ==============================
+   GLAVNI TASTERI
+   ============================== */
+
+.primary-button {
+  position: relative;
+  min-width: 190px;
+  min-height: 48px;
+  padding: 14px 22px;
+  border: 1px solid var(--cyan);
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 245, 255, 0.2),
+    rgba(168, 85, 247, 0.18)
+  );
+  color: #fff;
+  font: 800 0.75rem var(--display);
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+
+.primary-button:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 245, 255, 0.35),
+    rgba(168, 85, 247, 0.3)
+  );
+  box-shadow: 0 0 25px rgba(0, 245, 255, 0.4);
+}
+
+.primary-button:active {
+  transform: scale(0.96);
+}
+
+.primary-button__glitch {
+  display: none;
+}
+
+.primary-button--compact {
+  min-width: 150px;
+}
+
+.start-panel__hint {
+  color: var(--muted);
+  font: 700 0.56rem var(--display);
+  letter-spacing: 0.12em;
+}
+
+/* ==============================
+   ODBROJAVANJE I REZULTATI
+   ============================== */
+
+.countdown {
+  color: var(--cyan);
+  font: 900 clamp(5rem, 25vw, 12rem) var(--display);
+  text-shadow: 0 0 30px var(--cyan);
+}
+
+.result-rank {
+  margin: 0 auto 14px;
+  color: var(--gold);
+  font: 800 1rem var(--display);
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.result-item {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(0, 245, 255, 0.14);
+  border-radius: 8px;
+}
+
+.result-item span {
+  display: block;
+  color: var(--muted);
+  font: 700 0.52rem var(--display);
+}
+
+.result-item strong {
+  font: 800 clamp(0.85rem, 4vw, 1.15rem) var(--display);
+  overflow-wrap: anywhere;
+}
+
+.new-record {
+  display: none;
+  color: var(--gold) !important;
+  font: 800 0.8rem var(--display) !important;
+}
+
+.new-record.is-visible {
+  display: block;
+}
+
+/* ==============================
+   NAPREDAK NIVOA
+   ============================== */
+
+.progress-module {
+  margin-top: 8px;
+}
+
+.progress-module__header {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font: 700 0.52rem var(--display);
+  letter-spacing: 0.1em;
+}
+
+.progress-bar {
+  position: relative;
+  height: 7px;
+  margin-top: 5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--cyan),
+    var(--purple),
+    var(--pink)
+  );
+  box-shadow: 0 0 12px var(--cyan);
+  transition: width 0.25s ease;
+}
+
+/* ==============================
+   PODNOÅ½JE
+   ============================== */
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--muted);
+  font: 600 0.48rem var(--display);
+  letter-spacing: 0.08em;
+}
+
+.game-footer p {
+  margin: 0;
+}
+
+.game-footer span {
+  color: var(--cyan);
+}
+
+.game-footer__signature {
+  color: var(--pink) !important;
+}
+
+/* ==============================
+   TABLETI I DESKTOP
+   ============================== */
+
+@media (min-width: 700px) {
+  .app-shell {
+    padding: 18px;
+  }
+
+  .hud {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .instruction-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .game-stage {
+    min-height: 520px;
+  }
+
+  .stage-overlay {
+    padding: 28px;
+  }
+}
+
+/* ==============================
+   MOBILNI TELEFONI
+   ============================== */
+
+@media (max-width: 480px) {
+  .app-shell {
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+  }
+
+  .game-header {
+    gap: 6px;
+    margin-bottom: 7px;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .brand__mark {
+    width: 36px;
+    height: 41px;
+  }
+
+  .brand__head {
+    left: 7px;
+    width: 25px;
     height: 24px;
-    background: rgba(0, 245, 255, 0.15);
-    border: 2px solid #00f5ff;
-    border-radius: 12px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  }
+
+  .brand__ear {
+    width: 10px;
+    height: 26px;
+  }
+
+  .brand__ear--left {
+    left: 8px;
+  }
+
+  .brand__ear--right {
+    right: 6px;
+  }
+
+  .brand__eye {
+    right: 9px;
+    bottom: 14px;
+  }
+
+  .brand__eyebrow {
+    font-size: 0.43rem;
+    letter-spacing: 0.08em;
+  }
+
+  .brand__title {
+    font-size: clamp(0.9rem, 4.5vw, 1.15rem);
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .icon-button {
+    min-width: 49px;
+    min-height: 43px;
+    padding: 2px;
+  }
+
+  .hud-card {
+    padding: 7px 8px;
+  }
+
+  .hud-card__value {
+    font-size: clamp(0.9rem, 4.6vw, 1.25rem);
+  }
+
+  .status-row {
+    gap: 5px;
+  }
+
+  .lives {
+    display: grid;
+    grid-template-columns: repeat(5, auto);
+    gap: 1px 3px;
+    justify-content: end;
+    font-size: 0.72rem;
+    line-height: 0.8;
+  }
+
+  .status-chip {
+    font-size: 0.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  .timer-display {
+    gap: 3px;
+    padding-left: 6px;
+  }
+
+  .timer-display strong {
+    min-width: 43px;
+    font-size: 0.88rem;
+  }
+
+  .game-stage {
+    min-height: 390px;
+  }
+
+  .stage-overlay {
+    padding: 10px;
+  }
+
+  .start-panel,
+  .modal-panel {
+    padding: 16px 14px;
+  }
+
+  .start-panel__description,
+  .modal-panel p {
+    font-size: 0.9rem;
+  }
+
+  .primary-button {
+    min-height: 50px;
+  }
 }
 
-#joystickStick {
-    width: 28px;
-    height: 28px;
-    background: #00f5ff;
-    border-radius: 50%;
-    box-shadow: 0 0 12px #00f5ff;
-    position: absolute;
-    transform: translateX(0);
+@media (pointer: coarse) {
+  .crosshair {
+    display: none;
+  }
+
+  .game-stage {
+    cursor: default;
+  }
+
+  .target {
+    min-width: 58px;
+    min-height: 58px;
+  }
+}
+
+/* KraÄ‡i mobilni ekrani */
+
+@media (max-height: 740px) {
+  .game-stage {
+    min-height: 330px;
+  }
+
+  .start-panel {
+    padding: 16px;
+  }
+
+  .start-panel__rabbit {
+    display: none;
+  }
+
+  .start-panel__description {
+    margin: 8px 0;
+  }
+
+  .instruction-grid {
+    margin: 10px 0;
+  }
+}
+
+/* Veoma kratki horizontalni ekrani */
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .app-shell {
+    padding: 6px 10px;
+  }
+
+  .game-header {
+    margin-bottom: 4px;
+  }
+
+  .hud {
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 4px;
+  }
+
+  .hud-card {
+    padding: 4px 7px;
+  }
+
+  .status-row {
+    margin-bottom: 4px;
+  }
+
+  .game-stage {
+    min-height: 250px;
+  }
+
+  .start-panel,
+  .modal-panel {
+    max-height: 94%;
+    padding: 10px;
+  }
+
+  .start-panel__rabbit,
+  .start-panel__description,
+  .start-panel__hint {
+    display: none;
+  }
+
+  .instruction-grid {
+    grid-template-columns: repeat(3, 1fr);
+    margin: 7px 0;
+  }
+
+  .instruction-card {
+    padding: 6px;
+  }
+
+  .game-footer {
+    display: none;
+  }
+}
+
+/* ==============================
+   ANIMACIJE
+   ============================== */
+
+@keyframes spawn {
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes target-hit {
+  to {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(1.7)
+      rotate(20deg);
+  }
+}
+
+@keyframes expire {
+  to {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(0.2);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes floating-message {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20%);
+  }
+
+  20%,
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -80%);
+  }
+}
+
+@keyframes flash {
+  50% {
+    box-shadow: 0 0 20px var(--cyan);
+  }
+}
+
+@keyframes hit {
+  50% {
+    box-shadow:
+      inset 0 0 50px rgba(0, 245, 255, 0.25);
+  }
+}
+
+@keyframes damage {
+  50% {
+    box-shadow:
+      inset 0 0 70px rgba(255, 50, 95, 0.35);
+  }
+}
+
+@keyframes levelup {
+  50% {
+    box-shadow:
+      inset 0 0 70px rgba(255, 211, 77, 0.3);
+  }
+}
+
+@keyframes pulse-red {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.4;
+  }
+}
+
+@keyframes red-rabbit-pulse {
+  from {
+    transform: scale(0.94);
+    filter: drop-shadow(0 0 7px #ff0033);
+  }
+
+  to {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 15px #ff0000);
+  }
+}
+
+@keyframes hacker-void-spin {
+  0% { transform: rotate(0deg) scale(0.96); }
+  38% { transform: rotate(87deg) scale(1.03); }
+  62% { transform: rotate(214deg) scale(0.94); }
+  100% { transform: rotate(360deg) scale(0.96); }
+}
+
+@keyframes hacker-ring-corrupt {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(5deg) scaleX(1.05); }
+  50% { transform: rotate(-4deg) scaleY(0.96); }
+  75% { transform: rotate(2deg) scaleX(0.97); }
+}
+
+@keyframes hacker-rabbit-corrupt {
+  0%, 100% { transform: translate(0); filter: drop-shadow(-3px 0 #00f5ff) drop-shadow(3px 0 #ff38c7); }
+  33% { transform: translate(2px, -1px) skewX(3deg); }
+  66% { transform: translate(-2px, 1px) skewX(-4deg); }
+}
+
+@keyframes hacker-eye {
+  0%, 100% { transform: translateX(0) scaleX(1); opacity: 1; }
+  50% { transform: translateX(-3px) scaleX(1.35); opacity: 0.72; }
+}
+
+@keyframes hacker-core {
+  0%, 100% { transform: scale(0.88); filter: hue-rotate(0deg); }
+  50% { transform: scale(1.16); filter: hue-rotate(130deg); }
+}
+
+@keyframes hacker-scan {
+  0% { transform: translateX(-12px) scaleX(0.65); }
+  50% { transform: translateX(10px) scaleX(1.08); }
+  100% { transform: translateX(-4px) scaleX(0.82); }
+}
+
+@keyframes hacker-screen-shake {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
+  10% { transform: translate3d(-10px, 6px, 0) rotate(-0.8deg); }
+  20% { transform: translate3d(12px, -7px, 0) rotate(0.9deg); }
+  30% { transform: translate3d(-14px, -4px, 0) rotate(-0.6deg); }
+  42% { transform: translate3d(11px, 7px, 0) rotate(0.7deg); }
+  55% { transform: translate3d(-8px, 4px, 0) rotate(-0.45deg); }
+  68% { transform: translate3d(7px, -4px, 0) rotate(0.35deg); }
+  82% { transform: translate3d(-4px, 2px, 0) rotate(-0.18deg); }
+}
+
+@keyframes virus-color-panic {
+  0%, 100% { background: rgba(0, 0, 0, 0.04); filter: hue-rotate(0deg) contrast(1.08); }
+  50% { background: rgba(19, 0, 24, 0.13); filter: hue-rotate(80deg) contrast(1.35); }
+}
+
+@keyframes virus-target-jitter {
+  0%, 100% { transform: translate(0); filter: drop-shadow(-3px 0 rgba(0, 245, 255, 0.75)) drop-shadow(3px 0 rgba(255, 56, 199, 0.72)); }
+  33% { transform: translate(3px, -2px) skewX(0.7deg); }
+  66% { transform: translate(-3px, 2px) skewX(-0.7deg); }
+}
+
+@keyframes virus-noise {
+  0% { transform: translate(-4%, -7%); opacity: 0.42; }
+  33% { transform: translate(5%, 3%); opacity: 0.75; }
+  66% { transform: translate(-2%, 8%); opacity: 0.52; }
+  100% { transform: translate(7%, -3%); opacity: 0.68; }
+}
+
+@keyframes virus-tear {
+  0% { transform: translateX(-6%) scaleY(0.35); opacity: 0.25; }
+  35% { transform: translateX(5%) scaleY(1.2); opacity: 0.8; }
+  70% { transform: translateX(-3%) scaleY(0.55); opacity: 0.45; }
+  100% { transform: translateX(7%) scaleY(0.2); opacity: 0.18; }
+}
+
+@keyframes virus-warning {
+  0%, 100% { transform: translate(-50%, -50%) skewX(-5deg); opacity: 0.92; }
+  50% { transform: translate(calc(-50% + 5px), calc(-50% - 2px)) skewX(5deg); opacity: 0.7; }
+}
+
+/* Smanjene animacije za korisnike koji ih ne Å¾ele */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==============================
+   HAKER VIRUS — PANIC MODE
+   ============================== */
+
+.virus-layer {
+  position: absolute;
+  z-index: 24;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.game-stage.is-virus .virus-layer {
+  opacity: 1;
+  visibility: visible;
+  animation: virus-color-panic 0.18s steps(2) infinite;
+}
+
+.game-stage.is-virus .target-layer {
+  animation: virus-target-jitter 0.23s steps(3) infinite;
+}
+
+.virus-layer__noise {
+  position: absolute;
+  inset: -35%;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 3px,
+      rgba(255, 255, 255, 0.08) 3px 4px,
+      transparent 4px 8px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 245, 255, 0.1) 0 1px,
+      transparent 1px 11px,
+      rgba(255, 56, 199, 0.12) 11px 12px,
+      transparent 12px 23px
+    );
+  mix-blend-mode: screen;
+  animation: virus-noise 0.2s steps(3) infinite;
+}
+
+.virus-layer__tear {
+  position: absolute;
+  right: -10%;
+  left: -10%;
+  height: 10%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 245, 255, 0.4),
+    rgba(0, 0, 0, 0.86),
+    rgba(255, 56, 199, 0.48),
+    transparent
+  );
+  mix-blend-mode: screen;
+  animation: virus-tear 0.36s steps(4) infinite;
+}
+
+.virus-layer__tear--one {
+  top: 18%;
+}
+
+.virus-layer__tear--two {
+  top: 48%;
+  animation-delay: -0.14s;
+}
+
+.virus-layer__tear--three {
+  top: 76%;
+  animation-delay: -0.27s;
+}
+
+.virus-layer__warning {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  gap: 5px;
+  padding: 10px 16px;
+  border: 1px solid #ff38c7;
+  background: rgba(0, 0, 7, 0.78);
+  text-align: center;
+  box-shadow:
+    -6px 0 0 rgba(0, 245, 255, 0.25),
+    6px 0 0 rgba(255, 56, 199, 0.25),
+    0 0 28px #000;
+  transform: translate(-50%, -50%) skewX(-5deg);
+  animation: virus-warning 0.42s steps(2) infinite;
+}
+
+.virus-layer__warning strong {
+  color: #fff;
+  font: 900 clamp(1.2rem, 7vw, 2.5rem) var(--display);
+  letter-spacing: 0.08em;
+  text-shadow:
+    -4px 0 #00f5ff,
+    4px 0 #ff38c7;
+}
+
+.virus-layer__warning span {
+  color: #55ffb8;
+  font: 800 0.58rem var(--display);
+  letter-spacing: 0.16em;
+}
+
+.app-shell.is-panic-impact {
+  animation: hacker-screen-shake 0.62s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
