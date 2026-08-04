@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.2.0
-   BALANCED ARCADE ENGINE (BIGGER & SMOOTHER RABBITS)
+   WHR: ARENA SURVIVAL v5.3.0
+   VOID CROWN ENGINE (PURPLE RABBIT IS THE MAIN TARGET)
 ========================================================= */
 
 const DOM = {
@@ -49,6 +49,18 @@ class AudioEngine {
         osc.connect(gain); gain.connect(this.ctx.destination);
         osc.start(); osc.stop(this.ctx.currentTime + 0.1);
     }
+    playVoidJackpot() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.35);
+    }
     playMiss() {
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
@@ -56,18 +68,6 @@ class AudioEngine {
         osc.type = "square";
         osc.frequency.setValueAtTime(150, this.ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(60, this.ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
-        osc.connect(gain); gain.connect(this.ctx.destination);
-        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
-    }
-    playPower() {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.2);
         gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
         osc.connect(gain); gain.connect(this.ctx.destination);
@@ -91,12 +91,11 @@ const audio = new AudioEngine();
 
 const GAME_CONFIG = {
     laserSpeed: 800,
-    baseGravity: 420, // USPORENA GRAVITACIJA (stara 580)
+    baseGravity: 420,
     maxLasers: 6,
     maxSpeedCap: 2.0
 };
 
-// BALANS: Radiujus povećan sa 28px na 38px, bounce sa 820 na 650
 const ORB_TYPES = { large: { radius: 38, bounce: 650 } };
 
 const RABBIT_THEMES = [
@@ -106,7 +105,7 @@ const RABBIT_THEMES = [
     { id: "gold", name: "Golden Rabbit", main: "#ffe45c", eye: "#ff9100" },
     { id: "red", name: "Red Cyber", main: "#ff315d", eye: "#ffe45c" },
     { id: "green", name: "Green Guardian", main: "#32ff9b", eye: "#00f5ff" },
-    { id: "void", name: "Void Shadow", main: "#9c4dff", eye: "#ff2fcf" }
+    { id: "void", name: "Void Crown", main: "#9c4dff", eye: "#ff2fcf" }
 ];
 
 const state = {
@@ -179,14 +178,14 @@ function createRabbitObject(theme, x, y) {
     return {
         x: x, y: y,
         radius: ORB_TYPES.large.radius,
-        velocityX: (Math.random() > 0.5 ? 1 : -1) * 110, // USPORENO (staro 160)
+        velocityX: (Math.random() > 0.5 ? 1 : -1) * 110,
         velocityY: -40,
         theme: theme,
         inHole: false,
         holeTimer: 0,
         powerGlow: 0,
         goldCooldown: 0,
-        voidStateTimer: 4.0,
+        voidStateTimer: 3.5,
         isPhantom: false
     };
 }
@@ -328,7 +327,7 @@ function updateGame(delta) {
             orb.voidStateTimer -= delta;
             if (orb.voidStateTimer <= 0) {
                 orb.isPhantom = !orb.isPhantom;
-                orb.voidStateTimer = orb.isPhantom ? 3.0 : 4.0;
+                orb.voidStateTimer = orb.isPhantom ? 2.5 : 3.5;
             }
 
             if (!orb.inHole) {
@@ -412,23 +411,45 @@ function handleTargetInteraction(clientX, clientY) {
         const orb = state.orbs[oIdx];
         if (orb.inHole) continue;
 
-        if (orb.theme.id === "void" && orb.isPhantom) continue;
-
         const dist = Math.hypot(orb.x - clickX, orb.y - clickY);
 
-        if (dist <= orb.radius + 14) { // Povećana i dodirna tolerancija na +14px!
-            audio.playHit();
-            audio.playPower();
+        if (dist <= orb.radius + 14) {
+            
+            // 💜 LJUBIČASTI (VOID) U PROVIDNOM STANJU -> KAZNA!
+            if (orb.theme.id === "void" && orb.isPhantom) {
+                audio.playMiss();
+                state.lives--;
+                state.timeLeft = Math.max(0, state.timeLeft - 1.5);
+                if (state.lives <= 0) {
+                    state.lives = 0;
+                    triggerGameOver();
+                }
+                hitAny = true;
+                break;
+            }
 
+            // POGODAK U REGULARNOG ILI VIDLJIVOG LJUBIČASTOG
             const angle = Math.atan2(orb.y - clickY, orb.x - clickX);
             orb.velocityX = Math.cos(angle) * 550;
             orb.velocityY = Math.sin(angle) * 550;
+            orb.powerGlow = 1.0;
+
+            if (orb.theme.id === "void") {
+                // 🏆 JACKPOT POGODAK U LJUBIČASTOG!
+                audio.playVoidJackpot();
+                state.score += 300;
+                state.timeLeft += 3.0; // Daje +3 sekunde!
+                if (state.lives < 3) state.lives++; // Vraća 1 život!
+                state.slowMotionTimer = 1.2; // Time-warp efekat na usporavanje
+            } else {
+                // STANDARDNI SUPPORT ZEČEVI
+                audio.playHit();
+                audio.playHit();
+                state.score += 50;
+                state.timeLeft += 0.5;
+            }
 
             triggerRabbitPower(orb, oIdx);
-
-            orb.powerGlow = 1.0;
-            state.score += 100;
-            state.timeLeft += 1.0;
 
             const nextLevel = Math.floor(state.score / 1000) + 1;
             if (nextLevel > state.level) {
@@ -441,6 +462,7 @@ function handleTargetInteraction(clientX, clientY) {
         }
     }
 
+    // PROMAŠAJ U PRAZNO (VAN ZEČEVA)
     if (!hitAny) {
         audio.playMiss();
         state.lives--;
@@ -580,12 +602,12 @@ function renderGame() {
         if (o.theme.id === "void") {
             ctx.beginPath();
             ctx.arc(0, 0, r + 20, 0, Math.PI * 2);
-            ctx.strokeStyle = "rgba(156, 77, 255, 0.25)";
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = "rgba(156, 77, 255, 0.4)";
+            ctx.lineWidth = 3;
             ctx.stroke();
 
             if (o.isPhantom) {
-                ctx.globalAlpha = 0.35;
+                ctx.globalAlpha = 0.25; // Jako providan kad je zamka!
             }
         }
 
