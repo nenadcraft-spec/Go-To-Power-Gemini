@@ -1,5 +1,5 @@
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.6.1 - CLEAN TAP REFLEX
+   WHR: ARENA SURVIVAL v5.7.0 - ROTATING RABBITS & STATIC TARGET
 ========================================================= */
 
 * {
@@ -164,7 +164,7 @@ html, body {
     color: #32ff9b;
 }
 
-/* GLAVNA ARENA ZA IGRU (CANVAS) */
+/* GLAVNA ARENA ZA IGRU */
 #gameStage {
     flex: 1;
     width: 100%;
