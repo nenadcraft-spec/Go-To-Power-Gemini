@@ -2,58 +2,29 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WHR: ARENA SURVIVAL v5.9.0</title>
-    <link rel="stylesheet" href="style.css?v=5.9.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacija Ekosistema: Zečevi i Predatori</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="gameApp">
-        <!-- START SCREEN -->
-        <div id="startScreen" class="screen screen--active">
-            <div class="start-card">
-                <h1 class="title">WHR: ARENA SURVIVAL</h1>
-                <p class="subtitle">CYBER RABBIT REFLEX</p>
-                <button id="startButton" class="btn btn--primary" type="button">START ARENA</button>
-            </div>
+    <div class="container">
+        <h1>Simulacija Ekosistema</h1>
+        
+        <div class="controls">
+            <button id="btnSpawnRabbit">Dodaj Zeca 🐇</button>
+            <button id="btnSpawnPredator">Dodaj Predatora 🦊</button>
+            <button id="btnTogglePause">Pauza / Pokreni ⏯️</button>
         </div>
 
-        <!-- GAME SCREEN -->
-        <div id="gameScreen" class="screen">
-            <div id="arenaFrame">
-                <div id="hud" class="hud">
-                    <div class="hud-item">
-                        <span class="hud-label">LIVES</span>
-                        <span id="livesValue" class="hud-value">❤️❤️❤️</span>
-                    </div>
-                    <div class="hud-item">
-                        <span class="hud-label">TIMER</span>
-                        <span id="timerValue" class="hud-value">45.0s</span>
-                    </div>
-                    <div class="hud-item">
-                        <span class="hud-label">SCORE</span>
-                        <span id="scoreValue" class="hud-value">000000</span>
-                    </div>
-                    <div class="hud-item">
-                        <span id="levelValue" class="hud-version">LVL 1</span>
-                    </div>
-                </div>
-
-                <div id="gameStage">
-                    <canvas id="gameCanvas"></canvas>
-                </div>
-            </div>
+        <div class="stats">
+            <span>Broj zečeva: <strong id="statRabbits">0</strong></span> | 
+            <span>Broj predatora: <strong id="statPredators">0</strong></span> | 
+            <span>Generacija: <strong id="statGenerations">1</strong></span>
         </div>
 
-        <!-- GAME OVER SCREEN -->
-        <div id="gameOverScreen" class="screen">
-            <div class="start-card">
-                <h1 class="title" style="color: #ff315d;">GAME OVER</h1>
-                <p class="subtitle">FINAL SCORE: <span id="finalScoreValue" style="color: #32ff9b;">0</span></p>
-                <button id="restartButton" class="btn btn--primary" type="button">PLAY AGAIN</button>
-            </div>
-        </div>
+        <canvas id="simCanvas" width="800" height="500"></canvas>
     </div>
 
-    <script src="script.js?v=5.9.0"></script>
+    <script src="script.js"></script>
 </body>
 </html>
