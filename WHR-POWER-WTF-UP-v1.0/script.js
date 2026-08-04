@@ -14,7 +14,8 @@ const DOM = {
     },
     buttons: {
         start: document.getElementById("startButton"),
-        restart: document.getElementById("restartButton")
+        restart: document.getElementById("restartButton"),
+        shoot: document.getElementById("shootButton")
     },
     canvas: document.getElementById("gameCanvas"),
     gameStage: document.getElementById("gameStage"),
@@ -128,6 +129,56 @@ const state = {
     slowMotionTimer: 0,
     pendingRespawns: []
 };
+
+/* JOYSTICK ENGINE */
+const joystick = {
+    zone: document.getElementById("joystickZone"),
+    base: document.getElementById("joystickBase"),
+    stick: document.getElementById("joystickStick"),
+    active: false,
+    touchId: null,
+    startX: 0,
+    maxRadius: 60
+};
+
+function initJoystick() {
+    if (!joystick.zone || !joystick.base || !joystick.stick) return;
+
+    function handleStart(e) {
+        e.preventDefault(); audio.init();
+        if (joystick.active) return;
+        const touch = e.changedTouches ? e.changedTouches[0] : e;
+        joystick.active = true;
+        joystick.touchId = touch.identifier ?? "mouse";
+        const rect = joystick.base.getBoundingClientRect();
+        joystick.startX = rect.left + rect.width / 2;
+        handleMove(e);
+    }
+
+    function handleMove(e) {
+        if (!joystick.active) return;
+        let touch = null;
+        if (e.changedTouches) {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === joystick.touchId) { touch = e.changedTouches[i]; break; }
+            }
+        } else touch = e;
+        if (!touch) return;
+        let deltaX = touch.clientX - joystick.startX;
+        deltaX = Math.max(-joystick.maxRadius, Math.min(joystick.maxRadius, deltaX));
+        joystick.stick.style.transform = `translateX(${deltaX}px)`;
+    }
+
+    function handleEnd() {
+        if (!joystick.active) return;
+        joystick.active = false; joystick.touchId = null;
+        joystick.stick.style.transform = `translateX(0px)`;
+    }
+
+    joystick.zone.addEventListener("touchstart", handleStart, { passive: false });
+    window.addEventListener("touchmove", handleMove, { passive: false });
+    window.addEventListener("touchend", handleEnd, { passive: false });
+}
 
 function resizeCanvas() {
     if (!DOM.canvas || !DOM.gameStage) return;
@@ -460,7 +511,6 @@ function handleTargetInteraction(clientX, clientY) {
         }
     }
 
-    // PROMAŠAJ VAN ZEČEVA SAD NE DANO KAZNU — NEMA GUBITKA ŽIVOTA NI TIMERA!
     updateHUD();
 }
 
@@ -682,6 +732,7 @@ function initEvents() {
 
 function init() {
     initEvents();
+    initJoystick();
     showScreen("start");
     resizeCanvas();
 }
