@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.8.0
-   CYBER RABBIT REFLEX ENGINE & ADVANCED POWERS
+   WHR: ARENA SURVIVAL v5.9.0
+   FLIPPER BUMPER & 50% SPEED BALANCED ENGINE
 ========================================================= */
 
 const DOM = {
@@ -52,6 +52,18 @@ class AudioEngine {
         osc.connect(gain); gain.connect(this.ctx.destination);
         osc.start(); osc.stop(this.ctx.currentTime + 0.1);
     }
+    playBumperHit() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.12);
+    }
     playVoidJackpot() {
         if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
@@ -93,17 +105,17 @@ class AudioEngine {
 const audio = new AudioEngine();
 
 /* =========================================================
-   CONFIG & THEMES
+   CONFIG & THEMES (WITH 50% SLOWER BASE GRAVITY & SPEED)
 ========================================================= */
 const GAME_CONFIG = {
     laserSpeed: 800,
-    baseGravity: 420,
+    baseGravity: 210,           // 👈 USPORENO ZA 50% (ranije 420) za izbalansiran let
     maxSpeedCap: 2.0,
     maxVfxLasers: 8,
     maxRabbitVelocity: 900
 };
 
-const ORB_TYPES = { large: { radius: 38, bounce: 650 } };
+const ORB_TYPES = { large: { radius: 38, bounce: 480 } };
 
 const RABBIT_THEMES = [
     { id: "white", name: "Deflector White", main: "#00f5ff", eye: "#32ff9b" },
@@ -115,7 +127,7 @@ const RABBIT_THEMES = [
     { id: "void", name: "Void Crown", main: "#9c4dff", eye: "#ff2fcf" }
 ];
 
-const STATIC_RABBIT_THEME = { id: "static", name: "Običan Zec", main: "#ffffff", eye: "#00f5ff" };
+const STATIC_RABBIT_THEME = { id: "static", name: "Flipper Bumper", main: "#ffffff", eye: "#00f5ff" };
 
 const state = {
     running: false,
@@ -130,7 +142,7 @@ const state = {
     mouse: { x: -100, y: -100, active: false },
     vfxLasers: [],
     orbs: [],
-    staticRabbit: null,
+    staticRabbit: null, // FLIPPER BUMPER U CENTRU ARENE
     blackHoles: [],
     holeAngle: 0,
     globalFreezeTimer: 0,
@@ -160,24 +172,18 @@ function resizeCanvas() {
         { id: 3, x: state.width - offset, y: state.height - offset, radius: radius, dirX: -1, dirY: -1 }
     ];
 
-    if (state.running && !state.staticRabbit) {
-        respawnStaticRabbit();
-    }
+    // CENTRIRANJE FLIPPER BUMPERA NA SAMOM CENTRU ARENE
+    initCenterFlipperBumper();
 }
 
-function respawnStaticRabbit() {
-    const margin = 100;
-    const safeX = margin + Math.random() * (state.width - margin * 2);
-    const safeY = margin + Math.random() * (state.height - margin * 2);
-
+function initCenterFlipperBumper() {
     state.staticRabbit = {
-        x: safeX,
-        y: safeY,
-        radius: ORB_TYPES.large.radius,
+        x: state.width / 2,
+        y: state.height / 2,
+        radius: ORB_TYPES.large.radius + 2, // Blago veći Bumper
         theme: STATIC_RABBIT_THEME,
-        timer: 5.0,
-        maxTimer: 5.0,
-        rotationAngle: 0
+        powerGlow: 0,
+        pulseAngle: 0
     };
 }
 
@@ -205,7 +211,7 @@ function startNewGame() {
             state.orbs.push(createRabbitObject(theme, (state.width / 8) * (i + 1), 60 + Math.random() * (state.height * 0.3)));
         }
 
-        respawnStaticRabbit();
+        initCenterFlipperBumper();
         updateHUD();
         state.running = true;
         state.lastTimestamp = performance.now();
@@ -217,8 +223,8 @@ function createRabbitObject(theme, x, y) {
     return {
         x: x, y: y,
         radius: ORB_TYPES.large.radius,
-        velocityX: (Math.random() > 0.5 ? 1 : -1) * 110,
-        velocityY: -40,
+        velocityX: (Math.random() > 0.5 ? 1 : -1) * 60,  // 👈 USPORENO POČETNO KRETANJE (ranije 110)
+        velocityY: -20,                                  // 👈 USPORENO (-20)
         theme: theme,
         inHole: false,
         holeTimer: 0,
@@ -255,10 +261,12 @@ function updateGame(delta) {
         return;
     }
 
+    // UPDATE FLIPPER BUMPERA (PULSIRANJE)
     if (state.staticRabbit) {
-        state.staticRabbit.timer -= delta;
-        if (state.staticRabbit.timer <= 0) {
-            respawnStaticRabbit();
+        state.staticRabbit.pulseAngle += delta * 3.5;
+        if (state.staticRabbit.powerGlow > 0) {
+            state.staticRabbit.powerGlow -= delta * 3.0;
+            if (state.staticRabbit.powerGlow < 0) state.staticRabbit.powerGlow = 0;
         }
     }
 
@@ -278,7 +286,7 @@ function updateGame(delta) {
         if (item.delay <= 0) {
             const exitHole = state.blackHoles[Math.floor(Math.random() * state.blackHoles.length)];
             const newOrb = createRabbitObject(item.theme, exitHole.x, exitHole.y);
-            const speed = 480;
+            const speed = 260; // 👈 Balance speed iz portala
             const rad39 = 39 * (Math.PI / 180);
 
             newOrb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
@@ -290,6 +298,7 @@ function updateGame(delta) {
         }
     }
 
+    // VFX LASERI
     for (let i = state.vfxLasers.length - 1; i >= 0; i--) {
         const laser = state.vfxLasers[i];
         laser.life -= delta;
@@ -302,6 +311,43 @@ function updateGame(delta) {
         if (laser.life <= 0) state.vfxLasers.splice(i, 1);
     }
 
+    // FIZIKA SUDARA ZEČEVA SA CENTRALNIM FLIPPER BUMPEROM
+    if (state.staticRabbit) {
+        const bumper = state.staticRabbit;
+        state.orbs.forEach(orb => {
+            if (orb.inHole) return;
+
+            const dist = Math.hypot(orb.x - bumper.x, orb.y - bumper.y);
+            const minDist = orb.radius + bumper.radius;
+
+            if (dist < minDist) {
+                // FLIPPER BUMPER ODSIJEČE KINETIČKOG ZECA SVEŽOM NBO TRAMPOLINA SILOM
+                const angle = Math.atan2(orb.y - bumper.y, orb.x - bumper.x);
+                const overlap = minDist - dist;
+
+                orb.x += Math.cos(angle) * overlap;
+                orb.y += Math.sin(angle) * overlap;
+
+                // Lansiranje pod uglom odbijanja sa x1.8 jačinom
+                const bounceSpeed = Math.max(380, Math.hypot(orb.velocityX, orb.velocityY) * 1.8);
+                orb.velocityX = Math.cos(angle) * bounceSpeed;
+                orb.velocityY = Math.sin(angle) * bounceSpeed;
+
+                // Cap zaštita
+                const currentSpeed = Math.hypot(orb.velocityX, orb.velocityY);
+                if (currentSpeed > GAME_CONFIG.maxRabbitVelocity) {
+                    const scale = GAME_CONFIG.maxRabbitVelocity / currentSpeed;
+                    orb.velocityX *= scale;
+                    orb.velocityY *= scale;
+                }
+
+                bumper.powerGlow = 1.0;
+                audio.playBumperHit();
+            }
+        });
+    }
+
+    // FIZIKA MEĐUSOBNOG SUDARA KINETIČKIH ZEČEVA
     for (let i = 0; i < state.orbs.length; i++) {
         for (let j = i + 1; j < state.orbs.length; j++) {
             const o1 = state.orbs[i];
@@ -325,13 +371,13 @@ function updateGame(delta) {
                 if (o1.theme.id === "white") {
                     o2.x += Math.cos(angle) * overlap;
                     o2.y += Math.sin(angle) * overlap;
-                    o2.velocityX = Math.cos(angle) * 350;
-                    o2.velocityY = Math.sin(angle) * 350;
+                    o2.velocityX = Math.cos(angle) * 220;
+                    o2.velocityY = Math.sin(angle) * 220;
                 } else if (o2.theme.id === "white") {
                     o1.x -= Math.cos(angle) * overlap;
                     o1.y -= Math.sin(angle) * overlap;
-                    o1.velocityX = -Math.cos(angle) * 350;
-                    o1.velocityY = -Math.sin(angle) * 350;
+                    o1.velocityX = -Math.cos(angle) * 220;
+                    o1.velocityY = -Math.sin(angle) * 220;
                 } else {
                     o1.x -= Math.cos(angle) * (overlap / 2);
                     o1.y -= Math.sin(angle) * (overlap / 2);
@@ -352,8 +398,9 @@ function updateGame(delta) {
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
 
+        // Uravnotežena rotacija dok lete
         const speed = Math.hypot(orb.velocityX, orb.velocityY);
-        orb.rotationAngle += delta * (speed * 0.005 + 1.2);
+        orb.rotationAngle += delta * (speed * 0.003 + 0.8);
 
         if (orb.powerGlow > 0) {
             orb.powerGlow -= delta * 2;
@@ -388,7 +435,7 @@ function updateGame(delta) {
                 orb.inHole = false;
                 const otherHoles = state.blackHoles.filter(h => h.id !== orb.entryHoleId);
                 const exitHole = otherHoles[Math.floor(Math.random() * otherHoles.length)];
-                const speed = 380;
+                const speed = 260;
                 const rad39 = 39 * (Math.PI / 180);
 
                 orb.x = exitHole.x + exitHole.dirX * (orb.radius + 6);
@@ -402,7 +449,7 @@ function updateGame(delta) {
 
         if (state.globalFreezeTimer > 0) continue;
 
-        let currentGravity = Math.min(1000, GAME_CONFIG.baseGravity + (state.level - 1) * 25);
+        let currentGravity = Math.min(1000, GAME_CONFIG.baseGravity + (state.level - 1) * 15);
         let effectiveSpeedMult = state.baseSpeedMultiplier * (state.slowMotionTimer > 0 ? 0.5 : 1.0);
 
         orb.velocityY += currentGravity * delta;
@@ -437,7 +484,7 @@ function updateGame(delta) {
 }
 
 /* =========================================================
-   INTERACTION & AUTONOMOUS RABBIT POWERS
+   INTERACTION & POWERS
 ========================================================= */
 function handleTargetInteraction(clientX, clientY) {
     if (!state.running || !DOM.canvas) return;
@@ -445,13 +492,26 @@ function handleTargetInteraction(clientX, clientY) {
     const clickX = clientX - rect.left;
     const clickY = clientY - rect.top;
 
-    // 1. OBIČAN STACIONIRANI ZEC (CORE BEACON - 100 PTS)
+    // 1. FLIPPER BUMPER U CENTRU (+100 PTS + IMPULS BUMPER ŠOK TALAS)
     if (state.staticRabbit) {
         const dist = Math.hypot(state.staticRabbit.x - clickX, state.staticRabbit.y - clickY);
         if (dist <= state.staticRabbit.radius + 14) {
-            audio.playHit();
+            audio.playBumperHit();
             state.score += 100;
-            respawnStaticRabbit();
+            state.staticRabbit.powerGlow = 1.0;
+
+            // Bumper prst-talas: gura obližnje zečeve!
+            state.orbs.forEach(other => {
+                if (!other.inHole) {
+                    const d = Math.hypot(other.x - state.staticRabbit.x, other.y - state.staticRabbit.y);
+                    if (d < 200) {
+                        const angle = Math.atan2(other.y - state.staticRabbit.y, other.x - state.staticRabbit.x);
+                        other.velocityX += Math.cos(angle) * 350;
+                        other.velocityY += Math.sin(angle) * 350;
+                    }
+                }
+            });
+
             updateHUD();
             return;
         }
@@ -466,7 +526,7 @@ function handleTargetInteraction(clientX, clientY) {
 
         if (dist <= orb.radius + 14) {
             
-            // 💜 PHANTOM VOID: VIRUS KAZNA!
+            // 💜 PHANTOM VOID: KAZNA!
             if (orb.theme.id === "void" && orb.isPhantom) {
                 audio.playMiss();
                 state.lives--;
@@ -483,8 +543,8 @@ function handleTargetInteraction(clientX, clientY) {
             if (orb.theme.id === "void") {
                 audio.playVoidJackpot();
                 const angle = Math.atan2(orb.y - clickY, orb.x - clickX);
-                orb.velocityX = Math.cos(angle) * 550;
-                orb.velocityY = Math.sin(angle) * 550;
+                orb.velocityX = Math.cos(angle) * 450;
+                orb.velocityY = Math.sin(angle) * 450;
                 orb.powerGlow = 1.0;
 
                 state.score += 300;
@@ -492,7 +552,7 @@ function handleTargetInteraction(clientX, clientY) {
                 if (state.lives < 3) state.lives++;
                 state.slowMotionTimer = 1.2;
             } 
-            // ⬛ GLITCH BLACK: QUANTUM TELEPORT & SHOCKWAVE
+            // ⬛ GLITCH BLACK: TELEPORT & SHOCKWAVE
             else if (orb.theme.id === "black") {
                 audio.playHit();
                 state.score += 75;
@@ -549,7 +609,7 @@ function triggerRabbitPower(orb) {
 /* ⚪ DEFLECTOR WHITE */
 function triggerWhiteDeflectorPower(orb) {
     const DEFLECTION_RADIUS = 230;
-    const DEFLECTION_FORCE = 4.2;
+    const DEFLECTION_FORCE = 3.5;
 
     state.orbs.forEach(other => {
         if (other !== orb && !other.inHole) {
@@ -569,8 +629,8 @@ function triggerBlackGlitchPower(orb) {
     const margin = 80;
     orb.x = margin + Math.random() * (state.width - margin * 2);
     orb.y = margin + Math.random() * (state.height * 0.45);
-    orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 340;
-    orb.velocityY = -130;
+    orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 280;
+    orb.velocityY = -100;
 
     state.orbs.forEach(other => {
         if (other !== orb && !other.inHole) {
@@ -590,7 +650,7 @@ function triggerBlackGlitchPower(orb) {
 /* 🔴 KINETIC RED */
 function triggerRedKineticBlastPower(orb) {
     const BLAST_RADIUS = 260;
-    const BLAST_IMPULSE = 7.5;
+    const BLAST_IMPULSE = 6.0;
 
     state.orbs.forEach(other => {
         if (other !== orb && !other.inHole) {
@@ -660,9 +720,9 @@ function drawRabbit(o) {
 
     if (o.powerGlow > 0) {
         ctx.beginPath();
-        ctx.arc(0, 0, r + 10, 0, Math.PI * 2);
+        ctx.arc(0, 0, r + 12, 0, Math.PI * 2);
         ctx.fillStyle = theme.main;
-        ctx.globalAlpha = o.powerGlow * 0.5;
+        ctx.globalAlpha = o.powerGlow * 0.6;
         ctx.fill();
         ctx.globalAlpha = 1.0;
     }
@@ -692,6 +752,7 @@ function renderGame() {
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
+    // CRNE RUPE
     state.blackHoles.forEach(bh => {
         ctx.save();
         ctx.translate(bh.x, bh.y);
@@ -708,6 +769,7 @@ function renderGame() {
         ctx.restore();
     });
 
+    // VFX LASERI
     state.vfxLasers.forEach(laser => {
         ctx.save();
         ctx.strokeStyle = "#ffe45c";
@@ -719,29 +781,33 @@ function renderGame() {
         ctx.restore();
     });
 
+    // RENDER CENTRALNOG FLIPPER BUMPERA (SA NEON SHIELD PRSTENOVIMA)
     if (state.staticRabbit) {
-        const sr = state.staticRabbit;
-        const progress = Math.max(0, sr.timer / sr.maxTimer);
+        const bumper = state.staticRabbit;
 
         ctx.save();
-        if (sr.timer <= 1.0 && Math.floor(Date.now() / 100) % 2 === 0) {
-            ctx.globalAlpha = 0.3;
-        }
+        ctx.translate(bumper.x, bumper.y);
 
-        ctx.save();
-        ctx.translate(sr.x, sr.y);
-        ctx.rotate(-state.holeAngle * 1.5);
+        // PULSIRAJUĆI SPOJNI NEONSKE PRSTENOVE (NEVER-ENDING BUMPER SHIELD)
+        const pulseR = bumper.radius + 8 + Math.sin(bumper.pulseAngle) * 4;
         ctx.beginPath();
-        ctx.arc(0, 0, sr.radius + 12, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * progress));
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 4;
+        ctx.arc(0, 0, pulseR, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.lineWidth = 3;
         ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, pulseR + 8, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(0, 245, 255, 0.35)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
         ctx.restore();
 
-        drawRabbit(sr);
-        ctx.restore();
+        drawRabbit(bumper);
     }
 
+    // RENDER KINETIČKIH ZEČEVA
     state.orbs.forEach(o => {
         if (!o.inHole) drawRabbit(o);
     });
