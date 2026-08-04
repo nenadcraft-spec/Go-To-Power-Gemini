@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>WHR: ARENA SURVIVAL v5.1.1</title>
-    <link rel="stylesheet" href="style.css?v=5.1.1">
+    <title>WHR: ARENA SURVIVAL v5.2.1</title>
+    <link rel="stylesheet" href="style.css?v=5.2.1">
 </head>
 <body>
     <div id="gameApp">
@@ -17,26 +17,28 @@
 
         <!-- GAME SCREEN -->
         <div id="gameScreen" class="screen">
-            <div id="hud">
-                <div class="hud-item">
-                    <span class="hud-label">LIVES</span>
-                    <span id="livesValue" class="hud-value">❤️❤️❤️</span>
+            <div id="arenaFrame">
+                <div id="hud">
+                    <div class="hud-item">
+                        <span class="hud-label">LIVES</span>
+                        <span id="livesValue" class="hud-value">❤️❤️❤️</span>
+                    </div>
+                    <div class="hud-item">
+                        <span class="hud-label">TIMER</span>
+                        <span id="timerValue" class="hud-value">45.0s</span>
+                    </div>
+                    <div class="hud-item">
+                        <span class="hud-label">SCORE</span>
+                        <span id="scoreValue" class="hud-value">000000</span>
+                    </div>
+                    <div class="hud-item">
+                        <span id="levelValue" class="hud-version">LVL 1</span>
+                    </div>
                 </div>
-                <div class="hud-item">
-                    <span class="hud-label">TIMER</span>
-                    <span id="timerValue" class="hud-value">45.0s</span>
-                </div>
-                <div class="hud-item">
-                    <span class="hud-label">SCORE</span>
-                    <span id="scoreValue" class="hud-value">000000</span>
-                </div>
-                <div class="hud-item">
-                    <span id="levelValue" class="hud-version">LVL 1</span>
-                </div>
-            </div>
 
-            <div id="gameStage">
-                <canvas id="gameCanvas"></canvas>
+                <div id="gameStage">
+                    <canvas id="gameCanvas"></canvas>
+                </div>
             </div>
         </div>
 
@@ -48,6 +50,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=5.2.0"></script>
+    <script src="script.js?v=5.2.1"></script>
 </body>
 </html>
