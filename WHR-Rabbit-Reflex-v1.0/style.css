@@ -1,394 +1,197 @@
-@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap");
-
-:root {
-  --bg: #04050d;
-  --panel: rgba(8, 12, 29, 0.88);
-  --white: #f4fbff;
-  --muted: #8fa3b8;
-  --cyan: #00f5ff;
-  --purple: #a855f7;
-  --pink: #ff38c7;
-  --red: #ff325f;
-  --gold: #ffd34d;
-  --green: #55ffb8;
-  --display: "Orbitron", sans-serif;
-  --body: "Rajdhani", sans-serif;
-}
-
 * {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100dvh;
-  background: var(--bg);
-  color: var(--white);
-  font-family: var(--body);
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
+body, html {
+    width: 100%;
+    height: 100%;
+    background-color: #020205;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+    color: #ffffff;
 }
 
-button {
-  font: inherit;
-  touch-action: manipulation;
+#gameApp {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* APP SHELL */
-.app-shell {
-  position: relative;
-  isolation: isolate;
-  width: 100vw;
-  height: 100dvh;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #020205;
+    z-index: 10;
 }
 
-/* POZADINSKI SISTEM */
-.background-system {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
+.screen--active {
+    display: flex;
 }
 
-.background-system__grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(0, 245, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 245, 255, 0.05) 1px, transparent 1px);
-  background-size: 42px 42px;
-  mask-image: radial-gradient(circle, #000, transparent 85%);
-  -webkit-mask-image: radial-gradient(circle, #000, transparent 85%);
+.title {
+    font-size: 2.2rem;
+    color: #00f5ff;
+    text-shadow: 0 0 10px #00f5ff, 0 0 20px #ff2fcf;
+    margin-bottom: 10px;
+    text-align: center;
 }
 
-.background-system__scanlines {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0 3px,
-    rgba(255, 255, 255, 0.02) 4px
-  );
+.subtitle {
+    font-size: 1.1rem;
+    color: #ff2fcf;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
 }
 
-.background-system__noise {
-  position: absolute;
-  inset: -40px;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+.btn {
+    padding: 15px 35px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(45deg, #00f5ff, #ff2fcf);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 245, 255, 0.5);
+    transition: transform 0.1s ease;
 }
 
-.background-system__glow {
-  position: absolute;
-  width: 420px;
-  height: 420px;
-  border-radius: 50%;
-  filter: blur(110px);
-  opacity: 0.18;
+.btn:active {
+    transform: scale(0.95);
 }
 
-.background-system__glow--one {
-  top: -200px;
-  left: -180px;
-  background: var(--cyan);
+.btn--fire {
+    width: 120px;
+    height: 50px;
+    background: linear-gradient(45deg, #ff2fcf, #ff315d);
+    box-shadow: 0 0 15px rgba(255, 47, 207, 0.6);
+    border-radius: 12px;
 }
 
-.background-system__glow--two {
-  right: -200px;
-  bottom: -220px;
-  background: var(--pink);
+#gameScreen {
+    justify-content: flex-start;
+    align-items: center;
 }
 
-/* ZAGLAVLJE */
-.game-header {
-  width: 100%;
-  max-width: 960px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
-  flex-shrink: 0;
+/* ARENA FRAME - TVRDI OKVIR KAO KOD RABBIT REFLEX-A */
+#arenaFrame {
+    width: min(100%, 600px);
+    height: 100%;
+    max-height: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(0, 245, 255, 0.15);
+    border-right: 1px solid rgba(0, 245, 255, 0.15);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+#hud {
+    width: 100%;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    border-bottom: 2px solid #00f5ff;
+    z-index: 5;
+    flex-shrink: 0;
 }
 
-.brand__mark {
-  position: relative;
-  width: 36px;
-  height: 40px;
-  filter: drop-shadow(0 0 8px var(--cyan));
+.hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.brand__head {
-  position: absolute;
-  left: 7px;
-  bottom: 2px;
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--cyan);
-  border-radius: 45%;
+.hud-label {
+    font-size: 0.65rem;
+    color: #8993ad;
 }
 
-.brand__ear {
-  position: absolute;
-  top: 0;
-  width: 9px;
-  height: 24px;
-  border: 2px solid var(--cyan);
-  border-radius: 80% 80% 25% 25%;
+.hud-value {
+    font-size: 1.1rem;
+    color: #32ff9b;
+    font-weight: bold;
 }
 
-.brand__ear--left { left: 7px; transform: rotate(-12deg); }
-.brand__ear--right { right: 5px; transform: rotate(14deg); }
-
-.brand__eye {
-  position: absolute;
-  right: 9px;
-  bottom: 12px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--pink);
-  box-shadow: 0 0 8px var(--pink);
+.hud-version {
+    font-size: 0.9rem;
+    color: #ff2fcf;
+    font-weight: bold;
 }
 
-.brand__eyebrow {
-  margin: 0;
-  color: var(--muted);
-  font: 600 0.5rem var(--display);
-  letter-spacing: 0.12em;
-}
-
-.brand__title {
-  margin: 0;
-  font: 900 1.2rem var(--display);
-  letter-spacing: 0.06em;
-}
-
-.brand__title span {
-  color: var(--cyan);
-  text-shadow: 0 0 12px var(--cyan);
-}
-
-.header-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.icon-button {
-  min-width: 50px;
-  min-height: 40px;
-  border: 1px solid rgba(0, 245, 255, 0.25);
-  border-radius: 6px;
-  background: rgba(7, 11, 25, 0.86);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-button__icon {
-  color: var(--cyan);
-  font: 700 0.85rem var(--display);
-}
-
-.icon-button__label {
-  font: 700 0.4rem var(--display);
-  color: var(--muted);
-}
-
-/* GLAVNI KONTENJER */
-.game-main {
-  width: 100%;
-  height: 100%;
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex: 1;
-  min-height: 0;
-}
-
-@media (min-aspect-ratio: 1/1) {
-  .game-main {
-    max-width: 960px;
-  }
-}
-
-/* HUD TRAKA */
-.hud {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 6px;
-  flex-shrink: 0;
-}
-
-.hud-card {
-  position: relative;
-  padding: 6px 12px;
-  border: 1px solid rgba(0, 245, 255, 0.2);
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(0, 245, 255, 0.06), transparent), var(--panel);
-  text-align: center;
-}
-
-.hud-card__label {
-  color: var(--muted);
-  font: 700 0.5rem var(--display);
-  letter-spacing: 0.1em;
-}
-
-.hud-card__value {
-  font: 800 1.3rem var(--display);
-  color: var(--cyan);
-}
-
-/* POLJE ZA IGRU */
-.game-stage {
-  position: relative;
-  flex: 1;
-  width: 100%;
-  min-height: 250px;
-  border: 1px solid rgba(0, 245, 255, 0.3);
-  border-radius: 12px;
-  background: #020205;
-  box-shadow: inset 0 0 50px #000, 0 10px 30px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
+#gameStage {
+    position: relative;
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    min-height: 0;
 }
 
 #gameCanvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
+    width: 100%;
+    height: 100%;
+    background: #020205;
 }
 
-/* KOMANDE NA DNU - STILIZOVANE U v1.4 STILU */
-.controls {
-  width: 100%;
-  height: 70px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 8px;
-  margin-top: 6px;
-  flex-shrink: 0;
+#controls {
+    width: 100%;
+    height: 90px;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid rgba(0, 245, 255, 0.3);
+    z-index: 5;
+    flex-shrink: 0;
 }
 
 #joystickZone {
-  width: 140px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 160px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 }
 
 #joystickBase {
-  width: 125px;
-  height: 36px;
-  background: rgba(0, 245, 255, 0.12);
-  border: 2px solid var(--cyan);
-  border-radius: 20px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 12px rgba(0, 245, 255, 0.2);
+    width: 130px;
+    height: 24px;
+    background: rgba(0, 245, 255, 0.15);
+    border: 2px solid #00f5ff;
+    border-radius: 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #joystickStick {
-  width: 28px;
-  height: 28px;
-  background: var(--cyan);
-  border-radius: 50%;
-  box-shadow: 0 0 12px var(--cyan);
-  position: absolute;
-  transition: transform 0.05s ease-out;
-}
-
-#shootButton {
-  width: 105px;
-  height: 48px;
-  background: linear-gradient(135deg, rgba(255, 56, 199, 0.9), rgba(168, 85, 247, 0.8));
-  border: 1px solid var(--pink);
-  border-radius: 8px;
-  color: #ffffff;
-  font: 800 0.95rem var(--display);
-  letter-spacing: 1px;
-  box-shadow: 0 0 15px rgba(255, 56, 199, 0.5);
-  cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-#shootButton:active {
-  transform: scale(0.95);
-  box-shadow: 0 0 25px rgba(255, 56, 199, 0.8);
-}
-
-/* OVERLAY MODALI */
-.stage-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  display: none;
-  place-items: center;
-  background: rgba(2, 4, 12, 0.88);
-  backdrop-filter: blur(8px);
-}
-
-.stage-overlay--visible {
-  display: grid;
-}
-
-.modal-panel {
-  width: min(420px, 90%);
-  padding: 20px;
-  border: 1px solid rgba(0, 245, 255, 0.3);
-  border-radius: 12px;
-  background: var(--panel);
-  text-align: center;
-  box-shadow: 0 0 30px rgba(0, 245, 255, 0.15);
-}
-
-.modal-panel h2 {
-  font: 900 1.6rem var(--display);
-  color: var(--cyan);
-  margin-bottom: 8px;
-}
-
-.modal-panel p {
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-
-.primary-button {
-  padding: 12px 28px;
-  background: var(--cyan);
-  color: #000;
-  border: none;
-  border-radius: 6px;
-  font: 800 0.9rem var(--display);
-  cursor: pointer;
-  box-shadow: 0 0 15px var(--cyan);
+    width: 28px;
+    height: 28px;
+    background: #00f5ff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00f5ff;
+    position: absolute;
+    transform: translateX(0);
 }
