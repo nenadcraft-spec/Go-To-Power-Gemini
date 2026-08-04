@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.6.1
-   PERFECTED DIRECT-TAP SURVIVAL ENGINE
+   WHR: ARENA SURVIVAL v5.7.0
+   ROTATING RABBITS & STATIC TARGET ENGINE
 ========================================================= */
 
 const DOM = {
@@ -93,7 +93,8 @@ const GAME_CONFIG = {
     laserSpeed: 800,
     baseGravity: 420,
     maxSpeedCap: 2.0,
-    maxVfxLasers: 8
+    maxVfxLasers: 8,
+    maxRabbitVelocity: 900
 };
 
 const ORB_TYPES = { large: { radius: 38, bounce: 650 } };
@@ -108,6 +109,8 @@ const RABBIT_THEMES = [
     { id: "void", name: "Void Crown", main: "#9c4dff", eye: "#ff2fcf" }
 ];
 
+const STATIC_RABBIT_THEME = { id: "static", name: "Običan Zec", main: "#ffffff", eye: "#00f5ff" };
+
 const state = {
     running: false,
     rafId: null,
@@ -121,6 +124,7 @@ const state = {
     mouse: { x: -100, y: -100, active: false },
     vfxLasers: [],
     orbs: [],
+    staticRabbit: null, // SREBRNI STACIONIRANI ZEC
     blackHoles: [],
     holeAngle: 0,
     globalFreezeTimer: 0,
@@ -146,6 +150,26 @@ function resizeCanvas() {
         { id: 2, x: offset, y: state.height - offset, radius: radius, dirX: 1, dirY: -1 },
         { id: 3, x: state.width - offset, y: state.height - offset, radius: radius, dirX: -1, dirY: -1 }
     ];
+
+    if (state.running && !state.staticRabbit) {
+        respawnStaticRabbit();
+    }
+}
+
+function respawnStaticRabbit() {
+    const margin = 100; // Sigurna zona dalje od zidova i crnih rupa
+    const safeX = margin + Math.random() * (state.width - margin * 2);
+    const safeY = margin + Math.random() * (state.height - margin * 2);
+
+    state.staticRabbit = {
+        x: safeX,
+        y: safeY,
+        radius: ORB_TYPES.large.radius,
+        theme: STATIC_RABBIT_THEME,
+        timer: 5.0,
+        maxTimer: 5.0,
+        rotationAngle: 0
+    };
 }
 
 function startNewGame() {
@@ -172,6 +196,7 @@ function startNewGame() {
             state.orbs.push(createRabbitObject(theme, (state.width / 8) * (i + 1), 60 + Math.random() * (state.height * 0.3)));
         }
 
+        respawnStaticRabbit();
         updateHUD();
         state.running = true;
         state.lastTimestamp = performance.now();
@@ -190,7 +215,8 @@ function createRabbitObject(theme, x, y) {
         holeTimer: 0,
         powerGlow: 0,
         voidStateTimer: 3.5,
-        isPhantom: false
+        isPhantom: false,
+        rotationAngle: Math.random() * Math.PI * 2
     };
 }
 
@@ -215,6 +241,16 @@ function updateGame(delta) {
         state.timeLeft = 0;
         triggerGameOver();
         return;
+    }
+
+    // UPDATE STACIONIRANOG ZECA
+    if (state.staticRabbit) {
+        state.staticRabbit.timer -= delta;
+        state.staticRabbit.rotationAngle += delta * 1.5; // Lagano se vrti na mestu
+
+        if (state.staticRabbit.timer <= 0) {
+            respawnStaticRabbit(); // Isteklo 5s - sponuje novog
+        }
     }
 
     if (state.globalFreezeTimer > 0) {
@@ -245,7 +281,7 @@ function updateGame(delta) {
         }
     }
 
-    // VFX LASERI WITH CAP PROTECTION
+    // VFX LASERI
     for (let i = state.vfxLasers.length - 1; i >= 0; i--) {
         const laser = state.vfxLasers[i];
         laser.life -= delta;
@@ -308,6 +344,10 @@ function updateGame(delta) {
 
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
+
+        // ROTACIJA DOK LETE
+        const speed = Math.hypot(orb.velocityX, orb.velocityY);
+        orb.rotationAngle += delta * (speed * 0.005 + 1.0);
 
         if (orb.powerGlow > 0) {
             orb.powerGlow -= delta * 2;
@@ -396,6 +436,19 @@ function handleTargetInteraction(clientX, clientY) {
     const clickX = clientX - rect.left;
     const clickY = clientY - rect.top;
 
+    // FIRST CHECK: OBIČAN STACIONIRANI ZEC (+100 BODOVA)
+    if (state.staticRabbit) {
+        const dist = Math.hypot(state.staticRabbit.x - clickX, state.staticRabbit.y - clickY);
+        if (dist <= state.staticRabbit.radius + 14) {
+            audio.playHit();
+            state.score += 100;
+            respawnStaticRabbit(); // Odmah stvara novog na drugom mestu
+            updateHUD();
+            return;
+        }
+    }
+
+    // SECOND CHECK: KINETIČKI ZEČEVI
     for (let oIdx = state.orbs.length - 1; oIdx >= 0; oIdx--) {
         const orb = state.orbs[oIdx];
         if (orb.inHole) continue;
@@ -430,16 +483,16 @@ function handleTargetInteraction(clientX, clientY) {
                 if (state.lives < 3) state.lives++;
                 state.slowMotionTimer = 1.2;
             } 
-            // ⬛ CRNI HAKER: OPCIJA A (TELEPORT & SHOCKWAVE BEZ NESTAJANJA)
+            // ⬛ CRNI HAKER: TELEPORT & SHOCKWAVE
             else if (orb.theme.id === "black") {
                 audio.playHit();
                 state.score += 75;
                 state.timeLeft += 0.2;
                 orb.powerGlow = 1.0;
 
-                triggerRabbitPower(orb, oIdx); // Samo se teleportuje u funkciji
+                triggerRabbitPower(orb, oIdx);
             }
-            // 🐰 OSTALI SUPPORT ZEČEVI (NESTAJU NA 2 SEKUNDE)
+            // 🐰 OSTALI SUPPORT ZEČEVI
             else {
                 audio.playHit();
                 state.score += 50;
@@ -479,7 +532,6 @@ function triggerRabbitPower(orb, orbIndex) {
             break;
 
         case "black":
-            // ⬛ OPCIJA A: CRNI HAKER SE TELEPORTUJE I OSTANE U ARENI!
             orb.x = 40 + Math.random() * (state.width - 80);
             orb.y = 40 + Math.random() * (state.height * 0.4);
             orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 320;
@@ -489,6 +541,13 @@ function triggerRabbitPower(orb, orbIndex) {
                 if (other !== orb && !other.inHole) {
                     other.velocityX *= 1.25;
                     other.velocityY *= 1.25;
+
+                    const currentSpeed = Math.hypot(other.velocityX, other.velocityY);
+                    if (currentSpeed > GAME_CONFIG.maxRabbitVelocity) {
+                        const scale = GAME_CONFIG.maxRabbitVelocity / currentSpeed;
+                        other.velocityX *= scale;
+                        other.velocityY *= scale;
+                    }
                 }
             });
             break;
@@ -520,7 +579,7 @@ function triggerRabbitPower(orb, orbIndex) {
 }
 
 function spawnGoldenRazorVfx(x, y, radius) {
-    if (state.vfxLasers.length >= GAME_CONFIG.maxVfxLasers) return;
+    if (state.vfxLasers.length + 2 > GAME_CONFIG.maxVfxLasers) return;
 
     const angles = [Math.PI / 2.5, -Math.PI / 2.5];
     const offset = radius + 15;
@@ -549,11 +608,61 @@ function triggerGameOver() {
     showScreen("gameOver");
 }
 
+function drawRabbit(o) {
+    const theme = o.theme || RABBIT_THEMES[0];
+    const r = o.radius;
+
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    ctx.rotate(o.rotationAngle || 0); // OKRETANJE OKO SOPSTVENE OSE
+
+    if (o.theme.id === "void") {
+        ctx.beginPath();
+        ctx.arc(0, 0, r + 20, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(156, 77, 255, 0.4)";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        if (o.isPhantom) {
+            ctx.globalAlpha = 0.25;
+        }
+    }
+
+    if (o.powerGlow > 0) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r + 10, 0, Math.PI * 2);
+        ctx.fillStyle = theme.main;
+        ctx.globalAlpha = o.powerGlow * 0.5;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
+
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = theme.main;
+    ctx.stroke();
+
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = theme.main;
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.35, -r * 0.6, r * 0.18, r * 0.4, -0.2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.35, -r * 0.6, r * 0.18, r * 0.4, 0.2, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = theme.eye;
+    ctx.fillRect(-r * 0.4, -r * 0.1, r * 0.8, r * 0.22);
+    ctx.restore();
+}
+
 function renderGame() {
     if (!ctx) return;
     ctx.fillStyle = "#020205";
     ctx.fillRect(0, 0, state.width, state.height);
 
+    // CRNE RUPE
     state.blackHoles.forEach(bh => {
         ctx.save();
         ctx.translate(bh.x, bh.y);
@@ -570,7 +679,7 @@ function renderGame() {
         ctx.restore();
     });
 
-    // RENDER VFX LASERA
+    // VFX LASERI
     state.vfxLasers.forEach(laser => {
         ctx.save();
         ctx.strokeStyle = "#ffe45c";
@@ -582,53 +691,35 @@ function renderGame() {
         ctx.restore();
     });
 
-    state.orbs.forEach(o => {
-        if (o.inHole) return;
-        const theme = o.theme || RABBIT_THEMES[0];
-        const r = o.radius;
+    // RENDER SREBRNOG STACIONIRANOG ZECA I AURA PRSTENA
+    if (state.staticRabbit) {
+        const sr = state.staticRabbit;
+        const progress = Math.max(0, sr.timer / sr.maxTimer);
 
         ctx.save();
-        ctx.translate(o.x, o.y);
-
-        if (o.theme.id === "void") {
-            ctx.beginPath();
-            ctx.arc(0, 0, r + 20, 0, Math.PI * 2);
-            ctx.strokeStyle = "rgba(156, 77, 255, 0.4)";
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            if (o.isPhantom) {
-                ctx.globalAlpha = 0.25;
-            }
+        // BLINKANJE U ZADNJOJ SEKUNDI
+        if (sr.timer <= 1.0 && Math.floor(Date.now() / 100) % 2 === 0) {
+            ctx.globalAlpha = 0.3;
         }
 
-        if (o.powerGlow > 0) {
-            ctx.beginPath();
-            ctx.arc(0, 0, r + 10, 0, Math.PI * 2);
-            ctx.fillStyle = theme.main;
-            ctx.globalAlpha = o.powerGlow * 0.5;
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
-        }
-
+        // KINETIČKI ROTIRAJUĆI PRSTEN KOJI ISTIČE
+        ctx.save();
+        ctx.translate(sr.x, sr.y);
+        ctx.rotate(-state.holeAngle * 1.5);
         ctx.beginPath();
-        ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.lineWidth = 3.5;
-        ctx.strokeStyle = theme.main;
+        ctx.arc(0, 0, sr.radius + 12, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * progress));
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 4;
         ctx.stroke();
-
-        ctx.lineWidth = 2.5;
-        ctx.strokeStyle = theme.main;
-        ctx.beginPath();
-        ctx.ellipse(-r * 0.35, -r * 0.6, r * 0.18, r * 0.4, -0.2, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.ellipse(r * 0.35, -r * 0.6, r * 0.18, r * 0.4, 0.2, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.fillStyle = theme.eye;
-        ctx.fillRect(-r * 0.4, -r * 0.1, r * 0.8, r * 0.22);
         ctx.restore();
+
+        drawRabbit(sr);
+        ctx.restore();
+    }
+
+    // RENDER KINETIČKIH ZEČEVA
+    state.orbs.forEach(o => {
+        if (!o.inHole) drawRabbit(o);
     });
 
     if (state.mouse.active) {
