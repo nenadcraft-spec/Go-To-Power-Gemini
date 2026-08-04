@@ -43,6 +43,10 @@ body, html {
     display: flex;
 }
 
+#startScreen {
+    justify-content: center;
+}
+
 .title {
     font-size: 2.2rem;
     color: #00f5ff;
@@ -88,7 +92,7 @@ body, html {
     align-items: center;
 }
 
-/* ARENA FRAME - TVRDI OKVIR KAO KOD RABBIT REFLEX-A */
+/* ARENA FRAME - TVRDI STABILNI OKVIR */
 #arenaFrame {
     width: min(100%, 600px);
     height: 100%;
@@ -96,8 +100,9 @@ body, html {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    border-left: 1px solid rgba(0, 245, 255, 0.15);
-    border-right: 1px solid rgba(0, 245, 255, 0.15);
+    border-left: 1px solid rgba(0, 245, 255, 0.2);
+    border-right: 1px solid rgba(0, 245, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
 }
 
 #hud {
@@ -106,7 +111,7 @@ body, html {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     border-bottom: 2px solid #00f5ff;
     z-index: 5;
     flex-shrink: 0;
@@ -127,10 +132,11 @@ body, html {
     font-size: 1.1rem;
     color: #32ff9b;
     font-weight: bold;
+    text-shadow: 0 0 5px #32ff9b;
 }
 
 .hud-version {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #ff2fcf;
     font-weight: bold;
 }
@@ -147,6 +153,9 @@ body, html {
 }
 
 #gameCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background: #020205;
@@ -159,7 +168,7 @@ body, html {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     border-top: 1px solid rgba(0, 245, 255, 0.3);
     z-index: 5;
     flex-shrink: 0;
@@ -191,7 +200,7 @@ body, html {
     height: 28px;
     background: #00f5ff;
     border-radius: 50%;
-    box-shadow: 0 0 10px #00f5ff;
+    box-shadow: 0 0 12px #00f5ff;
     position: absolute;
     transform: translateX(0);
 }
