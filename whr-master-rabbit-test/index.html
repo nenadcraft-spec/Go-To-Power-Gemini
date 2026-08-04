@@ -1,26 +1,105 @@
+```html
 <!DOCTYPE html>
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WHR: Master Rabbit Material v6.1.2 Test</title>
-    <link rel="stylesheet" href="style.css?v=6.1.3">
+
+    <meta
+        name="viewport"
+        content="
+            width=device-width,
+            initial-scale=1.0,
+            maximum-scale=1.0,
+            user-scalable=no,
+            viewport-fit=cover
+        "
+    >
+
+    <meta
+        name="theme-color"
+        content="#020005"
+    >
+
+    <meta
+        name="mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"
+    >
+
+    <meta
+        name="description"
+        content="WHR: Power Up! Void World — TILT Charge Reactor Engine Test"
+    >
+
+    <title>WHR: POWER UP! VOID WORLD v6.2.1</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css?v=6.2.1"
+    >
 </head>
+
 <body>
 
-    <div class="engine-wrapper">
-        <div class="engine-hud">
-            <span class="hud-tag">WHR VISUAL ENGINE v6.1.2</span>
-            <span class="hud-status">DELTA STABLE: ONLINE</span>
+    <main
+        class="engine-wrapper"
+        aria-label="WHR Void World razvojna arena"
+    >
+
+        <header class="engine-hud">
+
+            <span class="hud-tag">
+                WHR VOID ENGINE v6.2.1
+            </span>
+
+            <span
+                class="hud-status"
+                role="status"
+                aria-live="polite"
+            >
+                TILT REACTOR: INITIALIZING
+            </span>
+
+        </header>
+
+        <canvas
+            id="rabbitStage"
+            aria-label="Interaktivna VOID arena sa sedam zečeva"
+        >
+            Tvoj pregledač ne podržava HTML Canvas.
+        </canvas>
+
+        <section
+            class="engine-controls"
+            aria-live="polite"
+        >
+            <p>
+                Dodirni centralni TILT i napuni reaktor.
+            </p>
+        </section>
+
+    </main>
+
+    <noscript>
+        <div class="noscript-warning">
+            JavaScript mora biti uključen da bi WHR VOID Engine radio.
         </div>
+    </noscript>
 
-        <canvas id="rabbitStage"></canvas>
+    <script
+        src="script.js?v=6.2.1"
+        defer
+    ></script>
 
-        <div class="engine-controls">
-            <p>Dodirni zeca na telefonu ili klikni mišem za reakciju i eye-tracking!</p>
-        </div>
-    </div>
-
-    <script src="script.js?v=6.2.0"></script>
 </body>
 </html>
+```
