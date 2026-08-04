@@ -1,5 +1,5 @@
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.6.0 - CLEAN TAP REFLEX
+   WHR: ARENA SURVIVAL v5.6.1 - CLEAN TAP REFLEX
 ========================================================= */
 
 * {
@@ -90,7 +90,7 @@ html, body {
 }
 
 /* =========================================================
-   GAME SCREEN & ARENA FRAME (FULL HEIGHT FOR TAP)
+   GAME SCREEN & ARENA FRAME
 ========================================================= */
 
 #gameScreen {
@@ -164,7 +164,7 @@ html, body {
     color: #32ff9b;
 }
 
-/* GLAVNA ARENA ZA IGRU (CANVAS DOBIJA SVIH 100% PROSTORA) */
+/* GLAVNA ARENA ZA IGRU (CANVAS) */
 #gameStage {
     flex: 1;
     width: 100%;
