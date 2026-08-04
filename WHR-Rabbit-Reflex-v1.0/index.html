@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>WHR: POWER WTF UP v4.2.1</title>
-    <link rel="stylesheet" href="style.css?v=4.2.1">
+    <title>WHR: POWER WTF UP v5.1.2</title>
+    <link rel="stylesheet" href="style.css?v=5.1.2">
 </head>
 <body>
     <div id="gameApp">
@@ -16,29 +16,32 @@
         </div>
         <!-- GAME SCREEN -->
         <div id="gameScreen" class="screen">
-            <div id="hud">
-                <div class="hud-item">
-                    <span class="hud-label">SCORE</span>
-                    <span id="scoreValue" class="hud-value">000000</span>
-                </div>
-                <div class="hud-item hud-version">
-                    <span>ALFA v4.2.1</span>
-                </div>
-            </div>
-            <div id="gameStage">
-                <canvas id="gameCanvas"></canvas>
-            </div>
-            <!-- CONTROLS ZONE -->
-            <div id="controls">
-                <div id="joystickZone">
-                    <div id="joystickBase">
-                        <div id="joystickStick"></div>
+            <!-- ARENA FRAME (TVRDI OKVIR ZA PC 16:9 I MOBILNI 9:16) -->
+            <div id="arenaFrame">
+                <div id="hud">
+                    <div class="hud-item">
+                        <span class="hud-label">SCORE</span>
+                        <span id="scoreValue" class="hud-value">000000</span>
+                    </div>
+                    <div class="hud-item hud-version">
+                        <span>ALFA v5.1.2</span>
                     </div>
                 </div>
-                <button id="shootButton" class="btn btn--fire">FIRE</button>
+                <div id="gameStage">
+                    <canvas id="gameCanvas"></canvas>
+                </div>
+                <!-- CONTROLS ZONE -->
+                <div id="controls">
+                    <div id="joystickZone">
+                        <div id="joystickBase">
+                            <div id="joystickStick"></div>
+                        </div>
+                    </div>
+                    <button id="shootButton" class="btn btn--fire">FIRE</button>
+                </div>
             </div>
         </div>
     </div>
-    <script src="script.js?v=4.2.1"></script>
+    <script src="script.js?v=5.1.2"></script>
 </body>
 </html>
