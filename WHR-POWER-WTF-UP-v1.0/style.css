@@ -1,5 +1,5 @@
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.8.0 - CLEAN TAP REFLEX & POWERS
+   WHR: ARENA SURVIVAL v5.9.0 - FLIPPER BUMPER & BALANCED SPEED
 ========================================================= */
 
 * {
@@ -108,7 +108,7 @@ html, body {
     margin: 0 auto;
 }
 
-/* 📱 TELEFON (USPRAVNI EKRAN / PORTRAIT 9:16) */
+/* 📱 TELEFON (PORTRAIT 9:16) */
 @media (orientation: portrait) {
     #arenaFrame {
         width: 100vw;
@@ -117,7 +117,7 @@ html, body {
     }
 }
 
-/* 💻 PC / TABLET (POLOŽENI EKRAN / LANDSCAPE 16:9) */
+/* 💻 PC / TABLET (LANDSCAPE 16:9) */
 @media (orientation: landscape) {
     #arenaFrame {
         width: 100vw;
