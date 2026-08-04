@@ -2,84 +2,43 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#04050d">
-    <title>WHR Cyber Arena v3.2.0 - Power WTF UP</title>
-    <link rel="stylesheet" href="style.css?v=3.2.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>WHR: POWER WTF UP v4.2.1</title>
+    <link rel="stylesheet" href="style.css?v=4.2.1">
 </head>
 <body>
-    <div class="app-shell" id="appShell">
-        <!-- POZADINSKI SISTEM -->
-        <div class="background-system" aria-hidden="true">
-            <div class="background-system__grid"></div>
-            <div class="background-system__scanlines"></div>
-            <div class="background-system__noise"></div>
-            <div class="background-system__glow background-system__glow--one"></div>
-            <div class="background-system__glow background-system__glow--two"></div>
+    <div id="gameApp">
+        <!-- START SCREEN -->
+        <div id="startScreen" class="screen screen--active">
+            <h1 class="title">WHR: POWER WTF UP</h1>
+            <p class="subtitle">CYBER RABBIT ARENA</p>
+            <button id="startButton" class="btn btn--primary">POKRENI IGRU</button>
         </div>
-
-        <!-- ZAGLAVLJE -->
-        <header class="game-header">
-            <div class="brand">
-                <div class="brand__mark" aria-hidden="true">
-                    <span class="brand__ear brand__ear--left"></span>
-                    <span class="brand__ear brand__ear--right"></span>
-                    <span class="brand__head"></span>
-                    <span class="brand__eye"></span>
+        <!-- GAME SCREEN -->
+        <div id="gameScreen" class="screen">
+            <div id="hud">
+                <div class="hud-item">
+                    <span class="hud-label">SCORE</span>
+                    <span id="scoreValue" class="hud-value">000000</span>
                 </div>
-                <div class="brand__copy">
-                    <p class="brand__eyebrow">WHITE HAT RABBIT STUDIOS</p>
-                    <h1 class="brand__title">CYBER <span>ARENA</span></h1>
+                <div class="hud-item hud-version">
+                    <span>ALFA v4.2.1</span>
                 </div>
             </div>
-            <div class="header-actions">
-                <button class="icon-button" id="soundButton" type="button">
-                    <span class="icon-button__icon" id="soundIcon">ON</span>
-                    <span class="icon-button__label">SOUND</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- GLAVNI KONTENJER -->
-        <main class="game-main">
-            <!-- HUD TRAKA -->
-            <section class="hud">
-                <article class="hud-card hud-card--score">
-                    <span class="hud-card__label">SCORE</span>
-                    <strong class="hud-card__value" id="scoreValue">000000</strong>
-                </article>
-                <article class="hud-card">
-                    <span class="hud-card__label">SYSTEM STATUS</span>
-                    <strong class="hud-card__value" id="statusValue" style="color: #55ffb8;">ONLINE</strong>
-                </article>
-            </section>
-
-            <!-- POLJE ZA IGRU -->
-            <section class="game-stage" id="gameStage">
+            <div id="gameStage">
                 <canvas id="gameCanvas"></canvas>
-
-                <!-- POCETNI OVERLAY -->
-                <div class="stage-overlay stage-overlay--visible" id="startOverlay">
-                    <div class="modal-panel">
-                        <h2>CYBER ARENA v3.2</h2>
-                        <p>Kinetički fliper sa 7 Cyber Zečeva i njihovim jedinstvenim moćima!</p>
-                        <button class="primary-button" id="startButton" type="button">START MISSION</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- KOMANDE NA DNU: DŽOJSTIK + FIRE DUGME -->
-            <section class="controls">
+            </div>
+            <!-- CONTROLS ZONE -->
+            <div id="controls">
                 <div id="joystickZone">
                     <div id="joystickBase">
                         <div id="joystickStick"></div>
                     </div>
                 </div>
-                <button id="shootButton" type="button">FIRE</button>
-            </section>
-        </main>
+                <button id="shootButton" class="btn btn--fire">FIRE</button>
+            </div>
+        </div>
     </div>
-
-    <script src="script.js?v=3.2.0"></script>
+    <script src="script.js?v=4.2.1"></script>
 </body>
 </html>
