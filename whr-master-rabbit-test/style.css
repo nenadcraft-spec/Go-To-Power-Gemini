@@ -183,15 +183,11 @@ body {
 
     background: transparent;
 
-    cursor: crosshair;
+    cursor: default;
 
     outline: none;
 
     touch-action: none;
-}
-
-#rabbitStage:active {
-    cursor: grabbing;
 }
 
 /* ============================================================
