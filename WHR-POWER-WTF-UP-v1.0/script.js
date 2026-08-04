@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.1.1
-   PERFECTED REFLEX ENGINE WITH CAP BALANCING
+   WHR: ARENA SURVIVAL v5.2.0
+   BALANCED ARCADE ENGINE (BIGGER & SMOOTHER RABBITS)
 ========================================================= */
 
 const DOM = {
@@ -90,13 +90,14 @@ class AudioEngine {
 const audio = new AudioEngine();
 
 const GAME_CONFIG = {
-    laserSpeed: 900,
-    baseGravity: 580,
+    laserSpeed: 800,
+    baseGravity: 420, // USPORENA GRAVITACIJA (stara 580)
     maxLasers: 6,
-    maxSpeedCap: 2.2 // PLAFON BRZINE: Maksimalno 220% brzine bez obzira na dužinu igranja!
+    maxSpeedCap: 2.0
 };
 
-const ORB_TYPES = { large: { radius: 28, bounce: 820 } };
+// BALANS: Radiujus povećan sa 28px na 38px, bounce sa 820 na 650
+const ORB_TYPES = { large: { radius: 38, bounce: 650 } };
 
 const RABBIT_THEMES = [
     { id: "white", name: "White Hacker", main: "#00f5ff", eye: "#32ff9b" },
@@ -137,7 +138,7 @@ function resizeCanvas() {
     state.width = DOM.canvas.width;
     state.height = DOM.canvas.height;
 
-    const radius = Math.max(18, Math.min(state.width, state.height) * 0.055);
+    const radius = Math.max(22, Math.min(state.width, state.height) * 0.065);
     const offset = radius + 4;
 
     state.blackHoles = [
@@ -178,8 +179,8 @@ function createRabbitObject(theme, x, y) {
     return {
         x: x, y: y,
         radius: ORB_TYPES.large.radius,
-        velocityX: (Math.random() > 0.5 ? 1 : -1) * 160,
-        velocityY: -60,
+        velocityX: (Math.random() > 0.5 ? 1 : -1) * 110, // USPORENO (staro 160)
+        velocityY: -40,
         theme: theme,
         inHole: false,
         holeTimer: 0,
@@ -229,15 +230,14 @@ function updateGame(delta) {
         if (item.delay <= 0) {
             const exitHole = state.blackHoles[Math.floor(Math.random() * state.blackHoles.length)];
             const newOrb = createRabbitObject(item.theme, exitHole.x, exitHole.y);
-            const speed = item.theme.id === "red" ? 780 : 520;
+            const speed = item.theme.id === "red" ? 580 : 380;
             const rad39 = 39 * (Math.PI / 180);
 
             newOrb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
             newOrb.velocityY = exitHole.dirY * speed * Math.sin(rad39);
 
-            // Green Guardian dodaje +0.10 uz gornju granicu!
             if (item.theme.id === "green") {
-                state.baseSpeedMultiplier = Math.min(GAME_CONFIG.maxSpeedCap, state.baseSpeedMultiplier + 0.10);
+                state.baseSpeedMultiplier = Math.min(GAME_CONFIG.maxSpeedCap, state.baseSpeedMultiplier + 0.08);
             }
 
             state.orbs.push(newOrb);
@@ -287,13 +287,13 @@ function updateGame(delta) {
                 if (o1.theme.id === "white") {
                     o2.x += Math.cos(angle) * overlap;
                     o2.y += Math.sin(angle) * overlap;
-                    o2.velocityX = Math.cos(angle) * 420;
-                    o2.velocityY = Math.sin(angle) * 420;
+                    o2.velocityX = Math.cos(angle) * 350;
+                    o2.velocityY = Math.sin(angle) * 350;
                 } else if (o2.theme.id === "white") {
                     o1.x -= Math.cos(angle) * overlap;
                     o1.y -= Math.sin(angle) * overlap;
-                    o1.velocityX = -Math.cos(angle) * 420;
-                    o1.velocityY = -Math.sin(angle) * 420;
+                    o1.velocityX = -Math.cos(angle) * 350;
+                    o1.velocityY = -Math.sin(angle) * 350;
                 } else {
                     o1.x -= Math.cos(angle) * (overlap / 2);
                     o1.y -= Math.sin(angle) * (overlap / 2);
@@ -336,7 +336,7 @@ function updateGame(delta) {
                     if (other !== orb && !other.inHole) {
                         const d = Math.hypot(orb.x - other.x, orb.y - other.y);
                         if (d > 10 && d < 220) {
-                            const pullForce = (220 - d) * 1.8;
+                            const pullForce = (220 - d) * 1.5;
                             const angle = Math.atan2(orb.y - other.y, orb.x - other.x);
                             other.velocityX += Math.cos(angle) * pullForce * delta;
                             other.velocityY += Math.sin(angle) * pullForce * delta;
@@ -352,7 +352,7 @@ function updateGame(delta) {
                 orb.inHole = false;
                 const otherHoles = state.blackHoles.filter(h => h.id !== orb.entryHoleId);
                 const exitHole = otherHoles[Math.floor(Math.random() * otherHoles.length)];
-                const speed = 480;
+                const speed = 380;
                 const rad39 = 39 * (Math.PI / 180);
 
                 orb.x = exitHole.x + exitHole.dirX * (orb.radius + 6);
@@ -366,7 +366,7 @@ function updateGame(delta) {
 
         if (state.globalFreezeTimer > 0) continue;
 
-        let currentGravity = Math.min(1200, GAME_CONFIG.baseGravity + (state.level - 1) * 35);
+        let currentGravity = Math.min(1000, GAME_CONFIG.baseGravity + (state.level - 1) * 25);
         let effectiveSpeedMult = state.baseSpeedMultiplier * (state.slowMotionTimer > 0 ? 0.5 : 1.0);
 
         orb.velocityY += currentGravity * delta;
@@ -416,13 +416,13 @@ function handleTargetInteraction(clientX, clientY) {
 
         const dist = Math.hypot(orb.x - clickX, orb.y - clickY);
 
-        if (dist <= orb.radius + 12) {
+        if (dist <= orb.radius + 14) { // Povećana i dodirna tolerancija na +14px!
             audio.playHit();
             audio.playPower();
 
             const angle = Math.atan2(orb.y - clickY, orb.x - clickX);
-            orb.velocityX = Math.cos(angle) * 650;
-            orb.velocityY = Math.sin(angle) * 650;
+            orb.velocityX = Math.cos(angle) * 550;
+            orb.velocityY = Math.sin(angle) * 550;
 
             triggerRabbitPower(orb, oIdx);
 
@@ -430,11 +430,10 @@ function handleTargetInteraction(clientX, clientY) {
             state.score += 100;
             state.timeLeft += 1.0;
 
-            // NIVO RASTE I DODATNO POJAČAVA BRZINU SVE DO MAX CAP-A
             const nextLevel = Math.floor(state.score / 1000) + 1;
             if (nextLevel > state.level) {
                 state.level = nextLevel;
-                state.baseSpeedMultiplier = Math.min(GAME_CONFIG.maxSpeedCap, state.baseSpeedMultiplier + 0.05);
+                state.baseSpeedMultiplier = Math.min(GAME_CONFIG.maxSpeedCap, state.baseSpeedMultiplier + 0.04);
             }
 
             hitAny = true;
@@ -460,8 +459,8 @@ function triggerRabbitPower(orb, orbIndex) {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
                     if (d < 220) {
-                        other.velocityX += (other.x - orb.x) * 4.5;
-                        other.velocityY += (other.y - orb.y) * 4.5;
+                        other.velocityX += (other.x - orb.x) * 3.8;
+                        other.velocityY += (other.y - orb.y) * 3.8;
                     }
                 }
             });
@@ -470,8 +469,8 @@ function triggerRabbitPower(orb, orbIndex) {
         case "black":
             orb.x = 40 + Math.random() * (state.width - 80);
             orb.y = 40 + Math.random() * (state.height * 0.4);
-            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 380;
-            orb.velocityY = -180;
+            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 300;
+            orb.velocityY = -150;
             break;
 
         case "blue":
@@ -490,8 +489,8 @@ function triggerRabbitPower(orb, orbIndex) {
                 if (other !== orb && !other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
                     if (d < 250) {
-                        other.velocityX = (other.x - orb.x) * 8.5;
-                        other.velocityY = (other.y - orb.y) * 8.5;
+                        other.velocityX = (other.x - orb.x) * 7.0;
+                        other.velocityY = (other.y - orb.y) * 7.0;
                     }
                 }
             });
@@ -506,8 +505,8 @@ function triggerRabbitPower(orb, orbIndex) {
             break;
 
         case "void":
-            orb.velocityX *= 1.9;
-            orb.velocityY *= 1.9;
+            orb.velocityX *= 1.6;
+            orb.velocityY *= 1.6;
             break;
     }
 }
@@ -580,7 +579,7 @@ function renderGame() {
 
         if (o.theme.id === "void") {
             ctx.beginPath();
-            ctx.arc(0, 0, r + 18, 0, Math.PI * 2);
+            ctx.arc(0, 0, r + 20, 0, Math.PI * 2);
             ctx.strokeStyle = "rgba(156, 77, 255, 0.25)";
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -592,7 +591,7 @@ function renderGame() {
 
         if (o.powerGlow > 0) {
             ctx.beginPath();
-            ctx.arc(0, 0, r + 8, 0, Math.PI * 2);
+            ctx.arc(0, 0, r + 10, 0, Math.PI * 2);
             ctx.fillStyle = theme.main;
             ctx.globalAlpha = o.powerGlow * 0.5;
             ctx.fill();
@@ -601,11 +600,11 @@ function renderGame() {
 
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3.5;
         ctx.strokeStyle = theme.main;
         ctx.stroke();
 
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         ctx.strokeStyle = theme.main;
         ctx.beginPath();
         ctx.ellipse(-r * 0.35, -r * 0.6, r * 0.18, r * 0.4, -0.2, 0, Math.PI * 2);
@@ -615,7 +614,7 @@ function renderGame() {
         ctx.stroke();
 
         ctx.fillStyle = theme.eye;
-        ctx.fillRect(-r * 0.4, -r * 0.1, r * 0.8, r * 0.25);
+        ctx.fillRect(-r * 0.4, -r * 0.1, r * 0.8, r * 0.22);
         ctx.restore();
     });
 
@@ -624,11 +623,11 @@ function renderGame() {
         ctx.strokeStyle = "#00f5ff";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(state.mouse.x, state.mouse.y, 14, 0, Math.PI * 2);
-        ctx.moveTo(state.mouse.x - 20, state.mouse.y);
-        ctx.lineTo(state.mouse.x + 20, state.mouse.y);
-        ctx.moveTo(state.mouse.x, state.mouse.y - 20);
-        ctx.lineTo(state.mouse.x, state.mouse.y + 20);
+        ctx.arc(state.mouse.x, state.mouse.y, 16, 0, Math.PI * 2);
+        ctx.moveTo(state.mouse.x - 22, state.mouse.y);
+        ctx.lineTo(state.mouse.x + 22, state.mouse.y);
+        ctx.moveTo(state.mouse.x, state.mouse.y - 22);
+        ctx.lineTo(state.mouse.x, state.mouse.y + 22);
         ctx.stroke();
         ctx.restore();
     }
