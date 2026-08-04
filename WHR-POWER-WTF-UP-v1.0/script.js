@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.3.0
-   VOID CROWN ENGINE (PURPLE RABBIT IS THE MAIN TARGET)
+   WHR: ARENA SURVIVAL v5.4.0
+   VOID APEX ENGINE (DESPAWN & FAST RE-ENTRY MECHANIC)
 ========================================================= */
 
 const DOM = {
@@ -223,13 +223,14 @@ function updateGame(delta) {
         if (state.slowMotionTimer < 0) state.slowMotionTimer = 0;
     }
 
+    // RESPAWN MEHANIKA: Iskoči iz nasumične rupe velikom brzinom posle 2s
     for (let rIdx = state.pendingRespawns.length - 1; rIdx >= 0; rIdx--) {
         const item = state.pendingRespawns[rIdx];
         item.delay -= delta;
         if (item.delay <= 0) {
             const exitHole = state.blackHoles[Math.floor(Math.random() * state.blackHoles.length)];
             const newOrb = createRabbitObject(item.theme, exitHole.x, exitHole.y);
-            const speed = item.theme.id === "red" ? 580 : 380;
+            const speed = 480; // Velika brzina pri izletanju
             const rad39 = 39 * (Math.PI / 180);
 
             newOrb.velocityX = exitHole.dirX * speed * Math.cos(rad39);
@@ -428,28 +429,31 @@ function handleTargetInteraction(clientX, clientY) {
                 break;
             }
 
-            // POGODAK U REGULARNOG ILI VIDLJIVOG LJUBIČASTOG
-            const angle = Math.atan2(orb.y - clickY, orb.x - clickX);
-            orb.velocityX = Math.cos(angle) * 550;
-            orb.velocityY = Math.sin(angle) * 550;
-            orb.powerGlow = 1.0;
-
+            // POGODAK U VIDLJIVOG LJUBIČASTOG (NE NESTAJE, OSTAJE META!)
             if (orb.theme.id === "void") {
-                // 🏆 JACKPOT POGODAK U LJUBIČASTOG!
                 audio.playVoidJackpot();
+                const angle = Math.atan2(orb.y - clickY, orb.x - clickX);
+                orb.velocityX = Math.cos(angle) * 550;
+                orb.velocityY = Math.sin(angle) * 550;
+                orb.powerGlow = 1.0;
+
                 state.score += 300;
-                state.timeLeft += 3.0; // Daje +3 sekunde!
-                if (state.lives < 3) state.lives++; // Vraća 1 život!
-                state.slowMotionTimer = 1.2; // Time-warp efekat na usporavanje
-            } else {
-                // STANDARDNI SUPPORT ZEČEVI
-                audio.playHit();
+                state.timeLeft += 3.0;
+                if (state.lives < 3) state.lives++;
+                state.slowMotionTimer = 1.2;
+            } 
+            // POGODAK U SVE OSTALE ZEČEVE (NESTAJU I VRAĆAJU SE POSLE 2 SECUNDI!)
+            else {
                 audio.playHit();
                 state.score += 50;
                 state.timeLeft += 0.5;
-            }
 
-            triggerRabbitPower(orb, oIdx);
+                triggerRabbitPower(orb, oIdx);
+
+                // Uklanjamo zeca iz igre i stavljamo u red za respawn posle 2.0s
+                state.orbs.splice(oIdx, 1);
+                state.pendingRespawns.push({ theme: orb.theme, delay: 2.0 });
+            }
 
             const nextLevel = Math.floor(state.score / 1000) + 1;
             if (nextLevel > state.level) {
@@ -462,7 +466,6 @@ function handleTargetInteraction(clientX, clientY) {
         }
     }
 
-    // PROMAŠAJ U PRAZNO (VAN ZEČEVA)
     if (!hitAny) {
         audio.playMiss();
         state.lives--;
@@ -478,7 +481,7 @@ function triggerRabbitPower(orb, orbIndex) {
     switch (orb.theme.id) {
         case "white":
             state.orbs.forEach(other => {
-                if (other !== orb && !other.inHole) {
+                if (!other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
                     if (d < 220) {
                         other.velocityX += (other.x - orb.x) * 3.8;
@@ -488,27 +491,17 @@ function triggerRabbitPower(orb, orbIndex) {
             });
             break;
 
-        case "black":
-            orb.x = 40 + Math.random() * (state.width - 80);
-            orb.y = 40 + Math.random() * (state.height * 0.4);
-            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 300;
-            orb.velocityY = -150;
-            break;
-
         case "blue":
             state.globalFreezeTimer = 0.8;
             break;
 
         case "gold":
-            if (!orb.goldCooldown || orb.goldCooldown <= 0) {
-                orb.goldCooldown = 1.2;
-                spawnGoldenRazorLasers(orb.x, orb.y, orb.radius);
-            }
+            spawnGoldenRazorLasers(orb.x, orb.y, orb.radius);
             break;
 
         case "red":
             state.orbs.forEach(other => {
-                if (other !== orb && !other.inHole) {
+                if (!other.inHole) {
                     const d = Math.hypot(other.x - orb.x, other.y - orb.y);
                     if (d < 250) {
                         other.velocityX = (other.x - orb.x) * 7.0;
@@ -516,19 +509,14 @@ function triggerRabbitPower(orb, orbIndex) {
                     }
                 }
             });
-            state.orbs.splice(orbIndex, 1);
-            state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
             break;
 
         case "green":
             state.slowMotionTimer = 1.5;
-            state.orbs.splice(orbIndex, 1);
-            state.pendingRespawns.push({ theme: orb.theme, delay: 1.5 });
             break;
 
-        case "void":
-            orb.velocityX *= 1.6;
-            orb.velocityY *= 1.6;
+        case "black":
+            // Crni zec ispaljuje laserski impuls pre despawna
             break;
     }
 }
@@ -607,7 +595,7 @@ function renderGame() {
             ctx.stroke();
 
             if (o.isPhantom) {
-                ctx.globalAlpha = 0.25; // Jako providan kad je zamka!
+                ctx.globalAlpha = 0.25;
             }
         }
 
