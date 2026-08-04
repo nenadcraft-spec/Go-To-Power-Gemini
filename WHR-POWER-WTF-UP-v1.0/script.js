@@ -366,7 +366,7 @@ function updateGame(delta) {
 
         if (state.globalFreezeTimer > 0) continue;
 
-        let currentGravity = GAME_CONFIG.baseGravity + (state.level - 1) * 35;
+        let currentGravity = Math.min(1200, GAME_CONFIG.baseGravity + (state.level - 1) * 35);
         let effectiveSpeedMult = state.baseSpeedMultiplier * (state.slowMotionTimer > 0 ? 0.5 : 1.0);
 
         orb.velocityY += currentGravity * delta;
