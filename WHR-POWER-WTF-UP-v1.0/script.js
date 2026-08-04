@@ -1,8 +1,8 @@
 "use strict";
 
 /* =========================================================
-   WHR: ARENA SURVIVAL v5.6.0
-   NO MISS PENALTY + BALANCED SURVIVAL ENGINE
+   WHR: ARENA SURVIVAL v5.6.1
+   PERFECTED DIRECT-TAP SURVIVAL ENGINE
 ========================================================= */
 
 const DOM = {
@@ -92,7 +92,8 @@ const audio = new AudioEngine();
 const GAME_CONFIG = {
     laserSpeed: 800,
     baseGravity: 420,
-    maxSpeedCap: 2.0
+    maxSpeedCap: 2.0,
+    maxVfxLasers: 8
 };
 
 const ORB_TYPES = { large: { radius: 38, bounce: 650 } };
@@ -244,7 +245,7 @@ function updateGame(delta) {
         }
     }
 
-    // VFX LASERI
+    // VFX LASERI WITH CAP PROTECTION
     for (let i = state.vfxLasers.length - 1; i >= 0; i--) {
         const laser = state.vfxLasers[i];
         laser.life -= delta;
@@ -408,8 +409,9 @@ function handleTargetInteraction(clientX, clientY) {
                 audio.playMiss();
                 state.lives--;
                 state.timeLeft = Math.max(0, state.timeLeft - 1.5);
-                if (state.lives <= 0) {
-                    state.lives = 0;
+                
+                if (state.lives <= 0 || state.timeLeft <= 0) {
+                    if (state.lives < 0) state.lives = 0;
                     triggerGameOver();
                 }
                 break;
@@ -424,15 +426,24 @@ function handleTargetInteraction(clientX, clientY) {
                 orb.powerGlow = 1.0;
 
                 state.score += 300;
-                state.timeLeft += 2.5; // Balansirana nagrada
+                state.timeLeft += 2.5;
                 if (state.lives < 3) state.lives++;
                 state.slowMotionTimer = 1.2;
             } 
-            // 🐰 SUPPORT ZEČEVI
+            // ⬛ CRNI HAKER: OPCIJA A (TELEPORT & SHOCKWAVE BEZ NESTAJANJA)
+            else if (orb.theme.id === "black") {
+                audio.playHit();
+                state.score += 75;
+                state.timeLeft += 0.2;
+                orb.powerGlow = 1.0;
+
+                triggerRabbitPower(orb, oIdx); // Samo se teleportuje u funkciji
+            }
+            // 🐰 OSTALI SUPPORT ZEČEVI (NESTAJU NA 2 SEKUNDE)
             else {
                 audio.playHit();
                 state.score += 50;
-                state.timeLeft += 0.2; // Strožiji survival balans (+0.2s umesto +0.5s)
+                state.timeLeft += 0.2;
 
                 triggerRabbitPower(orb, oIdx);
 
@@ -468,15 +479,16 @@ function triggerRabbitPower(orb, orbIndex) {
             break;
 
         case "black":
-            // ⬛ CRNI HAKER: TELEPORT & SHOCKWAVE (NEMA VIŠE BRKNOUT POWER)
+            // ⬛ OPCIJA A: CRNI HAKER SE TELEPORTUJE I OSTANE U ARENI!
             orb.x = 40 + Math.random() * (state.width - 80);
             orb.y = 40 + Math.random() * (state.height * 0.4);
-            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 300;
-            orb.velocityY = -100;
+            orb.velocityX = (Math.random() > 0.5 ? 1 : -1) * 320;
+            orb.velocityY = -120;
+            
             state.orbs.forEach(other => {
                 if (other !== orb && !other.inHole) {
-                    other.velocityX *= 1.3;
-                    other.velocityY *= 1.3;
+                    other.velocityX *= 1.25;
+                    other.velocityY *= 1.25;
                 }
             });
             break;
@@ -508,6 +520,8 @@ function triggerRabbitPower(orb, orbIndex) {
 }
 
 function spawnGoldenRazorVfx(x, y, radius) {
+    if (state.vfxLasers.length >= GAME_CONFIG.maxVfxLasers) return;
+
     const angles = [Math.PI / 2.5, -Math.PI / 2.5];
     const offset = radius + 15;
 
