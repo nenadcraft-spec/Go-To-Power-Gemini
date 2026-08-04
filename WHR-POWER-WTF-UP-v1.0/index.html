@@ -2,58 +2,287 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WHR: ARENA SURVIVAL v5.9.0</title>
-    <link rel="stylesheet" href="style.css?v=5.9.0">
-</head>
-<body>
-    <div id="gameApp">
-        <!-- START SCREEN -->
-        <div id="startScreen" class="screen screen--active">
-            <div class="start-card">
-                <h1 class="title">WHR: ARENA SURVIVAL</h1>
-                <p class="subtitle">CYBER RABBIT REFLEX</p>
-                <button id="startButton" class="btn btn--primary" type="button">START ARENA</button>
-            </div>
-        </div>
 
-        <!-- GAME SCREEN -->
-        <div id="gameScreen" class="screen">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+        user-scalable=no, viewport-fit=cover"
+    >
+
+    <meta name="theme-color" content="#020205">
+
+    <title>WHR: ARENA SURVIVAL v6.0.0</title>
+
+    <link rel="stylesheet" href="style.css?v=6.0.0">
+</head>
+
+<body>
+    <main id="gameApp">
+
+        <!-- =====================================================
+             START SCREEN
+        ====================================================== -->
+        <section
+            id="startScreen"
+            class="screen screen--active"
+            aria-label="Početni ekran"
+        >
+            <div class="menu-card">
+
+                <div class="version-badge">BETA v6.0.0</div>
+
+                <h1 class="game-title">
+                    WHR:
+                    <span>ARENA SURVIVAL</span>
+                </h1>
+
+                <p class="game-subtitle">
+                    CYBER RABBIT PINBALL REFLEX
+                </p>
+
+                <div class="mission-box">
+                    <p class="mission-title">ARENA PROTOCOL</p>
+
+                    <p>
+                        Pogađaj zečeve, aktiviraj njihove moći,
+                        koristi centralni bumper i preživi što duže.
+                    </p>
+                </div>
+
+                <div class="power-grid">
+
+                    <div class="power-item power-item--white">
+                        <span class="power-dot"></span>
+                        <span>WHITE</span>
+                        <small>odbija mete</small>
+                    </div>
+
+                    <div class="power-item power-item--black">
+                        <span class="power-dot"></span>
+                        <span>BLACK</span>
+                        <small>ubrzava arenu</small>
+                    </div>
+
+                    <div class="power-item power-item--blue">
+                        <span class="power-dot"></span>
+                        <span>BLUE</span>
+                        <small>zamrzava fiziku</small>
+                    </div>
+
+                    <div class="power-item power-item--gold">
+                        <span class="power-dot"></span>
+                        <span>GOLD</span>
+                        <small>laser bonus</small>
+                    </div>
+
+                    <div class="power-item power-item--red">
+                        <span class="power-dot"></span>
+                        <span>RED</span>
+                        <small>ne diraj</small>
+                    </div>
+
+                    <div class="power-item power-item--green">
+                        <span class="power-dot"></span>
+                        <span>GREEN</span>
+                        <small>slow motion</small>
+                    </div>
+
+                    <div class="power-item power-item--void">
+                        <span class="power-dot"></span>
+                        <span>VOID</span>
+                        <small>pogodi kad je vidljiv</small>
+                    </div>
+
+                    <div class="power-item power-item--bumper">
+                        <span class="power-dot"></span>
+                        <span>CENTER</span>
+                        <small>energetski udar</small>
+                    </div>
+
+                </div>
+
+                <button
+                    id="startButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    START ARENA
+                </button>
+
+                <p class="control-note">
+                    Telefon: dodir • PC: levi klik
+                </p>
+
+            </div>
+        </section>
+
+        <!-- =====================================================
+             GAME SCREEN
+        ====================================================== -->
+        <section
+            id="gameScreen"
+            class="screen"
+            aria-label="Arena"
+        >
             <div id="arenaFrame">
-                <div id="hud" class="hud">
+
+                <header id="hud" class="hud">
+
                     <div class="hud-item">
                         <span class="hud-label">LIVES</span>
-                        <span id="livesValue" class="hud-value">❤️❤️❤️</span>
+                        <span id="livesValue" class="hud-value hud-lives">
+                            ❤️❤️❤️
+                        </span>
                     </div>
+
                     <div class="hud-item">
-                        <span class="hud-label">TIMER</span>
-                        <span id="timerValue" class="hud-value">45.0s</span>
+                        <span class="hud-label">TIME</span>
+                        <span id="timerValue" class="hud-value">
+                            45.0
+                        </span>
                     </div>
+
                     <div class="hud-item">
                         <span class="hud-label">SCORE</span>
-                        <span id="scoreValue" class="hud-value">000000</span>
+                        <span id="scoreValue" class="hud-value">
+                            000000
+                        </span>
                     </div>
+
                     <div class="hud-item">
-                        <span id="levelValue" class="hud-version">LVL 1</span>
+                        <span class="hud-label">LEVEL</span>
+                        <span id="levelValue" class="hud-value hud-level">
+                            1
+                        </span>
                     </div>
-                </div>
+
+                    <button
+                        id="pauseButton"
+                        class="hud-button"
+                        type="button"
+                        aria-label="Pauza"
+                    >
+                        II
+                    </button>
+
+                    <button
+                        id="soundButton"
+                        class="hud-button"
+                        type="button"
+                        aria-label="Zvuk"
+                    >
+                        🔊
+                    </button>
+
+                </header>
 
                 <div id="gameStage">
-                    <canvas id="gameCanvas"></canvas>
+                    <canvas
+                        id="gameCanvas"
+                        aria-label="WHR Arena Survival"
+                    ></canvas>
+
+                    <div id="eventMessage" class="event-message"></div>
                 </div>
-            </div>
-        </div>
 
-        <!-- GAME OVER SCREEN -->
-        <div id="gameOverScreen" class="screen">
-            <div class="start-card">
-                <h1 class="title" style="color: #ff315d;">GAME OVER</h1>
-                <p class="subtitle">FINAL SCORE: <span id="finalScoreValue" style="color: #32ff9b;">0</span></p>
-                <button id="restartButton" class="btn btn--primary" type="button">PLAY AGAIN</button>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <script src="script.js?v=5.9.0"></script>
+        <!-- =====================================================
+             PAUSE SCREEN
+        ====================================================== -->
+        <section
+            id="pauseScreen"
+            class="screen screen--overlay"
+            aria-label="Pauza"
+        >
+            <div class="menu-card menu-card--small">
+
+                <h2 class="game-title game-title--small">
+                    ARENA PAUSED
+                </h2>
+
+                <p class="game-subtitle">
+                    Signal je privremeno zamrznut.
+                </p>
+
+                <button
+                    id="resumeButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    RESUME
+                </button>
+
+                <button
+                    id="quitButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    QUIT TO MENU
+                </button>
+
+            </div>
+        </section>
+
+        <!-- =====================================================
+             GAME OVER SCREEN
+        ====================================================== -->
+        <section
+            id="gameOverScreen"
+            class="screen"
+            aria-label="Kraj igre"
+        >
+            <div class="menu-card menu-card--small">
+
+                <div class="version-badge version-badge--danger">
+                    ARENA TERMINATED
+                </div>
+
+                <h1 class="game-title game-title--danger">
+                    GAME OVER
+                </h1>
+
+                <div class="result-grid">
+
+                    <div class="result-item">
+                        <span>FINAL SCORE</span>
+                        <strong id="finalScoreValue">0</strong>
+                    </div>
+
+                    <div class="result-item">
+                        <span>BEST SCORE</span>
+                        <strong id="bestScoreValue">0</strong>
+                    </div>
+
+                    <div class="result-item">
+                        <span>LEVEL</span>
+                        <strong id="finalLevelValue">1</strong>
+                    </div>
+
+                </div>
+
+                <button
+                    id="restartButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    PLAY AGAIN
+                </button>
+
+                <button
+                    id="menuButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    MAIN MENU
+                </button>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js?v=6.0.0"></script>
 </body>
 </html>
