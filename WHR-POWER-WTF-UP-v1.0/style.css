@@ -1,5 +1,5 @@
 /* =========================================================
-   WHR: POWER WTF UP - RESPONSIVE 9:16 (PHONE) & 16:9 (PC)
+   WHR: ARENA SURVIVAL v5.5.0 - RESPONSIVE LAYOUT
 ========================================================= */
 
 * {
@@ -20,57 +20,108 @@ html, body {
     color: #ffffff;
     font-family: 'Courier New', Courier, monospace;
     overflow: hidden;
-    position: fixed; /* Sprečava elastično skrolovanje na mobilnim telefonima */
+    position: fixed;
 }
 
 #gameApp {
-    width: 100%;
-    height: 100%;
+    position: relative;
+    width: 100vw;
+    height: 100dvh;
     display: flex;
     justify-content: center;
     align-items: center;
+    background: #020205;
 }
 
 .screen {
-    display: none;
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
 }
 
 .screen--active {
     display: flex;
-    flex-direction: column;
+}
+
+/* START & GAME OVER CARDS */
+.start-card {
+    padding: 30px;
+    background: rgba(8, 12, 29, 0.95);
+    border: 2px solid #00f5ff;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+    max-width: 90%;
+}
+
+.title {
+    font-size: 2rem;
+    color: #00f5ff;
+    margin-bottom: 8px;
+    text-shadow: 0 0 10px #00f5ff;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #8993ad;
+    margin-bottom: 20px;
+}
+
+.btn--primary {
+    padding: 14px 35px;
+    font-size: 18px;
+    background: #00f5ff;
+    color: #000000;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 15px #00f5ff;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn--primary:active {
+    transform: scale(0.95);
 }
 
 /* =========================================================
-   GAME SCREEN LAYOUT
+   GAME SCREEN & ARENA FRAME
 ========================================================= */
 
 #gameScreen {
     width: 100%;
     height: 100%;
-    margin: 0 auto;
+    padding: 8px;
+}
+
+#arenaFrame {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 8px;
-    background: #020205;
+    margin: 0 auto;
 }
 
 /* 📱 TELEFON (USPRAVNI EKRAN / PORTRAIT 9:16) */
 @media (orientation: portrait) {
-    #gameScreen {
+    #arenaFrame {
         width: 100vw;
+        max-width: 500px;
         height: 100%;
-        max-width: 100%;
     }
 }
 
 /* 💻 PC / TABLET (POLOŽENI EKRAN / LANDSCAPE 16:9) */
 @media (orientation: landscape) {
-    #gameScreen {
+    #arenaFrame {
         width: 100vw;
-        max-width: 1200px; /* Široka 16:9 arena za PC */
+        max-width: 960px;
         height: 100%;
     }
 }
@@ -89,22 +140,28 @@ html, body {
     flex-shrink: 0;
 }
 
-.hud__item {
+.hud-item {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.hud__label {
+.hud-label {
     font-size: 10px;
     color: #8993ad;
     letter-spacing: 1px;
 }
 
-.hud__value {
+.hud-value {
     font-size: 16px;
     font-weight: bold;
     color: #00f5ff;
+}
+
+.hud-version {
+    font-size: 14px;
+    font-weight: bold;
+    color: #32ff9b;
 }
 
 /* GLAVNA ARENA ZA IGRU (CANVAS) */
@@ -126,7 +183,7 @@ html, body {
 }
 
 /* =========================================================
-   CONTROLS BAR (DŽOJSTIK & FIRE DUGME NA DNU)
+   CONTROLS BAR (DŽOJSTIK & FIRE DUGME)
 ========================================================= */
 
 .controls {
@@ -139,7 +196,6 @@ html, body {
     flex-shrink: 0;
 }
 
-/* JOYSTICK STYLING */
 #joystickZone {
     width: 140px;
     height: 65px;
@@ -170,7 +226,6 @@ html, body {
     transition: transform 0.05s ease-out;
 }
 
-/* SHOOT BUTTON */
 #shootButton {
     width: 110px;
     height: 50px;
@@ -188,29 +243,4 @@ html, body {
 #shootButton:active {
     transform: scale(0.95);
     background: #e028b5;
-}
-
-/* START SCREEN FIX */
-#startScreen {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background: #000;
-}
-
-#startButton {
-    padding: 15px 40px;
-    font-size: 20px;
-    background: #00f5ff;
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 15px #00f5ff;
-    margin-top: 20px;
 }
