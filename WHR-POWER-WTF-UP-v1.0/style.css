@@ -1,183 +1,66 @@
-/* =========================================================
-   WHR: ARENA SURVIVAL v5.9.0 - FLIPPER BUMPER & BALANCED SPEED
-========================================================= */
-
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: #000000;
-    color: #ffffff;
-    font-family: 'Courier New', Courier, monospace;
-    overflow: hidden;
-    position: fixed;
-}
-
-#gameApp {
-    position: relative;
-    width: 100vw;
-    height: 100dvh;
+body {
+    background-color: #1e1e24;
+    color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #020205;
+    min-height: 100vh;
 }
 
-.screen {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-}
-
-.screen--active {
-    display: flex;
-}
-
-/* START & GAME OVER CARDS */
-.start-card {
-    padding: 30px;
-    background: rgba(8, 12, 29, 0.95);
-    border: 2px solid #00f5ff;
-    border-radius: 12px;
+.container {
     text-align: center;
-    box-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
-    max-width: 90%;
+    background-color: #2b2d42;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-.title {
-    font-size: 2rem;
-    color: #00f5ff;
-    margin-bottom: 8px;
-    text-shadow: 0 0 10px #00f5ff;
+h1 {
+    margin-bottom: 15px;
+    font-size: 1.8rem;
 }
 
-.subtitle {
-    font-size: 1rem;
-    color: #8993ad;
-    margin-bottom: 20px;
+.controls {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
 }
 
-.btn--primary {
-    padding: 14px 35px;
-    font-size: 18px;
-    background: #00f5ff;
-    color: #000000;
+button {
+    background-color: #4ea8de;
+    color: #fff;
     border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 15px #00f5ff;
-    transition: transform 0.1s ease;
-}
-
-.btn--primary:active {
-    transform: scale(0.95);
-}
-
-/* =========================================================
-   GAME SCREEN & ARENA FRAME
-========================================================= */
-
-#gameScreen {
-    width: 100%;
-    height: 100%;
-    padding: 8px;
-}
-
-#arenaFrame {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    margin: 0 auto;
-}
-
-/* 📱 TELEFON (PORTRAIT 9:16) */
-@media (orientation: portrait) {
-    #arenaFrame {
-        width: 100vw;
-        max-width: 500px;
-        height: 100%;
-    }
-}
-
-/* 💻 PC / TABLET (LANDSCAPE 16:9) */
-@media (orientation: landscape) {
-    #arenaFrame {
-        width: 100vw;
-        max-width: 960px;
-        height: 100%;
-    }
-}
-
-/* HUD GORNJA TRAKA */
-.hud {
-    width: 100%;
-    height: 48px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0 10px;
-    background: rgba(0, 0, 0, 0.9);
-    border: 1px solid #00f5ff;
+    padding: 10px 16px;
     border-radius: 6px;
-    flex-shrink: 0;
-}
-
-.hud-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.hud-label {
-    font-size: 10px;
-    color: #8993ad;
-    letter-spacing: 1px;
-}
-
-.hud-value {
-    font-size: 16px;
+    cursor: pointer;
     font-weight: bold;
-    color: #00f5ff;
+    transition: background 0.2s ease;
 }
 
-.hud-version {
-    font-size: 14px;
-    font-weight: bold;
-    color: #32ff9b;
+button:hover {
+    background-color: #5390d9;
 }
 
-/* GLAVNA ARENA ZA IGRU */
-#gameStage {
-    flex: 1;
-    width: 100%;
-    margin-top: 6px;
-    position: relative;
-    border: 2px solid #00f5ff;
+.stats {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    background: #3d405b;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+canvas {
+    background-color: rgb(100, 160, 80);
+    border: 3px solid #fff;
     border-radius: 8px;
-    overflow: hidden;
-    background: #000000;
-}
-
-#gameCanvas {
-    width: 100%;
-    height: 100%;
     display: block;
+    margin: 0 auto;
 }
