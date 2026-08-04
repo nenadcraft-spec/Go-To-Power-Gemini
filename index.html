@@ -31,6 +31,54 @@
             padding: 0;
             line-height: 1.6;
             overflow-x: hidden;
+            cursor: none; /* Sakriva podrazumevani kursor */
+        }
+
+        /* ONEMOGUĆAVA CUSTOM KURSOR NA DODIRNIM EKRANIMA */
+        @media (hover: none) and (pointer: coarse) {
+            body { cursor: auto; }
+            .whr-cursor-dot, .whr-cursor-trail { display: none !important; }
+        }
+
+        /* NEON CUSTOM CURSOR STYLES */
+        .whr-cursor-dot {
+            position: fixed;
+            top: 0; left: 0;
+            width: 6px; height: 6px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100000;
+            box-shadow: 0 0 10px var(--accent-green), 0 0 20px var(--accent-green);
+            transform: translate(-50%, -50%);
+            transition: transform 0.15s ease, background-color 0.2s ease;
+        }
+
+        .whr-cursor-trail {
+            position: fixed;
+            top: 0; left: 0;
+            width: 28px; height: 28px;
+            border: 1.5px solid var(--accent-green);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            box-shadow: 0 0 12px rgba(0, 255, 102, 0.3);
+            transform: translate(-50%, -50%);
+            will-change: transform;
+            transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        /* HOVER STANJE NAD INTERAKTIVNIM ELEMENTIMA */
+        body.cursor-hover .whr-cursor-dot {
+            background-color: var(--accent-pink);
+            box-shadow: 0 0 12px var(--accent-pink);
+        }
+
+        body.cursor-hover .whr-cursor-trail {
+            width: 44px; height: 44px;
+            border-color: var(--accent-pink);
+            background-color: rgba(255, 56, 199, 0.08);
+            box-shadow: 0 0 20px rgba(255, 56, 199, 0.4);
         }
 
         /* WHR CYBERPUNK BOOT PRELOADER */
@@ -116,6 +164,105 @@
             max-width: 100%; max-height: 100%;
             width: auto; height: auto;
             object-fit: contain; display: block; margin: 0 auto;
+        }
+
+        /* WHR PROMO BANNER STYLES */
+        .whr-promo-card {
+            position: relative;
+            width: 100%;
+            min-height: 240px;
+            background: radial-gradient(circle at 20% 30%, #0d1912 0%, #030508 80%);
+            border: 2px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 25px 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+
+        .whr-promo-glitch-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 102, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 102, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+
+        .whr-promo-scanline {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.3) 50%,
+                rgba(0, 0, 0, 0.3)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .whr-promo-badge {
+            background: rgba(0, 255, 102, 0.1);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+            font-family: monospace;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 4px;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            z-index: 2;
+        }
+
+        .whr-promo-content { z-index: 2; }
+
+        .whr-promo-logo .whr-icon {
+            font-size: 38px;
+            display: block;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 102, 0.5));
+        }
+
+        .whr-promo-logo h2 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #fff;
+            margin: 0;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .whr-promo-tagline {
+            color: var(--accent-blue);
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 10px 0 16px 0;
+        }
+
+        .whr-promo-specs {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            font-family: monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .whr-promo-specs span {
+            border-left: 2px solid var(--accent-green);
+            padding-left: 6px;
         }
 
         /* STATUS CONTROL PANEL */
@@ -594,8 +741,8 @@
 
         <!-- Navigation Tabs Grid -->
         <div class="nav-tabs">
-            <button class="tab-btn" style="border-color:var(--accent-green);" onclick="openTab(event, 'tab-hq')">🏛️ WHR HQ</button>
-            <button class="tab-btn active" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
+            <button class="tab-btn active" style="border-color:var(--accent-green);" onclick="openTab(event, 'tab-hq')">🏛️ WHR HQ</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-manifest')">📜 Manifest</button>
             <button class="tab-btn" onclick="openTab(event, 'tab-timeline')">⌛ Timeline</button>
             <button class="tab-btn" style="border-color:var(--accent-blue); color:#38bdf8;" onclick="openTab(event, 'tab-codex')">📜 Codex (Wiki)</button>
             <button class="tab-btn" style="border-color:var(--accent-pink); color:#ff38c7;" onclick="openTab(event, 'tab-gaming')">🕹️ Gaming Room</button>
@@ -609,7 +756,34 @@
         </div>
 
         <!-- TAB 0: WHR HEADQUARTERS // MAIN HALL -->
-        <div id="tab-hq" class="tab-content">
+        <div id="tab-hq" class="tab-content active">
+
+            <!-- WHR.STUDIO PROMO BANER KARTICA -->
+            <div class="whr-promo-card">
+                <div class="whr-promo-glitch-overlay"></div>
+                <div class="whr-promo-scanline"></div>
+                
+                <div class="whr-promo-badge">AUTHENTIC Oi + AI CREATIVE NODE</div>
+
+                <div class="whr-promo-content">
+                    <div class="whr-promo-logo">
+                        <span class="whr-icon">🐇⚔️</span>
+                        <h2>WHITE HAT RABBIT STUDIOS</h2>
+                    </div>
+                    
+                    <p class="whr-promo-tagline">
+                        MANJE FILOZOFIRANJA. VIŠE KINEMATOGRAFIJE.
+                    </p>
+
+                    <div class="whr-promo-specs">
+                        <span>[RTX 5090 READY]</span>
+                        <span>[UNREAL ENGINE 5]</span>
+                        <span>[KIKINDA CORE]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HQ SHELL & CORRIDOR -->
             <div class="whr-hq-shell">
                 <div class="whr-hq-header">
                     <h2>WHR HEADQUARTERS</h2>
@@ -665,7 +839,7 @@
         </div>
 
         <!-- TAB 1: MANIFEST -->
-        <div id="tab-manifest" class="tab-content active">
+        <div id="tab-manifest" class="tab-content">
             <h2 style="color: var(--accent-green); margin-top:0; font-size: 16px;">CREATIVE COMMAND CENTER & LABORATORY</h2>
             <p><strong>Lokacija:</strong> Kikinda, Vojvodina, Serbia | <strong>Filozofija:</strong> AI-Driven Cinematic Production</p>
             <hr style="border-color: var(--border-color);">
@@ -1166,7 +1340,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT KÔD (v11.2 PATCHED) -->
+    <!-- JAVASCRIPT KÔD (v11.2 + NEON CURSOR & SMOOTH SCROLL) -->
     <script>
         // STANJE OTKLJUČANIH / OTVORENIH SOBA
         var openedRooms = {
@@ -1174,6 +1348,79 @@
             gaming: false,
             codex: false
         };
+
+        // --- NEON CURSOR & SMOOTH SCROLL MODULE ---
+        (function initInteractiveFX() {
+            // 1. KREIRANJE CURSOR ELEMENATA
+            const dot = document.createElement('div');
+            const trail = document.createElement('div');
+            dot.className = 'whr-cursor-dot';
+            trail.className = 'whr-cursor-trail';
+            document.body.appendChild(dot);
+            document.body.appendChild(trail);
+
+            let mouseX = -100, mouseY = -100;
+            let trailX = -100, trailY = -100;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+            });
+
+            function renderCursor() {
+                trailX += (mouseX - trailX) * 0.18;
+                trailY += (mouseY - trailY) * 0.18;
+                trail.style.transform = `translate3d(${trailX}px, ${trailY}px, 0) translate(-50%, -50%)`;
+                requestAnimationFrame(renderCursor);
+            }
+            requestAnimationFrame(renderCursor);
+
+            const interactiveSelector = 'a, button, .tab-btn, .whr-room-door, .pipe-step, input, .timeline-item, .wiki-link';
+            
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.closest(interactiveSelector)) {
+                    document.body.classList.add('cursor-hover');
+                }
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                if (e.target.closest(interactiveSelector)) {
+                    document.body.classList.remove('cursor-hover');
+                }
+            });
+
+            // 2. LIGHTWEIGHT SMOOTH SCROLL
+            let currentScroll = window.scrollY;
+            let targetScroll = window.scrollY;
+            let isScrolling = false;
+
+            function smoothScrollAnimation() {
+                currentScroll += (targetScroll - currentScroll) * 0.1;
+                window.scrollTo(0, currentScroll);
+
+                if (Math.abs(targetScroll - currentScroll) > 0.5) {
+                    requestAnimationFrame(smoothScrollAnimation);
+                } else {
+                    isScrolling = false;
+                }
+            }
+
+            window.addEventListener('wheel', (e) => {
+                if (document.body.style.overflow === 'hidden') return;
+
+                e.preventDefault();
+                targetScroll += e.deltaY * 0.85;
+                
+                const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+
+                if (!isScrolling) {
+                    isScrolling = true;
+                    requestAnimationFrame(smoothScrollAnimation);
+                }
+            }, { passive: false });
+        })();
 
         // WHR BOOT SEQUENCE
         function runWhrBoot() {
@@ -1221,7 +1468,6 @@
                 targetTab.classList.add("active");
             }
 
-            // Održavanje i provera stanja soba pri prelasku tabova
             if (tabId === 'tab-claude-office' && openedRooms.claude) {
                 setRoomState('claudeOfficeShell', 'claudeDoorFrame', true);
             } else if (tabId === 'tab-gaming' && openedRooms.gaming) {
@@ -1235,7 +1481,6 @@
             openTab(null, tabId);
         }
 
-        // Pomoćna funkcija za stanje vrata i sobe
         function setRoomState(shellId, doorId, isOpen) {
             var shell = document.getElementById(shellId);
             var doors = document.getElementById(doorId);
