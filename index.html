@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>White Hat Rabbit Studios // Control Center v11.1</title>
+    <title>White Hat Rabbit Studios // Control Center v11.2</title>
     <style>
         :root {
             --bg-main: #030508;
@@ -439,7 +439,7 @@
             transition: all 0.5s ease;
         }
 
-        /* POTPUNA ISOLACIJA SOBE PREKO CELOG EKRANA KAD SE OTVORI */
+        /* FULLSCREEN ROOM ISOLATION */
         .claude-office-shell.office-open {
             position: fixed !important;
             top: 0 !important; left: 0 !important;
@@ -448,7 +448,7 @@
             border-radius: 0 !important;
             overflow-y: auto !important;
             background: #030108 !important;
-            padding: 30px !important;
+            padding: 20px !important;
         }
 
         .claude-door-stage {
@@ -531,6 +531,7 @@
             .whr-hq-core { order: -1; min-height: 300px; }
             .wiki-layout { grid-template-columns: 1fr; }
             .claude-office-grid { grid-template-columns: 1fr; }
+            .claude-office-shell.office-open { padding: 10px !important; }
         }
 
         .footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 12px; }
@@ -564,7 +565,7 @@
         <!-- Hero Header -->
         <div class="hero">
             <h1>WHITE HAT RABBIT STUDIOS</h1>
-            <div class="hero-subtitle">CONTROL CENTER // v11.1 LABORATORY EDITION 🐇⚔️</div>
+            <div class="hero-subtitle">CONTROL CENTER // v11.2 LABORATORY EDITION 🐇⚔️</div>
             
             <div class="studio-hero-img-box" id="heroSlideshowContainer" style="position: relative; cursor: pointer;" onclick="onHeroSlideClick()" onmouseenter="pauseHeroSlideshow()" onmouseleave="resumeHeroSlideshow()">
                 <img id="heroSlideImg" src="./power_on.png" alt="WHR Studios Showcase" style="transition: opacity 0.8s ease-in-out; width:100%; display:block;" onerror="this.onerror=null; this.src='./studio.png';">
@@ -756,7 +757,7 @@
                 <div class="claude-office-interior" id="codexInterior">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(56,189,248,0.3); padding-bottom:10px; margin-bottom:15px;">
                         <h3 style="color:#38bdf8; margin:0; font-family:monospace; letter-spacing:1px;">📜 MASTER CODEX & DOCUMENTATION ARCHIVE</h3>
-                        <button class="claude-office-button" onclick="exitCodexRoom()" style="border-color:#38bdf8; color:#38bdf8;">← EXIT CODEX VAULT</button>
+                        <button class="claude-office-button" onclick="exitCodexRoom()" style="border-color:#38bdf8; color:#38bdf8;">← EXIT CODEX VAULT (ESC)</button>
                     </div>
 
                     <!-- SYSTEM BOOK 001 -->
@@ -795,7 +796,7 @@
                     </div>
 
                     <div style="margin-top:25px; text-align: center;">
-                        <button class="claude-office-button" onclick="exitCodexRoom()" style="border-color:#38bdf8; color:#38bdf8; width: 100%; max-width: 300px;">← EXIT CODEX VAULT</button>
+                        <button class="claude-office-button" onclick="exitCodexRoom()" style="border-color:#38bdf8; color:#38bdf8; width: 100%; max-width: 300px;">← EXIT CODEX VAULT (ESC)</button>
                     </div>
                 </div>
             </div>
@@ -834,7 +835,7 @@
                 <div class="claude-office-interior" id="gamingInterior">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,56,199,0.3); padding-bottom:10px; margin-bottom:15px;">
                         <h3 style="color:#ff38c7; margin:0; font-family:monospace; letter-spacing:1px;">🕹️ CYBERPUNK ARCADE CABINETS</h3>
-                        <button class="claude-office-button" onclick="exitGamingRoom()" style="border-color:#ff38c7; color:#ff38c7;">← EXIT GAMING ROOM</button>
+                        <button class="claude-office-button" onclick="exitGamingRoom()" style="border-color:#ff38c7; color:#ff38c7;">← EXIT GAMING ROOM (ESC)</button>
                     </div>
 
                     <!-- STATUS SOBE -->
@@ -880,7 +881,7 @@
                     </div>
 
                     <div style="margin-top:25px; text-align: center;">
-                        <button class="claude-office-button" onclick="exitGamingRoom()" style="border-color:#ff38c7; color:#ff38c7; width: 100%; max-width: 300px;">← EXIT GAMING ROOM</button>
+                        <button class="claude-office-button" onclick="exitGamingRoom()" style="border-color:#ff38c7; color:#ff38c7; width: 100%; max-width: 300px;">← EXIT GAMING ROOM (ESC)</button>
                     </div>
                 </div>
             </div>
@@ -1069,7 +1070,7 @@
                 <div class="claude-office-interior" id="claudeInterior">
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(244,166,138,0.3); padding-bottom:10px; margin-bottom:15px;">
                         <h3 style="color:#f4a68a; margin:0;">DIRECTOR OF SYSTEMS INTEGRITY</h3>
-                        <button class="claude-office-button" onclick="exitClaudeOffice()">← CLOSE OFFICE</button>
+                        <button class="claude-office-button" onclick="exitClaudeOffice()">← CLOSE OFFICE (ESC)</button>
                     </div>
 
                     <div class="claude-window-wall"></div>
@@ -1082,7 +1083,7 @@
                     </div>
 
                     <div style="margin-top:20px; text-align:center;">
-                        <button class="claude-office-button" onclick="exitClaudeOffice()" style="width:100%; max-width:300px;">← CLOSE OFFICE</button>
+                        <button class="claude-office-button" onclick="exitClaudeOffice()" style="width:100%; max-width:300px;">← CLOSE OFFICE (ESC)</button>
                     </div>
                 </div>
             </div>
@@ -1165,7 +1166,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT KÔD -->
+    <!-- JAVASCRIPT KÔD (v11.2 PATCHED) -->
     <script>
         // STANJE OTKLJUČANIH / OTVORENIH SOBA
         var openedRooms = {
@@ -1196,7 +1197,7 @@
             }, 1500);
         }
 
-        // Tabovi
+        // Tabovi Logika
         function openTab(evt, tabId) {
             var i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tab-content");
@@ -1204,49 +1205,48 @@
                 tabcontent[i].style.display = "none";
                 tabcontent[i].classList.remove("active");
             }
+
             tablinks = document.getElementsByClassName("tab-btn");
             for (i = 0; i < tablinks.length; i++) {
                 tablinks[i].classList.remove("active");
-                if (tablinks[i].getAttribute('onclick') && tablinks[i].getAttribute('onclick').includes(tabId)) {
+                var onclickAttr = tablinks[i].getAttribute('onclick');
+                if (onclickAttr && onclickAttr.indexOf("'" + tabId + "'") !== -1) {
                     tablinks[i].classList.add("active");
                 }
             }
+
             var targetTab = document.getElementById(tabId);
             if (targetTab) {
                 targetTab.style.display = "block";
                 targetTab.classList.add("active");
             }
-            if (evt && evt.currentTarget) {
-                evt.currentTarget.classList.add("active");
-            }
 
-            // Provera i održavanje stanja sobe ako je već otključana
+            // Održavanje i provera stanja soba pri prelasku tabova
             if (tabId === 'tab-claude-office' && openedRooms.claude) {
-                var shell = document.getElementById('claudeOfficeShell');
-                var doors = document.getElementById('claudeDoorFrame');
-                if (shell && doors) {
-                    doors.classList.add('opening');
-                    shell.classList.add('office-open');
-                }
+                setRoomState('claudeOfficeShell', 'claudeDoorFrame', true);
             } else if (tabId === 'tab-gaming' && openedRooms.gaming) {
-                var shell = document.getElementById('gamingOfficeShell');
-                var doors = document.getElementById('gamingDoorFrame');
-                if (shell && doors) {
-                    doors.classList.add('opening');
-                    shell.classList.add('office-open');
-                }
+                setRoomState('gamingOfficeShell', 'gamingDoorFrame', true);
             } else if (tabId === 'tab-codex' && openedRooms.codex) {
-                var shell = document.getElementById('codexOfficeShell');
-                var doors = document.getElementById('codexDoorFrame');
-                if (shell && doors) {
-                    doors.classList.add('opening');
-                    shell.classList.add('office-open');
-                }
+                setRoomState('codexOfficeShell', 'codexDoorFrame', true);
             }
         }
 
         function enterHqRoom(tabId) {
             openTab(null, tabId);
+        }
+
+        // Pomoćna funkcija za stanje vrata i sobe
+        function setRoomState(shellId, doorId, isOpen) {
+            var shell = document.getElementById(shellId);
+            var doors = document.getElementById(doorId);
+            if (!shell || !doors) return;
+            if (isOpen) {
+                doors.classList.add('opening');
+                shell.classList.add('office-open');
+            } else {
+                shell.classList.remove('office-open');
+                doors.classList.remove('opening');
+            }
         }
 
         // WIKI POGLAVLJA
@@ -1327,7 +1327,7 @@
         var whrNewsData = [
             { tag: "E-SPORTS EVENT", date: "02. Avg 2026.", title: "AI DVOBOJ RATIFIKOVAN // ChatGPT vs Gemini 1v1", summary: "Prihvaćen zvanični pravilnik za vizuelni meč na 10-15 FPS sa human-lagom od 150ms!", text: "Istorijski okršaj AI agenata pod nadzorom Belog Zeca! ChatGPT i Gemini ukrštaju koplja u Visual Reflex dvoboju. Čekamo stabilizaciju Audio-Radar builda i otvaramo turnir! ⚔️🤖", image: "./power_on.png" },
             { tag: "SPECIAL TRANSMISSION", date: "31. Jul 2026.", title: "WHR GAMING ROOM // Arcade Vault Opened!", summary: "Lansiran je zvanični gaming portal u cyberpunk stilu sa arkadnim kabinetima!", text: "Predstavljamo novi WHR Cyberpunk Gaming Hub! Od sada sve igrice studija dobijaju svoj privatni neonski kabinet! 🐇⚡🎮", image: "./power_on.png" },
-            { tag: "STUDIO UPDATE", date: "28. Jul 2026.", title: "WHR Production Codex v11.1 je online", summary: "Lansiran kompletiran Equipment Vault sa svih 12 komponenti.", text: "Master Codex, Vault i AI Kancelarije u punoj funkciji sa novom grafikom.", image: "./studio.png" }
+            { tag: "STUDIO UPDATE", date: "28. Jul 2026.", title: "WHR Production Codex v11.2 je online", summary: "Lansiran kompletiran Equipment Vault sa svih 12 komponenti.", text: "Master Codex, Vault i AI Kancelarije u punoj funkciji sa novom grafikom i optimizovanim v11.2 engineom.", image: "./studio.png" }
         ];
 
         function loadNews() {
@@ -1349,21 +1349,23 @@
             document.getElementById('modalNewsText').innerText = item.text;
             document.getElementById('newsModal').classList.add('active');
             document.body.style.overflow = "hidden";
+            pauseHeroSlideshow();
         }
 
         function closeModal(e) {
             if(e.target === document.getElementById('newsModal')) {
-                document.getElementById('newsModal').classList.remove('active');
-                document.body.style.overflow = "";
+                closeModalDirect();
             }
         }
 
         function closeModalDirect() {
-            document.getElementById('newsModal').classList.remove('active');
+            var modal = document.getElementById('newsModal');
+            if(modal) modal.classList.remove('active');
             document.body.style.overflow = "";
+            resumeHeroSlideshow();
         }
 
-        // Slideshow
+        // Slideshow Logika
         var heroSlides = [
             { image: "./power_on.png", newsIndex: 0 },
             { image: "./studio.png", newsIndex: 2 }
@@ -1408,7 +1410,9 @@
         function resumeHeroSlideshow() { isSlideshowPaused = false; }
 
         setInterval(function() {
-            if (!isSlideshowPaused) { changeHeroSlide(1); }
+            if (!isSlideshowPaused && !openedRooms.claude && !openedRooms.gaming && !openedRooms.codex) { 
+                changeHeroSlide(1); 
+            }
         }, 5000);
 
         // Claude Office Funkcije
@@ -1486,7 +1490,19 @@
             }, 700);
         }
 
-        // Start
+        // GLOBALNI KEYBOARD LISTENER (ESC za izlaz)
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (document.getElementById('newsModal').classList.contains('active')) {
+                    closeModalDirect();
+                }
+                if (openedRooms.claude) exitClaudeOffice();
+                if (openedRooms.gaming) exitGamingRoom();
+                if (openedRooms.codex) exitCodexRoom();
+            }
+        });
+
+        // Start Inicijalizacija
         window.onload = function() {
             runWhrBoot();
             loadNews();
