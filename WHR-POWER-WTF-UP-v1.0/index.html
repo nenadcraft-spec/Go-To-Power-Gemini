@@ -3,46 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>WHR: POWER WTF UP v4.2.1</title>
-    <link rel="stylesheet" href="style.css?v=4.2.1">
+    <title>WHR: ARENA SURVIVAL v5.1.1</title>
+    <link rel="stylesheet" href="style.css?v=5.1.1">
 </head>
 <body>
     <div id="gameApp">
         <!-- START SCREEN -->
         <div id="startScreen" class="screen screen--active">
-            <h1 class="title">WHR: POWER WTF UP</h1>
-            <p class="subtitle">CYBER RABBIT ARENA</p>
-            <button id="startButton" class="btn btn--primary">POKRENI IGRU</button>
+            <h1 class="title">WHR: ARENA SURVIVAL</h1>
+            <p class="subtitle">CYBER RABBIT REFLEX</p>
+            <button id="startButton" class="btn btn--primary">START ARENA</button>
         </div>
 
         <!-- GAME SCREEN -->
         <div id="gameScreen" class="screen">
             <div id="hud">
                 <div class="hud-item">
+                    <span class="hud-label">LIVES</span>
+                    <span id="livesValue" class="hud-value">❤️❤️❤️</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">TIMER</span>
+                    <span id="timerValue" class="hud-value">45.0s</span>
+                </div>
+                <div class="hud-item">
                     <span class="hud-label">SCORE</span>
                     <span id="scoreValue" class="hud-value">000000</span>
                 </div>
-                <div class="hud-item hud-version">
-                    <span>ALFA v4.2.1</span>
+                <div class="hud-item">
+                    <span id="levelValue" class="hud-version">LVL 1</span>
                 </div>
             </div>
 
             <div id="gameStage">
                 <canvas id="gameCanvas"></canvas>
             </div>
+        </div>
 
-            <!-- CONTROLS ZONE -->
-            <div id="controls">
-                <div id="joystickZone">
-                    <div id="joystickBase">
-                        <div id="joystickStick"></div>
-                    </div>
-                </div>
-                <button id="shootButton" class="btn btn--fire">FIRE</button>
-            </div>
+        <!-- GAME OVER SCREEN -->
+        <div id="gameOverScreen" class="screen">
+            <h1 class="title" style="color: #ff315d;">GAME OVER</h1>
+            <p class="subtitle">FINAL SCORE: <span id="finalScoreValue" style="color: #32ff9b;">0</span></p>
+            <button id="restartButton" class="btn btn--primary">PLAY AGAIN</button>
         </div>
     </div>
 
-    <script src="script.js?v=4.2.1"></script>
+    <script src="script.js?v=5.1.1"></script>
 </body>
 </html>
