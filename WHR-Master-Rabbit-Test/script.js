@@ -67,14 +67,14 @@
 ============================================================ */
 
 const CONFIG = {
-    gameSpeed: 0.10,
+    gameSpeed: 0.40,
 
     gravity: 500,
     wallBounce: 0.88,
     floorFriction: 0.998,
     airFriction: 0.9995,
 
-    rabbitRadius: 30,
+    rabbitRadius: 40,
     rabbitMaxSpeed: 520,
 
     wallPadding: 9,
@@ -3538,8 +3538,8 @@ class VoidPortal {
 
 function getResponsiveRabbitRadius() {
     return clamp(
-        ENGINE.width * 0.073,
-        22,
+        ENGINE.width * 0.095,
+        30,
         CONFIG.rabbitRadius
     );
 }
