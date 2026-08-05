@@ -4991,6 +4991,366 @@ function renderWorld() {
 }
 
 /* ============================================================
+   PROCEDURAL MUSIC — COLOR FLOW
+============================================================ */
+
+const MUSIC = {
+    context: null,
+    masterGain: null,
+    filter: null,
+
+    started: false,
+    muted: false,
+
+    nextNoteTime: 0,
+    step: 0,
+    timerId: null,
+
+    tempo: 100,
+    lookAheadMilliseconds: 90,
+    scheduleAheadSeconds: 0.18
+};
+
+const COLOR_FLOW_SCALE = [
+    220.00, // A3
+    261.63, // C4
+    293.66, // D4
+    329.63, // E4
+    392.00, // G4
+    440.00, // A4
+    523.25  // C5
+];
+
+const COLOR_FLOW_PATTERN = [
+    0,
+    2,
+    4,
+    1,
+    5,
+    4,
+    2,
+    6,
+    0,
+    3,
+    4,
+    2,
+    5,
+    3,
+    1,
+    4
+];
+
+function createMusicContext() {
+    if (MUSIC.context) {
+        return;
+    }
+
+    const AudioContextClass =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+    if (!AudioContextClass) {
+        console.warn(
+            "Web Audio API nije podržan."
+        );
+
+        return;
+    }
+
+    MUSIC.context =
+        new AudioContextClass();
+
+    MUSIC.masterGain =
+        MUSIC.context.createGain();
+
+    MUSIC.filter =
+        MUSIC.context.createBiquadFilter();
+
+    MUSIC.filter.type =
+        "lowpass";
+
+    MUSIC.filter.frequency.value =
+        1450;
+
+    MUSIC.filter.Q.value =
+        0.7;
+
+    MUSIC.masterGain.gain.value =
+        0.11;
+
+    MUSIC.filter.connect(
+        MUSIC.masterGain
+    );
+
+    MUSIC.masterGain.connect(
+        MUSIC.context.destination
+    );
+}
+
+function playColorFlowNote(
+    frequency,
+    startTime,
+    duration,
+    volume
+) {
+    if (
+        !MUSIC.context ||
+        !MUSIC.filter
+    ) {
+        return;
+    }
+
+    const oscillator =
+        MUSIC.context.createOscillator();
+
+    const noteGain =
+        MUSIC.context.createGain();
+
+    oscillator.type =
+        "sine";
+
+    oscillator.frequency.setValueAtTime(
+        frequency,
+        startTime
+    );
+
+    oscillator.detune.setValueAtTime(
+        randomRange(-4, 4),
+        startTime
+    );
+
+    noteGain.gain.setValueAtTime(
+        0.0001,
+        startTime
+    );
+
+    noteGain.gain.exponentialRampToValueAtTime(
+        Math.max(0.0001, volume),
+        startTime + 0.055
+    );
+
+    noteGain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        startTime + duration
+    );
+
+    oscillator.connect(
+        noteGain
+    );
+
+    noteGain.connect(
+        MUSIC.filter
+    );
+
+    oscillator.start(
+        startTime
+    );
+
+    oscillator.stop(
+        startTime +
+        duration +
+        0.08
+    );
+}
+
+function playColorFlowBass(
+    frequency,
+    startTime,
+    duration
+) {
+    if (
+        !MUSIC.context ||
+        !MUSIC.filter
+    ) {
+        return;
+    }
+
+    const oscillator =
+        MUSIC.context.createOscillator();
+
+    const bassGain =
+        MUSIC.context.createGain();
+
+    oscillator.type =
+        "triangle";
+
+    oscillator.frequency.setValueAtTime(
+        frequency * 0.5,
+        startTime
+    );
+
+    bassGain.gain.setValueAtTime(
+        0.0001,
+        startTime
+    );
+
+    bassGain.gain.exponentialRampToValueAtTime(
+        0.035,
+        startTime + 0.08
+    );
+
+    bassGain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        startTime + duration
+    );
+
+    oscillator.connect(
+        bassGain
+    );
+
+    bassGain.connect(
+        MUSIC.filter
+    );
+
+    oscillator.start(
+        startTime
+    );
+
+    oscillator.stop(
+        startTime +
+        duration +
+        0.1
+    );
+}
+
+function scheduleColorFlowStep(
+    step,
+    noteTime
+) {
+    const secondsPerBeat =
+        60 / MUSIC.tempo;
+
+    const stepDuration =
+        secondsPerBeat * 0.5;
+
+    const patternIndex =
+        COLOR_FLOW_PATTERN[
+            step %
+            COLOR_FLOW_PATTERN.length
+        ];
+
+    const frequency =
+        COLOR_FLOW_SCALE[
+            patternIndex
+        ];
+
+    playColorFlowNote(
+        frequency,
+        noteTime,
+        stepDuration * 1.75,
+        0.035
+    );
+
+    if (step % 4 === 0) {
+        playColorFlowBass(
+            frequency,
+            noteTime,
+            secondsPerBeat * 1.8
+        );
+    }
+
+    if (step % 8 === 6) {
+        playColorFlowNote(
+            frequency * 2,
+            noteTime + 0.06,
+            stepDuration * 2.2,
+            0.017
+        );
+    }
+}
+
+function colorFlowScheduler() {
+    if (
+        !MUSIC.started ||
+        !MUSIC.context
+    ) {
+        return;
+    }
+
+    while (
+        MUSIC.nextNoteTime <
+        MUSIC.context.currentTime +
+        MUSIC.scheduleAheadSeconds
+    ) {
+        scheduleColorFlowStep(
+            MUSIC.step,
+            MUSIC.nextNoteTime
+        );
+
+        const secondsPerBeat =
+            60 / MUSIC.tempo;
+
+        MUSIC.nextNoteTime +=
+            secondsPerBeat * 0.5;
+
+        MUSIC.step += 1;
+    }
+}
+
+async function startColorFlowMusic() {
+    createMusicContext();
+
+    if (!MUSIC.context) {
+        return;
+    }
+
+    if (
+        MUSIC.context.state ===
+        "suspended"
+    ) {
+        await MUSIC.context.resume();
+    }
+
+    if (MUSIC.started) {
+        return;
+    }
+
+    MUSIC.started = true;
+    MUSIC.step = 0;
+
+    MUSIC.nextNoteTime =
+        MUSIC.context.currentTime +
+        0.08;
+
+    MUSIC.timerId =
+        window.setInterval(
+            colorFlowScheduler,
+            MUSIC.lookAheadMilliseconds
+        );
+
+    console.info(
+        "COLOR FLOW MUSIC: ONLINE"
+    );
+}
+
+function setColorFlowMuted(muted) {
+    MUSIC.muted =
+        Boolean(muted);
+
+    if (
+        !MUSIC.context ||
+        !MUSIC.masterGain
+    ) {
+        return;
+    }
+
+    const now =
+        MUSIC.context.currentTime;
+
+    MUSIC.masterGain.gain.cancelScheduledValues(
+        now
+    );
+
+    MUSIC.masterGain.gain.setTargetAtTime(
+        MUSIC.muted
+            ? 0.0001
+            : 0.11,
+        now,
+        0.08
+    );
+}
+
+/* ============================================================
    POINTER INPUT
 ============================================================ */
 
