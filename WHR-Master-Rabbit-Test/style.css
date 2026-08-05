@@ -1,0 +1,301 @@
+/* ==========================================================
+   WHITE HAT RABBIT STUDIOS
+   WHR MASTER RABBIT TEST
+   Color Engine Prototype v1.0
+
+   Philosophy
+
+   We do not build games.
+   We build worlds.
+
+   First Prototype
+   - RGB Rabbits
+   - VOID Generator
+   - White Light Reactor
+   - Minimal UI
+   ========================================================== */
+
+:root{
+
+    --bg:#050505;
+
+    --panel:#101114;
+
+    --border:#232323;
+
+    --text:#ece8d8;
+
+    --sub:#9aa0a6;
+
+    --red:#ff4040;
+
+    --green:#38ff71;
+
+    --blue:#3ba8ff;
+
+    --cyan:#00f6ff;
+
+    --yellow:#ffe65b;
+
+    --magenta:#ff2fb3;
+
+    --white:#ffffff;
+
+    --void:#000000;
+
+}
+
+/* ========================================================== */
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+    user-select:none;
+
+    -webkit-user-select:none;
+
+    touch-action:none;
+
+}
+
+/* ========================================================== */
+
+html,
+body{
+
+    width:100%;
+
+    height:100%;
+
+    overflow:hidden;
+
+    background:var(--bg);
+
+    color:var(--text);
+
+    font-family:
+
+        Segoe UI,
+
+        Roboto,
+
+        Arial,
+
+        sans-serif;
+
+}
+
+/* ========================================================== */
+
+body{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+/* ========================================================== */
+
+.engine{
+
+    width:100vw;
+
+    height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+/* ========================================================== */
+
+.header{
+
+    padding:18px;
+
+    text-align:center;
+
+    background:linear-gradient(
+
+        to bottom,
+
+        #111,
+
+        #090909
+
+    );
+
+    border-bottom:1px solid var(--border);
+
+}
+
+.header h1{
+
+    font-size:26px;
+
+    letter-spacing:3px;
+
+    color:var(--white);
+
+    text-shadow:
+
+        0 0 8px var(--cyan),
+
+        0 0 18px var(--cyan);
+
+}
+
+.header p{
+
+    margin-top:8px;
+
+    color:var(--sub);
+
+    font-size:15px;
+
+}
+
+/* ========================================================== */
+
+.arena{
+
+    position:relative;
+
+    flex:1;
+
+    overflow:hidden;
+
+    background:
+
+        radial-gradient(
+
+            circle at center,
+
+            #17181d,
+
+            #090909 80%
+
+        );
+
+}
+
+/* ========================================================== */
+
+canvas{
+
+    width:100%;
+
+    height:100%;
+
+    display:block;
+
+}
+
+/* ========================================================== */
+
+.footer{
+
+    text-align:center;
+
+    padding:12px;
+
+    font-size:13px;
+
+    color:var(--sub);
+
+    border-top:1px solid var(--border);
+
+    background:#090909;
+
+    letter-spacing:1px;
+
+}
+
+/* ========================================================== */
+
+.noscript{
+
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:black;
+
+    color:white;
+
+    font-size:22px;
+
+    z-index:9999;
+
+}
+
+/* ==========================================================
+   MOBILE
+   ========================================================== */
+
+@media (max-width:768px){
+
+.header{
+
+    padding:14px;
+
+}
+
+.header h1{
+
+    font-size:19px;
+
+    letter-spacing:2px;
+
+}
+
+.header p{
+
+    font-size:13px;
+
+}
+
+.footer{
+
+    font-size:11px;
+
+}
+
+}
+
+/* ==========================================================
+   FUTURE COLOR REFERENCES
+
+   RGB
+
+   RED
+   GREEN
+   BLUE
+
+   Generated
+
+   CYAN
+   MAGENTA
+   YELLOW
+   WHITE
+
+   VOID
+
+   BLACK
+
+   ========================================================== */
