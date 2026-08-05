@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="sr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="
+            width=device-width,
+            initial-scale=1,
+            maximum-scale=1,
+            user-scalable=no,
+            viewport-fit=cover
+        "
+    >
+
+    <meta
+        name="theme-color"
+        content="#050509"
+    >
+
+    <meta
+        name="mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"
+    >
+
+    <meta
+        name="description"
+        content="White Hat Rabbit Studios — WHR Color Engine v2.0 Laboratory"
+    >
+
+    <title>
+        WHR Color Engine v2.0
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- ==================================================
+             DEVELOPMENT HEADER
+        =================================================== -->
+
+        <header class="laboratory-header">
+
+            <div class="studio-mark">
+
+                <span class="studio-symbol" aria-hidden="true">
+                    ◇
+                </span>
+
+                <div class="studio-copy">
+
+                    <p class="studio-name">
+                        WHITE HAT RABBIT STUDIOS
+                    </p>
+
+                    <p class="engine-version">
+                        COLOR ENGINE v2.0
+                    </p>
+
+                </div>
+
+            </div>
+
+            <button
+                id="soundButton"
+                class="icon-button sound-button"
+                type="button"
+                aria-label="Uključi ili isključi muziku"
+                aria-pressed="true"
+            >
+
+                <span
+                    id="soundIcon"
+                    class="sound-icon"
+                    aria-hidden="true"
+                >
+                    ◉
+                </span>
+
+                <span id="soundLabel">
+                    MUSIC ON
+                </span>
+
+            </button>
+
+        </header>
+
+
+        <!-- ==================================================
+             GAME AREA
+        =================================================== -->
+
+        <main
+            id="laboratory"
+            class="laboratory"
+        >
+
+            <!-- ==============================================
+                 CANVAS
+            =============================================== -->
+
+            <canvas
+                id="gameCanvas"
+                aria-label="WHR Color Engine laboratorijska arena"
+            >
+
+                Vaš pregledač ne podržava HTML5 Canvas.
+
+            </canvas>
+
+
+            <!-- ==============================================
+                 LABORATORY HUD
+            =============================================== -->
+
+            <section
+                id="laboratoryHud"
+                class="laboratory-hud"
+                aria-label="Brojači kombinovanih zečeva"
+            >
+
+                <article
+                    class="combination-counter yellow-counter"
+                    data-color="YELLOW"
+                >
+
+                    <span
+                        class="counter-orb"
+                        aria-hidden="true"
+                    ></span>
+
+                    <div class="counter-content">
+
+                        <span class="counter-label">
+                            YELLOW
+                        </span>
+
+                        <strong
+                            id="yellowCount"
+                            class="counter-value"
+                        >
+                            0 / 5
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <article
+                    class="combination-counter magenta-counter"
+                    data-color="MAGENTA"
+                >
+
+                    <span
+                        class="counter-orb"
+                        aria-hidden="true"
+                    ></span>
+
+                    <div class="counter-content">
+
+                        <span class="counter-label">
+                            MAGENTA
+                        </span>
+
+                        <strong
+                            id="magentaCount"
+                            class="counter-value"
+                        >
+                            0 / 5
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <article
+                    class="combination-counter cyan-counter"
+                    data-color="CYAN"
+                >
+
+                    <span
+                        class="counter-orb"
+                        aria-hidden="true"
+                    ></span>
+
+                    <div class="counter-content">
+
+                        <span class="counter-label">
+                            CYAN
+                        </span>
+
+                        <strong
+                            id="cyanCount"
+                            class="counter-value"
+                        >
+                            0 / 5
+                        </strong>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- ==============================================
+                 STATUS MESSAGE
+            =============================================== -->
+
+            <div
+                id="statusMessage"
+                class="status-message"
+                role="status"
+                aria-live="polite"
+            >
+
+                <span
+                    id="statusIndicator"
+                    class="status-indicator"
+                    aria-hidden="true"
+                ></span>
+
+                <span id="statusText">
+                    LABORATORY STANDBY
+                </span>
+
+            </div>
+
+
+            <!-- ==============================================
+                 PLAY SCREEN
+            =============================================== -->
+
+            <section
+                id="startScreen"
+                class="screen-layer start-screen is-visible"
+                aria-labelledby="gameTitle"
+            >
+
+                <div class="start-panel">
+
+                    <div
+                        class="rabbit-signal"
+                        aria-hidden="true"
+                    >
+
+                        <span class="rabbit-ear rabbit-ear-left"></span>
+
+                        <span class="rabbit-ear rabbit-ear-right"></span>
+
+                        <span class="rabbit-core"></span>
+
+                    </div>
+
+                    <p class="start-kicker">
+                        RGB LABORATORY
+                    </p>
+
+                    <h1 id="gameTitle">
+                        WHR COLOR ENGINE
+                    </h1>
+
+                    <p class="start-version">
+                        VERSION 2.0
+                    </p>
+
+                    <p class="start-description">
+
+                        Usmeri tri RGB roditelja ka VOID reaktorima
+                        i napravi pet istih kombinovanih zečeva.
+
+                    </p>
+
+                    <div
+                        class="primary-colors"
+                        aria-label="Tri osnovne boje"
+                    >
+
+                        <span class="primary-color red-primary">
+                            RED
+                        </span>
+
+                        <span class="plus-symbol">
+                            +
+                        </span>
+
+                        <span class="primary-color green-primary">
+                            GREEN
+                        </span>
+
+                        <span class="plus-symbol">
+                            +
+                        </span>
+
+                        <span class="primary-color blue-primary">
+                            BLUE
+                        </span>
+
+                    </div>
+
+                    <button
+                        id="playButton"
+                        class="play-button"
+                        type="button"
+                    >
+
+                        <span
+                            class="play-button-symbol"
+                            aria-hidden="true"
+                        >
+                            ▶
+                        </span>
+
+                        <span class="play-button-text">
+                            PLAY
+                        </span>
+
+                    </button>
+
+                    <p class="start-hint">
+
+                        Dodirni zeca da mu preneseš energiju.
+
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==============================================
+                 VICTORY SCREEN
+            =============================================== -->
+
+            <section
+                id="victoryScreen"
+                class="screen-layer victory-screen"
+                aria-labelledby="victoryTitle"
+                aria-hidden="true"
+            >
+
+                <div class="victory-panel">
+
+                    <div
+                        id="victoryColorOrb"
+                        class="victory-orb"
+                        aria-hidden="true"
+                    ></div>
+
+                    <p class="victory-kicker">
+                        EXPERIMENT COMPLETE
+                    </p>
+
+                    <h2 id="victoryTitle">
+                        LABORATORIJA JE ZAVRŠENA
+                    </h2>
+
+                    <p id="victoryMessage">
+
+                        Napravljeno je pet istih kombinovanih zečeva.
+
+                    </p>
+
+                    <div class="victory-actions">
+
+                        <button
+                            id="restartButton"
+                            class="restart-button"
+                            type="button"
+                        >
+
+                            <span aria-hidden="true">
+                                ↻
+                            </span>
+
+                            PONOVI EKSPERIMENT
+
+                        </button>
+
+                    </div>
+
+                    <p class="victory-motto">
+
+                        Svi za jednog. Jedan za sve.
+
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==============================================
+                 ORIENTATION NOTICE
+            =============================================== -->
+
+            <aside
+                id="orientationNotice"
+                class="orientation-notice"
+                aria-hidden="true"
+            >
+
+                <div class="orientation-device">
+
+                    <span class="orientation-arrow">
+                        ↻
+                    </span>
+
+                </div>
+
+                <p>
+                    Za najbolje iskustvo koristi uspravni položaj.
+                </p>
+
+            </aside>
+
+        </main>
+
+
+        <!-- ==================================================
+             DEVELOPMENT FOOTER
+        =================================================== -->
+
+        <footer class="laboratory-footer">
+
+            <p>
+                RGB PARENTS
+                <span aria-hidden="true">•</span>
+                VOID GENERATORS
+                <span aria-hidden="true">•</span>
+                COLOR FLOW
+            </p>
+
+        </footer>
+
+    </div>
+
+
+    <!-- ======================================================
+         NOSCRIPT
+    ======================================================= -->
+
+    <noscript>
+
+        <div class="noscript-message">
+
+            <h2>
+                JavaScript nije uključen.
+            </h2>
+
+            <p>
+                WHR Color Engine zahteva JavaScript da bi laboratorija radila.
+            </p>
+
+        </div>
+
+    </noscript>
+
+
+    <!-- ======================================================
+         SCRIPT
+    ======================================================= -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
