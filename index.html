@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="sr">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>White Hat Rabbit Studios // Control Center v11.2</title>
@@ -1332,7 +1333,30 @@
                 <p id="modalNewsText" style="color: #cbd5e1; white-space: pre-line; font-size:13px; line-height:1.6;"></p>
             </div>
         </div>
+        
+    <!-- PDF READER MODAL (Samo čitanje / Bez skidanja) -->
+        <div id="pdfModal" class="modal-overlay" onclick="closePdfModal(event)">
+            <div class="modal-content" style="max-width: 90vw; width: 1000px; height: 90vh; display: flex; flex-direction: column; background: #020408; border: 1px solid var(--accent-blue); padding: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; margin-bottom: 10px;">
+                    <div style="color: var(--accent-blue); font-family: monospace; font-weight: bold; font-size: 14px;" id="pdfModalTitle">
+                        📜 WHR CODEX VIEWER
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="download-btn" onclick="prevPdfPage()" style="padding: 4px 10px; cursor: pointer;">❮</button>
+                        <span style="font-family: monospace; font-size: 12px; color: var(--text-muted);">
+                            Strana: <span id="pdfPageNum" style="color: var(--accent-green);">1</span> / <span id="pdfPageCount">-</span>
+                        </span>
+                        <button class="download-btn" onclick="nextPdfPage()" style="padding: 4px 10px; cursor: pointer;">❯</button>
+                        <span class="modal-close" onclick="closePdfModalDirect()" style="position: static; margin-left: 15px; cursor: pointer;">&times;</span>
+                    </div>
+                </div>
 
+                <div style="flex-grow: 1; overflow: auto; display: flex; justify-content: center; align-items: center; background: #010204; border: 1px solid var(--border-color); border-radius: 4px;" oncontextmenu="return false;">
+                    <canvas id="pdfCanvas" style="max-width: 100%; max-height: 100%; object-fit: contain;"></canvas>
+                </div>
+            </div>
+        </div>
+        
         <!-- Footer -->
         <div class="footer">
             <strong>WHITE HAT RABBIT STUDIOS</strong> // Kikinda, Serbia<br>
@@ -1735,6 +1759,87 @@
             }, 700);
         }
 
+        // --- WHR SECURE PDF VIEWER MODULE ---
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+var pdfDoc = null,
+    currentPdfPage = 1,
+    pageRendering = false,
+    pageNumPending = null;
+
+function openPdfModal(pdfUrl, docTitle) {
+    document.getElementById('pdfModalTitle').innerText = '📜 CODEX // ' + docTitle;
+    document.getElementById('pdfModal').classList.add('active');
+    document.body.style.overflow = "hidden";
+    if (typeof pauseHeroSlideshow === "function") pauseHeroSlideshow();
+
+    currentPdfPage = 1;
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+        pdfDoc = pdfDoc_;
+        document.getElementById('pdfPageCount').innerText = pdfDoc.numPages;
+        renderPdfPage(currentPdfPage);
+    });
+}
+
+function renderPdfPage(num) {
+    pageRendering = true;
+    pdfDoc.getPage(num).then(function(page) {
+        var canvas = document.getElementById('pdfCanvas');
+        var ctx = canvas.getContext('2d');
+        var viewport = page.getViewport({ scale: 1.5 });
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        var renderContext = {
+            canvasContext: ctx,
+            viewport: viewport
+        };
+        
+        page.render(renderContext).promise.then(function() {
+            pageRendering = false;
+            if (pageNumPending !== null) {
+                renderPdfPage(pageNumPending);
+                pageNumPending = null;
+            }
+        });
+
+        document.getElementById('pdfPageNum').innerText = num;
+    });
+}
+
+function queueRenderPage(num) {
+    if (pageRendering) {
+        pageNumPending = num;
+    } else {
+        renderPdfPage(num);
+    }
+}
+
+function prevPdfPage() {
+    if (currentPdfPage <= 1) return;
+    currentPdfPage--;
+    queueRenderPage(currentPdfPage);
+}
+
+function nextPdfPage() {
+    if (pdfDoc && currentPdfPage >= pdfDoc.numPages) return;
+    currentPdfPage++;
+    queueRenderPage(currentPdfPage);
+}
+
+function closePdfModal(e) {
+    if (e.target === document.getElementById('pdfModal')) {
+        closePdfModalDirect();
+    }
+}
+
+function closePdfModalDirect() {
+    var modal = document.getElementById('pdfModal');
+    if (modal) modal.classList.remove('active');
+    document.body.style.overflow = "";
+    if (typeof resumeHeroSlideshow === "function") resumeHeroSlideshow();
+}
         // GLOBALNI KEYBOARD LISTENER (ESC za izlaz)
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
