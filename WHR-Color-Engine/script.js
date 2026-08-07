@@ -6472,6 +6472,7 @@ ENGINE.mode =
 document.body.classList.remove(
     "game-running",
     "game-won"
+    "game-over"
 );
 
 document.body.classList.add(
