@@ -6370,7 +6370,7 @@ ENGINE.victoryTimer =
     CONFIG.victoryDelay;
 
 ENGINE.mode =
-    "VICTORY_PENDING";
+    "updateRealTime(delta)";
 
 setStatus(
     `${colorId} ×${CONFIG.victoryTarget} • EKSPERIMENT ZAVRŠEN`,
@@ -7711,7 +7711,7 @@ if (
         showVictoryScreen();
     }
 }
-}
+
 if (
     ENGINE.mode ===
     "GAME_OVER_PENDING"
@@ -7726,6 +7726,8 @@ if (
 
         showGameOverScreen();
     }
+}
+
 }
 /* ==========================================================
    BACKGROUND RENDER
