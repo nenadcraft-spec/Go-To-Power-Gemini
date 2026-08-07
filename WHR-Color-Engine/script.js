@@ -1119,75 +1119,126 @@ updateCounter(
 );
 }
 
-/* ==========================================================
-   PROCEDURALNA MUZIKA
-   COLOR FLOW
-   ========================================================== */
+/* =========================================================
+   WHR MUSIC ENGINE - "NEON STATIC" (by Claude & WHR Crew)
+   Originalna WHR univerzum tema, 100% proceduralna,
+   komponovana i generisana cistim Web Audio API-jem.
+   ========================================================= */
 
-class ColorFlowMusic {
+const NOTE_INDEX = {
+  C: 0, "C#": 1, D: 2, "D#": 3, E: 4, F: 5,
+  "F#": 6, G: 7, "G#": 8, A: 9, "A#": 10, B: 11,
+};
 
-constructor() {
-
-    this.context = null;
-
-    this.masterGain = null;
-    this.filter = null;
-
-    this.isEnabled = true;
-    this.isPlaying = false;
-
-    this.timerId = null;
-
-    this.step = 0;
-
-    this.nextNoteTime = 0;
-
-    this.lookAhead =
-        0.14;
-
-    this.schedulerInterval =
-        45;
-
-    this.tempo =
-        CONFIG.musicTempo;
-
-    this.scale = [
-
-        45,
-        48,
-        52,
-        55,
-        57,
-        60,
-        64
-    ];
-
-    this.bassPattern = [
-
-        45,
-        45,
-        48,
-        45,
-
-        52,
-        48,
-        45,
-        43
-    ];
-
-    this.arpPattern = [
-
-        0,
-        2,
-        4,
-        6,
-
-        4,
-        2,
-        5,
-        3
-    ];
+function noteFreq(note) {
+  const match = note.match(/^([A-G]#?)(\d)$/);
+  if (!match) return 0;
+  const [, name, octaveStr] = match;
+  const octave = Number(octaveStr);
+  const semitoneFromA4 = NOTE_INDEX[name] + (octave - 4) * 12 - 9;
+  return 440 * Math.pow(2, semitoneFromA4 / 12);
 }
+
+class MusicEngine {
+  constructor(audioFX) {
+    this.audioFX = audioFX || null;
+    this.ctx = (audioFX && audioFX.ctx) || null;
+    // SOUND dugme je jedini autoritet za SFX i muziku.
+    this.enabled = audioFX
+      ? audioFX.enabled
+      : localStorage.getItem(MusicEngine.KEY) !== "false";
+    this.playing = false;
+
+    this.tempo = 132;
+    this.stepSeconds = 60 / this.tempo / 4; // 16th note
+    this.stepsPerBar = 16;
+    this.currentStep = 0;
+    this.nextStepTime = 0;
+    this.lookaheadMs = 25;
+    this.scheduleAheadSec = 0.12;
+    this.timerId = null;
+    this.introTimerId = null;
+    this.introSources = new Set();
+
+    this.intensity = 1;
+    this.master = null;
+
+    this.bass = [
+      "A2", null, null, null, "E2", null, null, null,
+      "F2", null, null, null, "G2", null, null, null,
+      "A2", null, null, null, "E2", null, null, null,
+      "D2", null, null, null, "G2", null, null, null,
+      "A2", null, "A2", null, "E2", null, "A2", null,
+      "F2", null, "F2", null, "G2", null, "E2", null,
+      "A2", null, "A2", null, "E2", null, "A2", null,
+      "D2", null, "F2", null, "G2", null, "G2", null,
+      "D2", null, "D2", null, "A2", null, "D2", null,
+      "F2", null, "G2", null, "A2", null, "A2", null,
+      "D2", null, "D2", null, "A2", null, "D2", null,
+      "C2", null, "E2", null, "F2", null, "G2", null,
+      "A2", null, "A2", "A2", "E2", null, "E2", "E2",
+      "F2", null, "F2", "F2", "G2", "G2", "A2", "A2",
+      "G2", null, "F2", null, "E2", null, "D2", null,
+      "C2", null, "D2", null, "E2", null, "A2", null,
+    ];
+
+    this.arp = [
+      null, "C5", null, "E4", null, "C5", null, "A4",
+      null, "A4", null, "F4", null, "A4", null, "C5",
+      null, "E5", null, "C5", null, "A4", null, "C5",
+      null, "F4", null, "A4", null, "D5", null, "B4",
+      "A4", "C5", "E4", "C5", "A4", "C5", "E4", "G4",
+      "F4", "A4", "C5", "A4", "G4", "B4", "D5", "E4",
+      "A4", "E5", "C5", "E5", "A4", "C5", "E4", "A4",
+      "D4", "F4", "A4", "F4", "G4", "D5", "B4", "G4",
+      "D4", "F4", "A4", "F4", "D4", "F4", "A4", "C5",
+      "F4", "A4", "C5", "A4", "A4", "C5", "E5", "D5",
+      "D4", "A4", "F4", "A4", "D4", "F4", "A4", "D5",
+      "C4", "E4", "G4", "E4", "F4", "A4", "C5", "D5",
+      "A4", "C5", "E5", "C5", "A4", "E4", "C5", "A4",
+      "F4", "A4", "D5", "C5", "G4", "B4", "D5", "E5",
+      "C4", "E4", "G4", "C5", "E5", "G5", "A5", "G5",
+      "E5", "C5", "A4", "G4", "E4", "C4", "E4", "A4",
+    ];
+
+    this.lead = [
+      null, null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null, null,
+      "E5", null, null, "C5", null, "A4", null, null,
+      "D5", null, "C5", null, "A4", null, "G4", null,
+      "E5", null, null, "G5", null, "E5", null, null,
+      "D5", null, "B4", null, "D5", null, "A4", null,
+      "A5", null, null, "F5", null, "D5", null, null,
+      "G5", null, "F5", null, "D5", null, "C5", null,
+      "A5", null, null, "C6", null, "A5", null, null,
+      "G5", null, "E5", null, "G5", null, "D5", null,
+      "C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5",
+      "B4", "A4", null, null, "E5", null, "A4", null,
+      "G4", null, "A4", null, "C5", null, "D5", null,
+      "E5", null, null, null, null, null, null, null,
+    ];
+
+    this.hi = [
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      1, 0, 1, 0, 1, 0, 1, 1,
+      1, 0, 1, 0, 1, 0, 1, 1,
+      1, 0, 1, 0, 1, 0, 1, 1,
+      1, 0, 1, 1, 1, 0, 1, 1,
+      1, 1, 1, 0, 1, 1, 1, 0,
+      1, 1, 1, 0, 1, 1, 1, 0,
+      1, 1, 1, 0, 1, 1, 1, 0,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1,
+    ];
+  }
 
 
 ensureContext() {
