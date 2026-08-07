@@ -6979,11 +6979,18 @@ if (
         );
 
         second.smile.trigger(
-            0.5,
-            0.7
-        );
-    }
-}
+    0.5,
+    0.7
+);
+
+if (
+    shouldReproduce
+) {
+
+    spawnChildFromChildren(
+        first,
+        second
+    );
 }
 
 /* ==========================================================
