@@ -6464,15 +6464,14 @@ for (
 }
 }
 
-function showVictoryScreen() {
-   
+function showGameOverScreen() {
+
 ENGINE.mode =
     "GAME_OVER";
 
 document.body.classList.remove(
     "game-running",
-    "game-won",
-    "game-over"
+    "game-won"
 );
 
 document.body.classList.add(
@@ -6532,6 +6531,8 @@ MUSIC.playReactionTone(
 );
 }
 
+function showVictoryScreen() {
+
 const colorId =
     ENGINE.winningColorId;
 
@@ -6547,7 +6548,7 @@ if (!definition) {
 
 ENGINE.mode =
     "WON";
-   
+
 if (
     victoryKicker
 ) {
@@ -6568,12 +6569,12 @@ restartButton.textContent =
     "↻ PONOVI EKSPERIMENT";
 
 document.body.classList.remove(
-    "game-running"
+    "game-running",
+    "game-over"
 );
 
-document.body.classList.remove(
-    "game-won",
-    "game-over"
+document.body.classList.add(
+    "game-won"
 );
 
 victoryColorOrb.style.background =
