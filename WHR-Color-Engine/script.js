@@ -389,6 +389,9 @@ winningColorId: null,
 
 victoryTimer: 0,
 
+gameOverTimer: 0,
+gameOverReason: null,
+
 tiltCooldown: 0,
 
 backgroundStars: []
