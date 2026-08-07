@@ -5739,6 +5739,9 @@ ENGINE.winningColorId = null;
 
 ENGINE.victoryTimer = 0;
 
+ENGINE.gameOverTimer = 0;
+ENGINE.gameOverReason = null;
+
 ENGINE.tiltCooldown = 0;
 
 resetCounts();
