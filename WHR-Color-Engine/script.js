@@ -6248,6 +6248,100 @@ checkVictory(
 }
 
 /* ==========================================================
+   VOID LOCKOUT
+
+   3 roditelja
+   3 različita VOID-a
+   = GAME OVER
+   ========================================================== */
+
+function checkVoidLockoutGameOver() {
+
+if (
+    ENGINE.mode !== "RUNNING"
+) {
+
+    return;
+}
+
+const capturedParents =
+    ENGINE.parents.filter(
+        parent =>
+            parent.isCaptured &&
+            parent.capturedByVoidId !== null
+    );
+
+if (
+    capturedParents.length !== 3
+) {
+
+    return;
+}
+
+const occupiedVoidIds =
+    new Set(
+        capturedParents.map(
+            parent =>
+                parent.capturedByVoidId
+        )
+    );
+
+if (
+    occupiedVoidIds.size !== 3
+) {
+
+    return;
+}
+
+const validLockout =
+    [...occupiedVoidIds]
+        .every(
+            voidId => {
+
+                const reactor =
+                    ENGINE.voids[
+                        voidId
+                    ];
+
+                return (
+                    reactor &&
+                    reactor.memory.length === 1 &&
+                    !reactor.processing
+                );
+            }
+        );
+
+if (
+    !validLockout
+) {
+
+    return;
+}
+
+ENGINE.mode =
+    "GAME_OVER_PENDING";
+
+ENGINE.gameOverReason =
+    "THREE_PARENTS_THREE_VOIDS";
+
+ENGINE.gameOverTimer =
+    CONFIG.gameOverDelay;
+
+setStatus(
+    "VOID LOCKOUT • 3 RODITELJA / 3 REAKTORA",
+    "warning"
+);
+
+for (
+    const reactor
+    of ENGINE.voids
+) {
+
+    reactor.singleOccupantTimer = 0;
+}
+}
+
+/* ==========================================================
    VICTORY
    ========================================================== */
 
