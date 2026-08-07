@@ -6370,7 +6370,7 @@ ENGINE.victoryTimer =
     CONFIG.victoryDelay;
 
 ENGINE.mode =
-    "updateRealTime(delta)";
+    "VICTORY_PENDING";
 
 setStatus(
     `${colorId} ×${CONFIG.victoryTarget} • EKSPERIMENT ZAVRŠEN`,
@@ -6465,6 +6465,71 @@ for (
 }
 
 function showVictoryScreen() {
+   
+ENGINE.mode =
+    "GAME_OVER";
+
+document.body.classList.remove(
+    "game-running",
+    "game-won"
+);
+
+document.body.classList.add(
+    "game-over"
+);
+
+if (
+    victoryKicker
+) {
+
+    victoryKicker.textContent =
+        "EXPERIMENT FAILED";
+}
+
+if (
+    victoryTitle
+) {
+
+    victoryTitle.textContent =
+        "VOID LOCKOUT";
+}
+
+victoryColorOrb.style.background =
+    "radial-gradient(" +
+    "circle at 34% 28%," +
+    "#ffffff 0%," +
+    "#8b5cf6 24%," +
+    "#32145f 58%," +
+    "#030108 100%" +
+    ")";
+
+victoryColorOrb.style.boxShadow =
+    "0 0 28px rgba(139,92,246,0.4)," +
+    "0 0 70px rgba(139,92,246,0.18)," +
+    "inset 0 0 24px rgba(255,255,255,0.16)";
+
+victoryMessage.textContent =
+    "Sva tri RGB roditelja ostala su zarobljena " +
+    "u tri različita VOID reaktora.";
+
+restartButton.textContent =
+    "↻ PONOVI EKSPERIMENT";
+
+victoryScreen.classList.add(
+    "is-visible"
+);
+
+victoryScreen.setAttribute(
+    "aria-hidden",
+    "false"
+);
+
+victoryScreen.scrollTop = 0;
+
+MUSIC.playReactionTone(
+    "MAGENTA"
+);
+}
 
 const colorId =
     ENGINE.winningColorId;
