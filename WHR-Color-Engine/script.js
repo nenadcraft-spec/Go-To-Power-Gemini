@@ -68,12 +68,33 @@ pointerHitPadding: 22,
 /* Combined rabbits */
 
 combinedRadiusFactor: 0.86,
-combinedMaxSpeed: 470,
+combinedMaxSpeed: 560,
 
-combinedSpawnSpeedMin: 165,
-combinedSpawnSpeedMax: 265,
+combinedSpawnSpeedMin: 210,
+combinedSpawnSpeedMax: 330,
 
-combinedCollisionBounce: 0.88,
+combinedCollisionBounce: 0.96,
+
+/* Jači odskok dece od arene */
+
+combinedWallBounce: 1.02,
+combinedWallKick: 1.08,
+combinedMinimumWallSpeed: 125,
+
+/* CHILD REPRODUCTION */
+
+childReproductionCooldown: 2.15,
+childReproductionInitialCooldown: 1.05,
+childReproductionMinImpactSpeed: 105,
+
+childReproductionSpawnSpeedMin: 215,
+childReproductionSpawnSpeedMax: 315,
+
+childMaximumPopulation: 36,
+
+/* PARENT ↔ PARENT COLLISION */
+
+parentCollisionBounce: 0.92,
 
 /* Overlap */
 
