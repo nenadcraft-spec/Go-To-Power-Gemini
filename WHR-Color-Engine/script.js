@@ -146,6 +146,8 @@ maximumParticles: 240,
 victoryTarget: 5,
 victoryDelay: 0.85,
 
+gameOverDelay: 0.75,
+
 /* Smile Engine */
 
 smileIdleMinimum: 2.8,
