@@ -6481,6 +6481,25 @@ if (!definition) {
 
 ENGINE.mode =
     "WON";
+   
+if (
+    victoryKicker
+) {
+
+    victoryKicker.textContent =
+        "EXPERIMENT COMPLETE";
+}
+
+if (
+    victoryTitle
+) {
+
+    victoryTitle.textContent =
+        "LABORATORIJA JE ZAVRŠENA";
+}
+
+restartButton.textContent =
+    "↻ PONOVI EKSPERIMENT";
 
 document.body.classList.remove(
     "game-running"
