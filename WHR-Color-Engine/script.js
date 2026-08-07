@@ -7712,7 +7712,21 @@ if (
     }
 }
 }
+if (
+    ENGINE.mode ===
+    "GAME_OVER_PENDING"
+) {
 
+    ENGINE.gameOverTimer -=
+        delta;
+
+    if (
+        ENGINE.gameOverTimer <= 0
+    ) {
+
+        showGameOverScreen();
+    }
+}
 /* ==========================================================
    BACKGROUND RENDER
    ========================================================== */
