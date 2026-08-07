@@ -7629,6 +7629,9 @@ for (
         delta
     );
 }
+resolveParentRabbitCollisions();
+
+checkVoidLockoutGameOver();
 
 for (
     const rabbit
