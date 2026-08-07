@@ -3506,6 +3506,13 @@ update(delta) {
             this.glowEnergy -
             delta * 0.52
         );
+   
+    this.reproductionCooldown =
+    Math.max(
+        0,
+        this.reproductionCooldown -
+        delta
+    );
 
     this.integrate(
         delta,
