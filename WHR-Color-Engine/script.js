@@ -3454,6 +3454,16 @@ constructor(options) {
     this.spawnScale = 0.12;
 
     this.glowEnergy = 1;
+   
+   this.generation =
+    Number.isFinite(options.generation)
+        ? options.generation
+        : 1;
+
+this.reproductionCooldown =
+    Number.isFinite(options.reproductionCooldown)
+        ? options.reproductionCooldown
+        : CONFIG.childReproductionInitialCooldown;
 
     this.smile.trigger(
         1,
