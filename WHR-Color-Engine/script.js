@@ -7101,10 +7101,13 @@ if (
     shouldReproduce
 ) {
 
-    spawnChildFromChildren(
+     spawnChildFromChildren(
         first,
         second
     );
+}
+
+    }
 }
 }
    
