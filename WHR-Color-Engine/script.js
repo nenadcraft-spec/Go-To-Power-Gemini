@@ -3271,6 +3271,123 @@ update(delta) {
         delta
     );
 }
+   resolveWorldBounds() {
+
+    const minimumX =
+        this.radius +
+        CONFIG.wallPadding;
+
+    const maximumX =
+        ENGINE.width -
+        this.radius -
+        CONFIG.wallPadding;
+
+    const minimumY =
+        this.radius +
+        CONFIG.wallPadding;
+
+    const maximumY =
+        ENGINE.height -
+        this.radius -
+        CONFIG.wallPadding;
+
+    const reboundSpeed = speed => {
+
+        return Math.max(
+            CONFIG.combinedMinimumWallSpeed,
+            speed *
+            CONFIG.combinedWallBounce *
+            CONFIG.combinedWallKick
+        );
+    };
+
+    if (this.x < minimumX) {
+
+        this.x = minimumX;
+
+        if (this.vx < 0) {
+
+            const speed =
+                Math.abs(this.vx);
+
+            this.vx =
+                reboundSpeed(speed);
+
+            this.registerImpact(
+                1,
+                0,
+                speed
+            );
+        }
+    }
+
+    if (this.x > maximumX) {
+
+        this.x = maximumX;
+
+        if (this.vx > 0) {
+
+            const speed =
+                Math.abs(this.vx);
+
+            this.vx =
+                -reboundSpeed(speed);
+
+            this.registerImpact(
+                -1,
+                0,
+                speed
+            );
+        }
+    }
+
+    if (this.y < minimumY) {
+
+        this.y = minimumY;
+
+        if (this.vy < 0) {
+
+            const speed =
+                Math.abs(this.vy);
+
+            this.vy =
+                reboundSpeed(speed);
+
+            this.registerImpact(
+                0,
+                1,
+                speed
+            );
+        }
+    }
+
+    if (this.y > maximumY) {
+
+        this.y = maximumY;
+
+        if (this.vy > 0) {
+
+            const speed =
+                Math.abs(this.vy);
+
+            this.vy =
+                -reboundSpeed(speed);
+
+            this.vx *= 0.998;
+
+            this.registerImpact(
+                0,
+                -1,
+                speed
+            );
+        }
+    }
+
+    limitVelocity(
+        this,
+        CONFIG.combinedMaxSpeed
+    );
+}
 
 
 applyPointerImpulse(
