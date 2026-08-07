@@ -197,6 +197,14 @@ const victoryColorOrb =
 const victoryMessage =
     document.getElementById("victoryMessage");
 
+const victoryTitle =
+    document.getElementById("victoryTitle");
+
+const victoryKicker =
+    victoryScreen
+        ? victoryScreen.querySelector(".victory-kicker")
+        : null;
+
 const statusMessage =
     document.getElementById("statusMessage");
 
