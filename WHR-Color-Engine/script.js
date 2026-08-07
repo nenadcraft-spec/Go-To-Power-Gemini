@@ -6571,6 +6571,196 @@ ENGINE.overlapEffects =
 }
 
 /* ==========================================================
+   PARENT COLLISION LAYER
+
+   Parent ↔ Parent = YES
+   Parent ↔ Child  = NO
+   ========================================================== */
+
+function resolveParentRabbitCollisions() {
+
+const parents =
+    ENGINE.parents;
+
+for (
+    let i = 0;
+    i < parents.length;
+    i += 1
+) {
+
+    const first =
+        parents[i];
+
+    if (
+        first.isCaptured
+    ) {
+
+        continue;
+    }
+
+    for (
+        let j = i + 1;
+        j < parents.length;
+        j += 1
+    ) {
+
+        const second =
+            parents[j];
+
+        if (
+            second.isCaptured
+        ) {
+
+            continue;
+        }
+
+        const dx =
+            second.x -
+            first.x;
+
+        const dy =
+            second.y -
+            first.y;
+
+        const minimumDistance =
+            first.radius +
+            second.radius;
+
+        const distanceSquaredValue =
+            dx * dx +
+            dy * dy;
+
+        if (
+            distanceSquaredValue >=
+            minimumDistance *
+            minimumDistance
+        ) {
+
+            continue;
+        }
+
+        let distance =
+            Math.sqrt(
+                distanceSquaredValue
+            );
+
+        let normalX;
+        let normalY;
+
+        if (
+            distance < 0.0001
+        ) {
+
+            const angle =
+                randomRange(
+                    0,
+                    Math.PI * 2
+                );
+
+            normalX =
+                Math.cos(angle);
+
+            normalY =
+                Math.sin(angle);
+
+            distance =
+                0.0001;
+
+        } else {
+
+            normalX =
+                dx / distance;
+
+            normalY =
+                dy / distance;
+        }
+
+        const overlap =
+            minimumDistance -
+            distance;
+
+        const correction =
+            overlap * 0.5;
+
+        first.x -=
+            normalX *
+            correction;
+
+        first.y -=
+            normalY *
+            correction;
+
+        second.x +=
+            normalX *
+            correction;
+
+        second.y +=
+            normalY *
+            correction;
+
+        const relativeVelocityX =
+            second.vx -
+            first.vx;
+
+        const relativeVelocityY =
+            second.vy -
+            first.vy;
+
+        const velocityAlongNormal =
+            relativeVelocityX *
+            normalX +
+            relativeVelocityY *
+            normalY;
+
+        if (
+            velocityAlongNormal > 0
+        ) {
+
+            continue;
+        }
+
+        const impulse =
+            -(
+                1 +
+                CONFIG.parentCollisionBounce
+            ) *
+            velocityAlongNormal /
+            2;
+
+        const impulseX =
+            impulse *
+            normalX;
+
+        const impulseY =
+            impulse *
+            normalY;
+
+        first.vx -= impulseX;
+        first.vy -= impulseY;
+
+        second.vx += impulseX;
+        second.vy += impulseY;
+
+        first.registerImpact(
+            -normalX,
+            -normalY,
+            Math.abs(
+                velocityAlongNormal
+            )
+        );
+
+        second.registerImpact(
+            normalX,
+            normalY,
+            Math.abs(
+                velocityAlongNormal
+            )
+        );
+    }
+}
+}
+
+/* ==========================================================
    KOMBINOVANI SUDARI
    ========================================================== */
 
