@@ -6505,8 +6505,9 @@ document.body.classList.remove(
     "game-running"
 );
 
-document.body.classList.add(
-    "game-won"
+document.body.classList.remove(
+    "game-won",
+    "game-over"
 );
 
 victoryColorOrb.style.background =
@@ -7459,6 +7460,24 @@ ENGINE.lastTimestamp =
     performance.now();
 
 ENGINE.accumulator = 0;
+if (
+    victoryKicker
+) {
+
+    victoryKicker.textContent =
+        "EXPERIMENT COMPLETE";
+}
+
+if (
+    victoryTitle
+) {
+
+    victoryTitle.textContent =
+        "LABORATORIJA JE ZAVRŠENA";
+}
+
+restartButton.textContent =
+    "↻ PONOVI EKSPERIMENT";
 
 document.body.classList.remove(
     "game-won"
