@@ -6895,6 +6895,32 @@ for (
             normalX +
             relativeVelocityY *
             normalY;
+       const impactSpeed =
+    Math.max(
+        0,
+        -velocityAlongNormal
+    );
+
+const shouldReproduce =
+    first.colorId === second.colorId &&
+    first.reproductionCooldown <= 0 &&
+    second.reproductionCooldown <= 0 &&
+    impactSpeed >=
+        CONFIG.childReproductionMinImpactSpeed &&
+    ENGINE.mode === "RUNNING" &&
+    ENGINE.combinedRabbits.length <
+        CONFIG.childMaximumPopulation;
+
+if (
+    shouldReproduce
+) {
+
+    first.reproductionCooldown =
+        CONFIG.childReproductionCooldown;
+
+    second.reproductionCooldown =
+        CONFIG.childReproductionCooldown;
+}
 
         if (
             velocityAlongNormal > 0
