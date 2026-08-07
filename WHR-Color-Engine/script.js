@@ -1120,126 +1120,296 @@ updateCounter(
 }
 
 /* =========================================================
-   WHR MUSIC ENGINE - "NEON STATIC" (by Claude & WHR Crew)
-   Originalna WHR univerzum tema, 100% proceduralna,
-   komponovana i generisana cistim Web Audio API-jem.
+   WHR MUSIC ENGINE - "NEON STATIC"
+   COLOR ENGINE EDITION
+
+   WHR Rabbit Reflex tema prilagođena Color Engine-u.
+   100% proceduralni Web Audio API.
+
+   INTERFACE:
+   MUSIC.isEnabled
+   MUSIC.start()
+   MUSIC.stop()
+   MUSIC.setEnabled()
+   MUSIC.playReactionTone()
+   MUSIC.playImpulseTone()
+   MUSIC.playVictoryTone()
    ========================================================= */
 
 const NOTE_INDEX = {
-  C: 0, "C#": 1, D: 2, "D#": 3, E: 4, F: 5,
-  "F#": 6, G: 7, "G#": 8, A: 9, "A#": 10, B: 11,
+    C: 0,
+    "C#": 1,
+    D: 2,
+    "D#": 3,
+    E: 4,
+    F: 5,
+    "F#": 6,
+    G: 7,
+    "G#": 8,
+    A: 9,
+    "A#": 10,
+    B: 11
 };
 
+
 function noteFreq(note) {
-  const match = note.match(/^([A-G]#?)(\d)$/);
-  if (!match) return 0;
-  const [, name, octaveStr] = match;
-  const octave = Number(octaveStr);
-  const semitoneFromA4 = NOTE_INDEX[name] + (octave - 4) * 12 - 9;
-  return 440 * Math.pow(2, semitoneFromA4 / 12);
+
+    if (!note) {
+        return 0;
+    }
+
+    const match =
+        String(note).match(
+            /^([A-G]#?)(\d)$/
+        );
+
+    if (!match) {
+        return 0;
+    }
+
+    const name =
+        match[1];
+
+    const octave =
+        Number(match[2]);
+
+    const semitoneFromA4 =
+        NOTE_INDEX[name] +
+        (octave - 4) * 12 -
+        9;
+
+    return (
+        440 *
+        Math.pow(
+            2,
+            semitoneFromA4 / 12
+        )
+    );
 }
 
+
 class MusicEngine {
-  constructor(audioFX) {
-    this.audioFX = audioFX || null;
-    this.ctx = (audioFX && audioFX.ctx) || null;
-    // SOUND dugme je jedini autoritet za SFX i muziku.
-    this.enabled = audioFX
-      ? audioFX.enabled
-      : localStorage.getItem(MusicEngine.KEY) !== "false";
-    this.playing = false;
+
+constructor() {
+
+    this.context = null;
+
+    this.masterGain = null;
+    this.musicGain = null;
+    this.fxGain = null;
+
+    this.filter = null;
+
+    this.isEnabled = true;
+    this.isPlaying = false;
 
     this.tempo = 132;
-    this.stepSeconds = 60 / this.tempo / 4; // 16th note
-    this.stepsPerBar = 16;
-    this.currentStep = 0;
-    this.nextStepTime = 0;
-    this.lookaheadMs = 25;
-    this.scheduleAheadSec = 0.12;
-    this.timerId = null;
-    this.introTimerId = null;
-    this.introSources = new Set();
 
-    this.intensity = 1;
-    this.master = null;
+    /*
+        16th-note clock
+        132 BPM
+    */
+
+    this.stepSeconds =
+        60 /
+        this.tempo /
+        4;
+
+    this.currentStep = 0;
+
+    this.nextStepTime = 0;
+
+    this.lookAhead =
+        0.12;
+
+    this.schedulerInterval =
+        25;
+
+    this.timerId = null;
+
+    this.noiseBuffer = null;
+
+
+    /* =====================================================
+       NEON STATIC — BASS
+       ===================================================== */
 
     this.bass = [
-      "A2", null, null, null, "E2", null, null, null,
-      "F2", null, null, null, "G2", null, null, null,
-      "A2", null, null, null, "E2", null, null, null,
-      "D2", null, null, null, "G2", null, null, null,
-      "A2", null, "A2", null, "E2", null, "A2", null,
-      "F2", null, "F2", null, "G2", null, "E2", null,
-      "A2", null, "A2", null, "E2", null, "A2", null,
-      "D2", null, "F2", null, "G2", null, "G2", null,
-      "D2", null, "D2", null, "A2", null, "D2", null,
-      "F2", null, "G2", null, "A2", null, "A2", null,
-      "D2", null, "D2", null, "A2", null, "D2", null,
-      "C2", null, "E2", null, "F2", null, "G2", null,
-      "A2", null, "A2", "A2", "E2", null, "E2", "E2",
-      "F2", null, "F2", "F2", "G2", "G2", "A2", "A2",
-      "G2", null, "F2", null, "E2", null, "D2", null,
-      "C2", null, "D2", null, "E2", null, "A2", null,
+
+        "A2", null, null, null,
+        "E2", null, null, null,
+        "F2", null, null, null,
+        "G2", null, null, null,
+
+        "A2", null, null, null,
+        "E2", null, null, null,
+        "D2", null, null, null,
+        "G2", null, null, null,
+
+        "A2", null, "A2", null,
+        "E2", null, "A2", null,
+        "F2", null, "F2", null,
+        "G2", null, "E2", null,
+
+        "A2", null, "A2", null,
+        "E2", null, "A2", null,
+        "D2", null, "F2", null,
+        "G2", null, "G2", null,
+
+        "D2", null, "D2", null,
+        "A2", null, "D2", null,
+        "F2", null, "G2", null,
+        "A2", null, "A2", null,
+
+        "D2", null, "D2", null,
+        "A2", null, "D2", null,
+        "C2", null, "E2", null,
+        "F2", null, "G2", null,
+
+        "A2", null, "A2", "A2",
+        "E2", null, "E2", "E2",
+        "F2", null, "F2", "F2",
+        "G2", "G2", "A2", "A2",
+
+        "G2", null, "F2", null,
+        "E2", null, "D2", null,
+        "C2", null, "D2", null,
+        "E2", null, "A2", null
     ];
+
+
+    /* =====================================================
+       NEON STATIC — ARPEGGIO
+       ===================================================== */
 
     this.arp = [
-      null, "C5", null, "E4", null, "C5", null, "A4",
-      null, "A4", null, "F4", null, "A4", null, "C5",
-      null, "E5", null, "C5", null, "A4", null, "C5",
-      null, "F4", null, "A4", null, "D5", null, "B4",
-      "A4", "C5", "E4", "C5", "A4", "C5", "E4", "G4",
-      "F4", "A4", "C5", "A4", "G4", "B4", "D5", "E4",
-      "A4", "E5", "C5", "E5", "A4", "C5", "E4", "A4",
-      "D4", "F4", "A4", "F4", "G4", "D5", "B4", "G4",
-      "D4", "F4", "A4", "F4", "D4", "F4", "A4", "C5",
-      "F4", "A4", "C5", "A4", "A4", "C5", "E5", "D5",
-      "D4", "A4", "F4", "A4", "D4", "F4", "A4", "D5",
-      "C4", "E4", "G4", "E4", "F4", "A4", "C5", "D5",
-      "A4", "C5", "E5", "C5", "A4", "E4", "C5", "A4",
-      "F4", "A4", "D5", "C5", "G4", "B4", "D5", "E5",
-      "C4", "E4", "G4", "C5", "E5", "G5", "A5", "G5",
-      "E5", "C5", "A4", "G4", "E4", "C4", "E4", "A4",
+
+        null, "C5", null, "E4",
+        null, "C5", null, "A4",
+        null, "A4", null, "F4",
+        null, "A4", null, "C5",
+
+        null, "E5", null, "C5",
+        null, "A4", null, "C5",
+        null, "F4", null, "A4",
+        null, "D5", null, "B4",
+
+        "A4", "C5", "E4", "C5",
+        "A4", "C5", "E4", "G4",
+        "F4", "A4", "C5", "A4",
+        "G4", "B4", "D5", "E4",
+
+        "A4", "E5", "C5", "E5",
+        "A4", "C5", "E4", "A4",
+        "D4", "F4", "A4", "F4",
+        "G4", "D5", "B4", "G4",
+
+        "D4", "F4", "A4", "F4",
+        "D4", "F4", "A4", "C5",
+        "F4", "A4", "C5", "A4",
+        "A4", "C5", "E5", "D5",
+
+        "D4", "A4", "F4", "A4",
+        "D4", "F4", "A4", "D5",
+        "C4", "E4", "G4", "E4",
+        "F4", "A4", "C5", "D5",
+
+        "A4", "C5", "E5", "C5",
+        "A4", "E4", "C5", "A4",
+        "F4", "A4", "D5", "C5",
+        "G4", "B4", "D5", "E5",
+
+        "C4", "E4", "G4", "C5",
+        "E5", "G5", "A5", "G5",
+        "E5", "C5", "A4", "G4",
+        "E4", "C4", "E4", "A4"
     ];
+
+
+    /* =====================================================
+       NEON STATIC — LEAD
+       ===================================================== */
 
     this.lead = [
-      null, null, null, null, null, null, null, null,
-      null, null, null, null, null, null, null, null,
-      null, null, null, null, null, null, null, null,
-      null, null, null, null, null, null, null, null,
-      "E5", null, null, "C5", null, "A4", null, null,
-      "D5", null, "C5", null, "A4", null, "G4", null,
-      "E5", null, null, "G5", null, "E5", null, null,
-      "D5", null, "B4", null, "D5", null, "A4", null,
-      "A5", null, null, "F5", null, "D5", null, null,
-      "G5", null, "F5", null, "D5", null, "C5", null,
-      "A5", null, null, "C6", null, "A5", null, null,
-      "G5", null, "E5", null, "G5", null, "D5", null,
-      "C6", "B5", "A5", "G5", "F5", "E5", "D5", "C5",
-      "B4", "A4", null, null, "E5", null, "A4", null,
-      "G4", null, "A4", null, "C5", null, "D5", null,
-      "E5", null, null, null, null, null, null, null,
+
+        null, null, null, null,
+        null, null, null, null,
+        null, null, null, null,
+        null, null, null, null,
+
+        null, null, null, null,
+        null, null, null, null,
+        null, null, null, null,
+        null, null, null, null,
+
+        "E5", null, null, "C5",
+        null, "A4", null, null,
+        "D5", null, "C5", null,
+        "A4", null, "G4", null,
+
+        "E5", null, null, "G5",
+        null, "E5", null, null,
+        "D5", null, "B4", null,
+        "D5", null, "A4", null,
+
+        "A5", null, null, "F5",
+        null, "D5", null, null,
+        "G5", null, "F5", null,
+        "D5", null, "C5", null,
+
+        "A5", null, null, "C6",
+        null, "A5", null, null,
+        "G5", null, "E5", null,
+        "G5", null, "D5", null,
+
+        "C6", "B5", "A5", "G5",
+        "F5", "E5", "D5", "C5",
+        "B4", "A4", null, null,
+        "E5", null, "A4", null,
+
+        "G4", null, "A4", null,
+        "C5", null, "D5", null,
+        "E5", null, null, null,
+        null, null, null, null
     ];
+
+
+    /* =====================================================
+       NEON STATIC — HI-HAT
+       ===================================================== */
 
     this.hi = [
-      0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0,
-      1, 0, 1, 0, 1, 0, 1, 1,
-      1, 0, 1, 0, 1, 0, 1, 1,
-      1, 0, 1, 0, 1, 0, 1, 1,
-      1, 0, 1, 1, 1, 0, 1, 1,
-      1, 1, 1, 0, 1, 1, 1, 0,
-      1, 1, 1, 0, 1, 1, 1, 0,
-      1, 1, 1, 0, 1, 1, 1, 0,
-      1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1,
-    ];
-  }
 
+        0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,
+
+        0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,
+
+        1,0,1,0,1,0,1,1,
+        1,0,1,0,1,0,1,1,
+
+        1,0,1,0,1,0,1,1,
+        1,0,1,1,1,0,1,1,
+
+        1,1,1,0,1,1,1,0,
+        1,1,1,0,1,1,1,0,
+
+        1,1,1,0,1,1,1,0,
+        1,1,1,1,1,1,1,1,
+
+        1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,
+
+        1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1
+    ];
+}
+
+
+/* =========================================================
+   AUDIO CONTEXT
+   ========================================================= */
 
 ensureContext() {
 
@@ -1263,7 +1433,7 @@ ensureContext() {
         setStatus(
             "WEB AUDIO NIJE DOSTUPAN",
             "warning",
-            2400
+            2200
         );
 
         return;
@@ -1272,57 +1442,138 @@ ensureContext() {
     this.context =
         new AudioContextClass();
 
+
     this.masterGain =
+        this.context.createGain();
+
+    this.musicGain =
+        this.context.createGain();
+
+    this.fxGain =
         this.context.createGain();
 
     this.filter =
         this.context.createBiquadFilter();
 
+
     this.filter.type =
         "lowpass";
 
     this.filter.frequency.value =
-        1800;
+        5200;
 
     this.filter.Q.value =
-        0.5;
+        0.72;
+
 
     this.masterGain.gain.value =
+        CONFIG.musicMasterVolume;
+
+    this.musicGain.gain.value =
         0;
 
+    this.fxGain.gain.value =
+        0.72;
+
+
+    this.musicGain.connect(
+        this.filter
+    );
+
     this.filter.connect(
+        this.masterGain
+    );
+
+    this.fxGain.connect(
         this.masterGain
     );
 
     this.masterGain.connect(
         this.context.destination
     );
+
+
+    this.createNoiseBuffer();
 }
 
 
-midiToFrequency(midi) {
+/* =========================================================
+   NOISE
+   ========================================================= */
 
-    return (
-        440 *
-        Math.pow(
-            2,
-            (midi - 69) /
-            12
-        )
-    );
-}
-
-
-scheduleTone(options) {
+createNoiseBuffer() {
 
     if (
+        !this.context
+    ) {
+
+        return;
+    }
+
+    const length =
+        Math.floor(
+            this.context.sampleRate *
+            0.25
+        );
+
+    const buffer =
+        this.context.createBuffer(
+            1,
+            length,
+            this.context.sampleRate
+        );
+
+    const data =
+        buffer.getChannelData(
+            0
+        );
+
+    for (
+        let index = 0;
+        index < length;
+        index += 1
+    ) {
+
+        data[index] =
+            Math.random() * 2 -
+            1;
+    }
+
+    this.noiseBuffer =
+        buffer;
+}
+
+
+/* =========================================================
+   SYNTH NOTE
+   ========================================================= */
+
+scheduleSynthNote(
+    note,
+    time,
+    options = {}
+) {
+
+    if (
+        !note ||
         !this.context ||
-        !this.masterGain ||
+        !this.musicGain ||
         !this.isEnabled
     ) {
 
         return;
     }
+
+    const frequency =
+        noteFreq(note);
+
+    if (
+        frequency <= 0
+    ) {
+
+        return;
+    }
+
 
     const oscillator =
         this.context.createOscillator();
@@ -1335,14 +1586,17 @@ scheduleTone(options) {
             ? this.context.createStereoPanner()
             : null;
 
+
     oscillator.type =
         options.type ||
         "sine";
 
+
     oscillator.frequency.setValueAtTime(
-        options.frequency,
-        options.time
+        frequency,
+        time
     );
+
 
     if (
         Number.isFinite(
@@ -1352,47 +1606,53 @@ scheduleTone(options) {
 
         oscillator.detune.setValueAtTime(
             options.detune,
-            options.time
+            time
         );
     }
 
-    const attack =
-        options.attack ??
-        0.025;
-
-    const release =
-        options.release ??
-        0.6;
 
     const volume =
         options.volume ??
-        0.04;
+        0.035;
+
+    const attack =
+        options.attack ??
+        0.008;
+
+    const release =
+        options.release ??
+        0.32;
+
 
     gain.gain.setValueAtTime(
         0.0001,
-        options.time
+        time
     );
 
     gain.gain.exponentialRampToValueAtTime(
         Math.max(
-            0.0001,
-            volume
+            volume,
+            0.0001
         ),
-        options.time +
+        time +
         attack
     );
 
     gain.gain.exponentialRampToValueAtTime(
         0.0001,
-        options.time +
+        time +
         release
     );
+
 
     oscillator.connect(
         gain
     );
 
-    if (pan) {
+
+    if (
+        pan
+    ) {
 
         pan.pan.setValueAtTime(
             clamp(
@@ -1400,7 +1660,7 @@ scheduleTone(options) {
                 -1,
                 1
             ),
-            options.time
+            time
         );
 
         gain.connect(
@@ -1408,198 +1668,384 @@ scheduleTone(options) {
         );
 
         pan.connect(
-            this.filter
+            this.musicGain
         );
 
     } else {
 
         gain.connect(
-            this.filter
+            this.musicGain
         );
     }
 
+
     oscillator.start(
-        options.time
+        time
     );
 
     oscillator.stop(
-        options.time +
+        time +
         release +
-        0.08
+        0.06
     );
 }
 
 
+/* =========================================================
+   BASS
+   ========================================================= */
+
 scheduleBass(
-    time,
-    step
-) {
-
-    const midi =
-        this.bassPattern[
-            step %
-            this.bassPattern.length
-        ];
-
-    this.scheduleTone({
-
-        frequency:
-            this.midiToFrequency(
-                midi
-            ),
-
-        time,
-
-        type:
-            "triangle",
-
-        volume:
-            0.045,
-
-        attack:
-            0.03,
-
-        release:
-            0.78,
-
-        pan:
-            -0.12
-    });
-}
-
-
-scheduleArp(
-    time,
-    step
-) {
-
-    const scaleIndex =
-        this.arpPattern[
-            step %
-            this.arpPattern.length
-        ];
-
-    const octaveShift =
-        step % 4 === 3
-            ? 12
-            : 0;
-
-    const midi =
-        this.scale[
-            scaleIndex %
-            this.scale.length
-        ] +
-        12 +
-        octaveShift;
-
-    this.scheduleTone({
-
-        frequency:
-            this.midiToFrequency(
-                midi
-            ),
-
-        time,
-
-        type:
-            "sine",
-
-        volume:
-            0.021,
-
-        attack:
-            0.018,
-
-        release:
-            0.34,
-
-        pan:
-            Math.sin(
-                step * 0.7
-            ) * 0.55
-    });
-}
-
-
-scheduleAtmosphere(
-    time,
-    step
+    note,
+    time
 ) {
 
     if (
-        step % 8 !== 0
+        !note
     ) {
 
         return;
     }
 
-    const roots = [
+    this.scheduleSynthNote(
+        note,
+        time,
+        {
+            type:
+                "triangle",
 
-        45,
-        48,
-        52,
-        43
-    ];
+            volume:
+                0.075,
 
-    const root =
-        roots[
-            Math.floor(
-                step / 8
-            ) %
-            roots.length
-        ];
+            attack:
+                0.008,
 
-    const chord = [
+            release:
+                0.33,
 
-        root,
-        root + 7,
-        root + 12
-    ];
-
-    chord.forEach(
-        (
-            midi,
-            index
-        ) => {
-
-            this.scheduleTone({
-
-                frequency:
-                    this.midiToFrequency(
-                        midi
-                    ),
-
-                time:
-                    time +
-                    index * 0.015,
-
-                type:
-                    index === 0
-                        ? "triangle"
-                        : "sine",
-
-                volume:
-                    0.015,
-
-                attack:
-                    0.25,
-
-                release:
-                    2.6,
-
-                pan:
-                    -0.35 +
-                    index * 0.35,
-
-                detune:
-                    index === 1
-                        ? -4
-                        : index === 2
-                            ? 4
-                            : 0
-            });
+            pan:
+                -0.12
         }
     );
+}
+
+
+/* =========================================================
+   ARPEGGIO
+   ========================================================= */
+
+scheduleArp(
+    note,
+    time,
+    step
+) {
+
+    if (
+        !note
+    ) {
+
+        return;
+    }
+
+    this.scheduleSynthNote(
+        note,
+        time,
+        {
+            type:
+                "sine",
+
+            volume:
+                0.028,
+
+            attack:
+                0.006,
+
+            release:
+                0.19,
+
+            pan:
+                Math.sin(
+                    step * 0.48
+                ) *
+                0.52
+        }
+    );
+}
+
+
+/* =========================================================
+   LEAD
+   ========================================================= */
+
+scheduleLead(
+    note,
+    time,
+    step
+) {
+
+    if (
+        !note
+    ) {
+
+        return;
+    }
+
+    this.scheduleSynthNote(
+        note,
+        time,
+        {
+            type:
+                "sawtooth",
+
+            volume:
+                0.025,
+
+            attack:
+                0.014,
+
+            release:
+                0.27,
+
+            pan:
+                Math.sin(
+                    step * 0.21
+                ) *
+                0.24,
+
+            detune:
+                Math.sin(
+                    step * 0.3
+                ) *
+                3
+        }
+    );
+}
+
+
+/* =========================================================
+   HI-HAT
+   ========================================================= */
+
+scheduleHiHat(time) {
+
+    if (
+        !this.context ||
+        !this.noiseBuffer ||
+        !this.musicGain ||
+        !this.isEnabled
+    ) {
+
+        return;
+    }
+
+
+    const source =
+        this.context.createBufferSource();
+
+    const filter =
+        this.context.createBiquadFilter();
+
+    const gain =
+        this.context.createGain();
+
+
+    source.buffer =
+        this.noiseBuffer;
+
+
+    filter.type =
+        "highpass";
+
+    filter.frequency.value =
+        6500;
+
+
+    gain.gain.setValueAtTime(
+        0.025,
+        time
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        time +
+        0.045
+    );
+
+
+    source.connect(
+        filter
+    );
+
+    filter.connect(
+        gain
+    );
+
+    gain.connect(
+        this.musicGain
+    );
+
+
+    source.start(
+        time
+    );
+
+    source.stop(
+        time +
+        0.055
+    );
+}
+
+
+/* =========================================================
+   KICK
+   ========================================================= */
+
+scheduleKick(time) {
+
+    if (
+        !this.context ||
+        !this.musicGain ||
+        !this.isEnabled
+    ) {
+
+        return;
+    }
+
+
+    const oscillator =
+        this.context.createOscillator();
+
+    const gain =
+        this.context.createGain();
+
+
+    oscillator.type =
+        "sine";
+
+
+    oscillator.frequency.setValueAtTime(
+        120,
+        time
+    );
+
+    oscillator.frequency.exponentialRampToValueAtTime(
+        45,
+        time +
+        0.12
+    );
+
+
+    gain.gain.setValueAtTime(
+        0.11,
+        time
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        time +
+        0.14
+    );
+
+
+    oscillator.connect(
+        gain
+    );
+
+    gain.connect(
+        this.musicGain
+    );
+
+
+    oscillator.start(
+        time
+    );
+
+    oscillator.stop(
+        time +
+        0.16
+    );
+}
+
+
+/* =========================================================
+   SCHEDULER
+   ========================================================= */
+
+scheduleStep(
+    step,
+    time
+) {
+
+    const bassNote =
+        this.bass[
+            step %
+            this.bass.length
+        ];
+
+    const arpNote =
+        this.arp[
+            step %
+            this.arp.length
+        ];
+
+    const leadNote =
+        this.lead[
+            step %
+            this.lead.length
+        ];
+
+    const hiHit =
+        this.hi[
+            step %
+            this.hi.length
+        ];
+
+
+    this.scheduleBass(
+        bassNote,
+        time
+    );
+
+    this.scheduleArp(
+        arpNote,
+        time,
+        step
+    );
+
+    this.scheduleLead(
+        leadNote,
+        time,
+        step
+    );
+
+
+    if (
+        hiHit
+    ) {
+
+        this.scheduleHiHat(
+            time
+        );
+    }
+
+
+    /*
+        Kick na 1 i 3
+        u svakom taktu.
+    */
+
+    const stepInBar =
+        step % 16;
+
+    if (
+        stepInBar === 0 ||
+        stepInBar === 8
+    ) {
+
+        this.scheduleKick(
+            time
+        );
+    }
 }
 
 
@@ -1607,48 +2053,61 @@ scheduler() {
 
     if (
         !this.context ||
-        !this.isPlaying
+        !this.isPlaying ||
+        !this.isEnabled
     ) {
 
         return;
     }
 
-    const secondsPerBeat =
-        60 /
-        this.tempo;
-
-    const stepDuration =
-        secondsPerBeat /
-        2;
 
     while (
-        this.nextNoteTime <
+        this.nextStepTime <
         this.context.currentTime +
         this.lookAhead
     ) {
 
-        this.scheduleBass(
-            this.nextNoteTime,
-            this.step
+        this.scheduleStep(
+            this.currentStep,
+            this.nextStepTime
         );
 
-        this.scheduleArp(
-            this.nextNoteTime,
-            this.step
-        );
 
-        this.scheduleAtmosphere(
-            this.nextNoteTime,
-            this.step
-        );
+        this.nextStepTime +=
+            this.stepSeconds;
 
-        this.nextNoteTime +=
-            stepDuration;
 
-        this.step += 1;
+        this.currentStep +=
+            1;
+
+
+        /*
+            Pesma je ciklična.
+        */
+
+        const maximumLength =
+            Math.max(
+                this.bass.length,
+                this.arp.length,
+                this.lead.length,
+                this.hi.length
+            );
+
+        if (
+            this.currentStep >=
+            maximumLength
+        ) {
+
+            this.currentStep =
+                0;
+        }
     }
 }
 
+
+/* =========================================================
+   START
+   ========================================================= */
 
 async start() {
 
@@ -1659,15 +2118,18 @@ async start() {
         return;
     }
 
+
     this.ensureContext();
+
 
     if (
         !this.context ||
-        !this.masterGain
+        !this.musicGain
     ) {
 
         return;
     }
+
 
     if (
         this.context.state ===
@@ -1677,6 +2139,7 @@ async start() {
         await this.context.resume();
     }
 
+
     if (
         this.isPlaying
     ) {
@@ -1684,28 +2147,39 @@ async start() {
         return;
     }
 
-    this.isPlaying = true;
 
-    this.step = 0;
+    this.isPlaying =
+        true;
 
-    this.nextNoteTime =
+
+    this.currentStep =
+        0;
+
+
+    this.nextStepTime =
         this.context.currentTime +
-        0.08;
+        0.06;
 
-    this.masterGain.gain.cancelScheduledValues(
-        this.context.currentTime
+
+    const now =
+        this.context.currentTime;
+
+
+    this.musicGain.gain.cancelScheduledValues(
+        now
     );
 
-    this.masterGain.gain.setValueAtTime(
-        this.masterGain.gain.value,
-        this.context.currentTime
+    this.musicGain.gain.setValueAtTime(
+        0.0001,
+        now
     );
 
-    this.masterGain.gain.linearRampToValueAtTime(
-        CONFIG.musicMasterVolume,
-        this.context.currentTime +
-        0.8
+    this.musicGain.gain.linearRampToValueAtTime(
+        0.78,
+        now +
+        0.7
     );
+
 
     this.timerId =
         window.setInterval(
@@ -1716,20 +2190,21 @@ async start() {
             },
             this.schedulerInterval
         );
+
+
+    /*
+        Odmah napuni prvi scheduling window.
+    */
+
+    this.scheduler();
 }
 
 
+/* =========================================================
+   STOP
+   ========================================================= */
+
 stop() {
-
-    if (
-        !this.context ||
-        !this.masterGain
-    ) {
-
-        return;
-    }
-
-    this.isPlaying = false;
 
     if (
         this.timerId !== null
@@ -1739,267 +2214,427 @@ stop() {
             this.timerId
         );
 
-        this.timerId = null;
+        this.timerId =
+            null;
     }
+
+
+    this.isPlaying =
+        false;
+
+
+    if (
+        !this.context ||
+        !this.musicGain
+    ) {
+
+        return;
+    }
+
 
     const now =
         this.context.currentTime;
 
-    this.masterGain.gain.cancelScheduledValues(
+
+    this.musicGain.gain.cancelScheduledValues(
         now
     );
 
-    this.masterGain.gain.setValueAtTime(
-        this.masterGain.gain.value,
+    this.musicGain.gain.setValueAtTime(
+        Math.max(
+            0.0001,
+            this.musicGain.gain.value
+        ),
         now
     );
 
-    this.masterGain.gain.linearRampToValueAtTime(
+    this.musicGain.gain.linearRampToValueAtTime(
         0.0001,
-        now + 0.35
+        now +
+        0.2
     );
 }
 
+
+/* =========================================================
+   MUSIC ON / OFF
+   ========================================================= */
 
 async setEnabled(enabled) {
 
     this.isEnabled =
         Boolean(enabled);
 
+
     if (
-        this.isEnabled
+        !this.isEnabled
     ) {
 
-        if (
-            ENGINE.mode ===
-            "RUNNING"
-        ) {
-
-            await this.start();
-        }
-
-    } else {
-
         this.stop();
+
+        return;
+    }
+
+
+    if (
+        ENGINE.mode ===
+        "RUNNING" ||
+        ENGINE.mode ===
+        "VICTORY_PENDING"
+    ) {
+
+        await this.start();
     }
 }
 
+
+/* =========================================================
+   GAMEPLAY FX
+   ========================================================= */
+
+playFXTone(
+    frequency,
+    options = {}
+) {
+
+    if (
+        !this.context ||
+        !this.fxGain ||
+        !this.isEnabled
+    ) {
+
+        return;
+    }
+
+
+    const now =
+        this.context.currentTime +
+        (
+            options.delay ||
+            0
+        );
+
+
+    const oscillator =
+        this.context.createOscillator();
+
+    const gain =
+        this.context.createGain();
+
+
+    oscillator.type =
+        options.type ||
+        "sine";
+
+
+    oscillator.frequency.setValueAtTime(
+        frequency,
+        now
+    );
+
+
+    if (
+        Number.isFinite(
+            options.frequencyEnd
+        )
+    ) {
+
+        oscillator.frequency.exponentialRampToValueAtTime(
+            Math.max(
+                1,
+                options.frequencyEnd
+            ),
+            now +
+            (
+                options.release ||
+                0.3
+            )
+        );
+    }
+
+
+    const volume =
+        options.volume ??
+        0.06;
+
+
+    const release =
+        options.release ??
+        0.35;
+
+
+    gain.gain.setValueAtTime(
+        Math.max(
+            volume,
+            0.0001
+        ),
+        now
+    );
+
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        now +
+        release
+    );
+
+
+    oscillator.connect(
+        gain
+    );
+
+    gain.connect(
+        this.fxGain
+    );
+
+
+    oscillator.start(
+        now
+    );
+
+    oscillator.stop(
+        now +
+        release +
+        0.04
+    );
+}
+
+
+/* =========================================================
+   COLOR REACTION
+   ========================================================= */
 
 playReactionTone(colorId) {
 
     if (
-        !this.context ||
         !this.isEnabled
     ) {
 
         return;
     }
 
-    const midiMap = {
 
-        YELLOW: 69,
-        MAGENTA: 72,
-        CYAN: 76
+    this.ensureContext();
+
+
+    if (
+        !this.context
+    ) {
+
+        return;
+    }
+
+
+    const frequencyMap = {
+
+        YELLOW:
+            noteFreq("A5"),
+
+        MAGENTA:
+            noteFreq("C6"),
+
+        CYAN:
+            noteFreq("E6")
     };
 
-    const midi =
-        midiMap[colorId] ||
-        72;
 
-    const time =
-        this.context.currentTime +
-        0.015;
+    const frequency =
+        frequencyMap[colorId] ||
+        noteFreq("A5");
 
-    this.scheduleTone({
 
-        frequency:
-            this.midiToFrequency(
-                midi
-            ),
+    this.playFXTone(
+        frequency,
+        {
+            type:
+                "sine",
 
-        time,
+            volume:
+                0.065,
 
-        type:
-            "sine",
+            release:
+                0.34
+        }
+    );
 
-        volume:
-            0.058,
 
-        attack:
-            0.01,
+    this.playFXTone(
+        frequency * 1.5,
+        {
+            type:
+                "triangle",
 
-        release:
-            0.55,
+            volume:
+                0.03,
 
-        pan:
-            0
-    });
+            release:
+                0.42,
 
-    this.scheduleTone({
-
-        frequency:
-            this.midiToFrequency(
-                midi + 7
-            ),
-
-        time:
-            time + 0.035,
-
-        type:
-            "triangle",
-
-        volume:
-            0.026,
-
-        attack:
-            0.015,
-
-        release:
-            0.62,
-
-        pan:
-            0.15
-    });
+            delay:
+                0.035
+        }
+    );
 }
 
+
+/* =========================================================
+   TILT IMPULSE
+   ========================================================= */
 
 playImpulseTone() {
 
     if (
-        !this.context ||
         !this.isEnabled
     ) {
 
         return;
     }
 
-    const time =
-        this.context.currentTime;
 
-    this.scheduleTone({
+    this.ensureContext();
 
-        frequency:
-            180,
 
-        time,
+    if (
+        !this.context
+    ) {
 
-        type:
-            "sine",
+        return;
+    }
 
-        volume:
-            0.05,
 
-        attack:
-            0.008,
+    this.playFXTone(
+        210,
+        {
+            type:
+                "sine",
 
-        release:
-            0.32,
+            frequencyEnd:
+                90,
 
-        pan:
-            0
-    });
+            volume:
+                0.085,
 
-    this.scheduleTone({
+            release:
+                0.24
+        }
+    );
 
-        frequency:
-            360,
 
-        time:
-            time + 0.02,
+    this.playFXTone(
+        420,
+        {
+            type:
+                "triangle",
 
-        type:
-            "triangle",
+            frequencyEnd:
+                180,
 
-        volume:
-            0.025,
+            volume:
+                0.035,
 
-        attack:
-            0.008,
+            release:
+                0.2,
 
-        release:
-            0.24,
-
-        pan:
-            0
-    });
+            delay:
+                0.015
+        }
+    );
 }
 
+
+/* =========================================================
+   VICTORY
+   ========================================================= */
 
 playVictoryTone(colorId) {
 
     if (
-        !this.context ||
         !this.isEnabled
     ) {
 
         return;
     }
 
+
+    this.ensureContext();
+
+
+    if (
+        !this.context
+    ) {
+
+        return;
+    }
+
+
     const rootMap = {
 
-        YELLOW: 69,
-        MAGENTA: 65,
-        CYAN: 72
+        YELLOW:
+            "A4",
+
+        MAGENTA:
+            "F4",
+
+        CYAN:
+            "C5"
     };
+
 
     const root =
         rootMap[colorId] ||
-        69;
+        "A4";
 
-    const chord = [
 
-        root,
-        root + 4,
-        root + 7,
-        root + 12
+    const rootFrequency =
+        noteFreq(root);
+
+
+    const chordRatios = [
+        1,
+        1.25,
+        1.5,
+        2
     ];
 
-    const now =
-        this.context.currentTime +
-        0.04;
 
-    chord.forEach(
+    chordRatios.forEach(
         (
-            midi,
+            ratio,
             index
         ) => {
 
-            this.scheduleTone({
+            this.playFXTone(
+                rootFrequency *
+                ratio,
+                {
+                    type:
+                        index % 2 === 0
+                            ? "sine"
+                            : "triangle",
 
-                frequency:
-                    this.midiToFrequency(
-                        midi
-                    ),
+                    volume:
+                        0.06,
 
-                time:
-                    now +
-                    index * 0.09,
+                    release:
+                        1.3,
 
-                type:
-                    index % 2 === 0
-                        ? "sine"
-                        : "triangle",
-
-                volume:
-                    0.05,
-
-                attack:
-                    0.025,
-
-                release:
-                    1.55,
-
-                pan:
-                    -0.45 +
-                    index * 0.3
-            });
+                    delay:
+                        index *
+                        0.085
+                }
+            );
         }
     );
 }
+
 }
 
+/* =========================================================
+   MUSIC INSTANCE
+   ========================================================= */
+
 const MUSIC =
-    new ColorFlowMusic();
+    new MusicEngine();
 
 /* ==========================================================
    PARTICLE
