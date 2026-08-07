@@ -6091,6 +6091,163 @@ checkVictory(
 }
 
 /* ==========================================================
+   CHILD GENERATIONS
+   ISTA BOJA + ISTA BOJA = NOVO DETE ISTE BOJE
+   ========================================================== */
+
+function spawnChildFromChildren(
+    first,
+    second
+) {
+
+if (
+    ENGINE.mode !== "RUNNING" ||
+    !first ||
+    !second ||
+    first.colorId !== second.colorId
+) {
+
+    return;
+}
+
+if (
+    ENGINE.combinedRabbits.length >=
+    CONFIG.childMaximumPopulation
+) {
+
+    return;
+}
+
+const definition =
+    COMBINATION_DEFINITIONS[
+        first.colorId
+    ];
+
+if (!definition) {
+
+    return;
+}
+
+const radius =
+    getParentRadius() *
+    CONFIG.combinedRadiusFactor;
+
+const midpointX =
+    (
+        first.x +
+        second.x
+    ) * 0.5;
+
+const midpointY =
+    (
+        first.y +
+        second.y
+    ) * 0.5;
+
+const angle =
+    randomRange(
+        0,
+        Math.PI * 2
+    );
+
+const speed =
+    randomRange(
+        CONFIG.childReproductionSpawnSpeedMin,
+        CONFIG.childReproductionSpawnSpeedMax
+    );
+
+const generation =
+    Math.max(
+        first.generation || 1,
+        second.generation || 1
+    ) + 1;
+
+const rabbit =
+    new CombinedRabbit({
+
+        colorId:
+            first.colorId,
+
+        x:
+            clamp(
+                midpointX,
+                radius +
+                CONFIG.wallPadding,
+                ENGINE.width -
+                radius -
+                CONFIG.wallPadding
+            ),
+
+        y:
+            clamp(
+                midpointY,
+                radius +
+                CONFIG.wallPadding,
+                ENGINE.height -
+                radius -
+                CONFIG.wallPadding
+            ),
+
+        vx:
+            Math.cos(angle) *
+            speed,
+
+        vy:
+            Math.sin(angle) *
+            speed -
+            90,
+
+        radius,
+
+        generation,
+
+        reproductionCooldown:
+            CONFIG.childReproductionInitialCooldown
+    });
+
+ENGINE.combinedRabbits.push(
+    rabbit
+);
+
+ENGINE.counts[
+    rabbit.colorId
+] += 1;
+
+updateCounter(
+    rabbit.colorId,
+    true
+);
+
+createRingParticles(
+    rabbit.x,
+    rabbit.y,
+    definition.hex,
+    24
+);
+
+createImpulseParticles(
+    rabbit.x,
+    rabbit.y,
+    definition.hex,
+    14
+);
+
+MUSIC.playReactionTone(
+    rabbit.colorId
+);
+
+setStatus(
+    `${rabbit.colorId} GEN ${generation} • NOVO DETE`,
+    "success",
+    1100
+);
+
+checkVictory(
+    rabbit.colorId
+);
+}
+
+/* ==========================================================
    VICTORY
    ========================================================== */
 
