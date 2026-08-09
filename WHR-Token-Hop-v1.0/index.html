@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0d11">
+  <meta name="color-scheme" content="dark">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta
+    name="description"
+    content="WHR: Token Hop — interaktivni tutorijal za čist kontekst, izbor dubine rezonovanja i bezbedan HOP u novu ChatGPT sobu."
+  >
+
+  <title>WHR: Token Hop — ChatGPT Motor Tutorial</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-shell token-hop-app">
+    <header class="laboratory-header token-hop-header" aria-label="WHR Token Hop komandna traka">
+      <div class="studio-mark">
+        <span class="studio-symbol" aria-hidden="true">◈</span>
+
+        <div class="studio-copy">
+          <p class="studio-name">WHITE HAT RABBIT STUDIOS</p>
+          <p class="engine-version">TOKEN HOP · FOUNDATION ENGINE</p>
+        </div>
+      </div>
+
+      <div class="header-status" aria-label="Status proizvoda">
+        <span class="header-status-dot" aria-hidden="true"></span>
+        <span>UNDER THE GLASS</span>
+      </div>
+
+      <button
+        id="soundButton"
+        class="icon-button sound-button"
+        type="button"
+        aria-label="Isključi muziku"
+        aria-pressed="true"
+      >
+        <span id="soundIcon" class="sound-icon" aria-hidden="true">◖))</span>
+        <span id="soundLabel" class="sound-label">MUSIC ON</span>
+      </button>
+    </header>
+
+    <main id="laboratory" class="laboratory token-hop-laboratory">
+      <section class="engine-stage" aria-label="Token Hop interaktivna arena">
+        <canvas id="gameCanvas" aria-label="Interaktivna Token Hop simulacija">
+          Tvoj pregledač ne podržava HTML5 Canvas.
+        </canvas>
+
+        <div class="glass-grid" aria-hidden="true"></div>
+        <div class="glass-reflection glass-reflection-a" aria-hidden="true"></div>
+        <div class="glass-reflection glass-reflection-b" aria-hidden="true"></div>
+
+        <div id="laboratoryHud" class="laboratory-hud token-hop-hud" aria-label="Simulirani tok konteksta">
+          <article class="combination-counter token-counter token-counter-input" data-token-kind="input">
+            <span class="counter-signal counter-signal-blue" aria-hidden="true"></span>
+            <span class="counter-copy">
+              <span class="counter-value"><strong id="yellowCount">0</strong><small> / 5</small></span>
+              <span class="counter-label">NEW INPUT</span>
+            </span>
+          </article>
+
+          <article class="combination-counter token-counter token-counter-reuse" data-token-kind="reuse">
+            <span class="counter-signal counter-signal-green" aria-hidden="true"></span>
+            <span class="counter-copy">
+              <span class="counter-value"><strong id="magentaCount">0</strong><small> / 5</small></span>
+              <span class="counter-label">REUSED CONTEXT</span>
+            </span>
+          </article>
+
+          <article class="combination-counter token-counter token-counter-output" data-token-kind="output">
+            <span class="counter-signal counter-signal-red" aria-hidden="true"></span>
+            <span class="counter-copy">
+              <span class="counter-value"><strong id="cyanCount">0</strong><small> / 5</small></span>
+              <span class="counter-label">OUTPUT LOAD</span>
+            </span>
+          </article>
+        </div>
+
+        <aside class="context-console" aria-label="Metaforički prikaz opterećenja sobe">
+          <div class="context-console-heading">
+            <span>ROOM CONTEXT</span>
+            <span id="contextMeterLabel">SIMULATION</span>
+          </div>
+
+          <div
+            id="contextMeter"
+            class="context-meter"
+            role="progressbar"
+            aria-label="Simulirano opterećenje sobe"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-valuetext="Simulacija — nije stvarni broj tokena"
+          >
+            <span id="contextMeterFill" class="context-meter-fill"></span>
+          </div>
+
+          <p class="simulation-note">Vizuelna metafora · nije stvarno merenje tokena ili limita.</p>
+        </aside>
+
+        <div id="statusMessage" class="laboratory-status token-hop-status" role="status" aria-live="polite">
+          <span id="statusIndicator" class="status-indicator" aria-hidden="true"></span>
+          <span id="statusText">ROOM READY · CLEAN CONTEXT</span>
+        </div>
+
+        <nav class="tool-dock" aria-label="Ulazni alati">
+          <button class="tool-node" type="button" data-tool="pdf" aria-label="PDF kapsula">
+            <span class="tool-node-icon" aria-hidden="true">PDF</span>
+            <span>CAPSULE</span>
+          </button>
+
+          <button class="tool-node" type="button" data-tool="web" aria-label="Web izvor">
+            <span class="tool-node-icon" aria-hidden="true">WEB</span>
+            <span>SOURCE</span>
+          </button>
+
+          <button class="tool-node" type="button" data-tool="image" aria-label="Slika kao izvor">
+            <span class="tool-node-icon" aria-hidden="true">IMG</span>
+            <span>VISION</span>
+          </button>
+
+          <button class="tool-node" type="button" data-tool="code" aria-label="Kod kao izvor">
+            <span class="tool-node-icon" aria-hidden="true">&lt;/&gt;</span>
+            <span>CODE</span>
+          </button>
+        </nav>
+
+        <section
+          id="tutorialPanel"
+          class="tutorial-panel"
+          aria-labelledby="tutorialTitle"
+          aria-live="polite"
+          hidden
+        >
+          <div class="tutorial-progress-row">
+            <span id="tutorialStep" class="tutorial-step">MISSION 01 / 07</span>
+            <button id="tutorialSkipButton" class="tutorial-skip-button" type="button">SKIP GUIDE</button>
+          </div>
+
+          <h2 id="tutorialTitle">Otvori čistu sobu</h2>
+          <p id="tutorialText">
+            Nova soba počinje sa manje šuma. Unesi samo identitet, trenutno stanje i sledeći potez.
+          </p>
+
+          <div class="tutorial-actions">
+            <button id="tutorialNextButton" class="tutorial-next-button" type="button">
+              <span>NEXT SIGNAL</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </section>
+
+        <section id="reasoningControl" class="reasoning-control" aria-labelledby="reasoningTitle" hidden>
+          <p class="reasoning-kicker">WHITE TILT</p>
+          <h2 id="reasoningTitle">Izaberi dubinu rada</h2>
+          <p class="reasoning-description">
+            Jači režim koristi se kada složenost zadatka to opravdava — ne kao stalni ukras.
+          </p>
+
+          <div class="reasoning-options" role="group" aria-label="Izbor simulirane dubine rezonovanja">
+            <button class="reasoning-option" type="button" data-reasoning="light">
+              <strong>LIGHT</strong>
+              <span>Brza, jasna radnja</span>
+            </button>
+
+            <button class="reasoning-option is-selected" type="button" data-reasoning="balanced" aria-pressed="true">
+              <strong>BALANCED</strong>
+              <span>Planiranje i izrada</span>
+            </button>
+
+            <button class="reasoning-option" type="button" data-reasoning="deep">
+              <strong>DEEP</strong>
+              <span>Teška analiza i QA</span>
+            </button>
+          </div>
+
+          <p class="simulation-note">Edukativna analogija · dostupni nazivi režima zavise od proizvoda i plana.</p>
+        </section>
+
+        <section
+          id="startScreen"
+          class="screen-layer start-screen is-visible"
+          aria-labelledby="gameTitle"
+        >
+          <div class="start-panel glass-panel">
+            <div class="rabbit-signal" aria-hidden="true">
+              <span class="rabbit-ear rabbit-ear-left"></span>
+              <span class="rabbit-ear rabbit-ear-right"></span>
+              <span class="rabbit-core"></span>
+              <span class="rabbit-pulse"></span>
+            </div>
+
+            <p class="start-kicker">CHATGPT MOTOR TUTORIAL</p>
+            <h1 id="gameTitle">TOKEN HOP</h1>
+            <p class="start-version">UNDER THE GLASS · v1.0</p>
+
+            <p class="start-description">
+              Nauči da razlikuješ novi unos, ponovo korišćen kontekst i izlazno opterećenje.
+              Sačuvaj radno stanje u MASTER kapsuli, uradi HOP i nastavi bez nepotrebnog šuma.
+            </p>
+
+            <div class="signal-legend" aria-label="Legenda Token Hop signala">
+              <span class="signal-chip signal-chip-blue"><i aria-hidden="true"></i>NEW INPUT</span>
+              <span class="signal-chip signal-chip-green"><i aria-hidden="true"></i>REUSED</span>
+              <span class="signal-chip signal-chip-red"><i aria-hidden="true"></i>OUTPUT</span>
+              <span class="signal-chip signal-chip-white"><i aria-hidden="true"></i>WHITE TILT</span>
+            </div>
+
+            <button id="playButton" class="play-button" type="button">
+              <span class="play-symbol" aria-hidden="true">▶</span>
+              <span>ENTER TUTORIAL</span>
+            </button>
+
+            <p class="start-hint">Jedan zadatak. Potreban kontekst. Proverljiv rezultat.</p>
+          </div>
+        </section>
+
+        <section
+          id="victoryScreen"
+          class="screen-layer victory-screen"
+          aria-labelledby="victoryTitle"
+          aria-hidden="true"
+        >
+          <div class="victory-panel glass-panel">
+            <div id="victoryColorOrb" class="victory-color-orb" aria-hidden="true">
+              <span class="victory-rabbit-mark">HOP</span>
+            </div>
+
+            <p class="victory-kicker">MASTER CAPSULE SEALED</p>
+            <h2 id="victoryTitle">HOP READY</h2>
+            <p id="victoryMessage">
+              Radno stanje je sažeto. Nova soba dobija identitet, odluke, zabrane, trenutno stanje i sledeći potez.
+            </p>
+
+            <ul class="capsule-checklist" aria-label="Sadržaj MASTER kapsule">
+              <li>IDENTITY</li>
+              <li>DECISIONS</li>
+              <li>PROHIBITIONS</li>
+              <li>CURRENT STATE</li>
+              <li>NEXT MOVE</li>
+            </ul>
+
+            <button id="restartButton" class="restart-button" type="button">RUN NEW ROOM</button>
+            <p class="victory-motto">Čist kontekst. Ljudska odluka. AI izvršenje.</p>
+          </div>
+        </section>
+
+        <aside id="orientationNotice" class="orientation-notice" aria-hidden="true">
+          <span class="orientation-icon" aria-hidden="true">↻</span>
+          <strong>ROTATE FOR A WIDER LAB</strong>
+          <span>Igra radi i uspravno; širi prikaz otvara punu komandnu tablu.</span>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="laboratory-footer token-hop-footer">
+      <span>WHR FOUNDATION ENGINE</span>
+      <span aria-hidden="true">·</span>
+      <span>HUMAN AT THE WHEEL</span>
+      <span aria-hidden="true">·</span>
+      <span>SIMULATION MODE</span>
+    </footer>
+  </div>
+
+  <noscript>
+    <p class="noscript-message">Token Hop zahteva uključen JavaScript da bi Canvas laboratorija radila.</p>
+  </noscript>
+
+  <script src="script.js"></script>
+</body>
+</html>
