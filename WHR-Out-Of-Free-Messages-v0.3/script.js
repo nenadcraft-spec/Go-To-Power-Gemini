@@ -1021,6 +1021,13 @@ function update(deltaTime) {
     player,
     deltaTime
   );
+  
+  if (player.blinkCooldown > 0) {
+  player.blinkCooldown = Math.max(
+    0,
+    player.blinkCooldown - deltaTime
+  );
+}
 
   if (
     (
