@@ -2335,6 +2335,11 @@ canvas.addEventListener(
     game.aim.y =
       directionY /
       directionLength;
+    
+    player.facing = Math.atan2(
+  game.aim.y,
+  game.aim.x
+);
   }
 );
 
