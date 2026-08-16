@@ -1139,11 +1139,16 @@ function updatePlayerMovement(
     movementLength *
     275;
 
-  const response =
-    Math.min(
-      1,
-      deltaTime * 10
-    );
+  const isMoving =
+  Math.abs(moveX) > 0.01 ||
+  Math.abs(moveY) > 0.01;
+
+const response =
+  Math.min(
+    1,
+    deltaTime *
+    (isMoving ? 10 : 3)
+  );
 
   player.vx +=
     (
