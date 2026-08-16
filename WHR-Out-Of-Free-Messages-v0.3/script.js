@@ -167,10 +167,13 @@ function createPlayer() {
     jumpsUsed: 0,
 
     jetTime: 0,
-    fireCooldown: 0,
+fireCooldown: 0,
 
-    specialAmmo: 3,
-    facing: 0
+blinkCooldown: 0,
+blinkDistance: 180,
+
+specialAmmo: 3,
+facing: 0
   };
 }
 
