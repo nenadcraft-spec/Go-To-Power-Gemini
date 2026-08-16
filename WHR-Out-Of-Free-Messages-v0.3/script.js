@@ -2286,7 +2286,15 @@ window.addEventListener(
 /* =========================================================
    MOUSE AIM
 ========================================================= */
+canvas.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
 
+  if (!game.running || game.paused) {
+    return;
+  }
+
+  fireSpecialWeapon();
+});
 canvas.addEventListener(
   "pointermove",
   (event) => {
