@@ -2270,8 +2270,9 @@ window.addEventListener(
     }
 
     if (event.code === "KeyE") {
-      fireSpecialWeapon();
-    }
+  event.preventDefault();
+  blink();
+}
   }
 );
 
