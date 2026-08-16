@@ -2101,6 +2101,29 @@ if (game.player) {
 }
 
 drawEffects();
+  if (game.running && !game.paused) {
+  ctx.save();
+
+  ctx.strokeStyle = "#ffffff";
+  ctx.shadowColor = "#30edff";
+  ctx.shadowBlur = 8;
+  ctx.lineWidth = 2;
+
+  const size = 8;
+  const x = game.mouse.x;
+  const y = game.mouse.y;
+
+  ctx.beginPath();
+
+  ctx.moveTo(x - size, y - size);
+  ctx.lineTo(x + size, y + size);
+
+  ctx.moveTo(x + size, y - size);
+  ctx.lineTo(x - size, y + size);
+
+  ctx.stroke();
+  ctx.restore();
+}
 
   ctx.restore();
 
