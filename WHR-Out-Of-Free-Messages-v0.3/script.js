@@ -568,6 +568,76 @@ function hop() {
   playSound("hop");
 }
 
+function blink() {
+  const player = game.player;
+
+  if (
+    !game.running ||
+    game.paused ||
+    !player ||
+    player.blinkCooldown > 0
+  ) {
+    return;
+  }
+
+  const angle = player.facing;
+
+  const targetX =
+    player.x +
+    Math.cos(angle) *
+    player.blinkDistance;
+
+  const targetY =
+    player.y +
+    Math.sin(angle) *
+    player.blinkDistance;
+
+  createBurst(
+    player.x,
+    player.y - player.jumpHeight,
+    "#ffffff",
+    18,
+    180
+  );
+
+  player.x = clamp(
+    targetX,
+    30,
+    game.width - 30
+  );
+
+  player.y = clamp(
+    targetY,
+    92,
+    game.height - 28
+  );
+
+  player.blinkCooldown = 2;
+
+  game.flash = 0.18;
+  game.shake = 4;
+
+  createBurst(
+    player.x,
+    player.y - player.jumpHeight,
+    "#30edff",
+    18,
+    180
+  );
+
+  createText(
+    player.x,
+    player.y -
+    player.jumpHeight -
+    32,
+    "BLINK!",
+    "#ffffff",
+    20
+  );
+
+  playSound("hop");
+}
+
 /* =========================================================
    ENEMIES
 ========================================================= */
